@@ -1,0 +1,17 @@
+.deps
+Makefile
+Makefile.in
+aclocal.m4
+auto-include.h
+autom4te.cache
+config.guess
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+libtool
+missing
+mkinstalldirs
+platform.h

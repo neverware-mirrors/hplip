@@ -1,0 +1,58 @@
+#
+#  configure.in - data autoconf input file
+# 
+#  (c) 2004 Copyright Hewlett-Packard Development Company, LP
+#
+
+AC_INIT(data, 0.8)
+AC_CONFIG_SRCDIR([xml/models.xml])
+AC_CONFIG_AUX_DIR(..)
+AM_INIT_AUTOMAKE(foreign)
+AM_MAINTAINER_MODE
+
+#ICONSEARCHPATH="/usr/share/applications /usr/lib/menu"
+ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
+#ICON="hplip.desktop hplip"
+ICON="hplip hplip.desktop"
+
+AC_MSG_CHECKING("for icon directory")
+ICON_PATH=""
+ICON_FILE=""
+idx=1
+for i in $ICONSEARCHPATH; do
+   if test -d "$i"; then
+      ICON_PATH="$i"
+      jdx=1
+      for j in $ICON; do
+         if test "$jdx" = "$idx"; then
+            break
+         fi
+         jdx=$jdx=1
+      done
+      ICON_FILE="$j"
+      break
+   fi
+   idx=$idx+1
+done
+if test "$ICON_PATH" != ""; then
+   AC_MSG_RESULT("using $ICON_PATH/$ICON_FILE")
+   AC_SUBST(ICON_PATH)
+   AC_SUBST(ICON_FILE)
+else
+   AC_MSG_RESULT("no")
+fi
+
+AC_MSG_CHECKING([for rpm install])
+AC_ARG_ENABLE(rpm_install,
+  [  --enable-rpm-install    enable rpm install [default=no]],
+  rpm_install=$enableval, rpm_install=no)
+if test "$rpm_install" = "yes"; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+
+AC_SUBST(rpm_install)
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

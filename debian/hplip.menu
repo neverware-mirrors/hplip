@@ -1,0 +1,6 @@
+?package(hplip):needs="X11" \
+		section="Apps/Tools" \
+		title="HPLIP Toolbox" \
+		command="/usr/bin/hplip_toolbox" \
+		hints="Printing,Print,Printer,Setup,Config,CUPS" \
+		icon="/usr/share/pixmaps/hp-logo.xpm"

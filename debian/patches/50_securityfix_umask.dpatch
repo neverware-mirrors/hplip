@@ -1,0 +1,44 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 50_securityfix_umask.dpatch by Henrique M. Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Set umask so that files are not created with unsafe permissions
+## DP: Security problem discovered by: Erwan David <erwan@rail.eu.org>
+## DP: Security fix by: Henrique M. Holschuh <hmh@debian.org>
+
+@DPATCH@
+diff -urNad hplip/hpguid.py hplip/hpguid.py
+--- hplip/hpguid.py	2005-02-01 10:08:09.000000000 -0200
++++ hplip/hpguid.py	2005-02-01 10:20:08.000000000 -0200
+@@ -427,7 +427,11 @@
+             
+     if prop.daemonize:
+         utils.daemonize()
+-    
++
++    # Security: Do *not* create files that other users can muck
++    # around with
++    os.umask ( 0077 )
++
+     # hpguid server dispatcher object
+     global server
+     try:
+diff -urNad hplip/hpssd.py hplip/hpssd.py
+--- hplip/hpssd.py	2005-02-01 10:08:17.000000000 -0200
++++ hplip/hpssd.py	2005-02-01 10:21:54.000000000 -0200
+@@ -517,6 +517,7 @@
+                 os.umask( 0133 )
+                 pid_file = '/var/run/hpguid-%s.pid' % username
+                 file( pid_file, 'w').write( '%d\n' % pid )
++                os.umask( 0077 )
+                 log.debug( 'Wrote PID %d to %s' % ( pid, pid_file ) )
+ 
+             
+@@ -1031,6 +1032,7 @@
+ 
+     os.umask( 0133 )
+     file( '/var/run/hpssd.port', 'w' ).write( '%d\n' % prop.hpssd_port )
++    os.umask (0077 )
+     log.debug( 'port=%d' % prop.hpssd_port )
+     log.info( "Listening on %s port %d" % ( prop.hpssd_host, prop.hpssd_port ) )
+     

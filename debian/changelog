@@ -1,0 +1,338 @@
+hplip (0.8.7-4) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPLIP:
+      * Remove stray tab on 50_securityfix_umask.dpatch.  Reupload in
+        case python decides to croak on us because of it
+      * Remove unneeded (but harmless) patch 21_base_pidfile_support.dpatch
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue,  1 Feb 2005 12:46:56 -0200
+
+hplip (0.8.7-3) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPLIP:
+      * SECURITY FIX: create .hplip.conf on user directory mode 600 (was 666)
+        The HPLIP suite was failing to set the process umask to sane values,
+        hpssd.py and hpguid.py were affected.  Also, modify HPLIP so that it
+        warns the user of the broken permissions, ignores such a file, and 
+        fixes the permissions on the next time the config file is written to.
+        Thanks to Erwan David <erwan@rail.eu.org> for reporting this bug
+        (closes: #293117)
+    * Really fix debian/rules to unpatch only after cleaning the tree
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue,  1 Feb 2005 11:03:22 -0200
+
+hplip (0.8.7-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Updated copyright file with all the relevant information for HPLIP
+    * Move dh_python calls to before dh_installdeb (closes: #291746)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 22 Jan 2005 23:24:22 -0200
+
+hplip (0.8.7-1) unstable; urgency=low
+
+  * New upstream source
+    + Fixed a issue with the max setting for input trays in APDK (HPIJS 2.0.1)
+    + Added OfficeJet K series support
+    + Changed scanning default compression from none to jpeg. This speeds up
+      device I/O significantly during scans
+    + Cleaned up cancel button functionality in device manager.
+    + Added r value caching to hpssd to increase responsiveness of some
+      printers when doing dynamic counters
+    + Fixed a defect in strings.py (wrong string for not installed cart)
+    + Added DeviceIDs to the models.xml file
+    + Added PPD files for the following new printers: LaserJet 4345 MFP,
+      LaserJet 3015/3020/3030
+    + Fixed some devices which were wrongly set to MLC mode instead of RAW
+  * Henrique de Moraes Holschuh:
+    * Better dpatch support on debian/rules: use clean-patched target
+      instead of reinvoking make
+    * Patches 22_hpssd_pidfile and 50_bigendian merged upstream
+    * Rediff all dpatches and switch to -p1, so that using dpatch-edit-patch
+      is much easier
+    * HPLIP:
+      * Try to stop all instances of hpguid.py on initscript stop.  We need
+        to revisit this later when hpguid and hpssd get more intelligent
+        hpguid pidfile/termination handling
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 21 Jan 2005 12:39:24 -0200
+
+hplip (0.8.4-5) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPIJS:
+      * s/cartridge/pen/ everywhere in the Debian stuff, since that's how HP
+        calls the printing head + ink cartridge combo
+    * HPLIP:
+      * Add dependency on python-qt3 (closes: #291202)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 20 Jan 2005 04:54:42 -0200
+
+hplip (0.8.4-4) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPLIP:
+      * Fix FTBFS on big-endian archs: add 50_bigendian.dpatch, to fix typo
+        in pcard/vfat.h
+    * Add lintian overrides for "description-synopsis-starts-with-a-capital-
+      letter", since HP *is* always written in uppercase
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 18 Jan 2005 23:50:03 -0200
+
+hplip (0.8.4-3) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPLIP:
+      * Add python to build-depends, fix FTBFS on all arches
+      * Switch all python2.3-* build-depends to python-* build-depends
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 18 Jan 2005 12:38:40 -0200
+
+hplip (0.8.4-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * HPIJS:
+      * Apply patch by Andreas Jochens <aj@andaco.de> to fix FTBFS
+        problems with gcc 4.0 on AMD64 (#286353)
+      * Improve suggests: for foomatic and hplip integration
+    * HPLIP:
+      * Conflict with all non-bidir-enabled hpijs and foomatic versions
+      * Add a quick-install guide to README.Debian
+      * Be silent about CUPS reloads, to avoid startling users during
+        system shutdown
+  * Upload to Debian unstable.  Do note that 64-bit archs are still an
+    unknown (feedback welcome)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 18 Jan 2005 00:54:44 -0200
+
+hplip (0.8.4-1) experimental; urgency=low
+
+  * Initial packaging of HPLIP (closes: #285026)
+  * Source for HPIJS is now provided by the HPLIP source package
+  * Version of the hpijs package will now be:
+    <hpijs upstream version>+<hplip package version>
+
+  * Henrique de Moraes Holschuh:
+    * HPIJS:
+      * New upstream source, supports HPLIP bi-directional channels, and
+        DJGenericVIP four-sided full bleed printing.  Now support printers
+        that require bi-directional channels to work.
+      * Update Depends: to versions of the gs packages with KRBG support
+      * Ship KRGB patch in usr/share/doc
+    * HPLIP:
+      * Added pidfile locking to hpiod, hpssd [merged upstream in 0.8.4]
+      * Fixed upstream autotools build system something fierce
+      * Build libhpip as a convenience library (and don't package it)
+      * Add hplip_* links to the user binaries on /usr/bin
+      * Add a hpssd link on /usr/sbin and use that on initscript
+      * Support xpp as a default "print" GUI interface
+
+      * This is not complete yet.  This package has not been validated to
+        work on 64-bit archs (help is welcome) upstream.  We have absolutely
+        no idea if the MFP utilities (photo-card reading, SANE scanning) work
+        at all (help is also welcome).
+      * Do not install this if you are not ready to help track down the bugs
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 18 Dec 2004 12:25:49 -0200
+
+hpijs (1.7.1-1) unstable; urgency=high
+
+  * Henrique de Moraes Holschuh:
+    * New upstream source (1.7.1)
+      + Support a few more printers (PPD changes only)
+      + No upstream changes to any binary packages
+    * Urgency high, since this is only an upstream-sync upload with
+      no noteworthy changes
+    * debian/watch: add primary watch line using prdownloads.sf.net,
+      since the ftp servers for sf.net are not realiable at all
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 15 Nov 2004 11:47:48 -0200
+
+hpijs (1.7-1) unstable; urgency=medium
+
+  * Henrique de Moraes Holschuh:
+    * New upstream source (1.7)
+      + Support a few more printers (code changes, not only PPD changes)
+    * Add watch file for uscan/DEHS
+    * Remove patch 03_fixsegfaults, now applied upstream
+    * Remove disabled patch 02_destdir, applied upstream a long time ago
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 17 Oct 2004 12:41:21 -0300
+
+hpijs (1.6.2-1) unstable; urgency=medium
+
+  * Henrique de Moraes Holschuh:
+    * New upstream version (no changes to binaries, since we do not ship the
+      PPD files from this source package).
+    * Update autogen.sh for automake 1.9, rerun autotools
+    * Remove all autogenerated files from CVS tree (use debian/autogen.sh to
+      recreate the files, debian/rules should do this automatically on
+      cvs-buildpackage)
+    * Suggests foomatic-db-hpijs (closes: #270566)
+  * Urgency medium to get sooner into testing
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 18 Sep 2004 10:28:09 -0300
+
+hpijs (1.6.1-1) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * New upstream version (no changes to binary packages,
+      since we do not ship the PPD files from this source package).
+    * Move autogen.sh to debian/ for tidyness
+  * Not uploaded
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri,  9 Jul 2004 14:18:41 -0300
+
+hpijs (1.6-3) unstable; urgency=low
+
+  * Mention hpoj on README.Debian and package description.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri,  9 Jul 2004 13:41:00 -0300
+
+hpijs (1.6-2) unstable; urgency=low
+
+  * Add comment about rss patch to package description (closes: #209127)
+  * Fix hpijs segfaults (probably non-exploitable) when given bad parameters,
+    or when something bad happens at startup time.  HPIJS really needs an
+    audit, since the code is doing NULL pointer derreferences that easily
+    (closes: #169587)
+  * Minor manpage tweaks, mention option -h
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 14 Jun 2004 19:35:45 -0300
+
+hpijs (1.6-1) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh <hmh@debian.org>:
+    * New upstream source:
+      + Added support for: HP business inkjet 2300, HP officejet 9100,
+        HP officejet 4200, HP psc 1310
+      + Added envelope support, needed for center-feed envelope
+        trays (ie: laserjets): Envelopes #10, A2, C6, DL, Japanese #3,
+        Japanese #4
+      + Added KRGB colorspace support (patch to ghostscript required to
+        enable)
+    * Update dependencies to use gs-gpl, add gs-afpl as lowest priority
+    * Update standards version to 3.6.1
+    * Add copyright notice for the Debian packaging to debian/copyright
+    * Use debhelper compatibility mode V4
+    * Switch to packaged dpatch
+    * Remove auto-generated files auto-include.h and platform.h in clean
+      target
+    * Autotools-dev support, using links
+    * Enable AM_MAINTAINER_MODE
+    * Set things up so that we regen the entire autotools toolchain (by
+      calling autogen.sh) on cvs-checkout.  Add an autogen.sh, since
+      upstream lacks one
+    * Modify configure.in so that our CXXFLAGS and CFLAGS are respected
+    * Add a simple manpage for the hpijs binary with pointers to the real
+      docs, since hpijs is NEVER called directly
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 17 May 2004 21:35:32 -0300
+
+hpijs (1.5-1) unstable; urgency=low
+
+  * New upstream release (closes: #218074).
+
+ -- Torsten Landschoff <torsten@debian.org>  Wed, 29 Oct 2003 08:53:05 +0100
+
+hpijs (1.4.1-1) unstable; urgency=low
+
+  * New upstream release (closes: #198606).
+  * Apply new black-ink-only patch from 
+    http://www.linuxprinting.org/download/printing/hpijs/
+    using dpatch (closes: #198657).
+  * debian/control: Add Henrique de Moraes Holschuh to the Uploaders field
+    (thanks for your help, Henrique).
+  * debian/rules: Disable foomatic and cups install for now. Not sure how
+    to deal with that correctly.
+
+ -- Torsten Landschoff <torsten@debian.org>  Sun, 17 Aug 2003 01:43:11 +0200
+
+hpijs (1.3.1-1.1) unstable; urgency=low
+
+  * NMU
+  * Copy in config.guess and config.sub from autotools-dev (20020320.1).
+    Closes: #190959
+
+ -- LaMont Jones <lamont@debian.org>  Mon, 12 May 2003 11:00:13 -0600
+
+hpijs (1.3.1-1) unstable; urgency=low
+
+  * New upstream release (closes: #188858).
+
+ -- Torsten Landschoff <torsten@debian.org>  Sun, 13 Apr 2003 19:26:32 +0200
+
+hpijs (1.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Disable the -rss patch as it no longer applies to this version of 
+    hpijs and some of the changes have been folded upstream.
+
+ -- Torsten Landschoff <torsten@debian.org>  Sat,  2 Nov 2002 09:50:10 +0100
+
+hpijs (1.2.2-1) unstable; urgency=low
+
+  * Co-Maintainer upload
+  * New upstream version (Closes: #163094)
+  * Added -rss patch (via dpatch)
+  * debian/control: fix dependancy line (Closes: #153514, #159716)
+  * debian/control: Updated Standards-Version
+  * debian/copyright: Added note about the -rss patch
+
+ -- Martin Loschwitz <madkiss@madkiss.org>  Sun, 13 Oct 2002 22:36:00 +0200
+
+hpijs (1.2-1) unstable; urgency=low
+
+  * New upstream release (closes: #147065).
+
+ -- Torsten Landschoff <torsten@debian.org>  Thu, 18 Jul 2002 11:49:36 +0200
+
+hpijs (1.0.4-2) unstable; urgency=low
+
+  * Ship the hpijs_readme.html with the package (closes: #143492).
+    For some reason the upstream Makefile does not install it anymore, 
+    it is now listed in debian/docs.
+
+ -- Torsten Landschoff <torsten@debian.org>  Thu, 18 Apr 2002 21:25:06 +0200
+
+hpijs (1.0.4-1) unstable; urgency=low
+
+  * New upstream release (closes: #135271).
+  * No longer puts documentation files in /usr/share/doc/hpijs-$ver
+    (closes: #131588).
+
+ -- Torsten Landschoff <torsten@debian.org>  Mon, 25 Mar 2002 23:18:32 +0100
+
+hpijs (1.0.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: As HP has updated the license of this software 
+    it can now go into main. Woohoo! :-) Changed the section accordingly.
+  * debian/copyright: Update to the new license.
+
+ -- Torsten Landschoff <torsten@debian.org>  Sat, 19 Jan 2002 02:08:24 +0100
+
+hpijs (1.0-3) unstable; urgency=low
+
+  * debian/copyright: Include the more restrictive license. Seems like 
+    hpijs.cpp was already changed to be DFSG compatible. Kudos to 
+    James Troup for pointing this out.
+
+ -- Torsten Landschoff <torsten@debian.org>  Tue, 15 Jan 2002 21:40:00 +0100
+
+hpijs (1.0-2) unstable; urgency=low
+
+  * ijs_server.c (ijs_server_init): Fix off by one bug which clobbered the
+    stack making the binary unusable when compiled with optimization.
+  * debian/rules.c (configure): Add support for --enable-debug using the
+    DEB_BUILD_OPTIONS interface as suggested in debian-policy.
+
+ -- Torsten Landschoff <torsten@debian.org>  Mon, 14 Jan 2002 03:09:00 +0100
+
+hpijs (1.0-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Torsten Landschoff <torsten@debian.org>  Sat, 12 Jan 2002 03:40:10 +0100

@@ -1,0 +1,19 @@
+Notes about the Debian hpijs package
+------------------------------------
+
+This package includes the rss patch from
+
+	http://www.linuxprinting.org/download/printing/hpijs/
+	
+This patch tries to make sure that black is printed with just
+the black pen, if the printer supports it.  Almost all new
+HP printers (those using the DJGenericVIP model) do colormap 
+conversion in firmware, and will completely ignore the rss 
+patch.
+
+It is a very good idea to install the hpoj package if you have
+a parallel-port HP printer, or the hplip package if you have
+an USB or JetDirect HP printer.
+
+ -- Torsten Landschoff <torsten@debian.org>
+ -- Henrique de Moraes Holschuh <hmh@debian.org>

@@ -1,0 +1,510 @@
+2005-01-11 dsuffield
+    * Release 0.8.5 (Clark++)
+	
+2005-01-11 dsuffield
+    * Changed hplip base directory from prefix/hplip to datadir/hplip. (defect 392)
+    * Changed hpiod install from bindir/hpiod to sbindir/hpiod. (defect 382)
+    * Hpiod.conf and hplip.sh are now installed to DESTDIR/etc for different package schemes. (defect 416)
+    * Fixed a issue with the max setting for input trays in APDK.
+    * Added strings.py and removed strings.xml from makefile. (defect 405)
+
+2005-01-10 dsuffield
+    * Added I/O support officejet k series (defect 421).
+    * Changed scanning default compression from none to jpeg. This speeds up device I/O significantly during scanning. This option is settable from within xsane. (defect 402)
+
+2005-01-10 come
+    * fixed defect 423(change devices in models.xml to raw mode)
+
+2005-01-10 come
+    * fixed defect 419 (k series officejets missing from models.xml)
+
+2005-01-07 pparks
+    * Made changes for cancel button with alignment6 as requested per (defect 298)
+
+2005-01-07 dwelch
+    * Added support for photo pens (defect 359)
+    * Added r value caching to hpssd to increase responsiveness of some printers when doing dynamic counters
+    * Fixed a defect in strings.py (wrong string for not installed cart.)
+    
+2005-01-05 come
+    * Added DeviceIDs to the models.xml file
+
+2005-01-05 come
+    * Fixed defect 406 (oj4200 should be RAW not MCL)
+
+2005-01-05 come
+    * Resolved defect 404 (KDE menu entry)
+
+2004-12-22 dwelch
+    * Fixed defect 386 (hpssd pidfile locking)
+    
+2004-12-15 dsuffield
+    * Release 0.8.4 "Clark"
+
+2004-12-15 dwelch
+    * Fixed defect 379 (hpguid "busy-loops")
+    * Fixed defect 400 (The "Refresh Device F5" button is not available in "Device" drop down list of Toolbox.)
+    * Fixed defect 398 (All printers show 95/97 pens and not installed status)
+    
+2004-12-14 dsuffield
+    * Release 0.8.3 (Not released)
+
+2004-12-14 dsuffield
+    * Added DESTDIR support to cupsext and pcardext (defect 369).
+    * Added ./configure option --enable-rpm-install which will allow the package manager to configure sane, icon, /etc/hp and /etc/init.d options (defect 369, defect 351). 
+    * Fixed a problem with 600dpi scanning (defect 376).
+	
+2004-12-09 dsuffield
+    * Configure now checks for cups-devel and python-devel and fails if not found (defect 348).
+    * Configure now prints a warning message if network support could not be built (defect 350).
+    * Fixed some 64-bit warnings and corrected "pragma pack" problem in hpip.h (defect 373)
+    * Fixed "/etc/init.d/hplip status|stop" issues (defect 333, 373).
+
+2004-12-08 dwelch
+    * Fixed defect 319 (The tip of menu "Refresh Device" is not correct.)
+    * Fixed defect 293 (The error message "Unknown internal error" appears repeatedly on toolbox while paper jam occurs on the device.)
+    * Fixed defect 330 (The Defaults buttons are grayed out on Settings windows.)
+    * Fixed missplled word in settings dialog
+    * Set StartupNotify to false in .desktop file to remove prolonged launch busy cursor
+    * Fixed defect 334 (The Cancel button of the Offline printer on Toolbox is available while printing through the second printer which is Online.)
+    * (Mostly) fixed the case where dynamic counter queries would hang toolbox during print
+    * Fixed defect 322 (The toolbox becomes busy status after pressing Refresh Device button with no device installed.)
+    * Marking defect 94 as fixed after testing (Tabs/info do not update when popping up from a printing event)
+    * Marking defect 176 as fixed after testing (All buttons of Maintenance tab are not grayed out while no printer in printer list of Toolbox.)
+    * Marking defect 279 as fixed after testing (Missing message "Printing a job." in Status History with the second print job while sending the second print job from Mozilla during the first is running.)
+    * Resolving defect 294 as INVALID (Missing the serial No. in Information tab after cutting off the connection of the device.)
+    * Resolving defect 295 as INVALID (Toolbox pops up directly without "No Installed HP Device" window appears while launching Toolbox at the second time with no device installed.)
+    * Fixed defect 317 (probe.py returns incorrect port number for jetdirect 500x)
+    
+2004-12-07 dwelch
+    * Several improvements to the photo card UI
+    * Defect 64 (OJ9100/BIJ2300 supplies) has been identified as fixed in 0.8.2
+    
+2004-12-03 dsuffield
+    * Release 0.8.2 "Skamania" (1st Public Release)
+	
+2004-12-03 dsuffield
+    * Replaced "mkdir" and "cp" commands with "install" in makefiles (defect 345).
+    * Cleaned up DESTDIR support in makefiles (defect 346).
+    * Corrected HPIJS 2.0 revision number. It was 1.7.1x.
+    * Updated PPD files which support fastdraft (defect 301).
+
+2004-12-03 dwelch
+    * Fixed defect 337 (Multiple hpguid.py instances observed running for 1 logged on user)
+    * Fixed slow icon loading in toolbox (may also speed up pcard unload and slp operations)
+
+2004-12-02 dwelch
+    * Fixed defect 344 (make warning message in fat.c could be issue for non-i386 builds)
+    
+2004-12-01 dwelch
+    * Fixed defect 326 (There is no response after pressing Access Photo Cards button on Debian OS.)
+    
+2004-12-01 dsuffield
+    * Release 0.8.1 (Not released)
+
+2004-12-01 dsuffield
+    * Added hplip_readme.html file.
+	
+2004-11-30 come
+    * Fixed defect 315 (busy cursor)
+
+2004-11-30 dwelch
+    * Fixed defect 327 (Printer stop printing when printing Align page.)
+    * Fixed defect 331 (The history information is just sorted in alphabetical order but not real date order.)
+    
+2004-11-29 dsuffield
+    * Release 0.8.0
+
+2004-11-29 dsuffield
+    * Added COPYING file to tar ball (defect 291).
+
+2004-11-29 come
+    * Changed all non-mfp Lasers to RAW in models.xml
+
+2004-11-23 dwelch
+    * Re-fixed defect 68 (Print test page does not work in Toolbox.)
+    
+2004-11-22 dsuffield
+    * Release 0.7.3
+
+2004-11-22 dwelch
+    * Fixed defect 312 (Email alerts send from Don's account)
+    * exif.py issue in photo card access fixed
+    * Launching of 'Unload Photo Cards..." issue fixed
+    
+2004-11-19 dsuffield
+    * Release 0.7.2 (Note: Photo card access broken)
+
+2004-11-19 dsuffield
+    * Added Debian/Mandrake compatable icon (defect 275).
+	
+2004-11-19 dwelch
+    * Fixed defect 311 (Test Page does not print for Python 2.2 and earlier version)
+    * Fixed defect 170 ("Unknown internal error" occurs when printing document from Open Office during scanning.)
+    * Resolved defect 309 as INVALID (No "Operation completed successfully" window pops up after printing test page job completes.)
+    * Fixed defect 306 (Deskjet 450 color-calibration alert dialog for both pens...)
+    * Fixed defect 192 (Test page missing Device: information)
+    * Fixed defect 272 (All buttons of Functions tab are grayed out after downloading files from photocard during printing .)
+    * Fixed defect 277 (All the first letter of each word on the buttons in Maintenance tab should be capital letter and have not match in the Tabs.)
+    
+2004-11-18 pparks
+    * Fixed defect 123 (Printer still runs align cartridge action although selecting Cancel)
+    * Fixed defect 244 ("Operation completd successfully" window pops up after clicking cancel button during test page job.)
+
+2004-11-18 dwelch
+    * Fixed defect 300 (The buttons on Functions tab still are available while refreshing Toolbox one time after disconnect the printer.)
+    * Resolved 297 as INVALID (The items of File Removal section in "Unload Files From Photo Card" window are grayed out after clicking Access Photo Cards during system prompt pop up.)
+    * Fixed defect 196 (Unknown internal error occurs when doing a print job during downloading files from the photocard.)
+    * Fixed defect 183 (Message "The printer is idle" appears in Status tab of Toolbox every 30 seconds if turn off printer while printing.)
+    
+2004-11-17 come
+    * Aded Photosmart 370 series icon
+    * Removed internal codenames
+
+2004-11-17 dwelch
+    * Added About box
+    * Fixed problem printing test pages on Python < 2.3
+    * Added GPL license to all .py files and associated C files
+    * Added GPL LICENSE files
+
+2004-11-16 dwelch
+    * Resolved defect 288 (Printer can't be added into the printer list of toolbox and the toolbox becomes busy status after pressing Refresh button)
+    * Fixed defect 280 (The toolbox remains busy status after pressing Refresh button for many times.)
+    
+2004-11-16 dsuffield
+    * Fixed a general problem with lidil printers in the "hp" backend (defect 260).
+	
+2004-11-12 dwelch
+    * Fixed defect 270 (The Status information of toolbox is blank after the printer is just installed.)
+    * Closed defect 202 as WORKSFORME (Toolbox hangs when launch the toolbox.)
+    * HPGUID (Toolbox) will now stop when HPSSD is stopped
+    * Fixed defect 27 (hpssd crashes if it can't find hpiod)
+    
+2004-11-11 dsuffield
+    * Release 0.7.1
+
+2004-11-11 dwelch
+    * Fixed bug unload ui.
+
+2004-11-11 dsuffield
+    * Fixed error message for removed device (defect 183).
+
+2004-11-11 dsuffield
+    * Release 0.7.0 (not released to testing)
+	
+2004-11-11 dsuffield
+    * Added COPYING file to hpijs tar ball.
+
+2004-11-11 dwelch
+    * Fixed defect 180 (Progress bar stops at 99% progress and no prompt message pops up when deleting images from a write-protected photo card.)
+    * Fixed defect 253 (An error occurs when executing the command "photo" in Terminal if the parameter -p is specified.)
+    * Improvements to toolbox information tab
+    * Increased performance of toolbox startup (window appears immediately)
+    
+2004-11-10 dsuffield
+    * Fixed multiple print client issue with hpiod (defect 273).
+
+2004-11-10 dwelch
+    * Fixed defect 274 (slurp funtions return errors)
+    * Replaced CRC-16 routine used by RPU
+    * Fixed RPU serial number display 
+    
+2004-11-10 dsuffield
+    * Added WriteProtect attribute to photo card FAT support (defect 180).
+    * Added timeout to jetdirect write (defect 267).
+
+2004-11-09 dwelch
+    * Fixed defect 176 (All buttons of Maintenance tab are not grayed out while no printer in printer list of Toolbox.)
+    * Fixed defect 257 (Ink heads show ink level meter in toolbox (BIJ1200))
+    * Fixed/re-test defect 179 (Sieral No. in Information tab of Toolbox is Missing if add printer through network.)
+    * Fixed defect 252 (Supplies field becomes blank after inserting a 58 photo print cartridge into Banzai Plus Super 2510.)
+    * Fixed defect 265 (Toolbox status icon stretches and distorts )
+    
+2004-11-08 dsuffield
+    * Updated APDK label, disables KRGB for DJ9xx Photo and adds Fast Draft to DJGenericVIP.
+
+2004-11-05 dsuffield
+    * Fixed pcard access while printing on same device (defect 196).
+
+2004-11-05 dsuffield
+    * Release 0.6.5
+
+2004-11-04 dsuffield
+    * Fixed hpssd exception with LJ3320 (defect 230).
+
+2004-11-04 dwelch
+    * Fixed defect 202 (Toolbox hangs when launch the toolbox.)
+    * Fixed defect 242 (Toolbox can not communicatie with the installed network printer.)
+    * Fixed defect 76 (The options in Toolbox is gray out when printing.)
+    * Fixed defect 77 (The content of Supplies tab is empty when printing.)
+    * Fixed defect 78 (The history in Status tab can not record the course when printing.)
+    * Fixed defect 79 (The Serial No can not be displayed in TB when printing.)
+    * Fixed defect 250 (Toolbox issues with PS 1215)
+    * Fixed/re-test defect 38 (HP device manager window does not paint correctly)
+    * Fixed defect 100 (Cancel printing job from the TB does not work.)
+    * Fixed defect 134 (Cancel Job button is gray out when printing.)
+    * Fixed defect 141 (Toolbox of LaserJer printer does not pop up when printing.)
+    * Resolved defect 149 as invalid (Missing Serial No in Toolbox Information tab.)
+    * Fixed defect 153 (Blank supplies information in Toolbox.)
+    * Fixed defect 182 ("Cancel Job" button is still available on Status tab of Toolbox after a scan job completed)
+    * Fixed defect 213 (Status window does not refresh correctly)
+    * Fixed defect 254 (Icon with the wrong state)
+    * Fixed defect 245 (RPU utility doesn't return pen IDs reliably)
+    * Fixed/re-test defect 131 (The status of LJ1150 is offline or unplugged when connet the second printer to PC.)
+    * Fixed defect 146 (Offline status in Toolbox after install the DJ6127.)
+    * Resolved defect 68 as WORKSFORME (Print test page does not work in Toolbox.)
+    * Resolved defect 251 as WORKSFORME (Can't print test page for PS 1315 from toolbox)
+    
+2004-11-03 dsuffield
+    * Fixed jetdirect printing problem (defect 255).
+    * Fixed PS1215 printing problem (defect 256).
+
+2004-11-02 dsuffield
+    * Fixed pcard access while scanning on same device (defect 205). 
+
+2004-11-02 dsuffield
+    * Release 0.6.4
+
+2004-11-02 dsuffield
+    * HPIJS get-ppd target now uses the foomatic-db stable branch.
+    * Added a new get-ppd-tip target to HPIJS.
+
+2004-10-29 come
+    * Fixed models.xml for defect 44 and 230
+
+2004-10-29 dwelch
+    * Fixed defect 218
+    * Fixed defect 219
+    * Resolved defect 238 and opened new defect with remaining issue (defect 245)
+    * Fixed defect 223
+    * Fixed defect 229
+    
+2004-10-28 dwelch
+    * Fixed defect 228 (pcard for dj450)
+    
+2004-10-22 dsuffield
+    * Release 0.6.3
+
+2004-10-21 dsuffield
+    * Fixed CUPS backend device discovery issue with DJ630/656 (defect 208).
+    * Added MLC support for "miser" flow control. 
+
+2004-10-20 come
+    * Fixed/added more device images
+
+2004-10-19 dsuffield
+    * Fixed a extra scan line problem with PML based scanners like the LJ3320 MFP.
+
+2004-10-18 dsuffield
+    * Fixed LJ3300 entry in models.xml
+
+2004-10-15 dsuffield
+    * Release 0.6.2
+
+2004-10-12 dsuffield
+    * Fixed inkjet ADF scan issue (defect 75).
+    * Removed extra ChannelOpen/ChannelClose in hpaio sane backend (defect 115).  
+
+2004-10-12
+    * Added and renamed several icons in the data/imgage dir
+
+2004-10-05 dsuffield
+    * Release 0.6.1
+
+2004-10-05 come
+    * completed 165 added hplip.desktop file, toolbox launcher and menu entry
+
+2004-10-04 dwelch
+    * Fixed 110
+    * Fixed 114
+    * Fixed 109
+    * Fixed 164
+    * Fixed 99
+    * Fixed 207
+    * Fixed 180
+    * Fixed 203
+    * Resolved 200 as invalid
+    * Fixed 167    
+
+2004-10-01 dwelch
+    * Fixed defect 73
+
+2004-09-30 dwelch
+    * Fixed defect 188
+    
+2004-09-29 dwelch
+    * Fixed defect 116 (toolbox can not be launched when logged on as root)
+        - IMPORTANT: Please remove all occurances of ~./hplip.conf before running v0.6.1
+        - Settings are no longer saved globally in /root/.hplip.conf
+        - Each user has ~/.hplip.conf file 
+        - Settings for kprinter, gtklp, xsane, etc are dynamically determined
+        - TODO: If no command can be found for print, scan, pcard, etc., command will silently fail. Need dialog warning. Entered as defect 207.
+    * Cleaning levels in settings dialog now saved and used
+        
+2004-09-27 dsuffield
+    * Added 7/1/2 protocol check (defect 194)
+    * Removed .py extensions (defect 86)
+
+2004-09-28 dwelch
+    * Fixed defect 29 (Photo card not functional)
+    * Fixed defect 189 (Alignment window pops up after clicking "Print test page" button)
+
+2004-09-24 dsuffield
+    * Release 0.6.0 (feature complete)
+
+2004-09-24 dwelch
+    * Added test page (from toolbox UI and testpage.py command line utility)
+        - Defect: Does not work on 4x6 media currently (prints, but prints incorrectly)
+    
+2004-09-23 dsuffield
+    * Release 0.5.25
+
+2004-09-23 dsuffield
+    * Release 0.5.24
+
+2004-09-22 dsuffield
+    * "make install" is now LSB compliant (defect 173).
+
+2004-09-21 dwelch
+    * Added support for dynamic IP port allocation.
+    * Added -p switch to hpssd to force port to desired value
+
+2004-09-21 dsuffield
+    * Added support for dynamic IP port allocation.
+
+2004-09-20 dwelch
+    * Resolved feature 35
+    * Added localization support to supplies page
+    * Fixed defect 112 (Toolbox does not repaint)
+    * Fixed defect 89 (AiO semi-auto alignment not functional)
+
+2004-09-17 dsuffield
+    * Moved ModelQuery from hpiod to hp backend.
+    * Release 0.5.23
+
+2004-09-16 dwelch
+    * Added icon check to check_models.py
+    * Resolved defect 142 as "WORKSFORME"
+    * Put in some changes that _should_ fix defects 134, 146 147, 149 (and maybe 148)
+    * Closed defect 28
+    
+2004-09-15 dwelch
+    * Fixed defect 133
+    * Closed defect 117 as dup of 89
+    * Fixed Photo Card access over the network using upload.py and photo.py
+    * Added HPLIP version to title of all command line tools
+
+2004-09-14 dsuffield
+    * Added jetdirect photo card support.
+
+2004-09-14 come
+    * Added several more device icons
+
+2004-09-14 dwelch
+    * Added search to probe.py
+    * Added regional tags to models.xml
+    * Changed device id samples in models.xml file to use <id> tags within <model> scope
+   
+2004-09-13 come
+    * Added additional photosmart models to the models.xml file
+
+2004-09-13 dsuffield
+    * Release 0.5.22
+
+2004-09-09 dsuffield
+    * Added jetdirect printing support (no scanning, no photo card). 
+	JetDirect Build Requirements: 
+	  1. net-snmp
+	  2. net-snmp-devel
+    * Added hplip version tag to hplip.conf (issue 22).
+	
+2004-09-09 dwelch
+    * Resolved defect 113 (change buttons grayed out; Device manager settings Functions Commands)
+    * Rejected defect 118 (Shaggy 8100 is not displayed in the printer list when printing)
+
+2004-09-08 dsuffield
+    * Release 0.5.21
+
+2004-09-07 dwelch
+    * Checked in changes to fix scanning NOP
+    * 0.5.20 will not be released to testing
+    * Upgraded probe.py 
+
+2004-09-07 dsuffield
+    * Release 0.5.20 (not released)
+
+2004-09-07 dsuffield
+    * Fixed LJ2100 device not found issue (defect 103).
+    * Fixed unload.py file access permissions at install (defect 106).
+	
+2004-09-07 DWelch
+    * Resolved enhancement 87 (Filter devices by function for commandline and UI tools) (added to photo.py and unload.py)
+
+2004-09-02 DWelch
+    * Resolved defect 11 as "WONTFIX" (Sequence events/errors in status UI)
+    * Resolved defect 12 (Unable to run toolbox without terminal from desktop icon)
+    * Resolved defect 14 as "REMIND" (Fix column sorting and column sizing in setup wizard)
+    * Resolved defect 19 as duplicate of 68
+    * Resolved defect 23 as "WONTFIX" (Non existant hplip.conf file crashes hpssd)
+    * Resolved defect 25 as superceeded by issue #45 (Need to get port assignment from www.iana.org for hpiod)
+    * Resolved defect 26 as superceeded by issue #46 (Need to get port assignment from www.iana.org for hpssd)
+    * Fixed defect 69 (Configure button does not work in Toolbox)
+    * Fixed defect 61 (Data is ent to the terminal when scanimage is called)
+    * Resolved defect 30 as FIXED (PML scanning is not functional)
+    * Fixed defect 77 (The content of Supplies tab is empty when printing)
+    * Resolved defect 34 as LATER (Dev. note: Python code doesn't handle partial SCL replies)
+    * Resolved defect 64 as a duiplicate of defect 3
+    * 
+
+2004-09-02 Come
+    * Fixed clean and align entries for PSC_2200 through PSC_2600 in the models.xml file
+
+2004-09-01 DWelch
+    * Fixed defect 100 (Cancel printing job from the TB does not work)
+    * Enhanced speed of thumbnail extraction during PhotoCard UI startup
+    * Fixed defect 102 (Grammatical error in Color Calibration description)
+    * Added network support to ProbeDevicesFiltered in hpssd
+    * Added probe.py command line utility
+    * Fixed defect 101 (Advanced button only works for online printers)
+    * Fixed defect 76 (The options in Toolbox is gray out when printing)
+    * Fixed defect 79 (The Serial No can not be displayed in TB when printing)
+    * Fixed defect 94 (Tabs/info do not update when popping up from a printing event)
+    * Fixed defect 92 (cups web interface button)
+    * Resolved defect 62 as "WORKSFORME" (Toolbox hangs after clicking the "Print" button and the "Configure" button a couple times)
+    * Fixed defect 97 (default window size too big for 1024x768 screen)
+    * Changed defect 91 to enhancement request (Request to have fax button active)
+    * Fixed defect 78 (The history in Status tab can not record the course when printing)
+    * Resolved defect 22 as WONTFIX (GMP: ProbeDevice does not accept bus field)
+
+2004-08-30 DWelch
+    * Fixed issue 88 (clean.py aborts with error)
+    * EXIF command in photo.py shows tags in sorted order
+    * EXIF command in photo.py shows MakerNotes as a list of bytes
+    
+2004-08-27 DWelch
+    * Closing defect 80 as not a defect ("WONTFIX"). (The Approx.Level shows empty cartredges for DJ6540)
+
+2004-08-27 dsuffield
+    * Release 0.5.19
+	
+2004-08-27 dsuffield
+    * Added ChangeLog to hplip tar ball distribution
+	
+2004-08-27 DWelch
+    * Fixed defect 84 (DJ990 does not show information in Toolbox)
+    * Fixed defect 81 (Advanced button does not work)
+    * Added Photocard UI
+    * Fixed defect 69 (Configure button does not work in Toolbox)
+    * Added "Loading Thumbnails" progress bar to PhotoCard UI
+    * Added "Choose Device" dialog to PhotoCard UI
+    * Added path from Toolbox to PhotoCard UI via functions tab
+    * Fixed defect 65 (status shows unknown internal error when printing to Deskjet 5850)
+    * Changed name of command line PhotoCard utility from pcard.py to photo.py
+    * Can't reproduce defect 63 (Alignment does not work for Deskjet 5850)
+    * Fixed defect 88 (clean.py aborts with error)
+
+2004-08-27 Come
+    * Created ChangeLog and added to CVS
+    
+2004-08-26 Come
+    * Release 0.5.18

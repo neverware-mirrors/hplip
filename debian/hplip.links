@@ -1,0 +1,11 @@
+/usr/lib/hplip/toolbox	/usr/bin/hplip_toolbox
+/usr/lib/hplip/align	/usr/bin/hplip_align
+/usr/lib/hplip/info	/usr/bin/hplip_info
+/usr/lib/hplip/print	/usr/bin/hplip_print
+/usr/lib/hplip/clean	/usr/bin/hplip_clean
+/usr/lib/hplip/colorcal	/usr/bin/hplip_colorcal
+/usr/lib/hplip/photo	/usr/bin/hplip_photo
+/usr/lib/hplip/unload	/usr/bin/hplip_unload
+/usr/lib/hplip/probe	/usr/bin/hplip_probe
+/usr/lib/hplip/testpage	/usr/bin/hplip_testpage
+/usr/lib/hplip/hpssd.py	/usr/sbin/hpssd

@@ -1,0 +1,154 @@
+#!/bin/sh -e
+## toplevel_makefile.dpatch by Henrique M. Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes for upstream toplevel makefile
+## DP:  1. Add a proper distclean target
+## DP:  2. Stop wasting resources calling pwd
+## DP:  3. Do not bork a non-LSB build
+## DP:  4. Use standard locations and automake/autoconf dir settings
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/Makefile.in /tmp/dpep.TXLUzy/hplip/Makefile.in
+--- hplip/Makefile.in	2005-01-21 11:41:20.000000000 -0200
++++ hplip/Makefile.in	2005-01-21 11:41:44.000000000 -0200
+@@ -12,8 +12,11 @@
+ exec_prefix = @exec_prefix@
+ bindir = @bindir@
+ sbindir = @sbindir@
++libexecdir = @libexecdir@
+ srcdir = @srcdir@
+ datadir = @datadir@
++sysconfdir = @sysconfdir@
++hpsysconfdir = $(sysconfdir)/hp
+ chkconfigdir = @CHKCONFIG_PATH@
+ lsbinstalldir = @LSB_INSTALL_PATH@
+ install = @INSTALL@
+@@ -53,43 +56,45 @@
+ PROJECT_PATH = prnt prnt/hpijs io/hpiod backend/hp base data scan ui ip scan/sane pcard
+ 
+ all:
+-	here=`pwd`; \
++	here=$(CURDIR); \
+ 	for i in $(PROJECT_PATH); do \
+ 	   cd $$here/$$i; \
+-	   $(MAKE) $(AM_MAKEFLAGS); \
++	   $(MAKE) $(AM_MAKEFLAGS) || exit $?; \
+ 	done
+ 
+ install:
+-	here=`pwd`; \
++	here=$(CURDIR); \
+ 	for i in $(PROJECT_PATH); do \
+ 	   cd $$here/$$i; \
+-	   $(MAKE) $(AM_MAKEFLAGS) install; \
++	   $(MAKE) $(AM_MAKEFLAGS) install || exit $?; \
+ 	done
+ #
+ #       Install python files to destdir and remove .py extensions.
+-	$(install_script) $(PYTHON_SOURCES) $(PYTHON_SOURCES2) $(DESTDIR)$(datadir)/$(PACKAGE)
++	$(mkinstalldirs) $(DESTDIR)$(libexecdir)/$(PACKAGE)
++	$(install_script) $(PYTHON_SOURCES) $(PYTHON_SOURCES2) $(DESTDIR)$(libexecdir)/$(PACKAGE)
+ 	for i in $(PYTHON_SOURCES); do \
+ 	    newname=$${i%.*}; \
+-	    mv $(DESTDIR)$(datadir)/$(PACKAGE)/$$i $(DESTDIR)$(datadir)/$(PACKAGE)/$$newname; \
++	    mv $(DESTDIR)$(libexecdir)/$(PACKAGE)/$$i $(DESTDIR)$(libexecdir)/$(PACKAGE)/$$newname; \
+ 	done
+ #
+ #       Install and edit hpiod.conf in destdir.
+-	$(install_data) $(PACKAGE).conf $(DESTDIR)$(datadir)/$(PACKAGE)
+-	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf
+-	echo -e "[dirs]\nhome=$(datadir)/$(PACKAGE)\n" >> $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf
++	$(mkinstalldirs) $(DESTDIR)$(hpsysconfdir)
++	$(install_data) $(PACKAGE).conf $(DESTDIR)$(hpsysconfdir)
++	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).conf
++	echo -e "[dirs]\nhome=$(libexecdir)/$(PACKAGE)\n" >> $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).conf
+ #
+ #       Install and edit hpiod.sh in destdir.
+-	$(install_script) $(PACKAGE).sh $(DESTDIR)$(datadir)/$(PACKAGE); \
+-	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh > $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp; \
+-	sed 's:HPSSDDIR=:HPSSDDIR=$(datadir)/$(PACKAGE):' < $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp > $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh; \
+-	rm -f $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp
++	 $(install_script) $(PACKAGE).sh $(DESTDIR)$(sysconfdir); \
++	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).sh > $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).tmp; \
++	sed 's:HPSSDDIR=:HPSSDDIR=$(prefix)/$(PACKAGE):' < $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).tmp > $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).sh; \
++	rm -f $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).tmp
+ #
+ #       Do full install if not rpm_install. Also only run chkconfig/install_initd if DESTDIR="". 
+ 	if [ "$(rpm_install)" = "no" ]; then \
+ 	   $(mkinstalldirs) $(DESTDIR)/etc/hp; \
+-	   ln -sf $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf $(DESTDIR)/etc/hp/$(PACKAGE).conf; \
++	   ln -sf $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).conf /etc/hp/$(PACKAGE).conf; \
+ 	   if [ -d /etc/init.d ]; then \
+-	      ln -sf $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh $(DESTDIR)/etc/init.d/$(PACKAGE); \
++	      ln -sf $(DESTDIR)$(hpsysconfdir)/$(PACKAGE).sh /etc/init.d/$(PACKAGE); \
+ 	      if [ "$(DESTDIR)" = "" ]; then \
+ 	         if [ -x $(lsbinstalldir)/install_initd ]; then \
+ 	            $(lsbinstalldir)/install_initd $(PACKAGE); \
+@@ -101,31 +106,41 @@
+ 	fi
+ 
+ uninstall:
+-	here=`pwd`; \
++	here=$(CURDIR); \
+ 	for i in $(PROJECT_PATH); do \
+ 	   cd $$here/$$i; \
+-	   $(MAKE) $(AM_MAKEFLAGS) uninstall; \
++	   $(MAKE) $(AM_MAKEFLAGS) uninstall || exit $?; \
+ 	done
+ 
+ clean:
+ 	rm -f *~ 
+-	here=`pwd`; \
++	here=$(CURDIR); \
+ 	for i in $(PROJECT_PATH); do \
+ 	   cd $$here/$$i; \
+-	   $(MAKE) $(AM_MAKEFLAGS) clean; \
++	   $(MAKE) $(AM_MAKEFLAGS) clean || exit $?; \
+ 	done
+ 
++distclean:
++	-$(MAKE) $(AM_MAKEFLAGS) clean
++	here=$(CURDIR) ; \
++	for i in $(PROJECT_PATH); do \
++	    cd $$here/$$i; \
++	    $(MAKE) $(AM_MAKEFLAGS) distclean || exit $?; \
++	done
++	rm -f config.log config.status config.cache
++	rm -f confdefs.h
++	rm -f Makefile
++
+ dist:
+ 	rm -rf $(PACKAGE)-$(VERSION)
+ 	mkdir $(PACKAGE)-$(VERSION)
+-	here=`pwd`; \
++	here=$(CURDIR); \
+ 	for i in $(PROJECT_PATH); do \
+ 	   mkdir -p $$here/$(PACKAGE)-$(VERSION)/$$i; \
+ 	   cd $$here/$$i; \
+-	   $(MAKE) $(AM_MAKEFLAGS) copy COPY_DEST="$$here/$(PACKAGE)-$(VERSION)/$$i"; \
++	   $(MAKE) $(AM_MAKEFLAGS) copy COPY_DEST="$$here/$(PACKAGE)-$(VERSION)/$$i" || exit $?; \
+ 	done
+ 	cp -L $(PYTHON_SOURCES) $(PYTHON_SOURCES2) $(DIST_SOURCES) $(DIST_COMMON) $(PACKAGE)-$(VERSION)
+ 	tar czvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
+ 	rm -rf $(PACKAGE)-$(VERSION)
+ 
+-

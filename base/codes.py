@@ -1,0 +1,195 @@
+#!/usr/bin/env python
+#
+# $Revision: 1.11 $ 
+# $Date: 2004/11/17 21:36:01 $
+# $Author: dwelch $
+#
+# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# Author: Don Welch
+#
+
+
+# NOTE: This module is safe for 'from codes import *'
+#
+ 
+# Messaging Error Codes (result-code=)
+
+ERROR_SUCCESS = 0
+ERROR_UNKNOWN_ERROR = 1
+ERROR_DEVICE_NOT_FOUND = 2
+ERROR_INVALID_DEVICE_ID = 3
+ERROR_INVALID_DEVICE_URI = 4
+ERROR_INVALID_MSG_TYPE = 5
+ERROR_INVALID_DATA_ENCODING = 6
+ERROR_INVALID_CHAR_ENCODING = 7
+ERROR_DATA_LENGTH_EXCEEDS_MAX = 8
+ERROR_DATA_LENGTH_MISMATCH = 9
+ERROR_DATA_DIGEST_MISMATCH = 10
+ERROR_INVALID_JOB_ID = 11
+ERROR_DEVICE_IO_ERROR = 12
+ERROR_STRING_QUERY_FAILED = 14
+ERROR_QUERY_FAILED = 15
+ERROR_GUI_NOT_AVAILABLE = 16
+ERROR_NO_CUPS_DEVICES_FOUND = 17 # deprecated
+ERROR_NO_PROBED_DEVICES_FOUND = 18
+ERROR_INVALID_BUS_TYPE = 19 # operation not supported on bus
+ERROR_BUS_TYPE_CANNOT_BE_PROBED = 20
+ERROR_DEVICE_BUSY = 21
+ERROR_NO_DATA_AVAILABLE = 22
+ERROR_INVALID_DEVICEID = 23
+ERROR_INVALID_CUPS_VERSION = 24
+ERROR_CUPS_NOT_RUNNING = 25
+ERROR_DEVICE_STATUS_NOT_AVAILABLE = 26
+ERROR_DATA_IN_SHORT_READ = 27
+ERROR_INVALID_SERVICE_NAME = 28
+ERROR_INVALID_USER_ERROR_CODE = 29
+ERROR_ERROR_INVALID_CHANNEL_ID = 30
+ERROR_CHANNEL_BUSY = 31
+ERROR_CHANNEL_CLOSE_FAILED = 32
+ERROR_UNSUPPORTED_BUS_TYPE = 33 # bus not supported
+ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION = 34
+ERROR_INVALID_GUI_NAME = 35
+ERROR_INTERFACE_BUSY = 36
+ERROR_DEVICEOPEN_FAILED_ONE_DEVICE_ONLY = 37
+ERROR_DEVICEOPEN_FAILED_DEV_NODE_MOVED = 38
+
+# internal errors
+ERROR_UNABLE_TO_BIND_SOCKET = 95
+ERROR_UNABLE_TO_CONTACT_SERVICE = 96
+ERROR_DEVICE_NOT_OPEN = 98
+ERROR_INTERNAL = 99
+
+
+ERROR_STRINGS = {  
+                ERROR_SUCCESS : 'No error',
+                ERROR_UNKNOWN_ERROR : 'Unknown error',
+                ERROR_DEVICE_NOT_FOUND : 'Device not found',
+                ERROR_INVALID_DEVICE_ID : 'Unknown/invalid device-id field',
+                ERROR_INVALID_DEVICE_URI : 'Unknown/invalid device-uri field',
+                ERROR_INVALID_MSG_TYPE : 'Unknown message type',
+                ERROR_INVALID_DATA_ENCODING : 'Unknown data encoding',
+                ERROR_INVALID_CHAR_ENCODING : 'Unknown character encoding',
+                ERROR_DATA_LENGTH_EXCEEDS_MAX : 'Data length exceeds maximum',
+                ERROR_DATA_LENGTH_MISMATCH : "Data length doesn't match length field",
+                ERROR_DATA_DIGEST_MISMATCH : "Digest of data doesn't match digest field",
+                ERROR_INVALID_JOB_ID : 'Invalid job-id',
+                ERROR_DEVICE_IO_ERROR : 'Device I/O error',
+                ERROR_STRING_QUERY_FAILED : 'String/error query failed',
+                ERROR_QUERY_FAILED : 'Query failed',
+                ERROR_GUI_NOT_AVAILABLE : 'hpguid not running',
+                ERROR_NO_CUPS_DEVICES_FOUND : 'No CUPS devices found (deprecated)',
+                ERROR_NO_PROBED_DEVICES_FOUND : 'No probed devices found',
+                ERROR_INVALID_BUS_TYPE : 'Invalid bus type',
+                ERROR_BUS_TYPE_CANNOT_BE_PROBED : 'Bus cannot be probed',
+                ERROR_DEVICE_BUSY : 'Device busy',
+                ERROR_NO_DATA_AVAILABLE : 'No data avaiable',
+                ERROR_INVALID_DEVICEID : 'Invalid/missing DeviceID',
+                ERROR_INVALID_CUPS_VERSION : 'Invlaid CUPS version',
+                ERROR_CUPS_NOT_RUNNING : 'CUPS not running',
+                ERROR_DEVICE_STATUS_NOT_AVAILABLE : 'DeviceStatus not available',
+                ERROR_DATA_IN_SHORT_READ: 'ChannelDataIn short read',
+                ERROR_INVALID_SERVICE_NAME : 'Invalid service name',
+                ERROR_INVALID_USER_ERROR_CODE : 'Invalid user level error code',
+                ERROR_ERROR_INVALID_CHANNEL_ID : 'Invalid channel-id',
+                ERROR_CHANNEL_BUSY : 'Channel busy/in-use',
+                ERROR_CHANNEL_CLOSE_FAILED : 'ChannelClose failed. Channel not open',
+                ERROR_UNSUPPORTED_BUS_TYPE : 'Unsupported bus type',
+                ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION : 'Device does not support operation',
+                ERROR_INTERNAL : 'Unknown internal error',
+                ERROR_DEVICE_NOT_OPEN : 'Device not open',
+                ERROR_UNABLE_TO_CONTACT_SERVICE : 'Unable to contact service',
+                ERROR_UNABLE_TO_BIND_SOCKET : 'Unable to bind to socket',
+                #ERROR_GUI_BUSY : 'GUI busy',
+                ERROR_DEVICEOPEN_FAILED_ONE_DEVICE_ONLY : 'Device open failed - 1 open per session allowed',
+                ERROR_DEVICEOPEN_FAILED_DEV_NODE_MOVED : 'Device open failed - device node moved',
+
+               }
+               
+
+# Event codes
+EVENT_PRINTER_UNKNOWN = 0
+
+EVENT_START_PRINT_JOB = 500
+EVENT_END_PRINT_JOB = 501
+
+EVENT_PRINTER_IDLE = 1000
+EVENT_PRINTER_BUSY = 1001
+EVENT_PRINTER_PRINTING = 1002
+EVENT_PRINTER_TURNING_OFF = 1003
+EVENT_PRINTER_REPORT_PRINTING = 1004
+EVENT_PRINTER_CANCELING = 1005
+EVENT_PRINTER_IO_STALL = 1006
+EVENT_PRINTER_DRY_WAIT_TIME = 1007
+EVENT_PRINTER_PEN_CHANGE = 1008
+EVENT_PRINTER_OUT_OF_PAPER = 1009
+EVENT_PRINTER_BANNER_EJECT = 1010
+EVENT_PRINTER_BANNER_MISMATCH = 1011
+EVENT_PRINTER_PHOTO_MISMATCH = 1012
+EVENT_PRINTER_DUPLEX_MISMATCH = 1013
+EVENT_PRINTER_MEDIA_JAM = 1014
+EVENT_PRINTER_CARRIAGE_STALL = 1015
+EVENT_PRINTER_PAPER_STALL = 1016
+EVENT_PRINTER_PEN_FAILURE = 1017
+EVENT_PRINTER_HARD_ERROR = 1018
+EVENT_PRINTER_POWER_DOWN = 1019
+EVENT_PRINTER_FRONT_PANEL_TEST = 1020
+EVENT_PRINTER_CLEAN_OUT_TRAY_MISSING = 1021
+EVENT_PRINTER_OUTPUT_BIN_FULL = 1022
+EVENT_PRINTER_MEDIA_SIZE_MISMATCH = 1023
+EVENT_PRINTER_MANUAL_DUPLEX_BLOCK = 1024
+EVENT_PRINTER_SERVCE_STALL = 1025
+EVENT_PRINTER_OUT_OF_INK = 1026
+EVENT_PRINTER_LIO_ERROR = 1027
+EVENT_PRINTER_PUMP_STALL = 1028
+EVENT_PRINTER_TRAY_2_MISSING = 1029
+EVENT_PRINTER_DUPLEXER_MISSING = 1030
+EVENT_PRINTER_REAR_TRAY_MISSING = 1031
+EVENT_PRINTER_PEN_NOT_LATCHED = 1032
+EVENT_PRINTER_BATTERY_VERY_LOW = 1033
+EVENT_PRINTER_SPITTOON_FULL = 1034
+EVENT_PRINTER_OUTPUT_TRAY_CLOSED = 1035
+EVENT_PRINTER_MANUAL_FEED_BLOCKED = 1036
+EVENT_PRINTER_REAR_FEED_BLOCKED = 1037
+EVENT_PRINTER_TRAY_2_OUT_OF_PAPER = 1038
+EVENT_PRINTER_UNABLE_TO_LOAD_FROM_LOCKED_TRAY = 1039
+EVENT_PRINTER_NON_HP_INK = 1040
+EVENT_PRINTER_PEN_CALIBRATION_RESUME = 1041
+EVENT_PRINTER_MEDIA_TYPE_MISMATCH = 1042
+EVENT_PRINTER_CUSTOM_MEDIA_MISMATCH = 1043
+EVENT_PRINTER_PEN_CLEANING = 1044
+EVENT_PRINTER_PEN_CLEANING = 1045
+
+EVENT_START_SCAN_JOB = 2000
+EVENT_END_SCAN_JOB = 2001
+EVENT_SCANNER_FAIL = 2002
+
+EVENT_START_FAX_JOB = 3000
+EVENT_END_FAX_JOB = 3001
+
+EVENT_START_COPY_JOB = 4000
+EVENT_END_COPY_JOB = 4001
+
+EVENT_DEVICE_NOT_FOUND = 5002
+
+EVENT_START_PCARD_JOB = 6000
+EVENT_END_PCARD_JOB = 6001
+
+EVENT_UI_SHOW_TOOLBOX = 7000
+EVENT_UI_HIDE_TOOLBOX = 7001
+
+

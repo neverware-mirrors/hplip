@@ -1,0 +1,7 @@
+01_rss
+10_toplevel_makefile
+20_hpiod_pidfile
+30_xpp_support
+40_gcc4_buildfixes
+50_securityfix_umask
+51_securityfix_detect_unsafe_conf_file

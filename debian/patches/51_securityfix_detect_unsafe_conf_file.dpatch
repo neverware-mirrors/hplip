@@ -1,0 +1,164 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 60_securityfix_detect_unsafe_conf_file.dpatch by 
+##    Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Warn user if config file has improper permissions and fix it
+## DP: the next time it is written to.  Do not read unsafe config files.
+## DP: Security problem discovered by: Erwan David <erwan@rail.eu.org>
+## DP: Security fix by: Henrique M. Holschuh <hmh@debian.org>
+
+@DPATCH@
+diff -urNad hplip/base/utils.py hplip/base/utils.py
+--- hplip/base/utils.py	2005-02-01 10:40:24.000000000 -0200
++++ hplip/base/utils.py	2005-02-01 10:41:23.000000000 -0200
+@@ -50,7 +50,8 @@
+ import time
+ import traceback
+ import fcntl
+-import errno    
++import errno
++import stat
+ 
+ 
+ # Local
+@@ -179,7 +180,17 @@
+ 
+     return default
+ 
+-        
++def path_exists_safely( path ):
++    """ Returns True if path exists, and points to a file with permissions at least as strict as 0755 """
++    try:
++        pathmode = os.stat( path )[stat.ST_MODE]
++        if pathmode & 0022 != 0:
++            return False
++    except (IOError,OSError):
++        return False
++    return True
++
++
+ def walkFiles( root, recurse=True, abs_paths=False, return_folders=False, pattern='*', path=None ):
+     
+     #import string
+diff -urNad hplip/hpguid.py hplip/hpguid.py
+--- hplip/hpguid.py	2005-02-01 10:40:25.000000000 -0200
++++ hplip/hpguid.py	2005-02-01 10:44:22.000000000 -0200
+@@ -31,7 +31,7 @@
+ # Std Lib
+ import sys
+ import socket
+-import os, pwd, os.path
++import os, pwd, os.path, stat
+ import getopt
+ import signal
+ import atexit
+@@ -477,15 +477,21 @@
+     loc = None
+     
+     if os.path.exists( user_config ):
+-        config = ConfigParser.ConfigParser()
+-        config.read( user_config )
+-    
+-        if config.has_section( "ui" ):
+-            loc = config.get( "ui", "loc" )
++        # user_config contains executables we will run, so we
++        # must make sure it is a safe file, and refuse to run
++        # otherwise.
++        if not utils.path_exists_safely( user_config ):
++            log.warning( "File %s has insecure permissions! File ignored." % user_config )
++        else:
++            config = ConfigParser.ConfigParser()
++            config.read( user_config )
+         
+-            if not loc:
+-                loc = None
+-    
++            if config.has_section( "ui" ):
++                loc = config.get( "ui", "loc" )
++            
++                if not loc:
++                    loc = None
++
+     if loc is not None:
+     
+         if loc.lower() == 'system':
+diff -urNad hplip/ui/devmgr4.py hplip/ui/devmgr4.py
+--- hplip/ui/devmgr4.py	2005-02-01 09:42:33.000000000 -0200
++++ hplip/ui/devmgr4.py	2005-02-01 10:42:08.000000000 -0200
+@@ -227,24 +227,27 @@
+         self.cleaning_level = 0
+ 
+         if os.path.exists( self.user_config ):
+-            config = ConfigParser.ConfigParser()
+-            config.read( self.user_config )
+-        
+-            if config.has_section( "commands" ):
+-                self.cmd_print = config.get( "commands", "print" )
+-                self.cmd_pcard = config.get( "commands", "pcard" )
+-                self.cmd_fax   = config.get( "commands", "fax" )
+-                self.cmd_scan  = config.get( "commands", "scan" )
+-                self.cmd_copy  = config.get( "commands", "copy" )
++            if not utils.path_exists_safely( self.user_config ):
++                FailureForm( "Alert! The file %s has insecure permissions, and was ignored for your security." % self.user_config, self ).exec_loop()
++            else:
++                config = ConfigParser.ConfigParser()
++                config.read( self.user_config )
+             
+-            if config.has_section( "alerts" ):
+-                self.email_alerts  = config.getboolean( "alerts", 'email-alerts' )
+-                self.email_address = config.get( "alerts", 'email-address'  )
+-                self.smtp_server   = config.get( "alerts", 'smtp-server' )
+-                self.popup_alerts  = config.getboolean( "alerts", 'popup-alerts' )
++                if config.has_section( "commands" ):
++                    self.cmd_print = config.get( "commands", "print" )
++                    self.cmd_pcard = config.get( "commands", "pcard" )
++                    self.cmd_fax   = config.get( "commands", "fax" )
++                    self.cmd_scan  = config.get( "commands", "scan" )
++                    self.cmd_copy  = config.get( "commands", "copy" )
+                 
+-            if config.has_section( "maint" ):
+-                self.cleaning_level = config.getint( "maint", 'cleaning-level' )
++                if config.has_section( "alerts" ):
++                    self.email_alerts  = config.getboolean( "alerts", 'email-alerts' )
++                    self.email_address = config.get( "alerts", 'email-address'  )
++                    self.smtp_server   = config.get( "alerts", 'smtp-server' )
++                    self.popup_alerts  = config.getboolean( "alerts", 'popup-alerts' )
++                    
++                if config.has_section( "maint" ):
++                    self.cleaning_level = config.getint( "maint", 'cleaning-level' )
+             
+         
+         cmd_print, cmd_scan, cmd_pcard, cmd_copy, cmd_fax = utils.deviceDefaultFunctions()
+@@ -768,14 +771,14 @@
+             
+             config = ConfigParser.ConfigParser()
+             
+-            if os.path.exists( self.user_config ):
++            if utils.path_exists_safely( self.user_config ):
+                 fp = file( self.user_config, 'r' )
+                 config.read( self.user_config )
+                 fp.close()
+-            
++
+             if not config.has_section( 'commands' ):
+                 config.add_section( 'commands' )
+-                
++
+             config.set( 'commands', 'print', self.cmd_print )
+             config.set( 'commands', 'pcard', self.cmd_pcard )
+             config.set( 'commands', 'fax',   self.cmd_fax )
+@@ -796,6 +799,13 @@
+             config.set( "maint", 'cleaning-level', self.cleaning_level )
+ 
+             fp = file( self.user_config, 'w' )
++
++            # Security: make sure we fix permissions
++            try:
++                os.chmod( self.user_config, 0600 )
++            except (IOError,OSError):
++                pass
++
+             config.write( fp )
+             fp.close()
+ 

@@ -1,0 +1,6 @@
+usr/lib/python*
+usr/lib/hplip
+usr/sbin
+etc/hp
+usr/lib/cups/backend
+usr/lib/sane/libsane*.so.*
