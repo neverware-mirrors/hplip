@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.11 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.13 $ 
+# $Date: 2005/03/21 17:38:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -47,7 +47,7 @@ def usage():
                 )
             )
 
-    log.info( utils.TextFormatter.bold( """\nUsage: print.py [PRINTER|DEVICE-URI] [OPTIONS] FILE\n\n""") )
+    log.info( utils.TextFormatter.bold( """\nUsage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] FILE\n\n""") )
     
     log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
     log.info( formatter.compose( ( "(**See NOTES 1&2)",                     "" ) ) )
@@ -60,8 +60,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
 
-    log.info(  """Examples:\n\nPrint to a CUPS printer named "hp5550":\n   print.py -php5550 FILENAME\n\n""" \
-               """Print to a printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   print.py -dhp:/usb/DESKJET_990C?serial=12345 FILENAME\n\n"""\
+    log.info(  """Examples:\n\nPrint to a CUPS printer named "hp5550":\n   hp-print -php5550 FILENAME\n\n""" \
+               """Print to a printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-print -dhp:/usb/DESKJET_990C?serial=12345 FILENAME\n\n"""\
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )    
@@ -78,7 +78,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'cups,usb'
 log_level = 'info'
 
 for o, a in opts:
@@ -105,9 +105,13 @@ if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     
 log.set_level( log_level )   
    
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
 
 if device_uri and printer_name:
     log.error( "You may not specify both a printer (-p) and a device (-d)." )

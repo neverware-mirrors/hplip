@@ -1,0 +1,65 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>WaitForm_base</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>WaitForm_base</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>424</width>
+            <height>87</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>HP Device Manager - Waiting</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout2</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&lt;b&gt;Waiting for procedure to finish...&lt;/b&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QProgressBar">
+                    <property name="name">
+                        <cstring>ProgressBar</cstring>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer10</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>31</height>
+                </size>
+            </property>
+        </spacer>
+    </grid>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

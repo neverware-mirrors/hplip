@@ -35,7 +35,7 @@
 
 APDK_BEGIN_NAMESPACE
 
-uint32_t ulMapBROADWAY_Draft_KCMY[ 9*9*9 ]=
+uint32_t ulMapDJ970_Draft_KCMY[ 9*9*9 ]=
 {
 1802205183UL,   22740362UL,    5832524UL,    5635892UL,    5570340UL,    5308188UL,
    5308180UL,    5504778UL,    5504768UL, 4278239136UL,      65446UL,    4194132UL,
@@ -163,18 +163,3 @@ uint32_t ulMapBROADWAY_Draft_KCMY[ 9*9*9 ]=
 
 APDK_END_NAMESPACE
 
-#if 0
-/*** Version Info ***/
-     1020102927,       // Date (UTC Format) (Local Time : Mon Apr 29 10:55:27 AM
-     1,                       /* Resource Type - color map      */
-     0,                       /* Footer Type  0/1 (rel/debug    */
-     kHPBroadway,                       /* Product Name                   */
-     kHPPlain,                       /* media Name                     */
-     kHPDraftMode,                       /* Quality Name                   */
-     5000,                       /* Color Mapper Tool Version      */
-     1,                       /* Map Version                    */
-     kHP9Cubed,                       /* Map Type                       */
-     0,                       /* BrkPt Table Resource Number    */
-     kHP3x3,                       /* Color Resolution               */
-     kHP3x3                        /* Black Resolution               */
-#endif

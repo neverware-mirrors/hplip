@@ -39,14 +39,14 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_CMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 
 DJ350::DJ350(SystemServices* pSS, int numfonts, BOOL proto)
            : DJ600 (pSS, proto)
 {
-    CMYMap = ulMapVOLTAIRE_CCM_CMY;
-//    pMode[SPECIALMODE_INDEX]   = new Mode350KPhoto (ulMapVOLTAIRE_CCM_K);
+    CMYMap = ulMapDJ600_CCM_CMY;
+//    pMode[SPECIALMODE_INDEX]   = new Mode350KPhoto (ulMapDJ600_CCM_K);
 //    pMode[SPECIALMODE_INDEX] = new Mode350CPhoto (CMYMap);
 
 #ifdef APDK_EXTENDED_MEDIASIZE

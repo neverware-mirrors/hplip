@@ -1,0 +1,41 @@
+#!/bin/sh -e
+## 10_missing-prototypes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Add missing prototypes
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/scan/sane/io.h /tmp/dpep.JrcOo3/hplip/scan/sane/io.h
+--- hplip/scan/sane/io.h	2005-03-31 16:49:37.168075757 -0300
++++ /tmp/dpep.JrcOo3/hplip/scan/sane/io.h	2005-03-31 16:49:48.373651052 -0300
+@@ -146,6 +146,12 @@
+ 
+ int GetModel(char *id, char *buf, int bufSize);
+ 
++int ModelQuery(char *devicename, MsgAttributes *ma);
++
++int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *pml_result);
++
++int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *pml_result);
++
+ int OpenChannel( int deviceid, char * channelname, char * flow_ctl ); 
+ 
+ int CloseChannel( int deviceid, int channelid );

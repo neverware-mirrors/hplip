@@ -38,12 +38,6 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapCONQUEST_CMYK[ 9 * 9 * 9 ];
-extern uint32_t ulMapCONQUEST_ClMlxx[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
-
 Apollo2560::Apollo2560(SystemServices* pSS, BOOL proto)
     : Apollo2xxx(pSS,proto)
 // for 2500/2600

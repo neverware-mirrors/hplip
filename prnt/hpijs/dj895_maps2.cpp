@@ -35,7 +35,7 @@
 
 APDK_BEGIN_NAMESPACE
 
-uint32_t ulMapVENICE_HB_KCMY[ 9*9*9 ]=
+uint32_t ulMapDJ895_HB_KCMY[ 9*9*9 ]=
 {
 4074819328UL, 2530213376UL, 1420754432UL,  764542464UL,  477822464UL,  258866688UL,
  124255744UL,   23264768UL,    6422016UL, 4268472064UL, 2576481792UL, 1451818496UL,
@@ -160,24 +160,8 @@ uint32_t ulMapVENICE_HB_KCMY[ 9*9*9 ]=
 4261412864UL, 3019898880UL, 2080374784UL, 1560281088UL, 1207959552UL,  838860800UL,
  536870912UL,  234881024UL,          0
 };
-/*** Version Info ***/
-//{
-//     942280052UL,       /* Date (UTC Format) (Local Time : Wed Nov 10 04:27:32 PM */
-//     1UL,                       /* Resource Type - color map      */
-//     0UL,                       /* Footer Type  0/1 (rel/debug    */
-//     kHPVeniceUL,                       /* Product Name                   */
-//     kHPHomerUL,                       /* media Name                     */
-//     kHPBestModeUL,                       /* Quality Name                   */
-//     0UL,                       /* Color Mapper Tool Version      */
-//     1UL,                       /* Map Version                    */
-//     kHP9CubedUL,                       /* Map Type                       */
-//     0UL,                       /* BrkPt Table Resource Number    */
-//     kHP6x6UL,                       /* Color Resolution               */
-//     kHP6x6                        /* Black Resolution               */
-//   }
 
-
-uint32_t ulMapVENICE_Binary_KCMY[ 9*9*9 ]=
+uint32_t ulMapDJ895_Binary_KCMY[ 9*9*9 ]=
 {
 1819176648UL,   64158794UL,   80805158UL,   80215318UL,   62389519UL,   61406730UL,
   60292615UL,   42401028UL,    7601920UL, 4230922301UL,  571406681UL,  160889651UL,
@@ -305,17 +289,3 @@ uint32_t ulMapVENICE_Binary_KCMY[ 9*9*9 ]=
 
 APDK_END_NAMESPACE
 
-/*** Version Info ***/
-//     951950817UL,       /* Date (UTC Format) (Local Time : Wed Mar 01 02:46:57 PM */
-//     1UL,                       /* Resource Type - color map      */
-//     0UL,                       /* Footer Type  0/1 (rel/debug    */
-//     kHPVeniceUL,                       /* Product Name                   */
-//     kHPPlainUL,                       /* media Name                     */
-//     KHPDraftModeUL,                       /* Quality Name                   */
-//     1UL,                       /* Color Mapper Tool Version      */
-//     1UL,                       /* Map Version                    */
-//     kHP9CubedUL,                       /* Map Type                       */
-//     0UL,                       /* BrkPt Table Resource Number    */
-//     kHP3x3UL,                       /* Color Resolution               */
-//     kHP3x3UL,                       /* Black Resolution               */
-//     0                         /* Spare 32 bit                   */

@@ -2,5 +2,7 @@ usr/lib/python*
 usr/lib/hplip
 usr/sbin
 etc/hp
+etc/sane.d
+usr/share/applications
 usr/lib/cups/backend
 usr/lib/sane/libsane*.so.*

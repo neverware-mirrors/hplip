@@ -610,7 +610,7 @@ DRIVER_ERROR Printer::Send
             int     iVersion = pSS->GetVIPVersion ();
 
             if((tmpStr = strstr((char*)DevIDBuffer + 2,";S:")) &&
-                iVersion < 6)    // aladdin devID style
+                iVersion < 6)    // DJ990 devID style
             {
                 // point to PrinterState
 /*
@@ -1176,7 +1176,8 @@ DRIVER_ERROR Printer::SetPenInfo
         }
         else if ((pStr = strstr((char*)pSS->strDevID, ";S:02")))  // binary encoded device ID status (version 2)
         {
-            pStr += 21;     // get to the number of pens field - 14 byte feature field
+//            pStr += 21;     // get to the number of pens field - 14 byte feature field
+            pStr += 19;     // same as version 00 - see registry.cpp
         }
         else if ((pStr = strstr((char*)pSS->strDevID, ";S:03")))  // binary encoded device ID status (version 3)
         {

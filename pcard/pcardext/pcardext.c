@@ -225,6 +225,8 @@ void initpcardext( void )
                                      pcardext_documentation, (PyObject*)NULL, 
                                      PYTHON_API_VERSION );
                      
+    if (mod == NULL)
+      return;
 }
 
 

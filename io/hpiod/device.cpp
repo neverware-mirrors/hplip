@@ -180,6 +180,8 @@ int Device::Open(char *sendBuf, int *result)
    if (pthread_mutex_trylock(&mutex) != 0)
       goto bugout;   /* device is already open. */ 
 
+   pSys->GetURIModel(URI, uriModel, sizeof(uriModel));
+
    //   if (ClientCnt==1)
    if (ID[0] == 0)
    {
@@ -199,7 +201,7 @@ int Device::Open(char *sendBuf, int *result)
          goto blackout;
       }
 
-      if (pSys->IsHP(ID))
+      if (pSys->IsHP(ID) && strcmp(uriModel, "ANY") != 0)
       {
 #if 0
          /* Don't need MLC reset if crossbow. */
@@ -224,7 +226,6 @@ int Device::Open(char *sendBuf, int *result)
    }
 
    /* Make sure uri model matches device id model. Ignor test if uri model equals "ANY" (probe). */
-   pSys->GetURIModel(URI, uriModel, sizeof(uriModel));
    if (strcmp(uriModel, "ANY") != 0)
    {
       pSys->GetModel(ID, model, sizeof(model));
@@ -280,7 +281,8 @@ int Device::GetDeviceID(char *sendBuf, int slen, int *result)
 
    *result = R_AOK;
 
-   if (pthread_mutex_trylock(&mutex) == 0)
+//   if (pthread_mutex_trylock(&mutex) == 0)
+   if (pthread_mutex_lock(&mutex) == 0)
    {
       idLen = DeviceID(id, sizeof(id));  /* get new copy */
       pthread_mutex_unlock(&mutex);
@@ -296,8 +298,12 @@ int Device::GetDeviceID(char *sendBuf, int slen, int *result)
    }
    else
    {
-      idLen = strlen(ID);  /* device is busy, use cached copy */
-      memcpy(id, ID, idLen);
+//      idLen = strlen(ID);  /* device is busy, use cached copy */
+//      memcpy(id, ID, idLen);
+      syslog(LOG_ERR, "unable to lock Device::GetDeviceID: %m\n");
+      *result = R_IO_ERROR;
+      len = sprintf(sendBuf, res, *result);  
+      goto hijmp;
    }
 
    if ((idLen + HEADER_SIZE) > slen)
@@ -536,7 +542,7 @@ int Device::DelChannel(int chan)
    return 0;
 }
 
-int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, char *sendBuf, int *result)
+int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, char *sendBuf, int *result)
 {
    char res[] = "msg=ChannelOpenResult\nresult-code=%d\n";
    Channel *pC;
@@ -586,11 +592,11 @@ int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, char *sendBuf, 
       else
       {
          len = pC->Open(sendBuf, result);  
+         *channel = pC->GetIndex();
          if (*result != R_AOK)
          {
-            int channel = pC->GetIndex();
-            len = pChannel[channel]->Close(sendBuf, result);  
-            DelChannel(channel);
+            len = pChannel[*channel]->Close(sendBuf, result);  
+            DelChannel(*channel);
             *result = R_IO_ERROR;
             len = sprintf(sendBuf, res, *result);  
          }

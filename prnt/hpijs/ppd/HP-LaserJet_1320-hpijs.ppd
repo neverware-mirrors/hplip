@@ -29,7 +29,7 @@
 *LanguageEncoding: ISOLatin1
 *PCFileName:	"HPIJS.PPD"
 *Manufacturer:	"HP"
-*Product:	"(LaserJet 1320)"
+*Product:	"(hp LaserJet 1320 series)"
 *cupsVersion:	1.0
 *cupsManualCopies: True
 *cupsModelNumber:  2
@@ -37,7 +37,7 @@
 *%pprRIP:        foomatic-rip other
 *ModelName:     "HP LaserJet 1320"
 *ShortNickName: "HP LaserJet 1320 hpijs"
-*NickName:      "HP LaserJet 1320 Foomatic/hpijs (recommended)"
+*NickName:      "HP LaserJet 1320 Foomatic/hpijs"
 *PSVersion:	"(3010.000) 550"
 *PSVersion:	"(3010.000) 651"
 *PSVersion:	"(3010.000) 652"

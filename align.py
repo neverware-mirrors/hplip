@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.18 $ 
-# $Date: 2005/01/07 21:39:51 $
-# $Author: pparks $
+# $Revision: 1.20 $ 
+# $Date: 2005/03/21 17:38:49 $
+# $Author: dwelch $
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 # Author: Don Welch
 #
 
-_VERSION = '2.1'
+_VERSION = '2.2'
 
 # Std Lib
 import sys
@@ -43,7 +43,7 @@ def usage():
                 )
             )
 
-    log.info( """\nUsage: align.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
+    log.info( """\nUsage: hp-align [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
     
     log.info( formatter.compose( ( "[PRINTER|DEVICE-URI] (**See NOTES)", "" ) ) )
     log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
@@ -55,8 +55,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
 
-    log.info(  """Examples:\n\nAlign CUPS printer named "hp5550":\n   align.py -php5550\n\n""" \
-               """Align printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   align.py -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
+    log.info(  """Examples:\n\nAlign CUPS printer named "hp5550":\n   hp-align -php5550\n\n""" \
+               """Align printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-align -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
@@ -159,7 +159,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'cups,usb'
 log_level = 'info'
 align_debug = False
 
@@ -188,10 +188,14 @@ for o, a in opts:
         align_debug = True
         
 
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
-    
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
+        
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
     sys.exit(0)

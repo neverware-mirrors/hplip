@@ -37,17 +37,17 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapCONQUEST_CMYK[ 9 * 9 * 9 ];
-extern uint32_t ulMapCONQUEST_ClMlxx[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ690_CMYK[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ690_ClMlxx[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ660_CCM_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 
 //
 // ** DJ6xxPhoto:Printer CLASS **
 //
 Mode690::Mode690()
 // print mode for photo pen
-: PrintMode( ulMapCONQUEST_CMYK, ulMapCONQUEST_ClMlxx )
+: PrintMode( ulMapDJ690_CMYK, ulMapDJ690_ClMlxx )
 {
    dyeCount=6;
    medium =  mediaSpecial;
@@ -69,7 +69,7 @@ Mode690::Mode690()
 
 GrayMode690::GrayMode690()
 // print mode for photo pen
-: PrintMode( ulMapVOLTAIRE_CCM_K )
+: PrintMode( ulMapDJ600_CCM_K )
 {
    CompatiblePens[1] = MDL_BOTH;
 
@@ -81,7 +81,7 @@ GrayMode690::GrayMode690()
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 Mode690DraftColor::Mode690DraftColor()
-: PrintMode( ulMapVOLTAIRE_CCM_KCMY )
+: PrintMode( ulMapDJ660_CCM_KCMY )
 {
     theQuality = qualityDraft;
     Config.eHT = MATRIX;
@@ -89,14 +89,14 @@ Mode690DraftColor::Mode690DraftColor()
 }
 
 Mode690DraftGrayK::Mode690DraftGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityDraft;
    pmQuality = QUALITY_DRAFT;
 }
 
 Mode690BestGrayK::Mode690BestGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityPresentation;
    pmQuality = QUALITY_BEST;
@@ -127,7 +127,7 @@ DJ6xxPhoto::DJ6xxPhoto(SystemServices* pSS, BOOL proto)
         ePen=BOTH_PENS;    // matches default mode
     }
 
-    pMode[DEFAULTMODE_INDEX] = new PrintMode( ulMapVOLTAIRE_CCM_KCMY );    // normal color
+    pMode[DEFAULTMODE_INDEX] = new PrintMode( ulMapDJ660_CCM_KCMY );    // normal color
     pMode[GRAYMODE_INDEX] = new GrayMode690();    // normal gray k
     pMode[SPECIALMODE_INDEX] = new Mode690();    // photo
 #ifdef APDK_EXTENDED_MEDIASIZE
@@ -139,7 +139,7 @@ DJ6xxPhoto::DJ6xxPhoto(SystemServices* pSS, BOOL proto)
     ModeCount = 3;
 #endif
 
-    CMYMap = ulMapVOLTAIRE_CCM_KCMY;
+    CMYMap = ulMapDJ660_CCM_KCMY;
 
     DBG1("DJ6xxPhoto created\n");
 

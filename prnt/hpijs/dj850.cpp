@@ -28,7 +28,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \*****************************************************************************/
 
-
 #if defined(APDK_DJ850)
 
 #include "header.h"
@@ -43,13 +42,13 @@ APDK_END_NAMESPACE
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapROCKY_Normal_KCMY[9 * 9 * 9];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ850_Normal_KCMY[9 * 9 * 9];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 extern uint32_t ulMapGRAY_K_6x6x1[9 * 9 * 9];
 
-RockyMode1::RockyMode1()    // Normal Color
-: PrintMode(ulMapROCKY_Normal_KCMY)
+DJ850Mode1::DJ850Mode1()    // Normal Color
+: PrintMode(ulMapDJ850_Normal_KCMY)
 // 600x600x1 K
 // 300x300x2 CMY
 {
@@ -65,23 +64,23 @@ RockyMode1::RockyMode1()    // Normal Color
 
 }
 
-RockyMode3::RockyMode3()    // Draft Color
-: PrintMode(ulMapROCKY_Normal_KCMY)
+DJ850Mode3::DJ850Mode3()    // Draft Color
+: PrintMode(ulMapDJ850_Normal_KCMY)
 // 300x300x1 KCMY
 {
     theQuality = qualityDraft;
     pmQuality = QUALITY_DRAFT;
 }
 
-RockyMode4::RockyMode4()    // Draft Gray K
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+DJ850Mode4::DJ850Mode4()    // Draft Gray K
+: GrayMode(ulMapDJ600_CCM_K)
 // 300x300x1 K
 {
     theQuality = qualityDraft;
     pmQuality = QUALITY_DRAFT;
 }
 
-RockyMode5::RockyMode5()    // Normal Gray K
+DJ850Mode5::DJ850Mode5()    // Normal Gray K
 : GrayMode(ulMapGRAY_K_6x6x1)
 // 600x600x1 K
 {
@@ -100,13 +99,13 @@ DJ850::DJ850(SystemServices* pSS,
     }
     else ePen=BOTH_PENS;    // matches default mode
 
-    pMode[GRAYMODE_INDEX]      = new RockyMode5 ();   // Normal Gray K
-    pMode[DEFAULTMODE_INDEX]   = new RockyMode1 ();   // Normal Color
-    pMode[SPECIALMODE_INDEX] = new RockyMode3 ();   // Draft Color
-    pMode[SPECIALMODE_INDEX+1] = new RockyMode4 ();   // Draft Gray K
+    pMode[GRAYMODE_INDEX]      = new DJ850Mode5 ();   // Normal Gray K
+    pMode[DEFAULTMODE_INDEX]   = new DJ850Mode1 ();   // Normal Color
+    pMode[SPECIALMODE_INDEX] = new DJ850Mode3 ();   // Draft Color
+    pMode[SPECIALMODE_INDEX+1] = new DJ850Mode4 ();   // Draft Gray K
     ModeCount = 4;
 
-    CMYMap = ulMapROCKY_Normal_KCMY;
+    CMYMap = ulMapDJ850_Normal_KCMY;
 
     DBG1("DJ850 created\n");
 }

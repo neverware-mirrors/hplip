@@ -2,7 +2,7 @@
 
   hpiod.cpp - HP I/O backend daemon (hpiod)
  
-  (c) 2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2004-2005 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -125,6 +125,54 @@ void sysdump(void *data, int size)
     }
 }
 
+/*
+ * Write hpiod pid to pidfile, and lock it.
+ */
+static void get_lock(const char* pidfile_name)
+{
+   static FILE *daemon_lockfp = NULL;   /* Lockfile file pointer */
+   static int daemon_lockfd;               /* Lockfile file descriptor */
+   int otherpid = 0;
+   int r;
+
+   if (!daemon_lockfp) 
+   {
+      if (((daemon_lockfd = open(pidfile_name, O_RDWR|O_CREAT, 0644)) == -1)
+                || ((daemon_lockfp = fdopen(daemon_lockfd, "r+"))) == NULL) 
+      {
+         fprintf(stderr, "can't open or create %s: %s\n", 
+         pidfile_name, strerror(errno));
+         exit(EXIT_FAILURE);
+      }
+      fcntl(daemon_lockfd, F_SETFD, 1);
+
+      do 
+      {
+         r = flock(daemon_lockfd, LOCK_EX|LOCK_NB);
+      } while (r && (errno == EINTR));
+
+      if (r)
+      {
+         if (errno == EWOULDBLOCK)
+         {
+            rewind(daemon_lockfp);
+            fscanf(daemon_lockfp, "%d", &otherpid);
+            fprintf(stderr, "can't lock %s, running daemon's pid may be %d\n", pidfile_name, otherpid);
+         }
+         else
+         {
+            fprintf(stderr, "can't lock %s: %s\n", pidfile_name, strerror(errno));
+         }
+         exit(EXIT_FAILURE);
+      }
+   }
+
+   rewind(daemon_lockfp);
+   fprintf(daemon_lockfp, "%ld\n", (long int) getpid());
+   fflush(daemon_lockfp);
+   ftruncate(fileno(daemon_lockfp), ftell(daemon_lockfp));
+}
+
 void session(SessionAttributes *psa)
 {
    char recvBuf[BUFFER_SIZE+HEADER_SIZE];
@@ -176,7 +224,7 @@ sdone:
 
    /* Check for device clean-up. */
    if (psa->descriptor != -1)
-      pS->DeviceCleanUp(psa->descriptor); 
+      pS->DeviceCleanUp(psa); 
 
    free(psa);
 }
@@ -200,8 +248,8 @@ int main(int argc, char *argv[])
       if ((arg[0] == '-') && (arg[1] == 'h'))
       {
          fprintf(stdout, "HP I/O Backend Daemon %s\n", VERSION);
-         fprintf(stdout, "(c) 2003-2004 Copyright Hewlett-Packard Development Company, LP\n");
-         exit(0);
+         fprintf(stdout, "(c) 2003-2005 Copyright Hewlett-Packard Development Company, LP\n");
+         exit(EXIT_SUCCESS);
       }
    }
 
@@ -211,6 +259,9 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
    }
 
+   /* Write initial pidfile and lock it. */
+   get_lock(PIDFILE);
+
    pid = fork();
    if(pid < 0) 
    {
@@ -219,6 +270,9 @@ int main(int argc, char *argv[])
    }
    if(pid > 0) 
       exit(EXIT_SUCCESS);
+
+   /* Update pidfile with new pid. */
+   get_lock(NULL);
 
    /* First, start a new session */
    if((sid = setsid()) < 0)
@@ -281,6 +335,7 @@ int main(int argc, char *argv[])
          syslog(LOG_ERR, "unable to creat session attributes: %m\n");
          continue;
       }
+      memset(psa, 0, sizeof(SessionAttributes));
       psa->sockid = tmpsd;  /* save temporary socket connection */
 
       /* Dispatch new thread with session attributes. */

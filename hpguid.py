@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.22 $ 
-# $Date: 2004/12/21 19:21:04 $
+# $Revision: 1.25 $ 
+# $Date: 2005/03/14 22:51:33 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -22,16 +22,15 @@
 #
 # Author: Don Welch
 #
-
+# Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
+#
 
 _VERSION = '3.0'
-
-##from __future__ import generators
 
 # Std Lib
 import sys
 import socket
-import os, pwd, os.path
+import os, os.path
 import getopt
 import signal
 import atexit
@@ -75,21 +74,21 @@ except:
 while pyqtVersion.count('.') < 2:
     pyqtVersion += '.0'
 
-(maj, min, pat) = pyqtVersion.split('.')
+(maj_ver, min_ver, pat_ver) = pyqtVersion.split('.')
 
 if pyqtVersion.find( 'snapshot' ) >= 0:
     log.warning( "A non-stable snapshot version of PyQt is installed.")
 else:    
     try:
-        maj = int(maj)
-        min = int(min)
-        pat = int(pat)
+        maj_ver = int(maj_ver)
+        min_ver = int(min_ver)
+        pat_ver = int(pat_ver)
     except ValueError:
-        maj, min, pat = 0, 0, 0
+        maj_ver, min_ver, pat_ver = 0, 0, 0
         
-    if maj < MINIMUM_PYQT_MAJOR_VER or \
-        (maj == MINIMUM_PYQT_MAJOR_VER and min < MINIMUM_PYQT_MINOR_VER):
-        log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj, min, pat) )
+    if maj_ver < MINIMUM_PYQT_MAJOR_VER or \
+        (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
+        log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver) )
         log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
         
     
@@ -97,13 +96,10 @@ else:
 
 # UI Forms        
 from ui.form1 import Form1
-#from ui.devmgr3 import devmgr3
-#from ui.devmgr2 import DevMgr2
 from ui.devmgr4 import devmgr4
 
 def _showToolbox( show=True, raiseup=True, initial_device_uri=None ):
     global toolbox
-    
     if show:
         if not prop.toolbox_ui_active:
             log.debug( "Creating toolbox UI" )
@@ -134,7 +130,6 @@ def usage():
     
     log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                       "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    #log.info( formatter.compose( ( "Start with UI:",         "-u<ui> or --ui=<ui>" ) ) )
     log.info( formatter.compose( ( "Do not daemonize:",      "-x" ) ) )
     log.info( formatter.compose( ( "This help information:", "-h or --help" ), True ) )
 
@@ -193,12 +188,12 @@ class hpguid_server( async.dispatcher ):
 # initiate sending requests.
 class hpguid_handler( async.dispatcher ):
     
-    def __init__( self, conn, addr, server ): 
+    def __init__( self, conn, addr, the_server ): 
         async.dispatcher.__init__( self, sock=conn )
         self.addr = addr
         self.in_buffer = ""
         self.out_buffer = ""
-        self.server = server
+        self.server = the_server
         self.fields = {}
         self.data = ''
         self.error_dialog = None
@@ -228,13 +223,12 @@ class hpguid_handler( async.dispatcher ):
             self.fields, self.data = parseMessage( self.in_buffer )
         except Error, e:
             log.debug( repr(self.in_buffer) )
-            log.warn( "Message parsing error: %s (%d)" % (e.msg, err) )
-            self.out_buffer = self.handle_unknown( err )
+            log.warn( "Message parsing error: %s (%d)" % ( e.opt, e.msg ) )
+            self.out_buffer = self.handle_unknown()
             log.debug( self.out_buffer )
             return True
             
         msg_type = self.fields.get( 'msg', 'unknown' )
-        #self.sock_write_notifier.setEnabled( False )
         log.debug( "%s %s %s" % ("*"*40, msg_type, "*"*40 ) ) 
         log.debug( repr( self.in_buffer ) ) 
         
@@ -246,7 +240,6 @@ class hpguid_handler( async.dispatcher ):
         if len( self.out_buffer ): # data is ready for send
             self.sock_write_notifier.setEnabled( True )
         
-        #self.sock_write_notifier.setEnabled( True )
         return True
         
     def handle_write( self ):
@@ -261,12 +254,6 @@ class hpguid_handler( async.dispatcher ):
             log.error( "send() failed." )
             
         self.out_buffer = self.out_buffer[ sent: ]
-        
-        #if self.signal_exit:
-        #    if toolbox is not None:
-        #        toolbox.close()
-        #    main_widget.close()
-        #    qApp.quit()
 
 
     def writable( self ):
@@ -283,14 +270,15 @@ class hpguid_handler( async.dispatcher ):
             qApp.quit()
         
         
-        return '' #buildResultMessage( 'ExitUIGUIResult' )
+        return '' 
 
     
     # EVENT
     def handle_eventgui( self ):
         global toolbox
         #try:
-        if 1:
+        #if 1:
+        try:
             job_id = self.fields[ 'job-id' ]
             event_code = self.fields[ 'event-code' ]
             event_type = self.fields[ 'event-type' ]
@@ -306,25 +294,29 @@ class hpguid_handler( async.dispatcher ):
             if event_type == 'event':
                 if event_code == EVENT_UI_SHOW_TOOLBOX:
                     _showToolbox( True, True )
-                    toolbox.eventUI( EVENT_UI_SHOW_TOOLBOX, 'event', '', '', 0, 0, '' )
+                    toolbox.EventUI( EVENT_UI_SHOW_TOOLBOX, 'event', '', '', 0, 0, '' )
                 
                 elif event_code == EVENT_UI_HIDE_TOOLBOX:
                     _showToolbox( False, False )
                 
                 else:
-                    _showToolbox( True, popup, device_uri )
+                    _showToolbox( True, False, device_uri )
                     if toolbox_was_active:
-                        toolbox.eventUI( event_code, event_type, error_string_short, error_string_long, 
-                                         retry_timeout, job_id, device_uri )
+                        toolbox.EventUI( event_code, event_type, error_string_short, 
+                                         error_string_long, retry_timeout, job_id, 
+                                         device_uri )
                     
             else: 
                 _showToolbox( True, popup, device_uri ) # error, warning, fatal
                 if toolbox_was_active:
-                    toolbox.eventUI( event_code, event_type, error_string_short, error_string_long, 
-                                     retry_timeout, job_id, device_uri )
-                
-        if 1:
-            return ''
+                    toolbox.EventUI( event_code, event_type, error_string_short, 
+                                     error_string_long, retry_timeout, job_id, 
+                                     device_uri )
+        except:
+            utils.log_exception()
+        #finally:
+        #if 1:
+        return ''
                                    
     def handle_unknown( self ):
         return buildResultMessage( 'MessageError', None, ERROR_INVALID_MSG_TYPE )
@@ -351,21 +343,10 @@ def unregisterGUI():
     except Error, e:
         log.error( "UnRegister GUI failed (code=%d). " % e.opt )
 
-
-    
-
-#def handleSIGHUP( signo, frame ):
-#    log.info( "SIGHUP" )
-#    if services is not None:
-#        registerGUI()
-    
-#def handleSIGTERM( signo, frame ):
-#    log.info( "SIGTERM" )
-#    raise SystemError( signo )
     
 def handleEXIT():
     try:
-        toolbox.cleanup()
+        toolbox.Cleanup()
     except:
         pass
     
@@ -406,8 +387,6 @@ def main( args ):
         usage()
         sys.exit(1)
         
-    ui = None
-    
     for o, a in opts:
         
         if o in ( '-l', '--logging' ):
@@ -418,16 +397,17 @@ def main( args ):
             usage()
             sys.exit(1)
             
-        #elif o in ( '-u', '--ui' ):
-        #    ui = a.lower().strip()
-            
         elif o in ( '-x', ):
             prop.daemonize = False
             
             
     if prop.daemonize:
         utils.daemonize()
-    
+
+    # Security: Do *not* create files that other users can muck
+    # around with
+    os.umask ( 0077 )
+
     # hpguid server dispatcher object
     global server
     try:
@@ -464,24 +444,31 @@ def main( args ):
     if log.get_level() == log.LOG_LEVEL_DEBUG:
         main_widget.show()
         QObject.connect( app, SIGNAL( "lastWindowClosed()" ), app, SLOT( "quit()" ) )
+        # Restore Ctrl-C so app can be exited from terminal
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     atexit.register( handleEXIT )   
-    #signal.signal( signal.SIGHUP, handleSIGHUP )
     signal.signal( signal.SIGPIPE, signal.SIG_IGN )
     
     user_config = os.path.expanduser( '~/.hplip.conf' )
     loc = None
     
     if os.path.exists( user_config ):
-        config = ConfigParser.ConfigParser()
-        config.read( user_config )
-    
-        if config.has_section( "ui" ):
-            loc = config.get( "ui", "loc" )
+        # user_config contains executables we will run, so we
+        # must make sure it is a safe file, and refuse to run
+        # otherwise.
+        if not utils.path_exists_safely( user_config ):
+            log.warning( "File %s has insecure permissions! File ignored." % user_config )
+        else:
+            config = ConfigParser.ConfigParser()
+            config.read( user_config )
         
-            if not loc:
-                loc = None
-    
+            if config.has_section( "ui" ):
+                loc = config.get( "ui", "loc" )
+            
+                if not loc:
+                    loc = None
+
     if loc is not None:
     
         if loc.lower() == 'system':
@@ -509,17 +496,16 @@ def main( args ):
         log.debug( "Using default 'C' locale" )
     else:
         log.debug( "Using locale: %s" % loc )
-    
+
     try:
-        try:
-            log.debug( "Starting GUI loop..." )
-            app.exec_loop()
-        #except KeyboardInterrupt:
-        #    handleEXIT()
-        except:
-            utils.log_exception()
-    finally:
-        handleEXIT()
+        log.debug( "Starting GUI loop..." )
+        app.exec_loop()
+    except KeyboardInterrupt:
+        pass
+    except:
+        utils.log_exception()
+
+    handleEXIT()
         
 if __name__ == "__main__":
     sys.exit( main( sys.argv[1:] ) )

@@ -83,7 +83,7 @@ public:
    inline int GetChannelMode() { return ChannelMode; }
    virtual int Open(char *sendBuf, int *result);
    virtual int Close(char *sendBuf, int *result);
-   int ChannelOpen(char *sn, char *io_mode, char *flow_ctl, char *sendBuf, int *result);
+   int ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel_result, char *sendBuf, int *result);
    int ChannelClose(int channel, char *sendBuf, int *result);
    int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
    virtual int GetDeviceStatus(char *sendBuf, int *result);

@@ -38,9 +38,9 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ660_CCM_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_CMY[ 9 * 9 * 9 ];
 //
 // ** DJ660:Printer CLASS **
 //
@@ -58,8 +58,8 @@ DBG1("DJ660::VerifyPenInfo(): called\n");
       }
     else ePen=BOTH_PENS;    // matches default mode
 
-    pMode[DEFAULTMODE_INDEX] = new PrintMode( ulMapVOLTAIRE_CCM_KCMY );
-    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapVOLTAIRE_CCM_K);
+    pMode[DEFAULTMODE_INDEX] = new PrintMode( ulMapDJ660_CCM_KCMY );
+    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapDJ600_CCM_K);
     pMode[SPECIALMODE_INDEX] = new Mode660Draft();
 #ifdef APDK_EXTENDED_MEDIASIZE
     pMode[SPECIALMODE_INDEX+1] = new Mode660DraftGrayK();
@@ -68,14 +68,14 @@ DBG1("DJ660::VerifyPenInfo(): called\n");
 #else
     ModeCount=3;
 #endif
-    CMYMap = ulMapVOLTAIRE_CCM_KCMY;
+    CMYMap = ulMapDJ660_CCM_KCMY;
 
 
 DBG1("DJ 660 created\n");
 }
 
 Mode660Draft::Mode660Draft()
-: PrintMode( ulMapVOLTAIRE_CCM_KCMY )
+: PrintMode( ulMapDJ660_CCM_KCMY )
 {
   theQuality = qualityDraft;
 
@@ -89,14 +89,14 @@ Mode660Draft::Mode660Draft()
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 Mode660DraftGrayK::Mode660DraftGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityDraft;
    pmQuality = QUALITY_DRAFT;
 }
 
 Mode660BestGrayK::Mode660BestGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityPresentation;
    pmQuality = QUALITY_BEST;

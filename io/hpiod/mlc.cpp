@@ -290,7 +290,7 @@ int MlcChannel::MlcInit(int fd)
             cnt++;
             continue;
          }
-         syslog(LOG_ERR, "invalid MLCInitReply: cmd=%x, result=%x\n", pReply->cmd, pReply->result);
+         syslog(LOG_ERR, "invalid MLCInitReply: cmd=%x, result=%x\n, revision=%x\n", pReply->cmd, pReply->result, pReply->rev);
          stat = 1;
          goto bugout;
       }
@@ -661,7 +661,7 @@ int MlcChannel::Open(char *sendBuf, int *result)
    int supportedProtocols=0;
    int twoints[2];
    int len, slen, i;
-   unsigned char buf[1];
+   unsigned char buf[255];
 
    *result = R_IO_ERROR;
    slen = sprintf(sendBuf, res, R_IO_ERROR);  
@@ -677,6 +677,9 @@ int MlcChannel::Open(char *sendBuf, int *result)
          {
             pDev->CurrentProtocol=twoints[0];
             supportedProtocols=twoints[1]; 
+#ifdef HPIOD_DEBUG
+            syslog(LOG_INFO, "currentProtocol=%x supportedProtocols=%x: %s %d\n", pDev->CurrentProtocol, supportedProtocols, __FILE__, __LINE__);
+#endif
          }
 
          /* If 7/1/3 (MLC/1284.4) protocol is available use it. */
@@ -709,8 +712,8 @@ int MlcChannel::Open(char *sendBuf, int *result)
          }
 
          /* Drain any reverse data. */
-         for (i=0,len=1; len > 0 && i < 255; i++)
-            len = pDev->pSys->Read(pDev->GetOpenFD(), buf, 1, 0, 0);    /* no blocking */
+         for (i=0,len=1; len > 0 && i < sizeof(buf); i++)
+            len = pDev->pSys->Read(pDev->GetOpenFD(), buf+i, 1, 0, 0);    /* no blocking */
 
          /* MLC initialize */
          if (MlcInit(pDev->GetOpenFD()) != 0)
@@ -746,8 +749,11 @@ int MlcChannel::Close(char *sendBuf, int *result)
 
    if (ClientCnt==1)
    {
-      if (MlcCloseChannel(pDev->GetOpenFD()) != 0)
-         *result = R_IO_ERROR;
+      if (pDev->MlcUp)
+      {
+         if (MlcCloseChannel(pDev->GetOpenFD()) != 0)
+            *result = R_IO_ERROR;
+      }
    }
 
    /* Remove MLC transport if this is the last MLC channel. */
@@ -886,14 +892,14 @@ int MlcChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLeng
 
    if ((length + HEADER_SIZE) > sendBufLength)
    {
-      syslog(LOG_ERR, "invalid data size: %d\n", length);
+      syslog(LOG_ERR, "invalid data size MlcChannel::ReadData: %d\n", length);
       sendLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }
 
    if (GetP2HSize()==0)
    {
-      syslog(LOG_ERR, "invalid peripheral to host packet size: %d\n", GetP2HSize());
+      syslog(LOG_ERR, "invalid peripheral to host packet size MlcChannel::ReadData: %d\n", GetP2HSize());
       sendLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }

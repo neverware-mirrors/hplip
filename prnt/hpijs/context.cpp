@@ -909,7 +909,7 @@ float PrintContext::printablewidth()
 
 #ifdef APDK_EXTENDED_MEDIASIZE
     float PhysicalPageX = (thePaperSize == CUSTOM_SIZE) ? CustomWidth : PSM[thePaperSize].fPhysicalPageX;
-    float PrintablePageX = (thePaperSize == CUSTOM_SIZE) ? CustomWidth - (0.25+0.25) : PSM[thePaperSize].fPrintablePageX;
+    float PrintablePageX = (thePaperSize == CUSTOM_SIZE) ? CustomWidth - (float) (0.25+0.25) : PSM[thePaperSize].fPrintablePageX;
 #else
     float PhysicalPageX = PSM[thePaperSize].fPhysicalPageX;
     float PrintablePageX = PSM[thePaperSize].fPrintablePageX;
@@ -961,7 +961,7 @@ float PrintContext::printableheight()
 	FullbleedType   fbType;
 #ifdef APDK_EXTENDED_MEDIASIZE
     float PhysicalPageY = (thePaperSize == CUSTOM_SIZE) ? CustomHeight : PSM[thePaperSize].fPhysicalPageY;
-    float PrintablePageY = (thePaperSize == CUSTOM_SIZE) ? CustomHeight - (0.125+0.5) : PSM[thePaperSize].fPrintablePageY;
+    float PrintablePageY = (thePaperSize == CUSTOM_SIZE) ? CustomHeight - (float) (0.125+0.5) : PSM[thePaperSize].fPrintablePageY;
 #else
     float PhysicalPageY = PSM[thePaperSize].fPhysicalPageY;
     float PrintablePageY = PSM[thePaperSize].fPrintablePageY;
@@ -1915,7 +1915,7 @@ DRIVER_ERROR PrintContext::SetCompGrayMode
     resPM->myIndex = thePrinter->GetModeCount();
 /*
  *  [K]CMYGrayMode sets all resolution to 300 and quality to normal.
- *  Some printers, eg., Broadway, is 600 dpi in black and has bitdepth of 2.
+ *  Some printers, eg., DJ970, is 600 dpi in black and has bitdepth of 2.
  *  So, we cannot use normal mode for these printers and must set quality to
  *  draft.
  *  This is also true for 8x5 in one pen mode.
@@ -1932,7 +1932,7 @@ DRIVER_ERROR PrintContext::SetCompGrayMode
     }
 
 /*
- *  Some printers do not use any data compression. Ex. Crossbow
+ *  Some printers do not use any data compression. Ex. DJ3320
  *  So, turn off the bCompress flag in such cases.
  */
 

@@ -45,6 +45,9 @@ else
 	DEBUGFLAGS += -O2
 endif
 
+CFLAGS:=-Wall -pipe $(DEBUGFLAGS)
+CXXFLAGS:=$(CFLAGS)
+
 configure:
 	chmod +x debian/autogen.sh
 	debian/autogen.sh
@@ -56,9 +59,8 @@ configure-stamp: patch-stamp configure
 	ln -sf /usr/share/misc/config.guess .
 	rm -f config.cache
 
-	(export CFLAGS="-Wall -pipe $(DEBUGFLAGS)" ;\
-	 export CXXFLAGS="$$CFLAGS" ;\
-	 ./configure $(CONFFLAGS) \
+	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
+		$(CONFFLAGS) \
 	 	--config-cache \
 		--disable-dependency-tracking \
 		--enable-rpm-install \
@@ -71,7 +73,7 @@ configure-stamp: patch-stamp configure
 		--enable-debug \
 		--disable-foomatic-install \
 		--disable-cups-install \
-	)
+		--enable-network-install
 
 	touch configure-stamp
 
@@ -99,6 +101,9 @@ clean-patched: configure
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	find \( -name config.sub -o -name config.guess \) -print0 | xargs -0 -r rm -f \;
 
+	# We prefer to regenerate these using pyuic
+	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
+
 	# Fix permissions
 	if [ -r debian/executable.files ] ; then \
 		find -type d -print0 | xargs -0 -r chmod 755 ;\
@@ -123,12 +128,18 @@ install: build
 		docdir=/usr/share/doc
 
 	rm -f $(PKGTMP)/usr/share/hplip/data/hplip
+	rm -f $(PKGTMP)/usr/lib/hplip/check
 
 	find $(PKGTMP)/usr/lib/hplip -type d -maxdepth 1 -mindepth 1 -print0 | \
 		xargs -0 -r -i@ find @ -type f -name '*.py' -exec chmod a-x {} \;
 
 	mkdir -p $(PKGTMP)/usr/share/pixmaps
 	install -m 644 debian/hp-logo.xpm $(PKGTMP)/usr/share/pixmaps
+	mkdir -p $(PKGTMP)/usr/share/applications
+	install -m 644 debian/*.desktop $(PKGTMP)/usr/share/applications
+
+	mkdir -p $(PKGTMP)/etc/sane.d/dll.d
+	install -m 644 debian/hplip.sane $(PKGTMP)/etc/sane.d/dll.d/hplip
 
 	# Lintian and linda overrides
 	cd debian ; \
@@ -186,6 +197,7 @@ binary-arch: build install
 	dh_installdocs -a
 	dh_installexamples -a
 	dh_installmenu -a
+	dh_desktop -a
 #	dh_installlogrotate -a
 #	dh_installemacsen -a
 #	dh_installpam -a

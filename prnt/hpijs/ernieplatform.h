@@ -70,8 +70,12 @@ APDK_BEGIN_NAMESPACE
 //#define GetBlue(x) (((x >> 8) & 0x0FF))
 // ******************************************
 
+#ifndef MIN
 #define MIN(a,b)    (((a)>=(b))?(b):(a))
+#endif
+#ifndef MAX
 #define MAX(a,b)    (((a)<=(b))?(b):(a))
+#endif
 
 #define kWhite 0x00FFFFFE
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.24 $ 
-# $Date: 2004/12/06 17:48:22 $
+# $Revision: 1.26 $ 
+# $Date: 2005/03/21 17:04:18 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -470,38 +470,56 @@ class PhotoCard:
         
         
     def unload( self, unload_list, cp_status_callback=None, rm_status_callback=None, dont_remove=False ):
+        was_cancelled = False
         self.save_wd()
         self.START_OPERATION( 'unload' )
         total = 0
         t1 = time.time()
         
         for f in unload_list:
-            name, size, typ, subtyp = f
-
-            p = name.split('/')
-            dirs = p[:-1]
-            filename = p[-1]
-            self.cd('/', False )
-            
-            if cp_status_callback is not None:
-                if cp_status_callback(  os.path.join( self.pwd(), filename ), os.path.join( os.getcwd(), filename ), 1  ):
-                    break
-
-            if len(dirs) > 0:
-                for d in dirs:
-                    self.cd( d, False )
-            
-            total += self.cp( filename, filename, False )
-            
-            if cp_status_callback is not None:
-                if cp_status_callback(  os.path.join( self.pwd(), filename ), os.path.join( os.getcwd(), filename ), size  ):
-                    break
-
-            if not dont_remove:
-                if rm_status_callback is not None:
-                    rm_status_callback( os.path.join( self.pwd(), filename ) )
-
-                self.rm( filename, False, False )
+            if not was_cancelled:
+                name, size, typ, subtyp = f
+    
+                p = name.split('/')
+                dirs = p[:-1]
+                filename = p[-1]
+                self.cd('/', False )
+                
+                if cp_status_callback is not None:
+                    if cp_status_callback(  os.path.join( self.pwd(), filename ), 
+                                            os.path.join( os.getcwd(), filename ), 1  ):
+                        was_cancelled = True
+                        break
+    
+                if len(dirs) > 0:
+                    for d in dirs:
+                        self.cd( d, False )
+                
+                if os.path.exists( os.path.join( os.getcwd(), filename ) ):
+                    i = 2
+                    
+                    while True:
+                        if not os.path.exists( os.path.join( os.getcwd(), filename + " (%d)" % i ) ):
+                            break
+                        
+                        i += 1
+                        
+                    total += self.cp( filename, filename + " (%d)" % i, False )
+                    
+                else:    
+                    total += self.cp( filename, filename, False )
+                
+                if cp_status_callback is not None:
+                    if cp_status_callback(  os.path.join( self.pwd(), filename ), 
+                                            os.path.join( os.getcwd(), filename ), size  ):
+                        was_cancelled = True
+                        break
+    
+                if not dont_remove:
+                    if rm_status_callback is not None:
+                        rm_status_callback( os.path.join( self.pwd(), filename ) )
+    
+                    self.rm( filename, False, False )
         
         
         t2 = time.time()
@@ -509,7 +527,7 @@ class PhotoCard:
         self.ls( True, '*', False )
         self.END_OPERATION( 'unload' )
 
-        return ( total, (t2-t1) )
+        return total, (t2-t1), was_cancelled
         
     
     def get_unload_list( self ):

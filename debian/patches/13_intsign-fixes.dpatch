@@ -1,0 +1,87 @@
+#!/bin/sh -e
+## 13_intsign-fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix signed/unsigned comparison issues
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/io/hpiod/mlc.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/mlc.cpp
+--- hplip/io/hpiod/mlc.cpp	2005-03-31 18:09:00.263198524 -0300
++++ /tmp/dpep.QtdpjR/hplip/io/hpiod/mlc.cpp	2005-03-31 18:12:54.112729517 -0300
+@@ -660,7 +660,8 @@
+    char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
+    int supportedProtocols=0;
+    int twoints[2];
+-   int len, slen, i;
++   int len, slen;
++   unsigned int i;
+    unsigned char buf[255];
+ 
+    *result = R_IO_ERROR;
+diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp
+--- hplip/io/hpiod/system.cpp	2005-03-31 18:09:00.264198402 -0300
++++ /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp	2005-03-31 18:12:54.113729395 -0300
+@@ -710,14 +710,14 @@
+    return err;
+ }
+ 
+-int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result)
++int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result)
+ {
+    struct snmp_session session, *ss=NULL;
+    struct snmp_pdu *pdu=NULL;
+    struct snmp_pdu *response=NULL;
+    oid anOID[MAX_OID_LEN];
+    size_t anOID_len = MAX_OID_LEN;
+-   int i, len=0;
++   unsigned int i, len=0;
+    uint32_t val;
+ 
+    *result = R_IO_ERROR;
+@@ -777,12 +777,12 @@
+    return len;
+ }
+ 
+-int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result)
++int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result)
+ {
+    struct snmp_session session, *ss=NULL;
+    struct snmp_pdu *pdu=NULL;
+    struct snmp_pdu *response=NULL;
+-   int i, len=0;
++   unsigned int i, len=0;
+    oid anOID[MAX_OID_LEN];
+    size_t anOID_len = MAX_OID_LEN;
+    struct variable_list *vars;
+diff -urNad hplip/io/hpiod/system.h /tmp/dpep.QtdpjR/hplip/io/hpiod/system.h
+--- hplip/io/hpiod/system.h	2005-03-31 18:09:00.283196090 -0300
++++ /tmp/dpep.QtdpjR/hplip/io/hpiod/system.h	2005-03-31 18:12:54.113729395 -0300
+@@ -75,8 +75,8 @@
+    int DeviceCleanUp(SessionAttributes *sa);
+    int SetPml(int device, int channel, char *snmp_iod, int type, unsigned char *data, int dataLen, char *sendBuf);
+    int GetPml(int device, int channel, char *snmp_iod, char *sendBuf);
+-   int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result);
+-   int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result);
++   int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result);
++   int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result);
+    int MakeUriFromIP(char *ip, int port, char *sendBuf);
+    int MakeUriFromDevice(char *dnode, char *sendBuf);
+ 

@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(hpijs, 2.0.1)
+AC_INIT(hpijs, 2.1.1)
 AC_CONFIG_SRCDIR([hpijs.cpp])
 AC_CONFIG_AUX_DIR(../..)
 AM_INIT_AUTOMAKE(foreign)
@@ -12,6 +12,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
+AC_CHECK_LIB([jpeg], [jpeg_set_defaults],[AC_DEFINE(HAVE_LIBJPEG) LIBS="-ljpeg $LIBS"],[AC_MSG_ERROR(["cannot find libjpeg support"])])
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -33,6 +34,7 @@ MYFLAGS="$MYFLAGS -DAPDK_DJ660 -DAPDK_DJ6xx -DAPDK_DJ6xxPhoto \
 -DAPDK_DJ350 -DAPDK_DJ8x5 -DAPDK_PSP100 -DAPDK_AUTODUPLEX \
 -DAPDK_HIGH_RES_MODES -DAPDK_LJMONO -DAPDK_DJ540 -DAPDK_DJ850 \
 -DAPDK_DJ890 -DAPDK_DJ3320 -DAPDK_LJCOLOR -DAPDK_DJGENERICVIP \
+-DAPDK_LJJETREADY  -DAPDK_LJFASTRASTER \
 -DAPDK_BUFFER_SEND -DAPDK_LDL_COMPRESS -DAPDK_EXTENDED_MEDIASIZE \
 -DAPDK_MLC_PRINTER -DAPDK_DJ3600 -DAPDK_LINUX"
 
@@ -55,6 +57,7 @@ else
 fi
 
 CXXFLAGS="$CXXFLAGS $MYFLAGS"
+CFLAGS="$CFLAGS $MYFLAGS"
 
 AC_CANONICAL_HOST
 
@@ -85,7 +88,7 @@ EOF
       ;;
 esac
 
-CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /opt"
+CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /opt /usr/lib64"
 
 AC_MSG_CHECKING("for cups ppd path")
 CUPS_PPD_PATH="/usr/share/cups/model"

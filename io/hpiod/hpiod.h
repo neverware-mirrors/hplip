@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +49,7 @@
 //#define HPIOD_DEBUG
 
 #define RCFILE "/etc/hp/hplip.conf" /* The config file */
+#define PIDFILE "/var/run/hpiod.pid" /* The pidfile */
 #define LINE_SIZE 256     /* Length of a line. */
 #define BUFFER_SIZE 8192  /* General Read/Write buffer. */
 #define MAX_DEVICE 16     /* Max devices. */
@@ -62,6 +64,9 @@ typedef struct
    char service[LINE_SIZE];   /* service-name */
    char io_mode[32];
    char flow_ctl[32];
+   char ip[LINE_SIZE];    /* internet IP */ 
+   int ip_port;
+   char dnode[LINE_SIZE];   /* device node */
    int descriptor;       /* device descriptor (device-id) */
    int jobid;
    int length;           /* length of data in bytes */
@@ -69,14 +74,17 @@ typedef struct
    int channel;          /* channel descriptor (channel-id) */
    int readlen;          /* bytes-to-read (ChannelDataIn) */
    int timeout;
-   unsigned char *data;           /* pointer to data */
+   char oid[LINE_SIZE];       /* snmp oid */
+   int type;             /* pml type */
+   unsigned char *data;       /* pointer to data */
 } MsgAttributes;
 
 typedef struct
 {
   int sockid;
-  int descriptor;
-  pthread_t tid;
+  int descriptor;             /* device used */
+  pthread_t tid;              /* thread id */
+  int channel[MAX_CHANNEL];  /* channels used */
 } SessionAttributes;
 
 #define IOCNR_GET_DEVICE_ID     1
@@ -131,6 +139,8 @@ enum RESULT_CODE
    R_CHANNEL_BUSY = 31,
    R_INVALID_DEVICE_OPEN = 37,
    R_INVALID_DEVICE_NODE = 38,
+   R_INVALID_IP = 45,
+   R_INVALID_IP_PORT = 46
 };
 
 enum CHANNEL_ID  /* MLC socket ids */ 
@@ -140,7 +150,7 @@ enum CHANNEL_ID  /* MLC socket ids */
    SCAN_CHANNEL = 4,
    ECHO_CHANNEL = 6,
    FAX_SEND_CHANNEL = 7,
-   MEMORY_CARD_CHANNEL = 0x11,
+   MEMORY_CARD_CHANNEL = 0x11
 };
 #define MAX_SOCKETID MEMORY_CARD_CHANNEL+1  /* must be largest numeric socketid + 1 */
 

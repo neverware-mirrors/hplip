@@ -1,3 +1,6 @@
+Must fix before new release:
+  *  hp-* naming for the stuff in bin/ to follow upstream
+
   daemons:
     1. kill all hpguid.py instances on stop (initscript) in a better way,
        ideally we should get hpssd to do it by itself
@@ -49,7 +52,3 @@
 
   upstream:
     - Check the HP copyright stuff added to derived works (async/async_qt.py)
-
-  Annoyances:
-   1. Turns on printer (HP DJ 5550) on CUPS restart, if the printer is
-      already on the CUPS printer list

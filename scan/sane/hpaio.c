@@ -447,23 +447,24 @@ static SANE_Status hpaioPmlAllocateObjects( hpaioScanner_t hpaio )
     {
         int len;
 
-        hpaio->pml.objScannerStatus = hpaioPmlAllocateID( hpaio,          "\x1\x2\x2\x2\x1" );
-        hpaio->pml.objResolutionRange = hpaioPmlAllocateID( hpaio,        "\x1\x2\x2\x2\x3" );
-        hpaio->pml.objUploadTimeout = hpaioPmlAllocateID( hpaio,          "\x1\x1\x1\x12" );
-        hpaio->pml.objContrast = hpaioPmlAllocateID( hpaio,               "\x1\x2\x2\x1\x1" );
-        hpaio->pml.objResolution = hpaioPmlAllocateID( hpaio,             "\x1\x2\x2\x1\x2" );
-        hpaio->pml.objPixelDataType = hpaioPmlAllocateID( hpaio,          "\x1\x2\x2\x1\x3" );
-        hpaio->pml.objCompression = hpaioPmlAllocateID( hpaio,            "\x1\x2\x2\x1\x4" );
-        hpaio->pml.objCompressionFactor = hpaioPmlAllocateID( hpaio,      "\x1\x2\x2\x1\x5" );
-        hpaio->pml.objUploadError = hpaioPmlAllocateID( hpaio,            "\x1\x2\x2\x1\x6" );
-        hpaio->pml.objUploadState = hpaioPmlAllocateID( hpaio,            "\x1\x2\x2\x1\xC" );
-        hpaio->pml.objAbcThresholds = hpaioPmlAllocateID( hpaio,          "\x1\x2\x2\x1\xE" );
-        hpaio->pml.objSharpeningCoefficient = hpaioPmlAllocateID( hpaio,  "\x1\x2\x2\x1\xF" );
-        hpaio->pml.objNeutralClipThresholds = hpaioPmlAllocateID( hpaio,  "\x1\x2\x2\x1\x1F" );
-        hpaio->pml.objToneMap = hpaioPmlAllocateID( hpaio,                "\x1\x2\x2\x1\x20" );
-        hpaio->pml.objCopierReduction = hpaioPmlAllocateID( hpaio,        "\x1\x5\x1\x4" );
-        hpaio->pml.objScanToken = hpaioPmlAllocateID( hpaio,              "\x1\x1\x1\x19" );
-        hpaio->pml.objModularHardware = hpaioPmlAllocateID( hpaio,        "\x1\x2\x2\x1\x4B" );
+        /* PML embedded SNMP oids. */
+        hpaio->pml.objScannerStatus = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.2.1.0" );
+        hpaio->pml.objResolutionRange = hpaioPmlAllocateID( hpaio,        "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.2.3.0" );
+        hpaio->pml.objUploadTimeout = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.1.1.18.0" );
+        hpaio->pml.objContrast = hpaioPmlAllocateID( hpaio,               "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.1.0" );
+        hpaio->pml.objResolution = hpaioPmlAllocateID( hpaio,             "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.2.0" );
+        hpaio->pml.objPixelDataType = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.3.0" );
+        hpaio->pml.objCompression = hpaioPmlAllocateID( hpaio,            "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.4.0" );
+        hpaio->pml.objCompressionFactor = hpaioPmlAllocateID( hpaio,      "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.5.0" );
+        hpaio->pml.objUploadError = hpaioPmlAllocateID( hpaio,            "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.6.0" );
+        hpaio->pml.objUploadState = hpaioPmlAllocateID( hpaio,            "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.12.0" );
+        hpaio->pml.objAbcThresholds = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.14.0" );
+        hpaio->pml.objSharpeningCoefficient = hpaioPmlAllocateID( hpaio,  "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.15.0" );
+        hpaio->pml.objNeutralClipThresholds = hpaioPmlAllocateID( hpaio,  "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.31.0" );
+        hpaio->pml.objToneMap = hpaioPmlAllocateID( hpaio,                "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.32.0" );
+        hpaio->pml.objCopierReduction = hpaioPmlAllocateID( hpaio,        "1.3.6.1.4.1.11.2.3.9.4.2.1.5.1.4.0" );
+        hpaio->pml.objScanToken = hpaioPmlAllocateID( hpaio,              "1.3.6.1.4.1.11.2.3.9.4.2.1.1.1.25.0" );
+        hpaio->pml.objModularHardware = hpaioPmlAllocateID( hpaio,        "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.1.75.0" );
 
 //BREAKPOINT;
 
@@ -2774,8 +2775,8 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
         
         SclSendCommand( hpaio->deviceid, hpaio->scan_channelid, SCL_CMD_CLEAR_ERROR_STACK, 0 );
 
-        hpaio->scl.objSupportedFunctions = hpaioPmlAllocateID( hpaio,
-                                                          "\x1\x1\x2\x43" );
+	//        hpaio->scl.objSupportedFunctions = hpaioPmlAllocateID( hpaio, "\x1\x1\x2\x43" );
+        hpaio->scl.objSupportedFunctions = hpaioPmlAllocateID( hpaio, "1.3.6.1.4.1.11.2.3.9.4.2.1.1.2.67.0" );
         /* Probe the SCL model. */
         DBG( 0,  "hpaio:Using SCL protocol.\n" );
 
@@ -3391,11 +3392,6 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
         goto abort;
     }
 
-    if( retcode != SANE_STATUS_GOOD )
-    {
-        goto abort;
-    }
-
     /* Program options. */
     retcode = hpaioProgramOptions( hpaio );
     
@@ -3526,11 +3522,11 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
         if( log_output )
         {
             char f[256];
-            static cnt=0;   
+            static int cnt=0;   
             
             sprintf(f, "/tmp/mfpdtf_%d.out", cnt++);
             
-            bug( 0, "saving raw image to %s \n", f );
+            bug("saving raw image to %s \n", f );
             
             MfpdtfLogToFile( hpaio->mfpdtf,  f );
         }
@@ -3912,6 +3908,7 @@ needMoreData:
                 if( hpaio->scannerType == SCANNER_TYPE_PML && 
                     hpaioPmlSelectCallback( hpaio ) == ERROR )
                 {
+                    retcode = SANE_STATUS_IO_ERROR;
                     goto abort;
                 }
                 

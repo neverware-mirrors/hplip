@@ -78,56 +78,64 @@ public:
     }
 
 protected:
+
+#ifdef APDK_HP_UX
+    virtual DJ9xx & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
     virtual BYTE PhotoTrayStatus(BOOL bQueryPrinter);
 
 }; //DJ9xx
 
 
-class BroadwayMode1 : public PrintMode
+class DJ970Mode1 : public PrintMode
 {
 public:
-    BroadwayMode1();
-}; //BroadwayMode1
+    DJ970Mode1();
+}; //DJ970Mode1
 
 
-class BroadwayMode2 : public PrintMode
+class DJ970Mode2 : public PrintMode
 {
 public:
-    BroadwayMode2();
-}; //BroadwayMode2
+    DJ970Mode2();
+}; //DJ970Mode2
 
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 
-class BroadwayMode3 : public GrayMode
+class DJ970Mode3 : public GrayMode
 {
 public:
-    BroadwayMode3 ();
-}; //BroadwayMode3
+    DJ970Mode3 ();
+}; //DJ970Mode3
 
-class BroadwayMode4 : public PrintMode
+class DJ970Mode4 : public PrintMode
 {
 public:
-    BroadwayMode4 ();
+    DJ970Mode4 ();
 };
 
-class BroadwayMode5 : public PrintMode
+class DJ970Mode5 : public PrintMode
 {
 public:
-    BroadwayMode5 ();
+    DJ970Mode5 ();
 };
 
-class BroadwayModePres : public PrintMode
+class DJ970ModePres : public PrintMode
 {
 public:
-    BroadwayModePres();
+    DJ970ModePres();
 
 };
 
-class BroadwayModePhotoPres : public PrintMode
+class DJ970ModePhotoPres : public PrintMode
 {
 public:
-    BroadwayModePhotoPres();
+    DJ970ModePhotoPres();
 
 };
 
@@ -142,29 +150,29 @@ class DJ9xxProxy : public PrinterProxy
 public:
     DJ9xxProxy() : PrinterProxy(
         "DJ9xx",                    // family name
-        "DESKJET 91\0"                              // DeskJet 91x Series
-        "DESKJET 92\0"                              // DeskJet 920 - Thriftway Lite
-        "DESKJET 93\0"                              // DeskJet 93x Series
-        "DESKJET 94\0"                              // DeskJet 94x Series
-        "DESKJET 95\0"                              // DeskJet 95x Series
-        "DESKJET 97\0"                              // DeskJet 97x Series
-        "DESKJET 1120\0"                        // DeskJet 1120 - Young Einstein
-        "DESKJET 1125\0"                        // DeskJet 1125 - Young Einstein
-        "DESKJET 3810\0"                            // DeskJet 3810 - Subway
-        "DESKJET 3816\0"                            // DeskJet 3816 - Subway
-        "DESKJET 3820\0"                            // DeskJet 3820 - Subway
-        "DESKJET 3822\0"                            // DeskJet 3822 - Subway
-        "PHOTOSMART P1000\0"                        // PSP 1000
-        "PHOTOSMART P1100\0"                        // PSP 1100
-        "DESKJET 1220\0"                            // DeskJet 1220 - Escher
-		"hp deskjet 9300\0"                         // deskjet 9300 - Escher +
+        "DESKJET 91\0"              // DeskJet 91x Series
+        "DESKJET 92\0"              // DeskJet 920
+        "DESKJET 93\0"              // DeskJet 93x Series
+        "DESKJET 94\0"              // DeskJet 94x Series
+        "DESKJET 95\0"              // DeskJet 95x Series
+        "DESKJET 97\0"              // DeskJet 97x Series
+        "DESKJET 1120\0"            // DeskJet 1120
+        "DESKJET 1125\0"            // DeskJet 1125
+        "DESKJET 3810\0"            // DeskJet 3810
+        "DESKJET 3816\0"            // DeskJet 3816
+        "DESKJET 3820\0"            // DeskJet 3820
+        "DESKJET 3822\0"            // DeskJet 3822
+        "PHOTOSMART P1000\0"        // PSP 1000
+        "PHOTOSMART P1100\0"        // PSP 1100
+        "DESKJET 1220\0"            // DeskJet 1220
+		"hp deskjet 9300\0"         // deskjet 9300
 #ifdef APDK_MLC_PRINTER
-        "OfficeJet K\0"                             // OfficeJet K Series
-        "OfficeJet V\0"                             // OfficeJet V Series
-        "OfficeJet G\0"                             // OfficeJet G Series
-        "PSC 7\0"                                   // PSC 750
-        "PSC 9\0"                                   // PSC 900 Series
-		"officejet 5100 series\0"                   // officejet 5100 series
+        "OfficeJet K\0"             // OfficeJet K Series
+        "OfficeJet V\0"             // OfficeJet V Series
+        "OfficeJet G\0"             // OfficeJet G Series
+        "PSC 7\0"                   // PSC 750
+        "PSC 9\0"                   // PSC 900 Series
+		"officejet 5100 series\0"   // officejet 5100 series
 #endif
     ) {m_iPrinterType = eDJ9xx;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ9xx(pSS); }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.21 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.27 $ 
+# $Date: 2005/03/31 21:51:34 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '2.7'
+_VERSION = '2.8'
 
 # Std Lib
 import sys
@@ -46,7 +46,7 @@ def usage():
                 )
             )
 
-    log.info( utils.TextFormatter.bold( """\nUsage: info.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""") )
+    log.info( utils.TextFormatter.bold( """\nUsage: hp-info [PRINTER|DEVICE-URI] [OPTIONS]\n\n""") )
     
     log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
     log.info( formatter.compose( ( "(**See NOTES 1&2)",                     "" ) ) )
@@ -59,8 +59,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
 
-    log.info(  """Examples:\n\nInfo on a CUPS printer named "hp5550":\n   info.py -php5550\n\n""" \
-               """Info on printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   info.py -dhp:/usb/DESKJET_990C?serial=12345\n\n"""\
+    log.info(  """Examples:\n\nInfo on a CUPS printer named "hp5550":\n   hp-info -php5550\n\n""" \
+               """Info on printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-info -dhp:/usb/DESKJET_990C?serial=12345\n\n"""\
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
@@ -76,7 +76,7 @@ except getopt.GetoptError:
 printer_name = None
 device_uri = None    
 log_level = None
-bus = 'cups'
+bus = 'usb,cups'
 log_level = 'info'
 
 for o, a in opts:
@@ -101,9 +101,13 @@ for o, a in opts:
         log_level = a.lower().strip()
         
         
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
         
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
@@ -150,6 +154,7 @@ try:
         sys.exit(0)
     
     
+
     formatter = utils.TextFormatter( 
                     (
                         {'width': 18, 'margin' : 2},
@@ -157,14 +162,16 @@ try:
                     )
                 )
     
-    log.info( utils.TextFormatter.bold( formatter.compose( ( "Info", "Value" ) ) ) )
+    log.info( utils.TextFormatter.bold( formatter.compose( ( "Info", "Value(s)" ) ) ) )
     log.info( formatter.compose( ( '-'*18, '-'*58 ) ) )
-    log.info( formatter.compose( ( "device URI:", d.device_uri ) ) )
+    log.info( formatter.compose( ( "Device URI:", d.device_uri ) ) )
     log.info( formatter.compose( ( "Model name:", d.model.replace( '_', ' ' ) ) ) )
     log.info( formatter.compose( ( "Serial no.:", d.serialNumber() ) ) )
     log.info( formatter.compose( ( "CUPS back end:", d.back_end ) ) )
     log.info( formatter.compose( ( "Device file:", d.devFile() ) ) )
     log.info( formatter.compose( ( "I/O bus:", d.bus ) ) )
+    
+    d.close()
     
     try:
         s = service.Service()
@@ -172,13 +179,20 @@ try:
         log.error( "Unable to contact services daemon. Exiting." )
         sys.exit(0)
     
-    
     try:
-        data = s.queryDevice( d.device_uri, 0, False )
-        #log.info( formatter.compose( ( "Model Query:",  repr(data) ) ) )
+        data = s.queryDevice( d.device_uri, 0, STATUS_PRINTER_IDLE, False )
     except Error:
-        log.error( "Query for model failed." )
+        log.error( "Device query failed." )
     else:
+        status_code = data[ 'status-code' ]
+        try:
+            status_desc = s.queryString( str( status_code ) )
+        except Error:
+            log.error( "Unknown status code" )
+            status_desc = '?'
+        
+        log.info( formatter.compose( ( "Status Code:",  '%d ("%s")' % ( status_code, status_desc ) ) ) )
+        
         ds_keys = data.keys()
         ds_keys.sort()
         for key,i in zip( ds_keys, range(len(ds_keys))):
@@ -187,73 +201,31 @@ try:
             else:
                 log.info( formatter.compose( ( "",              "%s: %s" % ( key, data[key] ) ), ( i == len(ds_keys)-1 ) ) )
     
-    
-    
-    
-    if 0:
-        
-        tb_i, tb_s = d.threeBitStatus()
-        log.info( formatter.compose( ( "Status (3bit):", "%d (%s)" % (tb_i, tb_s ) ), True ) )
-        parsed_DeviceID, raw_DeviceID = d.ID()
-        log.info( formatter.compose( ( "Device ID (raw):", repr(raw_DeviceID) ), True ) )
-        di_keys = parsed_DeviceID.keys()
-        di_keys.sort()
-        for key,i in zip( di_keys, range(len(di_keys))):
+    try:
+        data = s.queryModel( d.model )
+    except Error:
+        log.error( "Model query failed." )
+    else:
+        mq_keys = data.keys()
+        mq_keys.sort()
+        for key,i in zip( mq_keys, range(len(mq_keys))):
             if i == 0:
-                log.info( formatter.compose( ( "Device ID:", "%s: %s" % ( key, parsed_DeviceID[key] ) ) ) )
+                log.info( formatter.compose( ( "Model Query:",  "%s: %s" % ( key, data[key] ) ) ) )
             else:
-                log.info( formatter.compose( ( "", "%s: %s" % ( key, parsed_DeviceID[key] ) ), (i==len(di_keys)-1) ) )
-        
-        stat = status.parseStatus( parsed_DeviceID )
-        st_keys = stat.keys()
-        st_keys.sort()
-        for key,i in zip( st_keys, range(len(st_keys))):
-            #print key
-            if i == 0:
-                log.info( formatter.compose( ( "Status:", "" ) ) ) #, "%s: %s" % ( key, stat[key] ) ) ) )
+                log.info( formatter.compose( ( "",              "%s: %s" % ( key, data[key] ) ), ( i == len(mq_keys)-1 ) ) )
+    
+    
             
-            if key == 'agents':
-                pens = stat['agents']
-                for p,k in zip(pens,range(len(pens))):
-                    kth_pen = pens[k]
-                    pks = kth_pen.keys()
-                    pks.sort()
-                    for pk, j in zip( pks, range(len(pks))):
-                        log.info( formatter.compose( ( "", "pen %d: %s: %s" % ( k+1, pk, kth_pen[pk] ) ) ) )
-            else:
-                log.info( formatter.compose( ( "", "%s: %s" % ( key, stat[key] ) ), (i==len(st_keys)-1) ) )
-        
-        
-        try:
-            s = service.Service()
-        except Error:
-            log.error( "Unable to contact services daemon. Exiting." )
-            sys.exit(0)
-            
-        try:
-            data = s.queryModel( d.model )
-            #log.info( formatter.compose( ( "Model Query:",  repr(data) ) ) )
-        except Error:
-            log.error( "Query for model failed." )
-        else:
-            mq_keys = data.keys()
-            mq_keys.sort()
-            for key,i in zip( mq_keys, range(len(mq_keys))):
-                if i == 0:
-                    log.info( formatter.compose( ( "Model Query:",  "%s: %s" % ( key, data[key] ) ) ) )
-                else:
-                    log.info( formatter.compose( ( "",              "%s: %s" % ( key, data[key] ) ), ( i == len(mq_keys)-1 ) ) )
-            
-        cups_printers = cups.getPrinters()
-        printers = []
-        for p in cups_printers:
-            if p.device_uri == d.device_uri:
-                printers.append( p.name )
-        
-        if len( printers ) > 0:
-            log.info( formatter.compose( ( "CUPS printers:",  ', '.join( printers ) ) ) )
-        else:    
-            log.info( formatter.compose( ( "CUPS printers:",  '' ) ) )
+    cups_printers = cups.getPrinters()
+    printers = []
+    for p in cups_printers:
+        if p.device_uri == d.device_uri:
+            printers.append( p.name )
+    
+    if len( printers ) > 0:
+        log.info( formatter.compose( ( "CUPS printers:",  ', '.join( printers ) ) ) )
+    else:    
+        log.info( formatter.compose( ( "CUPS printers:",  '' ) ) )
         
     print
 
@@ -261,6 +233,6 @@ finally:
     log.debug( "Closing services..." )
     if s is not None: 
         s.close()
-    if d is not None:
+    if d is not None and d.io_state == IO_STATE_HP_OPEN:
         d.close()
 

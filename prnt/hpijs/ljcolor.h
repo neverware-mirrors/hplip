@@ -87,6 +87,14 @@ public:
     int     m_iYPos;
 
 protected:
+
+#ifdef APDK_HP_UX
+    virtual LJColor & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
     BOOL        m_bJobStarted;
     int         m_iYResolution;
     Compressor  *m_pCompressor;
@@ -140,12 +148,12 @@ class LJColorProxy : public PrinterProxy
 public:
     LJColorProxy() : PrinterProxy(
         "ColorLaser",                   // family name
-        "hp color LaserJet\0"           // models
-		"HP Color LaserJet\0"           // models
-		"hp business inkjet 2600\0"     // Diesel
-		"hp business inkjet 3000\0"     // business inkjet 3000 series
-		"hp business inkjet 2300\0"     // business inkjet 2300 series
-		"Officejet 9100\0"           // officejet 9100 series
+        "hp color LaserJet\0"
+		"HP Color LaserJet\0"
+		"hp business inkjet 2600\0"
+		"hp business inkjet 3000\0"
+		"hp business inkjet 2300\0"
+		"Officejet 9100\0"
 #ifdef APDK_MLC_PRINTER
 #endif
     ) {m_iPrinterType = eLJColor;}

@@ -1,3 +1,131 @@
+hplip (0.9.1-1) unstable; urgency=low
+
+  * New upstream version:
+    * HPIJS 2.1.1:
+      + Fixed hpijs bi-di assert issue with business inkjet 1100
+      + Added PPD files for the following printers: HP LaserJet 4240,
+        HP LaserJet 9040, HP color LaserJet 4610, HP LaserJet 1022,
+        HP Business Inkjet 1000
+    * HPLIP 0.9.1:
+      + Added a "front panel" enable/disable flag to models.xml. Some printers
+        were disabled (ie: deskjets)
+      + Ink level and status displays have been fixed for CP1160/1700, OJ7100
+         series and OJ D series
+      + Added battery level check for mobile deskjets (DJ 450, etc)
+      + Fixed issue that could cause DJ 450 to lock-up during panel check
+        (miser mode)
+      + Fixed extraneous hpiod error. Corrected pml iod in scl path that was
+         in libsane-hpaio
+      + Added PSC 750xi, OJ 5110 to models.xml file
+      + Added device manager *.ui files to package
+  * Henrique de Moraes Holschuh:
+    * Rebuild 11_fix-misc-gcc-warnings, most of it accepted upstream,
+      but we have also new hunks as well
+    * Remove 12_portability-fixes, accepted upstream
+    * Remove 14_fix-fat-prototypes, accepted upstream
+    * Remove 20_jddirect-bug-from-hell, fixed upstream
+    * Remove 30_fix-missing-retcode, accepted upstream
+    * Avoid shipping check.py, since it is useless for Debian systems
+    * Change both upstream and Debian build system to take advantage
+      of the .ui files and rebuild the .py files that are generated
+      from them using pyuic
+    * Build-depend on pyqt-tools for pyuic
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat,  2 Apr 2005 10:58:28 -0300
+
+hplip (0.9-1) unstable; urgency=low
+
+  * New upstream version (closes: #302230):
+    * HPIJS 2.1:
+      + Added two new device classes - LJFastRaster and LJJetReady
+      + Fixed input tray issue with Business Inkjet 1100/1200
+      + Changed default quality setting from 300 to 600 dpi for DJ9xxVIP
+      + Replaced gdevijs-krgb-1.0.patch with gdevijs-krgb-1.1.patch
+        This patch fixes as segfault issue with 1-bit color space IJS drivers
+        (ie: epsonepl)
+      + Fixed a issue with DJ3600 photo pen printing
+      + Support additional printers: LaserJet 1010/1012/1015, Color LaserJet
+        3500/3550, HP Photosmart 8750, HP Deskjet 6600, HP Deskjet 9800 Series
+    * HPLIP 0.9:
+      + Added network scanning support
+      + Added full status and supply information for most LaserJets
+      + Added hp-makeuri command for generating "hp" URIs from an IP address
+         or device node
+      + Fixed some network issues with hp-probe
+      + Fixed a problem with multiple files using the same name in photo card
+      + Fixed a bug in the cancel job code in hp-toolbox
+      + Fixed some dialog cancel defects in clean and align
+      + Reversed order of status history in hp-toolbox
+      + Added photo card access status
+      + Added hp-toolbox right click menu
+      + Hpssd no longer scans devices at startup, devices are scanned when
+        hp-toolbox is first started
+      + Removed power-up from the probe command in hpiod.  This means that
+        when CUPS queries the "hp" backend for devices, the printer will not
+        power-up (closes: #291321)
+      + Added non-zero exit codes to hp-toolbox
+      + Added changes to display EXIF data in photo card
+      + Added channel cleanup code to hpiod.  This will fix some issues when
+        canceling print jobs from the host
+      + Added a non-scrolling "front panel display" feature to hp-toolbox
+      + Added Color Calibration for various printer platforms
+      + Do not keep restarting/reopening hp-toolbox at every status change
+        (closes: #292672)
+  * Henrique de Moraes Holschuh:
+    * Build-depend on libjpeg62-dev for hpijs 2.1
+    * Version build-dependency on libsnmp5-dev (>> 5.1.2-6), to avoid
+      #302195 which completely hoses the hplip build
+    * Remove 30_xpp_support.dpatch, applied upstream
+    * New patches:
+      + 10_missing-prototypes: Add missing prototypes
+      + 11_fix-misc-gcc-warnings: Fix bad C code that causes
+        warnings and strict aliasing rules problems (closes: #297587)
+      + 12_portability-fixes: Remove braindamage that causes
+        portability problems and warnings
+      + 13_intsign-fixes.dpatch: Fix signed/unsigned comparison issues
+      + 14_fix-fat-prototypes: Fix prototypes missing a (void) so that gcc
+        shuts up
+      + 20_jddirect-bug-from-hell: Fix complete breakage in
+        JetDirectDevice::NewChannel (undefined value assigned to channel
+        mode)
+      + 30_fix-missing-retcode: Add missing assignment of retcode
+    * Add hplip.desktop freedesktop.org file, thanks to Christopher Martin
+      (closes: #302248)
+    * Rename all hplip_* links in /usr/bin to hp-* to follow upstream
+    * Ship new SANE backend dll.d configuration, and conflict with libsane
+      (<< 1.0.15-7) (closes: #296317)
+  * Torsten Landschoff:
+    + debian/control: Fix typos in description
+      - of hpijs: a IJS driver -> an IJS driver (closes: #299987)
+      - of hplip: a X11 session -> an X11 session (closes: #299991)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri,  1 Apr 2005 09:38:12 -0300
+
+hplip (0.8.8-1) unstable; urgency=low
+
+  * UNRELEASED: This release was never uploaded to unstable due to serious
+    issues with many devices
+
+  * New upstream version:
+    * Added low ink infrastructure to device manager
+    * Made fixes to cleaning procedure
+    * Offline devices will now show supplies list with "Unknown" levels (was
+      blank before)
+    * Fixed the display for black cartridge number 15 on the Supplies Tab
+    * Added tech-type to models.xml
+    * Fixed Laserjet 1220 model.xml entry
+    * Fixed an issue with the Alert email service (does NOT fix #291346)
+  * Henrique de Moraes Holschuh:
+    * Removed patches accepted upstream:
+      20_hpiod_pidfile.dpatch, 40_gcc4_buildfixes.dpatch,
+      50_securityfix_umask.dpatch,
+      51_securityfix_detect_unsafe_conf_file.dpatch
+    * Remove patches that don't make sense anymore
+      10_toplevel_makefile.dpatch
+    * Rediff 30_xpp_support so that it applies cleanly
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 13 Feb 2005 21:04:27 -0200
+
 hplip (0.8.7-4) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

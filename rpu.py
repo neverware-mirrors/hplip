@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.9 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.11 $ 
+# $Date: 2005/03/21 17:38:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.0'
+_VERSION = '1.1'
 
 # Std Lib
 import sys
@@ -45,7 +45,7 @@ def usage():
                 )
             )
 
-    log.info( """\nUsage: rpu.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
+    log.info( """\nUsage: hp-rpu [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
     
     log.info( formatter.compose( ( "[PRINTER|DEVICE-URI] (**See NOTES)", "" ) ) )
     log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
@@ -103,7 +103,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'cups,usb'
 log_level = 'info'
 
 for o, a in opts:
@@ -129,9 +129,13 @@ for o, a in opts:
         
         
 
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
     
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )

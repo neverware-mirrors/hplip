@@ -67,6 +67,7 @@ typedef enum PRINTER_TYPE               // typedef'ed for C interface
 	ePScript,
 	eDJ3600,
 	eLJJetReady,
+    eLJFastRaster,
     MAX_PRINTER_TYPE
 } PRINTER_TYPE;
 
@@ -74,7 +75,7 @@ typedef enum PRINTER_TYPE               // typedef'ed for C interface
 /*! Do not use ModelName - it is going away in the next version
 \depricated
 */
-const char ModelName[MAX_PRINTER_TYPE][11] =
+const char ModelName[MAX_PRINTER_TYPE][13] =
 {
     "DJ400",
     "DJ540",
@@ -99,7 +100,8 @@ const char ModelName[MAX_PRINTER_TYPE][11] =
 	"ColorLaser",
 	"PostScript",
 	"DJ3600",
-	"LJJetReady"
+	"LJJetReady",
+    "LJFastRaster"
 };
 
 APDK_END_NAMESPACE

@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Torsten Landschoff <torsten@debian.org>
 Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp5-dev, python, python-dev, python-qt3, debhelper (>> 4), autotools-dev, dpatch (>= 2)
+Build-Depends: libcupsys2-dev, libsnmp5-dev (>> 5.1.2-6), libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
 Standards-Version: 3.6.1
 
 Package: hplip
@@ -32,7 +32,7 @@ Description: HP Linux Printing and Imaging System (hplip)
     (ADF) scanning in MFP devices
  .
  HPLIP can page an administrator (through email or a popup window through 
- a X11 session) when the printer needs attention.
+ an X11 session) when the printer needs attention.
  .
  Only USB and JetDirect (network) devices are supported.  For parallel-port
  devices, please use the hpoj package instead.
@@ -54,7 +54,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.0
 Suggests: hplip | hpoj, foomatic-filters-ppds, foomatic-filters
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains the hpijs binary which provides Ghostscript
- with a IJS driver for most inkjet printers and some LaserJet printers
+ with an IJS driver for most inkjet printers and some LaserJet printers
  manufactured by HP.
  .
  It includes the so-called rss patch, to use pure black ink instead

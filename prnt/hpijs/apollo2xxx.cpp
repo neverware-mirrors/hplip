@@ -37,11 +37,11 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapCONQUEST_CMYK[ 9 * 9 * 9 ];
-extern uint32_t ulMapCONQUEST_ClMlxx[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ690_CMYK[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ690_ClMlxx[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ660_CCM_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_CMY[ 9 * 9 * 9 ];
 
 Apollo2xxx::Apollo2xxx(SystemServices* pSS, BOOL proto)
     : Printer(pSS, NUM_DJ6XX_FONTS,proto)
@@ -54,9 +54,9 @@ Apollo2xxx::Apollo2xxx(SystemServices* pSS, BOOL proto)
       }
     else ePen=BOTH_PENS;    // matches default mode
 
-    CMYMap = ulMapVOLTAIRE_CCM_CMY;    // used in Mode2xxxColor
+    CMYMap = ulMapDJ600_CCM_CMY;    // used in Mode2xxxColor
 
-    pMode[DEFAULTMODE_INDEX]        = new PrintMode(ulMapVOLTAIRE_CCM_KCMY);   // normal color kcmy
+    pMode[DEFAULTMODE_INDEX]        = new PrintMode(ulMapDJ660_CCM_KCMY);   // normal color kcmy
     pMode[SPECIALMODE_INDEX]        = new Mode2xxxColor();   // normal color cmy
     pMode[SPECIALMODE_INDEX+1]   = new Mode2xxxPhoto();   // photo
     pMode[GRAYMODE_INDEX]           = new GrayMode2xxx();   // normal gray k
@@ -179,7 +179,7 @@ DRIVER_ERROR Apollo2xxx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 
 Mode2xxxPhoto::Mode2xxxPhoto()
 // print mode for photo pen
-: PrintMode(ulMapCONQUEST_CMYK,ulMapCONQUEST_ClMlxx)
+: PrintMode(ulMapDJ690_CMYK,ulMapDJ690_ClMlxx)
 {
    dyeCount=6;
    medium =  mediaSpecial;
@@ -200,7 +200,7 @@ Mode2xxxPhoto::Mode2xxxPhoto()
 }
 
 Mode2xxxColor::Mode2xxxColor()
-: PrintMode(ulMapVOLTAIRE_CCM_CMY)
+: PrintMode(ulMapDJ600_CCM_CMY)
 {
    dyeCount=3;
    CompatiblePens[0] = COLOR_PEN;   // only color pen allowed
@@ -210,7 +210,7 @@ Mode2xxxColor::Mode2xxxColor()
 
 GrayMode2xxx::GrayMode2xxx()
 // print mode for photo pen
-: PrintMode( ulMapVOLTAIRE_CCM_K )
+: PrintMode( ulMapDJ600_CCM_K )
 {
    CompatiblePens[1] = MDL_BOTH;
 
@@ -221,7 +221,7 @@ GrayMode2xxx::GrayMode2xxx()
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 Mode2xxxDraftColorKCMY::Mode2xxxDraftColorKCMY()
-: PrintMode( ulMapVOLTAIRE_CCM_KCMY )
+: PrintMode( ulMapDJ660_CCM_KCMY )
 {
     theQuality = qualityDraft;
     Config.eHT = MATRIX;
@@ -229,7 +229,7 @@ Mode2xxxDraftColorKCMY::Mode2xxxDraftColorKCMY()
 }
 
 Mode2xxxDraftGrayK::Mode2xxxDraftGrayK()
-: PrintMode(ulMapVOLTAIRE_CCM_K)
+: PrintMode(ulMapDJ600_CCM_K)
 {
    CompatiblePens[1] = MDL_BOTH;
    pmColor=GREY_K;
@@ -239,7 +239,7 @@ Mode2xxxDraftGrayK::Mode2xxxDraftGrayK()
 }
 
 Mode2xxxDraftColorCMY::Mode2xxxDraftColorCMY()
-: PrintMode( ulMapVOLTAIRE_CCM_CMY )
+: PrintMode( ulMapDJ600_CCM_CMY )
 {
     dyeCount=3;
     CompatiblePens[0] = COLOR_PEN;   // only color pen allowed
@@ -248,7 +248,7 @@ Mode2xxxDraftColorCMY::Mode2xxxDraftColorCMY()
 }
 
 Mode2xxxBestGrayK::Mode2xxxBestGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityPresentation;
    pmQuality = QUALITY_BEST;

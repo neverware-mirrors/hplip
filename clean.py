@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.9 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.12 $ 
+# $Date: 2005/03/21 17:38:49 $
 # $Author: dwelch $
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.2'
+_VERSION = '1.3'
 
 #Std Lib
 import sys
@@ -44,7 +44,7 @@ def usage():
                 )
             )
 
-    log.info( """\nUsage: clean.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
+    log.info( """\nUsage: hp-clean [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
     
     log.info( formatter.compose( ( "[PRINTER|DEVICE-URI] (**See NOTES)", "" ) ) )
     log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
@@ -58,8 +58,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<level>: 1*, 2, or 3 (*default)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
 
-    log.info(  """Examples:\n\Clean CUPS printer named "hp5550":\n   clean.py -php5550\n\n""" \
-               """Clean printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   clean.py -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
+    log.info(  """Examples:\n\Clean CUPS printer named "hp5550":\n   hp-clean -php5550\n\n""" \
+               """Clean printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-clean -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
@@ -74,7 +74,7 @@ except getopt.GetoptError:
     usage()
     sys.exit(1)
     
-bus = 'cups'
+bus = 'usb,cups'
 printer_name = None
 device_uri = None    
 log_level = 'info'
@@ -114,9 +114,13 @@ if level < 1 or level > 3:
     log.error( "Invalid cleaning level, setting level to 1." )
     level = 1
         
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
     
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
@@ -188,6 +192,14 @@ try:
         else:
             maint.cleanType2( d )
     
+    elif clean_type == 3:
+        if level == 3:
+            maint.wipeAndSpitType1()
+        elif level == 2:
+            maint.primeType1( d )
+        else:
+            maint.cleanType1( d )
+
     else:
         log.error( "Cleaning not needed or supported on this device." )
         

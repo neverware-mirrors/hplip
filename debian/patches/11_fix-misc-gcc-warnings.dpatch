@@ -1,0 +1,52 @@
+#!/bin/sh -e
+## 11_fix-misc-gcc-warnings.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix bad C code that causes warnings and strict aliasing rules problems
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/ip/ipdefs.h /tmp/dpep.wJovZX/hplip/ip/ipdefs.h
+--- hplip/ip/ipdefs.h	2005-04-02 08:35:02.912084682 -0300
++++ /tmp/dpep.wJovZX/hplip/ip/ipdefs.h	2005-04-02 10:44:16.823483023 -0300
+@@ -100,11 +100,6 @@
+  * discards the low 32 bits, giving you the high 32 bits.  The way
+  * this is done is compiler-dependent.
+  */
+-//#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {    \
+-//    __int64 prod64;                                            \
+-//    prod64 = (__int64)(firstpar) * (secondpar);                \
+-//    hihalfresult = ((int*)&prod64)[1];                        \
+-//    /* above, use a [0] for big endian */                    \
+ #define MUL32HIHALF(firstpar, secondpar, hihalfresult) {       \
+     hihalfresult = ((__int64)(firstpar) * (secondpar)) >> 32;  \
+ }
+diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.wJovZX/hplip/pcard/pcardext/pcardext.c
+--- hplip/pcard/pcardext/pcardext.c	2005-04-02 10:43:14.968078970 -0300
++++ /tmp/dpep.wJovZX/hplip/pcard/pcardext/pcardext.c	2005-04-02 10:43:49.805800827 -0300
+@@ -20,7 +20,7 @@
+ Requires:
+ Python 2.2+
+ 
+-/*****************************************************************************/
++\*****************************************************************************/
+ 
+ #include <Python.h>
+ #include <structmember.h>

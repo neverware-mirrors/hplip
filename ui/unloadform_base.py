@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/unloadform_base.ui'
 #
-# Created: Fri Dec 3 16:01:56 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Wed Feb 23 13:21:57 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.13
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -131,7 +131,6 @@ class UnloadForm_base(QMainWindow):
         self.resize(QSize(689,661).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.SelectAllButton,SIGNAL("clicked()"),self.SelectAllButton_clicked)
         self.connect(self.SelectNoneButton,SIGNAL("clicked()"),self.SelectNoneButton_clicked)
         self.connect(self.IconView,SIGNAL("doubleClicked(QIconViewItem*)"),self.IconView_doubleClicked)
@@ -142,6 +141,7 @@ class UnloadForm_base(QMainWindow):
         self.connect(self.IconView,SIGNAL("clicked(QIconViewItem*)"),self.IconView_clicked)
         self.connect(self.IconView,SIGNAL("selectionChanged()"),self.IconView_selectionChanged)
         self.connect(self.ShowThumbnailsButton,SIGNAL("clicked()"),self.ShowThumbnailsButton_clicked)
+        self.connect(self.CancelButton,SIGNAL("clicked()"),self.CancelButton_clicked)
 
 
     def languageChange(self):
@@ -149,7 +149,7 @@ class UnloadForm_base(QMainWindow):
         self.groupBox2.setTitle(self.__tr("Device:"))
         self.DeviceText.setText(QString.null)
         self.UnloadButton.setText(self.__tr("Unload Selected Files"))
-        self.CancelButton.setText(self.__tr("Cancel"))
+        self.CancelButton.setText(self.__tr("Close"))
         self.groupBox3.setTitle(self.__tr("Unload Directory:"))
         self.UnloadDirectoryBrowseButton.setText(self.__tr("Browse..."))
         self.FileRemovalGroup.setTitle(self.__tr("File Removal:"))
@@ -245,6 +245,9 @@ class UnloadForm_base(QMainWindow):
 
     def ShowThumbnailsButton_clicked(self):
         print "UnloadForm_base.ShowThumbnailsButton_clicked(): Not implemented yet"
+
+    def CancelButton_clicked(self):
+        print "UnloadForm_base.CancelButton_clicked(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UnloadForm_base",s,c)

@@ -55,7 +55,7 @@
 //#include "sanei_debug.h"
 //#include "sanei_backend.h"
 
-#include "system.h"
+#include "io.h"
 #include "mfpdtf.h"
 #include "pml.h"
 #include "scl.h"
