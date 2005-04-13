@@ -1,0 +1,92 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 30_bind_to_INADDR_LOOPBACK.dpatch by  <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Bind to INADDR_LOOPBACK instead of INADDR_ANY
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.2YsJZf/hplip/io/hpiod/system.cpp
+--- hplip/io/hpiod/system.cpp	2005-04-13 08:16:55.004734962 -0300
++++ /tmp/dpep.2YsJZf/hplip/io/hpiod/system.cpp	2005-04-13 08:16:55.186713156 -0300
+@@ -70,7 +70,7 @@
+ 
+    bzero(&sin, sizeof(sin));
+    sin.sin_family = AF_INET;
+-   sin.sin_addr.s_addr = INADDR_ANY;
++   sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    sin.sin_port = htons(GetHpiodPortNumber());
+ 
+    if (bind(Permsd, (struct sockaddr *)&sin, sizeof(sin)) == -1) 
+diff -urNad hplip/pcard/ptest.c /tmp/dpep.2YsJZf/hplip/pcard/ptest.c
+--- hplip/pcard/ptest.c	2005-04-13 08:16:34.102239538 -0300
++++ /tmp/dpep.2YsJZf/hplip/pcard/ptest.c	2005-04-13 08:22:08.046195343 -0300
+@@ -485,14 +485,12 @@
+ {
+    char message[512];  
+    struct sockaddr_in pin;  
+-   struct hostent *server_host_name;
+    int len=0, fd=-1;
+    MSG_ATTRIBUTES ma;
+  
+-   server_host_name = gethostbyname("localhost");
+    bzero(&pin, sizeof(pin));  
+    pin.sin_family = AF_INET;  
+-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
++   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    pin.sin_port = htons(hpiod_port_num);  
+  
+    if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+@@ -643,13 +641,11 @@
+    char message[HEADER_SIZE];  
+    char model[128];
+    struct sockaddr_in pin;  
+-   struct hostent *server_host_name;
+    int len=0,stat=1;
+ 
+-   server_host_name = gethostbyname("localhost");
+    bzero(&pin, sizeof(pin));  
+    pin.sin_family = AF_INET;  
+-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
++   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    pin.sin_port = htons(hpssd_port_num);   /* hpssd */  
+ 
+    if ((hpssd_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+@@ -792,7 +788,6 @@
+    char message[LINE_SIZE*64];  
+    int socket_descriptor;  
+    struct sockaddr_in pin;  
+-   struct hostent *server_host_name;
+    int i, len=0;  
+    MSG_ATTRIBUTES ma;
+    char *pBeg;
+@@ -800,11 +795,9 @@
+    message[0] = 0;
+    uri[0] = 0;
+ 
+-   server_host_name = gethostbyname("localhost");
+    bzero(&pin, sizeof(pin));  
+    pin.sin_family = AF_INET;  
+-   pin.sin_addr.s_addr = htonl(INADDR_ANY);  
+-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
++   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);  
+    pin.sin_port = htons(hpiod_port_num);  
+  
+    if ((socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) == -1) 

@@ -1,3 +1,13 @@
+hplip (0.9.1-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * New dpatch (30_bind_to_INADDR_LOOPBACK):
+      Bind to INADDR_LOOPBACK instead of to INADDR_ANY for now, as
+      HPLIP is constrained to working bound to localhost currently
+      (closes: #304068)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 13 Apr 2005 08:14:25 -0300
+
 hplip (0.9.1-1) unstable; urgency=low
 
   * New upstream version:
