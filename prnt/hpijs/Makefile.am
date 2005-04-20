@@ -2,7 +2,7 @@ hpijsdocdir = $(docdir)/$(PACKAGE)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_1
+APDKLABEL=HPLIP-0_9_2
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug

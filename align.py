@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.20 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.21 $ 
+# $Date: 2005/04/14 17:01:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -263,7 +263,7 @@ try:
         maint.AlignType2( d, loadPlainPaper, enterAlignmentNumber, bothPensRequired, update_spinner )
         
     elif align_type == 3: # 9xx (Thriftway/Subway)
-        maint.AlignType3( d, loadPlainPaper, enterAlignmentNumber, enterPaperEdge, update_spinner )
+        maint.AlignType3( d, loadPlainPaper, enterAlignmentNumber, enterPaperEdge, update_spinner, align_type )
         
     elif align_type == 6: # LIDIL Auto (Homer)
        maint.AlignType6( d, aioUI1, aioUI2, loadPlainPaper )

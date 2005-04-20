@@ -1,3 +1,33 @@
+hplip (0.9.2-1) unstable; urgency=medium
+
+  * New upstream version
+    * HPIJS 2.1.2:
+      + Added new print mode "FastDraft Grayscale" to DJGenericVIP
+      + Put limit (max=5) on syslog messages when output device write()
+        fails (closes: #210449)
+      + Removed specified gcc options in hpijs configure.in
+      + Fixed a 64-bit compile issue in ljjetready.cpp (closes: #302828)
+    * HPLIP 0.9.2:
+      + Fixed "Invalid color calibration type" error occurs when executing
+        command "colorcal" in terminal
+      + Fixed number of arguments error in hp-align
+      + Made UI architectural change (removed hpguid.py, removed popup feature,
+        etc)
+      + Fixed a scanning issue with Laserjet flatbed scanners (PML scanners).
+        Scan would fail at end of scan
+      + Removed images.tgz after install
+      + Fixed a problem when all function buttons are grayed out when toolbox is
+        launched at the first time.
+      + Fixed DJ450 battery check issue
+    * Henrique de Moraes Holschuh:
+      * Updated dpatch 11_fix-misc-gcc-warnings with many new hunks
+      * Added 40_testmail_fix, to get hpssd and Test Email functionality to
+        actually work (it was completely useless and hopelessly broken)
+        (closes: #291346)
+      * Updated README.Debian files for HPIJS and HPLIP
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 20 Apr 2005 10:05:59 -0300
+
 hplip (0.9.1-2) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

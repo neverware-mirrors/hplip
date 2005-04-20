@@ -14,4 +14,3 @@ ui/colorcalform_base.py
 ui/imagepropertiesdlg_base.py
 ui/colorcalform2_base.py
 ui/nodevicesform_base.py
-ui/form1.py

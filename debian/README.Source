@@ -1,10 +1,5 @@
-$Id: README.Source,v 1.2 2005/01/17 19:15:48 hmh Exp $
+$Id: README.Source,v 1.3 2005/04/20 12:35:19 hmh Exp $
 
 Due to autotools (actually, to avoid running them needlessly),
 almost all patches to the build infrastructure are NOT in dpatch 
 format, but rather applied directly.
-
-This will change if upstream ever takes the hint and stop
-abusing autotools.  This package should have exactly two configure
-scripts, not the huge (and *slooooow*) amount of them it currently
-has.

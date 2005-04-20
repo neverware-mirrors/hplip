@@ -1,13 +1,3 @@
-Must fix before new release:
-  *  hp-* naming for the stuff in bin/ to follow upstream
-
-  daemons:
-    1. kill all hpguid.py instances on stop (initscript) in a better way,
-       ideally we should get hpssd to do it by itself
-
-  hpguid.py:
-    2. Make sure it does pidfile locking properly
-
   hpiod:
     1. Fix pidfile locking so that main thread waits for the others to die
        before exiting
@@ -16,19 +6,12 @@ Must fix before new release:
     1. remove all hardcoded paths
     2. run as not-root?
     3. syslog() stuff instead of dumping to stdout
-    4. install hpssd link in usr/sbin, and use that in the initscript
 
     U1. Get upstream to allow one to confure sender address, etc
     U2. Date header (#291277), precedence header too.
 
   sane stuff:
     1. provide sane-<whatever> manpage
-
-  misc:
-    1. locate what is an user binary and what isn't, and add
-       hplip_* links to them in /usr/bin
-    2. Add debian menu entries, KDE and GNOME desktop entries
-    3. docbase-register the html readme in hplip and hpijs pkgs
 
   build:
    1. use python automake support
@@ -37,10 +20,9 @@ Must fix before new release:
    2. get all the hplip stuff into a hplip *python* package (basically, add hplip. before every import)
       2a. then move it out of /usr/lib into the python paths
       2b. bytecompile the mess
-   3. rename all toplevel utilities to hplip_*
-   4. remove hardcoding of /etc/hp, make it a configure.in thing
-   5. remove python #! lines from stuff that are not end-user executables
-   6. fix and submit upstream something less hackish than the data -> ../share/data symlink
+   3. remove hardcoding of /etc/hp, make it a configure.in thing
+   4. remove python #! lines from stuff that are not end-user executables
+   5. fix and submit upstream something less hackish than the data -> ../share/data symlink
 
   CUPSYS:
    1. hp backend requires all hp drivers to be running
@@ -49,6 +31,3 @@ Must fix before new release:
   FOOMATIC:
    1. all PPDs should be in /etc somewhere.  The best way to do this is probably another
       link to /etc/ppds added to /etc/share/cups/models or something.
-
-  upstream:
-    - Check the HP copyright stuff added to derived works (async/async_qt.py)

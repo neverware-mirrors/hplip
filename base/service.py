@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.25 $ 
-# $Date: 2005/03/18 22:44:31 $
+# $Revision: 1.26 $ 
+# $Date: 2005/04/13 21:16:21 $
 # $Author: dwelch $
 
 #
@@ -250,14 +250,13 @@ class Service:
         
         return result
         
-    def setAlerts( self, popup_alerts, email_alerts, email_address, smtp_server ):
+    def setAlerts( self, email_alerts, email_address, smtp_server ):
         
         fields, data = msg.xmitMessage( self.hpssd_sock, 
                                         "SetAlerts",
                                         None, 
                                         { 
                                             'username'      : prop.username,
-                                            'popup-alerts'  : popup_alerts,
                                             'email-alerts'  : email_alerts,
                                             'email-address' : email_address,
                                             'smtp-server'   : smtp_server,

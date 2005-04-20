@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/nodevicesform_base.ui'
 #
-# Created: Thu Jan 20 09:35:48 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:29 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -23,7 +23,7 @@ class NoDevicesForm_base(QDialog):
         NoDevicesForm_baseLayout = QGridLayout(self,1,1,11,6,"NoDevicesForm_baseLayout")
 
         self.Icon = QLabel(self,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setFrameShape(QLabel.NoFrame)
         self.Icon.setScaledContents(1)
 

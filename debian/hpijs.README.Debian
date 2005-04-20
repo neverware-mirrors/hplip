@@ -15,5 +15,8 @@ It is a very good idea to install the hpoj package if you have
 a parallel-port HP printer, or the hplip package if you have
 an USB or JetDirect HP printer.
 
+A lot of enhanced functionality is only available in bi-dir
+mode, which is supported only by HPLIP.
+
  -- Torsten Landschoff <torsten@debian.org>
  -- Henrique de Moraes Holschuh <hmh@debian.org>

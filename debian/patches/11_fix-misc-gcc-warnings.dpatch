@@ -23,9 +23,107 @@ esac
 exit 0
 
 @DPATCH@
-diff -urNad hplip/ip/ipdefs.h /tmp/dpep.wJovZX/hplip/ip/ipdefs.h
---- hplip/ip/ipdefs.h	2005-04-02 08:35:02.912084682 -0300
-+++ /tmp/dpep.wJovZX/hplip/ip/ipdefs.h	2005-04-02 10:44:16.823483023 -0300
+diff -urNad hplip/backend/hp/hp.c /tmp/dpep.fjBh3r/hplip/backend/hp/hp.c
+--- hplip/backend/hp/hp.c	2004-12-03 22:47:54.000000000 -0200
++++ /tmp/dpep.fjBh3r/hplip/backend/hp/hp.c	2005-04-20 08:13:48.899279983 -0300
+@@ -1169,7 +1169,7 @@
+    DeviceEvent(argv[0], argv[1], EVENT_END_JOB, "event", 0, SESSION_END);
+    fprintf(stderr, "INFO: %s\n", GetVStatusMessage(VSTATUS_IDLE));
+ 
+-bugout:
++/*bugout:*/
+    if (channel >= 0)
+       CloseChannel(hd, channel);
+    if (hd >= 0)
+diff -urNad hplip/io/hpiod/device.cpp /tmp/dpep.fjBh3r/hplip/io/hpiod/device.cpp
+--- hplip/io/hpiod/device.cpp	2005-03-18 02:23:46.000000000 -0300
++++ /tmp/dpep.fjBh3r/hplip/io/hpiod/device.cpp	2005-04-20 08:14:30.093151607 -0300
+@@ -173,7 +173,6 @@
+    char uriModel[128];
+    char model[128];
+    int len=0;
+-   unsigned char nullByte=0;
+ 
+    *result = R_AOK;
+ 
+@@ -461,7 +460,6 @@
+ Channel *Device::NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl)
+ {
+    Channel *pC=NULL;
+-   MsgAttributes ma;
+    int i, n, mode;
+ 
+    /* Check for existing name service already open. */
+diff -urNad hplip/io/hpiod/jddevice.cpp /tmp/dpep.fjBh3r/hplip/io/hpiod/jddevice.cpp
+--- hplip/io/hpiod/jddevice.cpp	2005-04-02 08:17:49.792098569 -0300
++++ /tmp/dpep.fjBh3r/hplip/io/hpiod/jddevice.cpp	2005-04-20 08:16:40.041966633 -0300
+@@ -41,12 +41,10 @@
+ 
+ int JetDirectDevice::Open(char *sendBuf, int *result)
+ {
+-   char dev[255];
+    char uriModel[128];
+    char model[128];
+    char *p, *tail;
+    int len=0;
+-   unsigned char nullByte=0;
+ 
+    *result = R_AOK;
+ 
+@@ -134,7 +132,7 @@
+ int JetDirectDevice::GetDeviceStatus(char *sendBuf, int *result)
+ {
+    char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+-   int len=0, r;
++   int len=0;
+    unsigned char status = NFAULT_BIT;
+ 
+    *result = R_AOK;
+diff -urNad hplip/io/hpiod/mlc.cpp /tmp/dpep.fjBh3r/hplip/io/hpiod/mlc.cpp
+--- hplip/io/hpiod/mlc.cpp	2005-04-20 08:09:29.455555129 -0300
++++ /tmp/dpep.fjBh3r/hplip/io/hpiod/mlc.cpp	2005-04-20 08:14:52.405373415 -0300
+@@ -777,7 +777,7 @@
+       }
+    }
+ 
+-bugout:
++/*bugout:*/
+    len = sprintf(sendBuf, res, *result);  
+ 
+    return len;
+diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.fjBh3r/hplip/io/hpiod/system.cpp
+--- hplip/io/hpiod/system.cpp	2005-04-20 08:09:29.456555004 -0300
++++ /tmp/dpep.fjBh3r/hplip/io/hpiod/system.cpp	2005-04-20 08:16:07.395033784 -0300
+@@ -889,7 +889,7 @@
+    char message[BUFFER_SIZE];
+    unsigned char oid[LINE_SIZE];
+    unsigned char *p=(unsigned char *)message;
+-   int len, dLen, result, reply, status, dt;
++   int len, dLen, result, reply, status;
+    MsgAttributes ma;
+    Device *pD=pDevice[device];
+ 
+@@ -1067,7 +1067,7 @@
+ int System::MakeUriFromIP(char *ip, int port, char *sendBuf)
+ {
+    char res[] = "msg=MakeURIResult\nresult-code=%d\n";
+-   int len=0, maxSize, result, dt, status;
++   int len=0, result, dt, status;
+    char devid[1024];
+    char model[128];
+ 
+@@ -1110,7 +1110,7 @@
+    char serial[128];
+    char dummyBuf[2048];
+    char *id;
+-   int len, size=0, result;
++   int len, result;
+    Device *pD=NULL;
+ 
+    len = sprintf(sendBuf, res, R_INVALID_DEVICE_NODE);
+diff -urNad hplip/ip/ipdefs.h /tmp/dpep.fjBh3r/hplip/ip/ipdefs.h
+--- hplip/ip/ipdefs.h	2005-04-20 08:09:29.471553130 -0300
++++ /tmp/dpep.fjBh3r/hplip/ip/ipdefs.h	2005-04-20 08:10:32.241747057 -0300
 @@ -100,11 +100,6 @@
   * discards the low 32 bits, giving you the high 32 bits.  The way
   * this is done is compiler-dependent.
@@ -38,9 +136,9 @@ diff -urNad hplip/ip/ipdefs.h /tmp/dpep.wJovZX/hplip/ip/ipdefs.h
  #define MUL32HIHALF(firstpar, secondpar, hihalfresult) {       \
      hihalfresult = ((__int64)(firstpar) * (secondpar)) >> 32;  \
  }
-diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.wJovZX/hplip/pcard/pcardext/pcardext.c
---- hplip/pcard/pcardext/pcardext.c	2005-04-02 10:43:14.968078970 -0300
-+++ /tmp/dpep.wJovZX/hplip/pcard/pcardext/pcardext.c	2005-04-02 10:43:49.805800827 -0300
+diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.fjBh3r/hplip/pcard/pcardext/pcardext.c
+--- hplip/pcard/pcardext/pcardext.c	2005-04-20 08:09:29.472553006 -0300
++++ /tmp/dpep.fjBh3r/hplip/pcard/pcardext/pcardext.c	2005-04-20 08:10:32.241747057 -0300
 @@ -20,7 +20,7 @@
  Requires:
  Python 2.2+
@@ -50,3 +148,89 @@ diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.wJovZX/hplip/pcard/pcardex
  
  #include <Python.h>
  #include <structmember.h>
+diff -urNad hplip/prnt/cupsext/cupsext.c /tmp/dpep.fjBh3r/hplip/prnt/cupsext/cupsext.c
+--- hplip/prnt/cupsext/cupsext.c	2004-12-03 22:47:54.000000000 -0200
++++ /tmp/dpep.fjBh3r/hplip/prnt/cupsext/cupsext.c	2005-04-20 08:18:22.885150085 -0300
+@@ -246,7 +246,6 @@
+ 
+ PyObject * getPrinters( PyObject * self, PyObject * args ) 
+ {
+-    char buf[1024];
+     http_t *http=NULL;     /* HTTP object */
+     ipp_t *request=NULL;  /* IPP request object */
+     ipp_t *response=NULL; /* IPP response object */
+@@ -418,7 +417,6 @@
+     http_t *http=NULL;     /* HTTP object */
+     ipp_t *request=NULL;  /* IPP request object */
+     ipp_t *response=NULL; /* IPP response object */
+-    ipp_attribute_t *attr;     /* Current IPP attribute */
+     cups_lang_t * language;
+     int r;
+     char printer_uri[HTTP_MAX_URI];  
+@@ -837,7 +835,6 @@
+     int i;
+     int num_jobs;
+     PyObject * job_list;
+-    PyObject * newjob;
+     int my_job;
+     int completed;
+     
+diff -urNad hplip/scan/sane/hpaio.c /tmp/dpep.fjBh3r/hplip/scan/sane/hpaio.c
+--- hplip/scan/sane/hpaio.c	2005-04-18 17:40:36.270396077 -0300
++++ /tmp/dpep.fjBh3r/hplip/scan/sane/hpaio.c	2005-04-20 08:11:12.873693988 -0300
+@@ -3543,7 +3543,7 @@
+             rService = MfpdtfReadService( hpaio->mfpdtf );
+             
+             if( hpaio->scannerType == SCANNER_TYPE_PML )
+-                if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
++                if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
+                     goto abort;
+             
+             retcode = hpaioPmlCheckForScanFailure( hpaio );
+@@ -3900,7 +3900,7 @@
+                 rService = MfpdtfReadService( hpaio->mfpdtf );
+                                 
+                 if( hpaio->scannerType == SCANNER_TYPE_PML )
+-                    if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
++                    if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
+                         goto abort;
+                 
+                 retcode = hpaioPmlCheckForScanFailure( hpaio );
+diff -urNad hplip/scan/sane/io.c /tmp/dpep.fjBh3r/hplip/scan/sane/io.c
+--- hplip/scan/sane/io.c	2005-03-17 15:46:42.000000000 -0300
++++ /tmp/dpep.fjBh3r/hplip/scan/sane/io.c	2005-04-20 08:13:09.573174794 -0300
+@@ -327,7 +327,6 @@
+ {
+     DBG( 0, "Reading port files...\n"  );
+     char rcbuf[255];
+-    char section[32];
+     FILE * inFile;
+     char * tail;
+ 
+@@ -630,7 +629,6 @@
+ int SendScanEvent( char * device_uri, int event, char * type )
+ {
+     char message[ MAXSIZE ];
+-    MsgAttributes ma;
+     memset( message, '\0', MAXSIZE );
+     int len = sprintf( message, "msg=Event\ndevice-uri=%s\nevent-code=%d\nevent-type=%s\n", device_uri, event, type );
+     DBG( 0, "\n>>>\n%s\n", message ); 
+diff -urNad hplip/scan/sane/pml.c /tmp/dpep.fjBh3r/hplip/scan/sane/pml.c
+--- hplip/scan/sane/pml.c	2005-02-23 16:03:22.000000000 -0300
++++ /tmp/dpep.fjBh3r/hplip/scan/sane/pml.c	2005-04-20 08:11:56.290293371 -0300
+@@ -439,7 +439,6 @@
+         status = OK;
+     }
+ 
+-bugout:
+     return status;
+ }
+ 
+@@ -489,7 +488,6 @@
+         status = OK;
+     }
+ 
+-bugout:
+     return status;
+ }
+ 

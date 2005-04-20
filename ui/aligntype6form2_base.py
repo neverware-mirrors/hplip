@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/aligntype6form2_base.ui'
 #
-# Created: Thu Jan 20 09:35:46 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -39,7 +39,7 @@ class AlignType6Form2_base(QDialog):
         self.resize(QSize(626,211).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.pushButton4,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.pushButton4,SIGNAL("clicked()"),self.accept)
 
 
     def languageChange(self):

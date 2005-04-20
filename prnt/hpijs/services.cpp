@@ -229,7 +229,9 @@ DRIVER_ERROR UXServices::ToDevice(const BYTE * pBuffer, DWORD * Count)
    /* Write must be not-buffered, don't use streams */
    if (write(OutputPath, pBuffer, *Count) != (ssize_t)*Count) 
    {
-      bug("unable to write to output, fd=%d, count=%d: %m\n", OutputPath, *Count);
+      static int cnt=0;
+      if (cnt++ < 5)
+         bug("unable to write to output, fd=%d, count=%d: %m\n", OutputPath, *Count);
       return IO_ERROR;
    }
 
