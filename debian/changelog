@@ -1,3 +1,11 @@
+hplip (0.9.2-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Added new patch: 50_hp-clean_fix, fix hp-clean bad wipeAndSpitType1()
+      invocation
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 26 Apr 2005 02:04:27 -0300
+
 hplip (0.9.2-1) unstable; urgency=medium
 
   * New upstream version
