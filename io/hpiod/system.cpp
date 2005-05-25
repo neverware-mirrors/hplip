@@ -70,7 +70,8 @@ System::System()
 
    bzero(&sin, sizeof(sin));
    sin.sin_family = AF_INET;
-   sin.sin_addr.s_addr = INADDR_ANY;
+//   sin.sin_addr.s_addr = INADDR_ANY;
+   sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    sin.sin_port = htons(GetHpiodPortNumber());
 
    if (bind(Permsd, (struct sockaddr *)&sin, sizeof(sin)) == -1) 
@@ -717,7 +718,8 @@ int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *bu
    struct snmp_pdu *response=NULL;
    oid anOID[MAX_OID_LEN];
    size_t anOID_len = MAX_OID_LEN;
-   int i, len=0;
+   int len=0;
+   unsigned int i;
    uint32_t val;
 
    *result = R_IO_ERROR;
@@ -742,7 +744,7 @@ int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *bu
       case PML_DT_ENUMERATION:
       case PML_DT_SIGNED_INTEGER:
          /* Convert PML big-endian to SNMP little-endian byte stream. */
-         for(i=0, val=0; i<size && i<sizeof(val); i++)    
+         for(i=0, val=0; i<(unsigned int)size && i<sizeof(val); i++)    
             val = ((val << 8) | buffer[i]);
          snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_INTEGER, (unsigned char *)&val, sizeof(val));
          break;
@@ -821,7 +823,7 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int 
             *type = PML_DT_SIGNED_INTEGER;
 
             /* Convert SNMP little-endian to PML big-endian byte stream. */
-            len = (sizeof(uint32_t) < size) ? sizeof(uint32_t) : size;
+            len = (sizeof(uint32_t) < (unsigned int)size) ? sizeof(uint32_t) : size;
             val = *vars->val.integer;
             for(i=len-1; i>0; i--)
             {
@@ -841,7 +843,7 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int 
             break;
          case ASN_OCTET_STR:
             *type = PML_DT_STRING;
-            len = (vars->val_len < size) ? vars->val_len : size;
+            len = (vars->val_len < (unsigned int)size) ? vars->val_len : size;
             memcpy(buffer, vars->val.string, len);
             break;
          default:
@@ -889,7 +891,7 @@ int System::SetPml(int device, int channel, char *snmp_oid, int type, unsigned c
    char message[BUFFER_SIZE];
    unsigned char oid[LINE_SIZE];
    unsigned char *p=(unsigned char *)message;
-   int len, dLen, result, reply, status, dt;
+   int len, dLen, result, reply, status;
    MsgAttributes ma;
    Device *pD=pDevice[device];
 
@@ -1067,7 +1069,7 @@ bugout:
 int System::MakeUriFromIP(char *ip, int port, char *sendBuf)
 {
    char res[] = "msg=MakeURIResult\nresult-code=%d\n";
-   int len=0, maxSize, result, dt, status;
+   int len=0, result, dt, status;
    char devid[1024];
    char model[128];
 
@@ -1110,7 +1112,7 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
    char serial[128];
    char dummyBuf[2048];
    char *id;
-   int len, size=0, result;
+   int len, result;
    Device *pD=NULL;
 
    len = sprintf(sendBuf, res, R_INVALID_DEVICE_NODE);

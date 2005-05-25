@@ -3543,7 +3543,7 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
             rService = MfpdtfReadService( hpaio->mfpdtf );
             
             if( hpaio->scannerType == SCANNER_TYPE_PML )
-                if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
+                if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
                     goto abort;
             
             retcode = hpaioPmlCheckForScanFailure( hpaio );
@@ -3900,7 +3900,7 @@ needMoreData:
                 rService = MfpdtfReadService( hpaio->mfpdtf );
                                 
                 if( hpaio->scannerType == SCANNER_TYPE_PML )
-                    if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
+                    if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
                         goto abort;
                 
                 retcode = hpaioPmlCheckForScanFailure( hpaio );

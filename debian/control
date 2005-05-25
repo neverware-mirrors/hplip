@@ -1,21 +1,24 @@
 Source: hplip
 Section: utils
 Priority: optional
-Maintainer: Torsten Landschoff <torsten@debian.org>
-Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>
+Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
+Uploaders: Torsten Landschoff <torsten@debian.org>
 Build-Depends: libcupsys2-dev, libsnmp5-dev (>> 5.1.2-6), libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
 Standards-Version: 3.6.1
 
-Package: hplip
+Package: hplip-base
 Architecture: any
 Conflicts: hpoj, hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1)
-Depends: cupsys (>= 1.1.20), python-qt3, hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
-Suggests: hpijs, kdeprint | gtklp | xpp
-Description: HP Linux Printing and Imaging System (hplip)
- This is the HP Linux Printing and Imaging System.  It provides full
- support for printing on most HP SFP (single function peripheral)
- InkJets and many LaserJets, and for scanning and photo-card access on
- most HP MFP (multi-funtcion peripheral) printers.
+Depends: cupsys (>= 1.1.20), hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Recommends: cupsys-client (>= 1.1.20)
+Conflicts: hplip (<< 0.9.3), hplip-data (<< 0.9.3)
+Replaces: hplip (<< 0.9.3)
+Suggests: hpijs, hplip
+Description: HP Linux Printing and Imaging System - base system
+ The HP Linux Printing and Imaging System provides full support for
+ printing on most HP SFP (single function peripheral) InkJets and
+ many LaserJets, and for scanning and photo-card access on most HP
+ MFP (multi-funtcion peripheral) printers.
  .
  HPLIP is composed of:
   * HP CUPS backend driver (hp:/) with bi-directional communication with
@@ -23,27 +26,49 @@ Description: HP Linux Printing and Imaging System (hplip)
     HPIJS functionality such as 4-side fullbleed printing support)
   * HPIJS Ghostscript IJS driver to rasterize output from PostScript(tm)
     files or from any other input format supported by Ghostscript
+    (shipped in package hpijs)
   * Command line utilities to perform printer maintenance, such as 
     ink-level monitoring or pen cleaning and calibration
   * Command line utility to download data from the photo card interfaces
     in MFP devices
   * A GUI toolbox to access all these functions in a friendly way
+    (shipped in package hplip)
   * HPAIO SANE backend (hpaio) for flatbed and Automatic Document Feeder 
     (ADF) scanning in MFP devices
  .
- HPLIP can page an administrator (through email or a popup window through 
- an X11 session) when the printer needs attention.
+ This is this the base hplip system without the graphical user 
+ interface and without the HP toolbox.  Install the hplip package to
+ use the graphical user interface and HP toolbox.
  .
  Only USB and JetDirect (network) devices are supported.  For parallel-port
  devices, please use the hpoj package instead.
  .
- You will need the hpijs package to have a working Unix printing solution.
+  Homepage: http://hpinkjet.sourceforge.net
+
+Package: hplip
+Architecture: all
+Depends: hplip-base (= ${Source-Version}), python-qt3, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Suggests: kdeprint | gtklp | xpp
+Replaces: hplip-data (<< 0.9.3)
+Description: HP Linux Printing and Imaging System (hplip) - GUI
+ The HP Linux Printing and Imaging System provides full support for
+ printing on most HP SFP (single function peripheral) InkJets and
+ many LaserJets, and for scanning and photo-card access on most HP
+ MFP (multi-funtcion peripheral) printers.
+ .
+ This package contains the GUI components of the HPLIP system,
+ including the hp-toolbox.  Refer to the hplip-base package for
+ the basic hplip system capabilities.
+ .
+ The hp-toolbox can page an administrator (through email or a
+ popup window through an X11 session) when the printer needs
+ attention.
  .
   Homepage: http://hpinkjet.sourceforge.net
 
 Package: hplip-data
 Architecture: all
-Depends: hplip (= ${Source-Version})
+Depends: hplip-base (= ${Source-Version})
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
@@ -51,7 +76,7 @@ Description: HP Linux Printing and Imaging - data files
 Package: hpijs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2)
-Suggests: hplip | hpoj, foomatic-filters-ppds, foomatic-filters
+Suggests: hplip | hplip-base | hpoj, foomatic-filters-ppds, foomatic-filters
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains the hpijs binary which provides Ghostscript
  with an IJS driver for most inkjet printers and some LaserJet printers
@@ -62,7 +87,7 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  in firmware.
  .
  Users of USB and JetDirect HP printers are advised to also install the
- hplip package, and use the hp: CUPS backend to send data to the printer.
+ hplip package, and use the hp CUPS backend to send data to the printer.
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
  Users of parallel-port HP printers are advised to install the hpoj

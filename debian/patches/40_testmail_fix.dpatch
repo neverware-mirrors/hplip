@@ -23,51 +23,15 @@ esac
 exit 0
 
 @DPATCH@
-diff -urNad hplip/base/service.py /tmp/dpep.AM9kpd/hplip/base/service.py
---- hplip/base/service.py	2005-04-20 08:55:00.620455524 -0300
-+++ /tmp/dpep.AM9kpd/hplip/base/service.py	2005-04-20 09:01:34.231099461 -0300
-@@ -208,7 +208,7 @@
-                                                 'server-pass'   : password,
-                                             } 
-                                           )
--        except Error:
-+        except Error, e:
-             result_code = e.opt
-             utils.log_exception()
-                 
-diff -urNad hplip/hpssd.py /tmp/dpep.AM9kpd/hplip/hpssd.py
---- hplip/hpssd.py	2005-04-18 17:39:29.148740648 -0300
-+++ /tmp/dpep.AM9kpd/hplip/hpssd.py	2005-04-20 09:01:49.394253394 -0300
-@@ -433,7 +433,7 @@
-             smtp_server = self.fields[ 'smtp-server' ] 
-             username = self.fields[ 'username' ]
-             server_pass = self.fields[ 'server-pass' ] 
--            from_address = '@localhost.com'
-+            from_address = '@localhost'
- 
-             try:
-                 if username and server_pass:
-@@ -466,6 +466,8 @@
+diff -urNad hplip/hpssd.py /tmp/dpep.kAGefJ/hplip/hpssd.py
+--- hplip/hpssd.py	2005-05-19 09:50:56.011944134 -0300
++++ /tmp/dpep.kAGefJ/hplip/hpssd.py	2005-05-19 14:18:20.529965759 -0300
+@@ -475,6 +475,8 @@
  
              msg = ''.join( [ msg, subject_string, '\r\n\r\n', message_string ] )
  
 +            # Use NULL address for envelope sender
-+	    from_address = '<>'
++            from_address = '<>'
              try:
                  mt = MailThread( msg, smtp_server, from_address, to_address, username, server_pass )
                  mt.start() 
-diff -urNad hplip/ui/settingsdialog.py /tmp/dpep.AM9kpd/hplip/ui/settingsdialog.py
---- hplip/ui/settingsdialog.py	2005-04-20 08:55:00.621455401 -0300
-+++ /tmp/dpep.AM9kpd/hplip/ui/settingsdialog.py	2005-04-20 09:01:34.232099340 -0300
-@@ -65,8 +65,10 @@
-     def EmailTestButton_clicked(self): 
-         email_address = str( self.EmailAddress.text() )
-         smtp_server = str( self.SMTPServer.text() )
-+	username = str( self.Username.text() )
-+	password = str( self.Password.text() )
-         s = service.Service()
--        resultCode = s.testEmail(email_address, smtp_server)
-+        resultCode = s.testEmail(email_address, smtp_server, username, password)
-         if resultCode != ERROR_SUCCESS:
-             log.debug( "Failure-Result_Code: %s" % resultCode )
-         log.debug( "Success-Result_Code: %s" % resultCode )

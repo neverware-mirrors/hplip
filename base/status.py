@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.30 $ 
-# $Date: 2005/04/12 18:30:19 $
+# $Revision: 1.32 $ 
+# $Date: 2005/05/12 18:06:45 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -118,7 +118,7 @@ PEN_DATA_SIZE = { STATUS_REV_00 : 8,
                   STATUS_REV_03 : 8,
                   STATUS_REV_04 : 8 } 
 
-STATUS_POS = { STATUS_REV_00 : 16,
+STATUS_POS = { STATUS_REV_00 : 14,
                STATUS_REV_01 : 14,
                STATUS_REV_02 : 14,
                STATUS_REV_03 : 16,
@@ -563,7 +563,7 @@ def PanelCheck( dev, io_control ):
                     line2 = PANEL_TRANSLATOR_FUNC( line2 ).rstrip()
                     break
 
-        dev.closeChannel( 'HP-CHANNEL' )
+        dev.closeChannel( 'HP-MESSAGE' )
 
     return bool( line1 or line2 ), line1 or '', line2 or ''
 

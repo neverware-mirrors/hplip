@@ -1,3 +1,72 @@
+hplip (0.9.3-1) unstable; urgency=low
+
+  * New upstream version
+    * HPIJS 2.1.3:
+      + Increased the printable region for DJGenericVIP. This resolves a
+        left margin issue
+      + Fixed a problem printing more than one page with LJ 1010/1012
+      + Modified hpijs to ignore bi-di errors so the "hp" backend can
+        handle them.  This fixed a problem where hpijs would hang
+        forever
+    * HPLIP 0.9.3:
+      + Modified models.xml Deskjet_1220C panel_check_type to be 0
+      + Fix the Test Email Alert
+      + Added MlcInit retry to hpiod
+      + Changed hplip_readme.html "Photo" support to yes for
+        OJ7200/7300/7400
+      + Fixed intermittent device hang problem with LJ 1010/1012/1015
+        in hp.c
+      + Added OfficeJet V40 to models.xml
+      + Fixed models.xml so that LJ 1010, 1012, 1015, and 1022 all print
+        using "raw" io
+      + Fixed "hp-probe -s*" error
+      + Fixed error while clicking the"Access Photo Cards" without any
+        photo card
+      + Fixed error while running hp-testpage command to print
+        after disconnecting the USB cable
+      + Added LJ 1010 and 1012 to models.xml, and made sure the OJ K80xi
+        has both a single spaces and a double spaced entry
+      + Fixed error which occurs after launching the toolbox in the terminal
+      + In models.xml cloned HP LaserJet 4050 Series to the same thing with a
+        trailing underscore
+  * Henrique de Moraes Holschuh:
+    * Swap maintainer and uploader fields for now, since I am spending
+      far more time in HPLIP than Torsten.  Should that change, he will
+      switch the fields back as they were
+    * Tell libtool that the sane plugin is a plugin with -module
+    * Split hplip into GUI and non-GUI packages, as suggested by
+      Matthias Klose <doko@ubuntu.com> (closes: #307790)
+      + Change /usr/share/doc/hplip to a symlink (requires hplip.preinst
+        and hplip.postinst glue to support error unwind and downgrades)
+      + Change hplip package to arch all, as all C source and binary
+        modules belong in hplip-base
+      + hplip-base.preinst (new), hplip-base.postrm (new), hplip.postrm:
+        Remove any .pyc and .pyo files scattered around /usr/lib/hplip
+    * Fix configure.in, Makefile.am to accept and use a PYTHON variable
+      to select the python version to run properly, and really use whatever
+      python that variable points to, and no other (closes: #307788)
+    * Rework configure.in and Makefile.am a bit, in a moment of utter
+      boredom
+    * Change autogen.sh and debian/rules to get the hpijs versioning
+      through autoconf --trace at autotools-run time, and document the
+      debian/hpijs.version file in debian/README.Source
+    * Remove unneeded #! lines from python modules before packaging the
+      debs, to make lintian happier
+    * Control new files showing up upstream, by using a static list of
+      non-shipped files and passing --fail-missing to dh_install
+    * Remove debian/executable.files and debian/deletable.files support,
+      as this package does not require it
+    * hplip-base: recommend cupsys-client, as some of the utilities
+      run "lp -d..." and friends (closes: #308960)
+    * Rediff 01_rss.dpatch, 10_missing-prototypes.dpatch,
+      11_fix-misc-gcc-warnings.dpatch, 13_intsign-fixes.dpatch,
+      40_testmail_fix.dpatch, 50_hp-clean_fix.dpatch to remove some hunks
+      accepted upstream and remove any fuzziness and line numbering skews
+    * Remove patch 30_bind_to_INADDR_LOOPBACK, completely accepted
+      upstream
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 25 May 2005 00:31:22 -0300
+
 hplip (0.9.2-2) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

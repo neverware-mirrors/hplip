@@ -51,14 +51,13 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *APPrinterIconPath: "/Library/Printers/hp/Icons/hp LaserJet 4200 Series.icns"
-*cupsFilter: "application/vnd.cups-postscript 0 /Library/Printers/hp/filter/hppostprocessing"
 
 *% Product Version Information
 *Product: "(hp LaserJet 4240)"
 *Product: "(hp LaserJet 4240N)"
 *ModelName: "HP LaserJet 4240"
 *ShortNickName: "HP LaserJet 4240"
-*NickName:  "HP LaserJet 4240"
+*NickName:  "HP LaserJet 4240 Postscript (recommended)"
 *PSVersion: "(3010.107) 0"
 *Manufacturer: "HP"
 

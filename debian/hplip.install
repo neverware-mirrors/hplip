@@ -1,8 +1,6 @@
-usr/lib/python*
-usr/lib/hplip
-usr/sbin
-etc/hp
-etc/sane.d
+usr/lib/hplip/base/async_qt.py
+usr/lib/hplip/ui
+usr/lib/hplip/toolbox
+usr/lib/hplip/unload
 usr/share/applications
-usr/lib/cups/backend
-usr/lib/sane/libsane*.so.*
+usr/share/pixmaps

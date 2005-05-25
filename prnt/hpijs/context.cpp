@@ -1016,6 +1016,13 @@ float PrintContext::PrintableStartX() // returned in inches
         return (0.0);
     }
 
+    float   fMargins[4];    // Left, Right, Top, Bottom margin values
+
+    if ((thePrinter->GetMargins (thePaperSize, fMargins)))
+    {
+        return (fMargins[0]);
+    }
+
     // this return value centers the printable page horizontally on the physical page
 #ifdef APDK_EXTENDED_MEDIASIZE
     float physwidth = (thePaperSize == CUSTOM_SIZE) ? CustomWidth : PSM[thePaperSize].fPhysicalPageX;

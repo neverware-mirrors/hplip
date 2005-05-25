@@ -51,7 +51,6 @@ psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
 dist_xml_DATA = data/xml/models.xml
-images_DATA = data/images/images.tgz
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
     data/pcl/align5_8xx.pcl.gz data/pcl/align2_9xx.pcl.gz data/pcl/align3_9xx.pcl.gz data/pcl/align4_450.pcl.gz data/pcl/align6_450.pcl.gz \
     data/pcl/colorcal1_450.pcl.gz data/pcl/colorcal2_450.pcl.gz data/pcl/crbcal.pcl.gz data/pcl/crcaldone.pcl.gz data/pcl/crcbcal.pcl.gz data/pcl/crccal.pcl.gz \
@@ -97,7 +96,7 @@ sanedir = $(libdir)/sane
 sane_LTLIBRARIES = libsane-hpaio.la
 libsane_hpaio_la_SOURCES = scan/sane/hpaio.c scan/sane/mfpdtf.c scan/sane/pml.c scan/sane/scl.c scan/sane/io.c scan/sane/hpaio.h scan/sane/pml.h scan/sane/saneopts.h scan/sane/io.h \
       scan/sane/mfpdtf.h scan/sane/sane.h scan/sane/scl.h scan/sane/tables.h
-libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) 
+libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) -module
 # The following is a interlibrary dependency that must be compiled first.
 libsane_hpaio_la_LIBADD = libhpip.la
 
@@ -120,33 +119,40 @@ dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdia
 
 build-pcardext: 
 	cd pcard/pcardext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 build-cupsext: 
 	cd prnt/cupsext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 maintainer-clean-local:
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-install-exec-hook:
+install-exec-hook: test-destdir
 #
-#       Do full install if not rpm_install.
-	if [ "$(rpm_install)" = "no" ]; then \
+#       Do full install if not RPM_INSTALL.
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SONOVER); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOSHORT); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOLONG); \
 	   if [ -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
 	      if ! grep ^hpaio $(DESTDIR)/etc/sane.d/dll.conf >/dev/null 2>/dev/null ; then \
-	         echo "Adding hpaio entry to /etc/sane.d/dll.conf." ; \
+	         echo "Adding hpaio entry to /etc/sane.d/dll.conf..." ; \
 	         echo hpaio >>$(DESTDIR)/etc/sane.d/dll.conf ; \
 	      fi \
+	   else \
+	       echo "Adding /etc/sane.d/dll.conf with hpaio entry..." ; \
+	       echo hpaio >$(DESTDIR)/etc/sane.d/dll.conf ; \
 	   fi \
 	fi
 
-install-data-hook:
+install-data-hook: test-destdir
 	$(mkinstalldirs) $(DESTDIR)$(imagesdir)
-	tar xzvf "$(CURDIR)/data/images/images.tgz" -C "$(DESTDIR)$(imagesdir)"
+	find "$(CURDIR)/data/images" \( -name '*.jpg' -o -name '*.png' -o \
+			-name '*.pnm' -o -name '*.xpm' \) -print0 | \
+		xargs -0 -r -i $(INSTALL_DATA) {} "$(DESTDIR)$(imagesdir)"
+	tar cf - -C "$(CURDIR)/data/images" *jpg *png *pnm *xpm |\
+		tar xvf - -C "$(DESTDIR)$(imagesdir)"
 	if [ "$(ICON_FILE)" = "hplip.desktop" ]; then \
 	   echo -e "[Desktop Entry]" > $(srcdir)/$(ICON_FILE); \
 	   echo -e "Version=0.6" >> $(srcdir)/$(ICON_FILE); \
@@ -170,8 +176,8 @@ install-data-hook:
 	$(INSTALL_DATA)  $(srcdir)/$(ICON_FILE) $(DESTDIR)$(icondir); \
 	rm -f $(srcdir)/$(ICON_FILE)
 #
-#       Do full install if not rpm_install.
-	if [ "$(rpm_install)" = "no" ]; then \
+#       Do full install if not RPM_INSTALL.
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   if [ -d $(DESTDIR)$(ICON_PATH) ]; then \
 	      ln -sf $(icondir)/$(ICON_FILE) $(DESTDIR)$(ICON_PATH)/$(ICON_FILE); \
 	   fi \
@@ -180,24 +186,24 @@ install-data-hook:
 #       Install pcard extension.
 	cd pcard/pcardext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --prefix=$(prefix); \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 #
 #       Install cups extension.
 	cd prnt/cupsext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --prefix=$(prefix); \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 ##
-#       Remove .py extensions in destdir and if not rpm_install create hp-xxx commands in bindir.
+#       Remove .py extensions in destdir and if not RPM_INSTALL create hp-xxx commands in bindir.
 	for i in $(dist_cmd_SCRIPTS); do \
 	    newname=$${i%.*}; \
 	    mv $(DESTDIR)$(hpliplibexecdir)/$$i $(DESTDIR)$(hpliplibexecdir)/$$newname; \
-	    if [ "$(rpm_install)" = "no" ]; then \
+	    if [ "$(RPM_INSTALL)" = "no" ]; then \
 	      ln -sf ../share/$(PACKAGE)/$$newname $(DESTDIR)$(bindir)/hp-$$newname; \
 	    fi \
 	done
@@ -211,17 +217,17 @@ install-data-hook:
 	sed 's:HPSSDDIR=:HPSSDDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp > $(DESTDIR)$(hplipdir)/$(PACKAGE); \
 	rm -f $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp
 #
-#       Do full install if not rpm_install. Also only run chkconfig/install_initd if DESTDIR="". 
+#       Do full install if not RPM_INSTALL. Also only run chkconfig/install_initd if DESTDIR="". 
 	$(mkinstalldirs) $(DESTDIR)/etc/hp;
 	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp;
-	if [ "$(rpm_install)" = "no" ]; then \
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   if [ -d $(DESTDIR)/etc/init.d ]; then \
 	      $(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d; \
 	      if [ "$(DESTDIR)" = "" ]; then \
-	         if [ -x $(LSB_INSTALL_PATH)/install_initd ]; then \
-	            $(LSB_INSTALL_PATH)/install_initd $(PACKAGE); \
+	         if [ -x $(INSTALLINITD) ]; then \
+	            $(INSTALLINITD) $(PACKAGE); \
 	         else \
-	            $(CHKCONFIG_PATH)/chkconfig $(PACKAGE) reset; \
+	            $(CHKCONFIG) $(PACKAGE) reset; \
 	         fi \
 	      fi \
 	   fi \
@@ -230,11 +236,12 @@ install-data-hook:
 #
 # Add prerequisites for testing (or building?) "make install DESTDIR=/build".
 test-destdir:
-	$(mkinstalldirs) $(DESTDIR)/etc/init.d
-	$(mkinstalldirs) $(DESTDIR)/etc/sane.d
-	touch $(DESTDIR)/etc/sane.d/dll.conf
-	$(mkinstalldirs) $(DESTDIR)/usr/lib/sane
-	$(mkinstalldirs) $(DESTDIR)/usr/share/applications
+	if [ "$(DESTDIR)" != "" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
+	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/lib/sane; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
+	fi
 
-.PHONY: build-pcardext build-cupsext
+.PHONY: build-pcardext build-cupsext test-destdir
 

@@ -81,8 +81,7 @@ am__installdirs = "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" \
 	"$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" \
 	"$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" \
 	"$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" \
-	"$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)" \
-	"$(DESTDIR)$(imagesdir)"
+	"$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"
 saneLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(noinst_LTLIBRARIES) $(sane_LTLIBRARIES)
 libhpip_la_LIBADD =
@@ -156,10 +155,9 @@ dist_ldlDATA_INSTALL = $(INSTALL_DATA)
 dist_pclDATA_INSTALL = $(INSTALL_DATA)
 dist_psDATA_INSTALL = $(INSTALL_DATA)
 dist_xmlDATA_INSTALL = $(INSTALL_DATA)
-imagesDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(dist_hplip_DATA) $(dist_hplipdoc_DATA) $(dist_ldl_DATA) \
 	$(dist_noinst_DATA) $(dist_pcl_DATA) $(dist_ps_DATA) \
-	$(dist_xml_DATA) $(images_DATA) $(noinst_DATA)
+	$(dist_xml_DATA) $(noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -186,7 +184,7 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CHKCONFIG_PATH = @CHKCONFIG_PATH@
+CHKCONFIG = @CHKCONFIG@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUPS_BACKEND_PATH = @CUPS_BACKEND_PATH@
@@ -207,6 +205,7 @@ F77 = @F77@
 FFLAGS = @FFLAGS@
 ICON_FILE = @ICON_FILE@
 ICON_PATH = @ICON_PATH@
+INSTALLINITD = @INSTALLINITD@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -216,7 +215,6 @@ LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
-LSB_INSTALL_PATH = @LSB_INSTALL_PATH@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
@@ -230,8 +228,14 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PYTHON = @PYTHON@
+PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_PLATFORM = @PYTHON_PLATFORM@
+PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_VERSION = @PYTHON_VERSION@
 PYUIC = @PYUIC@
 RANLIB = @RANLIB@
+RPM_INSTALL = @RPM_INSTALL@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -243,6 +247,8 @@ ac_ct_F77 = @ac_ct_F77@
 ac_ct_PYUIC = @ac_ct_PYUIC@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_CHKCONFIG = @ac_pt_CHKCONFIG@
+ac_pt_INSTALLINITD = @ac_pt_INSTALLINITD@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -274,9 +280,12 @@ localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pkgpyexecdir = @pkgpyexecdir@
+pkgpythondir = @pkgpythondir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
-rpm_install = @rpm_install@
+pyexecdir = @pyexecdir@
+pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 subdirs = @subdirs@
@@ -316,7 +325,6 @@ psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
 dist_xml_DATA = data/xml/models.xml
-images_DATA = data/images/images.tgz
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
     data/pcl/align5_8xx.pcl.gz data/pcl/align2_9xx.pcl.gz data/pcl/align3_9xx.pcl.gz data/pcl/align4_450.pcl.gz data/pcl/align6_450.pcl.gz \
     data/pcl/colorcal1_450.pcl.gz data/pcl/colorcal2_450.pcl.gz data/pcl/crbcal.pcl.gz data/pcl/crcaldone.pcl.gz data/pcl/crcbcal.pcl.gz data/pcl/crccal.pcl.gz \
@@ -367,7 +375,7 @@ sane_LTLIBRARIES = libsane-hpaio.la
 libsane_hpaio_la_SOURCES = scan/sane/hpaio.c scan/sane/mfpdtf.c scan/sane/pml.c scan/sane/scl.c scan/sane/io.c scan/sane/hpaio.h scan/sane/pml.h scan/sane/saneopts.h scan/sane/io.h \
       scan/sane/mfpdtf.h scan/sane/sane.h scan/sane/scl.h scan/sane/tables.h
 
-libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) 
+libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) -module
 # The following is a interlibrary dependency that must be compiled first.
 libsane_hpaio_la_LIBADD = libhpip.la
 
@@ -1261,23 +1269,6 @@ uninstall-dist_xmlDATA:
 	  echo " rm -f '$(DESTDIR)$(xmldir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(xmldir)/$$f"; \
 	done
-install-imagesDATA: $(images_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(imagesdir)" || $(mkdir_p) "$(DESTDIR)$(imagesdir)"
-	@list='$(images_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(imagesDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(imagesdir)/$$f'"; \
-	  $(imagesDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(imagesdir)/$$f"; \
-	done
-
-uninstall-imagesDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(images_DATA)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(imagesdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(imagesdir)/$$f"; \
-	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -1558,7 +1549,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)" "$(DESTDIR)$(imagesdir)"; do \
+	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -1614,8 +1605,7 @@ install-data-am: install-cupsPROGRAMS install-dist_baseSCRIPTS \
 	install-dist_pcardSCRIPTS install-dist_pclDATA \
 	install-dist_prntSCRIPTS install-dist_psDATA \
 	install-dist_scanSCRIPTS install-dist_uiSCRIPTS \
-	install-dist_xmlDATA install-imagesDATA \
-	install-saneLTLIBRARIES
+	install-dist_xmlDATA install-saneLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 
@@ -1657,8 +1647,8 @@ uninstall-am: uninstall-cupsPROGRAMS uninstall-dist_baseSCRIPTS \
 	uninstall-dist_pclDATA uninstall-dist_prntSCRIPTS \
 	uninstall-dist_psDATA uninstall-dist_scanSCRIPTS \
 	uninstall-dist_uiSCRIPTS uninstall-dist_xmlDATA \
-	uninstall-imagesDATA uninstall-info-am \
-	uninstall-saneLTLIBRARIES uninstall-sbinPROGRAMS
+	uninstall-info-am uninstall-saneLTLIBRARIES \
+	uninstall-sbinPROGRAMS
 
 uninstall-info: uninstall-info-recursive
 
@@ -1679,11 +1669,10 @@ uninstall-info: uninstall-info-recursive
 	install-dist_pclDATA install-dist_prntSCRIPTS \
 	install-dist_psDATA install-dist_scanSCRIPTS \
 	install-dist_uiSCRIPTS install-dist_xmlDATA install-exec \
-	install-exec-am install-exec-hook install-imagesDATA \
-	install-info install-info-am install-man \
-	install-saneLTLIBRARIES install-sbinPROGRAMS install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic \
+	install-exec-am install-exec-hook install-info install-info-am \
+	install-man install-saneLTLIBRARIES install-sbinPROGRAMS \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
 	maintainer-clean-local maintainer-clean-recursive mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
@@ -1694,7 +1683,7 @@ uninstall-info: uninstall-info-recursive
 	uninstall-dist_pcardSCRIPTS uninstall-dist_pclDATA \
 	uninstall-dist_prntSCRIPTS uninstall-dist_psDATA \
 	uninstall-dist_scanSCRIPTS uninstall-dist_uiSCRIPTS \
-	uninstall-dist_xmlDATA uninstall-imagesDATA uninstall-info-am \
+	uninstall-dist_xmlDATA uninstall-info-am \
 	uninstall-saneLTLIBRARIES uninstall-sbinPROGRAMS
 
 
@@ -1704,33 +1693,40 @@ uninstall-info: uninstall-info-recursive
 
 build-pcardext: 
 	cd pcard/pcardext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 build-cupsext: 
 	cd prnt/cupsext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 maintainer-clean-local:
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-install-exec-hook:
+install-exec-hook: test-destdir
 #
-#       Do full install if not rpm_install.
-	if [ "$(rpm_install)" = "no" ]; then \
+#       Do full install if not RPM_INSTALL.
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SONOVER); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOSHORT); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOLONG); \
 	   if [ -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
 	      if ! grep ^hpaio $(DESTDIR)/etc/sane.d/dll.conf >/dev/null 2>/dev/null ; then \
-	         echo "Adding hpaio entry to /etc/sane.d/dll.conf." ; \
+	         echo "Adding hpaio entry to /etc/sane.d/dll.conf..." ; \
 	         echo hpaio >>$(DESTDIR)/etc/sane.d/dll.conf ; \
 	      fi \
+	   else \
+	       echo "Adding /etc/sane.d/dll.conf with hpaio entry..." ; \
+	       echo hpaio >$(DESTDIR)/etc/sane.d/dll.conf ; \
 	   fi \
 	fi
 
-install-data-hook:
+install-data-hook: test-destdir
 	$(mkinstalldirs) $(DESTDIR)$(imagesdir)
-	tar xzvf "$(CURDIR)/data/images/images.tgz" -C "$(DESTDIR)$(imagesdir)"
+	find "$(CURDIR)/data/images" \( -name '*.jpg' -o -name '*.png' -o \
+			-name '*.pnm' -o -name '*.xpm' \) -print0 | \
+		xargs -0 -r -i $(INSTALL_DATA) {} "$(DESTDIR)$(imagesdir)"
+	tar cf - -C "$(CURDIR)/data/images" *jpg *png *pnm *xpm |\
+		tar xvf - -C "$(DESTDIR)$(imagesdir)"
 	if [ "$(ICON_FILE)" = "hplip.desktop" ]; then \
 	   echo -e "[Desktop Entry]" > $(srcdir)/$(ICON_FILE); \
 	   echo -e "Version=0.6" >> $(srcdir)/$(ICON_FILE); \
@@ -1754,8 +1750,8 @@ install-data-hook:
 	$(INSTALL_DATA)  $(srcdir)/$(ICON_FILE) $(DESTDIR)$(icondir); \
 	rm -f $(srcdir)/$(ICON_FILE)
 #
-#       Do full install if not rpm_install.
-	if [ "$(rpm_install)" = "no" ]; then \
+#       Do full install if not RPM_INSTALL.
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   if [ -d $(DESTDIR)$(ICON_PATH) ]; then \
 	      ln -sf $(icondir)/$(ICON_FILE) $(DESTDIR)$(ICON_PATH)/$(ICON_FILE); \
 	   fi \
@@ -1764,23 +1760,23 @@ install-data-hook:
 #       Install pcard extension.
 	cd pcard/pcardext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --prefix=$(prefix); \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 #
 #       Install cups extension.
 	cd prnt/cupsext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --prefix=$(prefix); \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
-#       Remove .py extensions in destdir and if not rpm_install create hp-xxx commands in bindir.
+#       Remove .py extensions in destdir and if not RPM_INSTALL create hp-xxx commands in bindir.
 	for i in $(dist_cmd_SCRIPTS); do \
 	    newname=$${i%.*}; \
 	    mv $(DESTDIR)$(hpliplibexecdir)/$$i $(DESTDIR)$(hpliplibexecdir)/$$newname; \
-	    if [ "$(rpm_install)" = "no" ]; then \
+	    if [ "$(RPM_INSTALL)" = "no" ]; then \
 	      ln -sf ../share/$(PACKAGE)/$$newname $(DESTDIR)$(bindir)/hp-$$newname; \
 	    fi \
 	done
@@ -1794,17 +1790,17 @@ install-data-hook:
 	sed 's:HPSSDDIR=:HPSSDDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp > $(DESTDIR)$(hplipdir)/$(PACKAGE); \
 	rm -f $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp
 #
-#       Do full install if not rpm_install. Also only run chkconfig/install_initd if DESTDIR="". 
+#       Do full install if not RPM_INSTALL. Also only run chkconfig/install_initd if DESTDIR="". 
 	$(mkinstalldirs) $(DESTDIR)/etc/hp;
 	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp;
-	if [ "$(rpm_install)" = "no" ]; then \
+	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   if [ -d $(DESTDIR)/etc/init.d ]; then \
 	      $(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d; \
 	      if [ "$(DESTDIR)" = "" ]; then \
-	         if [ -x $(LSB_INSTALL_PATH)/install_initd ]; then \
-	            $(LSB_INSTALL_PATH)/install_initd $(PACKAGE); \
+	         if [ -x $(INSTALLINITD) ]; then \
+	            $(INSTALLINITD) $(PACKAGE); \
 	         else \
-	            $(CHKCONFIG_PATH)/chkconfig $(PACKAGE) reset; \
+	            $(CHKCONFIG) $(PACKAGE) reset; \
 	         fi \
 	      fi \
 	   fi \
@@ -1813,13 +1809,14 @@ install-data-hook:
 #
 # Add prerequisites for testing (or building?) "make install DESTDIR=/build".
 test-destdir:
-	$(mkinstalldirs) $(DESTDIR)/etc/init.d
-	$(mkinstalldirs) $(DESTDIR)/etc/sane.d
-	touch $(DESTDIR)/etc/sane.d/dll.conf
-	$(mkinstalldirs) $(DESTDIR)/usr/lib/sane
-	$(mkinstalldirs) $(DESTDIR)/usr/share/applications
+	if [ "$(DESTDIR)" != "" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
+	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/lib/sane; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
+	fi
 
-.PHONY: build-pcardext build-cupsext
+.PHONY: build-pcardext build-cupsext test-destdir
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

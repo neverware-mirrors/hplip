@@ -50,7 +50,6 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *APPrinterIconPath: "/Library/Printers/hp/Icons/hp LaserJet 4200 Series.icns"
-*cupsFilter: "application/vnd.cups-postscript 0 /Library/Printers/hp/filter/hppostprocessing"
 
 *% Product Version Information
 *Product: "(hp LaserJet 4250)"

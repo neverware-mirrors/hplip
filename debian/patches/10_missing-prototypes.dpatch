@@ -23,12 +23,12 @@ esac
 exit 0
 
 @DPATCH@
-diff -urNad hplip/scan/sane/io.h /tmp/dpep.JrcOo3/hplip/scan/sane/io.h
---- hplip/scan/sane/io.h	2005-03-31 16:49:37.168075757 -0300
-+++ /tmp/dpep.JrcOo3/hplip/scan/sane/io.h	2005-03-31 16:49:48.373651052 -0300
-@@ -146,6 +146,12 @@
+diff -urNad hplip/scan/sane/io.h /tmp/dpep.E6R9Ox/hplip/scan/sane/io.h
+--- hplip/scan/sane/io.h	2005-05-13 14:36:42.898120668 -0300
++++ /tmp/dpep.E6R9Ox/hplip/scan/sane/io.h	2005-05-19 13:56:17.329357733 -0300
+@@ -152,6 +152,12 @@
  
- int GetModel(char *id, char *buf, int bufSize);
+ int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *pml_result);
  
 +int ModelQuery(char *devicename, MsgAttributes *ma);
 +

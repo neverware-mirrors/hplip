@@ -23,23 +23,10 @@ esac
 exit 0
 
 @DPATCH@
-diff -urNad hplip/io/hpiod/mlc.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/mlc.cpp
---- hplip/io/hpiod/mlc.cpp	2005-03-31 18:09:00.263198524 -0300
-+++ /tmp/dpep.QtdpjR/hplip/io/hpiod/mlc.cpp	2005-03-31 18:12:54.112729517 -0300
-@@ -660,7 +660,8 @@
-    char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
-    int supportedProtocols=0;
-    int twoints[2];
--   int len, slen, i;
-+   int len, slen;
-+   unsigned int i;
-    unsigned char buf[255];
- 
-    *result = R_IO_ERROR;
-diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp
---- hplip/io/hpiod/system.cpp	2005-03-31 18:09:00.264198402 -0300
-+++ /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp	2005-03-31 18:12:54.113729395 -0300
-@@ -710,14 +710,14 @@
+diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
+--- hplip/io/hpiod/system.cpp	2005-05-19 14:02:48.955043693 -0300
++++ /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp	2005-05-19 14:11:53.858988582 -0300
+@@ -711,15 +711,14 @@
     return err;
  }
  
@@ -51,12 +38,22 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp
     struct snmp_pdu *response=NULL;
     oid anOID[MAX_OID_LEN];
     size_t anOID_len = MAX_OID_LEN;
--   int i, len=0;
+-   int len=0;
+-   unsigned int i;
 +   unsigned int i, len=0;
     uint32_t val;
  
     *result = R_IO_ERROR;
-@@ -777,12 +777,12 @@
+@@ -744,7 +743,7 @@
+       case PML_DT_ENUMERATION:
+       case PML_DT_SIGNED_INTEGER:
+          /* Convert PML big-endian to SNMP little-endian byte stream. */
+-         for(i=0, val=0; i<(unsigned int)size && i<sizeof(val); i++)    
++         for(i=0, val=0; i<size && i<sizeof(val); i++)    
+             val = ((val << 8) | buffer[i]);
+          snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_INTEGER, (unsigned char *)&val, sizeof(val));
+          break;
+@@ -779,12 +778,12 @@
     return len;
  }
  
@@ -71,9 +68,27 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.QtdpjR/hplip/io/hpiod/system.cpp
     oid anOID[MAX_OID_LEN];
     size_t anOID_len = MAX_OID_LEN;
     struct variable_list *vars;
-diff -urNad hplip/io/hpiod/system.h /tmp/dpep.QtdpjR/hplip/io/hpiod/system.h
---- hplip/io/hpiod/system.h	2005-03-31 18:09:00.283196090 -0300
-+++ /tmp/dpep.QtdpjR/hplip/io/hpiod/system.h	2005-03-31 18:12:54.113729395 -0300
+@@ -823,7 +822,7 @@
+             *type = PML_DT_SIGNED_INTEGER;
+ 
+             /* Convert SNMP little-endian to PML big-endian byte stream. */
+-            len = (sizeof(uint32_t) < (unsigned int)size) ? sizeof(uint32_t) : size;
++            len = (sizeof(uint32_t) < size) ? sizeof(uint32_t) : size;
+             val = *vars->val.integer;
+             for(i=len-1; i>0; i--)
+             {
+@@ -843,7 +842,7 @@
+             break;
+          case ASN_OCTET_STR:
+             *type = PML_DT_STRING;
+-            len = (vars->val_len < (unsigned int)size) ? vars->val_len : size;
++            len = (vars->val_len < size) ? vars->val_len : size;
+             memcpy(buffer, vars->val.string, len);
+             break;
+          default:
+diff -urNad hplip/io/hpiod/system.h /tmp/dpep.5IUSPn/hplip/io/hpiod/system.h
+--- hplip/io/hpiod/system.h	2005-05-13 14:36:42.650153286 -0300
++++ /tmp/dpep.5IUSPn/hplip/io/hpiod/system.h	2005-05-19 14:02:49.179016612 -0300
 @@ -75,8 +75,8 @@
     int DeviceCleanUp(SessionAttributes *sa);
     int SetPml(int device, int channel, char *snmp_iod, int type, unsigned char *data, int dataLen, char *sendBuf);

@@ -1,90 +1,134 @@
 #
 #  configure.in - hplip autoconf input file
-# 
-#  (c) 2004-2005 Copyright Hewlett-Packard Development Company, LP
 #
+#  (c) 2004-2005 Copyright Hewlett-Packard Development Company, LP
+#  Copyright (c) 2005 Henrique de Moraes Holschuh <hmh@debian.org>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-AC_INIT(hplip, 0.9.2)
+AC_PREREQ([2.59])
+AC_INIT([HP Linux Imaging and Printing],
+	[0.9.3],
+	[hplip@packages.debian.org],
+	[hplip])
+
+AC_COPYRIGHT(
+[Copyright (c) 2004-2005 Hewlett-Packard Development Company, LP
+Copyright (c) 2005 Henrique de Moraes Holschuh <hmh@debian.org> and others
+This configure script is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+])
+
 AC_CONFIG_SRCDIR([io/hpiod/hpiod.cpp])
-AC_CONFIG_AUX_DIR(.)
-AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_AUX_DIR([.])
+AM_INIT_AUTOMAKE([1.9 foreign])
 AM_MAINTAINER_MODE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
-AC_CONFIG_SUBDIRS(prnt/hpijs)
+AC_CONFIG_SUBDIRS([prnt/hpijs])
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 
-# Checks for libraries, sets -lpthread, -lcrypto, -lnetsnmp for LIBS and HAVE_LIBSNMP.
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([crypto], [CRYPTO_free])
+AC_ARG_VAR([PYTHON], [Python interpreter/compiler command])
+AM_PATH_PYTHON([2.3])
+
+AC_ARG_VAR([PYUIC], [PyQT pyuic .ui to .py compiler command])
+AC_CHECK_TOOLS([PYUIC], [pyuic])
+
+AC_ARG_VAR([CHKCONFIG], [LSB chkconfig utility])
+AC_PATH_TOOL([CHKCONFIG], [chkconfig],, [$PATH:/usr/lib/usb])
+
+AC_ARG_VAR([INSTALLINITD], [LSB install_initd utility])
+AC_PATH_TOOL([INSTALLINITD], [install_initd],, [$PATH:/usr/lib/usb])
+
+# Checks for libraries
+#   HPLIP needs: libpthread, libsocket(solaris), libnsl(solaris)
+#         may need: libsnmp (--network build)
+#
+#   libsnmp may need (on broken systems): libcrypto
+#
+
+# For Solaris
+AC_CHECK_FUNC([gethostent],,
+	[AC_CHECK_LIB([nsl], [gethostent],,
+		[AC_MSG_ERROR([Cannot find required nameserver functions])]
+	)]
+)
+AC_CHECK_FUNC([setsockopt],,
+	[AC_CHECK_LIB([socket], [setsockopt],,
+		[AC_MSG_ERROR([Cannot find required socket functions])]
+	)]
+)
+
+# Pthread
+AC_CHECK_LIB([pthread], [pthread_create],,
+	[AC_MSG_ERROR([pthread libraries not found])]
+)
+
+# Netsnmp
+dnl not used by HPLIP, only needed on systems with broken ld.so or for
+dnl static linking.  If you know of any, add it inside the libsnmp=yes clause
+dnl AC_CHECK_LIB([crypto], [CRYPTO_free])
 AC_CHECK_LIB([netsnmp], [snmp_timeout], [libsnmp=yes], [libsnmp=no])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(cups/cups.h, ,[AC_MSG_ERROR([cannot find cups-devel support])])
-AC_CHECK_HEADERS(net-snmp/net-snmp-config.h, snmpdevel=yes, snmpdevel=no)
+AC_CHECK_HEADER([cups/cups.h],
+   [],
+   [AC_MSG_ERROR([cannot find cups-devel support])]
+)
+AC_CHECK_HEADER([net-snmp/net-snmp-config.h], [snmpdevel=yes], [snmpdevel=no])
+AC_CHECK_HEADER([python${PYTHON_VERSION}/Python.h],
+   [],
+   [AC_MSG_ERROR([cannot find python-devel support for python ${PYVERSION}])]
+)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_BIGENDIAN
 
-BINSEARCHPATH="/bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin /usr/lib/lsb"
-
-AC_MSG_CHECKING([for chkconfig])
-CHKCONFIG_PATH=""
-for i in $BINSEARCHPATH; do
-   if test -e "$i/chkconfig"; then
-      CHKCONFIG_PATH="$i"
-      break
-   fi
-done
-if test "$CHKCONFIG_PATH" != ""; then
-   AC_MSG_RESULT([found in $CHKCONFIG_PATH])
-else
-   AC_MSG_RESULT([no])
-fi
-
-AC_MSG_CHECKING([for install_initd])
-LSB_INSTALL_PATH=""
-for i in $BINSEARCHPATH; do
-   if test -e "$i/install_initd"; then
-      LSB_INSTALL_PATH="$i"
-      break
-   fi
-done
-if test "$LSB_INSTALL_PATH" != ""; then
-   AC_MSG_RESULT([found in $LSB_INSTALL_PATH])
-else
-   AC_MSG_RESULT([no])
-fi
-
+# Options
 AC_MSG_CHECKING([for rpm install])
-AC_ARG_ENABLE(rpm_install,
-  [  --enable-rpm-install    enable rpm install (default=no)],
-  rpm_install=$enableval, rpm_install=no)
-if test "$rpm_install" = "yes"; then
-   AC_MSG_RESULT([yes])
-else
-   AC_MSG_RESULT([no])
-fi
+AC_ARG_ENABLE([rpm-install],
+	AS_HELP_STRING([--enable-rpm-install],
+		[enable rpm install (default=no)]),
+	[RPM_INSTALL="$enableval"], [RPM_INSTALL=no]
+)
+AS_IF([test "$RPM_INSTALL" != "no"],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_RESULT([no])]
+)
 
 AC_MSG_CHECKING([for network build])
-AC_ARG_ENABLE(network_build,
-  [  --enable-network-build    enable network build (default=yes)],
-  network_build=$enableval, network_build=yes)
-if test "$network_build" = "yes"; then
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
-fi
+AC_ARG_ENABLE([network-build],
+	AS_HELP_STRING([--enable-network-build],
+		[enable network build (default=yes)]),
+	[network_build="$enableval"], [network_build=yes])
+AS_IF([test "$network_build" = "yes"],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_RESULT([no])]
+)
 
 CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
 
-AC_MSG_CHECKING("for cups backend path")
+AC_MSG_CHECKING([for cups backend path])
 CUPS_BACKEND_PATH="/usr/lib/cups/backend"
 for i in $CUPSSEARCHPATH; do
    if test -d "$i/cups/backend"; then
@@ -92,12 +136,12 @@ for i in $CUPSSEARCHPATH; do
       break
    fi
 done
-AC_MSG_RESULT("using $CUPS_BACKEND_PATH")
+AC_MSG_RESULT([using $CUPS_BACKEND_PATH])
 
 ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
 ICON="hplip hplip.desktop"
 
-AC_MSG_CHECKING("for icon directory")
+AC_MSG_CHECKING([for icon directory])
 ICON_PATH=""
 ICON_FILE=""
 idx=1
@@ -117,9 +161,9 @@ for i in $ICONSEARCHPATH; do
    idx=$idx+1
 done
 if test "$ICON_PATH" != ""; then
-   AC_MSG_RESULT("using $ICON_PATH/$ICON_FILE")
+   AC_MSG_RESULT([using $ICON_PATH/$ICON_FILE])
 else
-   AC_MSG_RESULT("no")
+   AC_MSG_RESULT([none])
 fi
 
 if test "$network_build" = "yes"; then
@@ -129,28 +173,11 @@ if test "$network_build" = "yes"; then
    if test "$snmpdevel" = "no"; then
       AC_MSG_ERROR([cannot find net-snmp-devel support])
    fi
-   AC_DEFINE(HAVE_LIBSNMP) 
+   AC_DEFINE(HAVE_LIBSNMP)
    LIBS="-lnetsnmp $LIBS"
 fi
 
-PYTHONSEARCHPATH="python python2.2 python2.3 python2.4"
-
-for i in $PYTHONSEARCHPATH; do
-   AC_CHECK_HEADERS("$i/Python.h", python=yes, python=no)
-   if test "$python" = "yes"; then
-      break
-   fi
-done
-if test "$python" = "no"; then
-   AC_MSG_ERROR([cannot find python-devel support])
-fi
-
-AC_ARG_VAR([PYUIC], [PyQT .ui compiler command])
-AC_CHECK_TOOLS([PYUIC], [pyuic])
-
-AC_SUBST(CHKCONFIG_PATH)
-AC_SUBST(LSB_INSTALL_PATH)
-AC_SUBST(rpm_install)
+AC_SUBST(RPM_INSTALL)
 AC_SUBST(CUPS_BACKEND_PATH)
 AC_SUBST(ICON_PATH)
 AC_SUBST(ICON_FILE)

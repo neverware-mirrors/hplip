@@ -2,6 +2,5 @@
 10_missing-prototypes
 11_fix-misc-gcc-warnings
 13_intsign-fixes
-30_bind_to_INADDR_LOOPBACK
 40_testmail_fix
 50_hp-clean_fix

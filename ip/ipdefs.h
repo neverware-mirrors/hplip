@@ -100,11 +100,13 @@ do {                                                        \
  * discards the low 32 bits, giving you the high 32 bits.  The way
  * this is done is compiler-dependent.
  */
-//#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {    \
-//    __int64 prod64;                                            \
-//    prod64 = (__int64)(firstpar) * (secondpar);                \
-//    hihalfresult = ((int*)&prod64)[1];                        \
-//    /* above, use a [0] for big endian */                    \
+#if 0
+#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {    \
+    __int64 prod64;                                            \
+    prod64 = (__int64)(firstpar) * (secondpar);                \
+    hihalfresult = ((int*)&prod64)[1];                        \
+    /* above, use a [0] for big endian */                    
+#endif
 #define MUL32HIHALF(firstpar, secondpar, hihalfresult) {       \
     hihalfresult = ((__int64)(firstpar) * (secondpar)) >> 32;  \
 }

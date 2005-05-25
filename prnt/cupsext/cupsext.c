@@ -246,7 +246,6 @@ static PyObject * newPrinter( PyObject * self, PyObject * args, PyObject * kwarg
 
 PyObject * getPrinters( PyObject * self, PyObject * args ) 
 {
-    char buf[1024];
     http_t *http=NULL;     /* HTTP object */
     ipp_t *request=NULL;  /* IPP request object */
     ipp_t *response=NULL; /* IPP response object */
@@ -418,7 +417,6 @@ PyObject *  addPrinter( PyObject * self, PyObject * args )
     http_t *http=NULL;     /* HTTP object */
     ipp_t *request=NULL;  /* IPP request object */
     ipp_t *response=NULL; /* IPP response object */
-    ipp_attribute_t *attr;     /* Current IPP attribute */
     cups_lang_t * language;
     int r;
     char printer_uri[HTTP_MAX_URI];  
@@ -837,7 +835,6 @@ PyObject * getJobs( PyObject * self, PyObject * args )
     int i;
     int num_jobs;
     PyObject * job_list;
-    PyObject * newjob;
     int my_job;
     int completed;
     

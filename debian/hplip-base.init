@@ -1,0 +1,171 @@
+#! /bin/sh
+#
+# hplip	initscript for the HP Linux Printing and Imaging System
+#		Copr. 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
+#
+# $Id: hplip-base.init,v 1.1 2005/05/07 13:48:45 hmh Exp $
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC="HP Linux Printing and Imaging System"
+DESC1="HP Linux Printing and Imaging System GUIs"
+
+DAEMON1=/usr/sbin/hpiod
+NAME1=hpiod
+PROCNAME1=$NAME1
+PIDFILE1=/var/run/hpiod.pid
+
+DAEMON2=/usr/sbin/hpssd
+NAME2=hpssd
+PROCNAME2=python
+PIDFILE2=/var/run/hpssd.pid
+
+HPIODOPTIONS=
+HPSSDOPTIONS=
+[ -r /etc/default/hplip ] && . /etc/default/hplip
+
+test -f ${DAEMON1} || exit 0
+
+set -e
+
+DIDSOMETHING=0
+
+reload_cups() {
+	if [ ${DIDSOMETHING} -ne 0 ] ; then
+		# Tell cupsys that we (may) have a new ative backend
+		# be silent about it to avoid unneeded hassles duing
+		# shutdowns -- it is not like we care if this suceeds or
+		# not...
+		if [ -x /usr/sbin/invoke-rc.d ] ; then
+			invoke-rc.d cupsys reload >/dev/null 2>&1 || true
+		else
+			/etc/init.d/cupsys reload >/dev/null 2>&1 || true
+		fi
+	fi
+	return 0
+}
+
+stop_hpuid() {
+	start-stop-daemon --stop --pidfile "$1" --name "python" --quiet && {
+		rm -f "$1"
+		echo -n $(basename "$1" | sed -e 's/.pid//')
+		echo -n ", "
+	}
+}
+
+kill_all_hpguid() {
+	echo -n "Stopping ${DESC1}: "
+	find /var/run -type f -name 'hpguid-*.pid' -print | \
+		while read -r i ; do stop_hpuid "$i" ; done
+	echo "done."
+}
+
+start_daemon() {
+	DAEMON="$1"
+	PIDFILE="$2"
+	NAME="$3"
+	PROCNAME="$4"
+	DAEMONOPT="$5"
+
+	START="--start --quiet --pidfile ${PIDFILE} --startas ${DAEMON} --name ${PROCNAME}"
+	[ -n "${DAEMONOPT}" ] && START="${START} -- ${DAEMONOPT}"
+	if start-stop-daemon ${START} >/dev/null 2>&1 ; then
+		echo -n "${NAME}"
+		DIDSOMETHING=1
+	else
+		if start-stop-daemon --test ${START} >/dev/null 2>&1; then
+			echo -n "(${NAME} failed)"
+			return 1
+		else
+			echo -n "(${NAME} already running)"
+			return 0
+		fi
+	fi
+	return 0
+}
+
+stop_daemon() {
+	DAEMON="$1"
+	PIDFILE="$2"
+	NAME="$3"
+	PROCNAME="$4"
+
+	# yes, it is --start. go read the manpage
+	STOP="--start --quiet --pidfile ${PIDFILE} --startas ${DAEMON} --name ${PROCNAME}"
+
+	if start-stop-daemon --stop --quiet --pidfile ${PIDFILE} \
+		--retry 10 --name ${PROCNAME} \
+		>/dev/null 2>&1 ; then
+			echo -n "${NAME}"
+			DIDSOMETHING=1
+			# FIXME: change hpiod so that this is not necessary
+			sleep 2
+	else
+		if start-stop-daemon --test ${STOP} >/dev/null 2>&1; then
+			echo -n "(${NAME} not running)"
+			return 0
+		else
+			echo -n "(${NAME} failed)"
+			return 1
+		fi
+	fi
+	return 0
+}
+
+do_start () {
+	echo -n "Starting $DESC: "
+	if start_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
+		"${PROCNAME1}" "${HPIODOPTIONS}" && \
+	   echo -n ", " && \
+	   start_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
+	   	"${PROCNAME2}" "${HPSSDOPTIONS}"; then
+	   echo
+	   reload_cups
+	else
+	   return 1
+	fi
+	return 0
+}
+
+do_stop () {
+	kill_all_hpguid
+	echo -n "Stopping $DESC: "
+	if stop_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
+			"${PROCNAME2}" ; then
+	   echo -n ", "
+	   stop_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
+	   		"${PROCNAME1}" && echo && return 0
+	   echo
+	   return 1
+	else
+	   echo -n ", "
+	   stop_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
+	   		"${PROCNAME1}"
+	   echo
+	   return 1
+	fi
+}
+
+case "$1" in
+  start)
+  	set -e
+  	do_start
+  	exit 0
+	;;
+  stop)
+  	set -e
+  	do_stop
+  	exit 0
+	;;
+  restart|force-reload)
+  	do_stop || true
+	set -e
+	do_start
+	exit 0
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|force-reload}" 1>&2
+	exit 1
+	;;
+esac
+
+exit 0

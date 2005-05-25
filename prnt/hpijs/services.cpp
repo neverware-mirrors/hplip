@@ -177,7 +177,6 @@ UXServices::UXServices():SystemServices()
 
    constructor_error = NO_ERROR;
    hpFD = -1;
-   OldStatus = 0x55;
 
    // instead of InitDeviceComm(), just do...
    IOMode.bDevID = IOMode.bStatus = FALSE;   /* uni-di support is default */
@@ -214,6 +213,7 @@ UXServices::UXServices():SystemServices()
    Model = -1;
    strcpy(ph.cs, "sRGB");
    VertAlign = -1;
+   DisplayStatus = NODISPLAYSTATUS;
 }
 
 UXServices::~UXServices()
@@ -267,6 +267,33 @@ BOOL UXServices::GetVertAlignFromDevice()
    if ((VertAlign = ReadHPVertAlign(hpFD)) == -1)
       return FALSE;
    return TRUE;
+}
+
+void UXServices::DisplayPrinterStatus (DISPLAY_STATUS ePrinterStatus)
+{
+   DisplayStatus = ePrinterStatus;
+}
+
+DRIVER_ERROR UXServices::BusyWait (DWORD msec)
+{
+   switch (DisplayStatus)
+   {
+      case DISPLAY_ERROR_TRAP:
+      case DISPLAY_COMM_PROBLEM:
+      case DISPLAY_PRINTER_NOT_SUPPORTED:
+      case DISPLAY_OUT_OF_PAPER:
+      case DISPLAY_PHOTOTRAY_MISMATCH:
+      case DISPLAY_TOP_COVER_OPEN:
+      case DISPLAY_NO_COLOR_PEN:
+      case DISPLAY_NO_BLACK_PEN:
+      case DISPLAY_NO_PENS:
+         bug("WARNING: printer bi-di error=%d\n", DisplayStatus);
+         DisplayStatus = DISPLAY_PRINTING_CANCELED;
+         return JOB_CANCELED;   /* bail-out otherwise APDK will wait forever */
+      default:
+         break;
+   }
+   return NO_ERROR;
 }
 
 const char * UXServices::GetDriverMessage (DRIVER_ERROR err)

@@ -274,16 +274,14 @@ int OpenHP(char *dev)
 {
    char message[512];  
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0, fd=-1;
    MsgAttributes ma;
 
    ReadConfig();
  
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpiod_port_num);  
  
    if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 

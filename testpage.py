@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.5 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.7 $ 
+# $Date: 2005/04/25 20:50:42 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -25,7 +25,7 @@
 
 
 
-_VERSION = '2.1'
+_VERSION = '2.2'
 
 
 # Std Lib
@@ -58,8 +58,8 @@ def usage():
     log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"),            "" ) ) )
     log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "Bus to probe (interactive mode only):","-b<bus> or --bus=<bus>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
+    #log.info( formatter.compose( ( "Bus to probe (interactive mode only):","-b<bus> or --bus=<bus>" ) ) )
+    #log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
 
     log.info(  """Examples:\n\nPrint a testpage to a CUPS printer named "hp5550":\n   hp-testpage -php5550 FILENAME\n\n""" \
@@ -72,15 +72,15 @@ def usage():
 utils.log_title( 'Testpage Print Utility', _VERSION )
 
 try:
-    opts, args = getopt.getopt( sys.argv[1:], 'p:d:hb:l:', 
-                               [ 'printer=', 'device=', 'help', 'bus=', 'logging=' ] ) 
+    opts, args = getopt.getopt( sys.argv[1:], 'p:d:hl:', 
+                               [ 'printer=', 'device=', 'help', 'logging=' ] ) 
 except getopt.GetoptError:
     usage()
     sys.exit(0)
     
 printer_name = None
 device_uri = None    
-bus = 'cups,usb'
+bus = 'cups'
 log_level = 'info'
 
 for o, a in opts:
@@ -94,8 +94,8 @@ for o, a in opts:
     elif o in ( '-d', '--device' ):
         device_uri = a
         
-    elif o in ( '-b', '--bus' ):
-        bus = a.lower().strip()
+    #elif o in ( '-b', '--bus' ):
+    #    bus = a.lower().strip()
         
     elif o in ( '-l', '--logging' ):
         log_level = a.lower().strip()
@@ -107,13 +107,13 @@ if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     
 log.set_level( log_level )   
    
-for x in bus.split(','):
-    bb = x.lower().strip()
-    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
-    if bb not in ( 'usb', 'cups', 'net' ):
-        log.error( "Invalid bus name: %s" % bb )
-        usage()
-        sys.exit(0)
+##for x in bus.split(','):
+##    bb = x.lower().strip()
+##    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+##    if bb not in ( 'usb', 'cups', 'net' ):
+##        log.error( "Invalid bus name: %s" % bb )
+##        usage()
+##        sys.exit(0)
 
 if device_uri and printer_name:
     log.error( "You may not specify both a printer (-p) and a device (-d)." )
@@ -152,7 +152,12 @@ if d.device_uri is None and device_uri:
 
 print_file = os.path.join( prop.home_dir, 'data', 'ps', 'testpage.ps.gz' )
 
-device_id = d.open()    
+try:
+    device_id = d.open()    
+except Error:
+    log.error( "Unable to print to printer. Please check device and try again." )
+    sys.exit(0)
+    
 log.info( "Printing test page..." )
 d.printParsedGzipPostscript( print_file )
 d.close()
@@ -161,64 +166,6 @@ log.info( "Done." )
 
 sys.exit(0)
 
-
-
-device_id = d.open()
-channel_id = d.openChannel( 'PRINT' )
-if channel_id == -1:
-    log.error( "Could not open print channel" )
-    sys.exit(0)
-
-log.info( "Printing test page..." )
-
-f = gzip.open( print_file, 'r' )
-
-x = f.readline()
-while not x.startswith( '%PY_BEGIN' ):
-    os.write( temp_file_fd, x )
-    x = f.readline()
-    
-sub_lines = []
-x = f.readline()
-while not x.startswith( '%PY_END' ):
-    sub_lines.append( x )
-    x = f.readline()
-    
-
-SUBS = { 'VERSION' : prop.version,
-         'MODEL'   : d.model_ui,
-         'URI'     : d.device_uri,
-         'BUS'     : d.bus,
-         'SERIAL'  : d.serialNumber(),
-         'IP'      : d.host,
-         'PORT'    : d.port,
-         'DEVNODE' : d.dev_file,
-         }
-if d.bus == 'net':
-    SUBS[ 'DEVNODE' ] = 'n/a'
-else:
-    SUBS[ 'IP' ] = 'n/a'
-    SUBS[ 'PORT' ] = 'n/a'
-    
-         
-
-for s in sub_lines:
-    #print s
-    os.write( temp_file_fd, s % SUBS )
-    
-os.write( temp_file_fd, f.read() )
-
-
-
-f.close()
-os.close( temp_file_fd )
-
-os.system( 'lp -d%s -s %s' % ( d.cups_printers[0], temp_file_name ) )
-
-os.remove( temp_file_name )
-d.close()
-
-log.info( "Done." )
 
 
     

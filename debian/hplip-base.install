@@ -1,0 +1,10 @@
+usr/lib/python*
+usr/lib/hplip/base/async.py
+usr/lib/hplip/base/[_b-z]*
+usr/lib/hplip/[_ac-s]*
+usr/lib/hplip/testpage
+usr/sbin
+etc/hp
+etc/sane.d/dll.d
+usr/lib/cups/backend
+usr/lib/sane/libsane*.so.*
