@@ -1,3 +1,18 @@
+hplip (0.9.3-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * New binary-all package: hplip-ppds, with the PPDs shipped by HPLIP
+      upstream.  Other than due to bug-fixes, these are usually a better
+      match for the current hpijs/hplip capabilities than those from
+      foomatic-filters-ppds or foomatic-db-hpijs
+    * Change the Manufacturer string on all PPDs to "HP (HPLIP)", to set
+      them apart from PPDs of other sources
+    * Update README.Debian with information about the HPLIP PPDs
+    * Recommend hplip-ppds (closes: #311470, #311474)
+    * New patch: 12_fix-gcc4-errors (closes: #310435)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat,  4 Jun 2005 09:28:18 -0300
+
 hplip (0.9.3-1) unstable; urgency=low
 
   * New upstream version

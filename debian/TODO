@@ -7,7 +7,7 @@
     2. run as not-root?
     3. syslog() stuff instead of dumping to stdout
 
-    U1. Get upstream to allow one to confure sender address, etc
+    U1. Get upstream to allow one to configure sender address, etc
     U2. Date header (#291277), precedence header too.
 
   sane stuff:
@@ -21,7 +21,7 @@
       2a. then move it out of /usr/lib into the python paths
       2b. bytecompile the mess
    3. remove hardcoding of /etc/hp, make it a configure.in thing
-   4. remove python #! lines from stuff that are not end-user executables
+   4. remove python #! lines from stuff that are not end-user executables (done?)
    5. fix and submit upstream something less hackish than the data -> ../share/data symlink
 
   CUPSYS:
@@ -31,3 +31,8 @@
   FOOMATIC:
    1. all PPDs should be in /etc somewhere.  The best way to do this is probably another
       link to /etc/ppds added to /etc/share/cups/models or something.
+
+  Packaging:
+   1. package the ppds in a hplip-ppds package, that tracks whatever is known to work with
+      a given version of hplip.  Make sure not to conflict or cause trouble with the foomatic-*
+      ppd packages.

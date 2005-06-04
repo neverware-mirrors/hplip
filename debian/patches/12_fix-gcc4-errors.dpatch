@@ -1,0 +1,37 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 12_fix-gcc4-errors.dpatch by Matthias Klose <doko@cs.tu-berlin.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix GCC 4.0 build error reported in Debian bug #310435
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad hplip/prnt/hpijs/printerproxy.h a/prnt/hpijs/printerproxy.h
+--- hplip/prnt/hpijs/printerproxy.h	2005-03-25 18:12:01.000000000 -0300
++++ hplip/prnt/hpijs/printerproxy.h	2005-06-03 11:16:03.813305547 -0300
+@@ -46,7 +46,7 @@
+     VOTE_EXACT_MATCH = 100                  //!< exact match id on this printer
+ } PROXY_VOTE;
+ 
+-
++class Printer;
+ 
+ //PrinterProxy
+ //!Provide act on behalf of the printer class for matching, names, voting, etc

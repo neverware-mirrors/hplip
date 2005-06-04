@@ -139,6 +139,16 @@ install: build
 	mkdir -p $(PKGTMP)/etc/sane.d/dll.d
 	install -m 644 debian/$(BASEPKG).sane $(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)
 
+	# PPDs (manually install, HP's install hook is hopeless)
+	# While at it, change Manufacturer to HP (HPLIP)
+	mkdir -p $(PKGTMP)/usr/share/ppd/hplip
+	( cd prnt/hpijs/ppd && find . -type f -name '*.ppd' | while read -r i ; do \
+		sed -e 's/^*Manufacturer:.*/*Manufacturer:  "HP (HPLIP)"/' \
+			< $$i \
+			> $(PKGTMP)/usr/share/ppd/hplip/$$i ;\
+		chmod 644 $(PKGTMP)/usr/share/ppd/hplip/$$i ;\
+	done )
+
 	# Lintian and linda overrides
 	cd debian ; \
 	for i in *.linda ; do \

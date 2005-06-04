@@ -1,6 +1,7 @@
 01_rss
 10_missing-prototypes
 11_fix-misc-gcc-warnings
+12_fix-gcc4-errors
 13_intsign-fixes
 40_testmail_fix
 50_hp-clean_fix
