@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 
 Package: hplip-base
 Architecture: any
-Conflicts: hpoj, hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1)
+Conflicts: hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1)
 Depends: cupsys (>= 1.1.20), hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Recommends: cupsys-client (>= 1.1.20), hplip-ppds (= ${Source-Version})
 Conflicts: hplip (<< 0.9.3), hplip-data (<< 0.9.3)
@@ -34,7 +34,7 @@ Description: HP Linux Printing and Imaging System - base system
   * A GUI toolbox to access all these functions in a friendly way
     (shipped in package hplip)
   * HPAIO SANE backend (hpaio) for flatbed and Automatic Document Feeder 
-    (ADF) scanning in MFP devices
+    (ADF) scanning using MFP devices
  .
  This is this the base hplip system without the graphical user 
  interface and without the HP toolbox.  Install the hplip package to
@@ -75,7 +75,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-ppds
 Architecture: all
-Depends: hplip-base (= ${Source-Version})
+Suggests: hpijs, hplip-base
 Description: HP Linux Printing and Imaging - PPD files
  This package contains PPD (printer definition) files for the 
  printers supported by the HP Linux Printing and Imaging System.
@@ -98,7 +98,8 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  .
  It includes the so-called rss patch, to use pure black ink instead
  of composite black in printers that don't do color map conversion
- in firmware.
+ in firmware.  It can take advantage of Ghostscript IJS KRGB support
+ to do the same on printers that do color map conversion in firmware.
  .
  Users of USB and JetDirect HP printers are advised to also install the
  hplip package, and use the hp CUPS backend to send data to the printer.

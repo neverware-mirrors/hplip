@@ -1,3 +1,25 @@
+hplip (0.9.3-3) unstable; urgency=high
+
+  * New upstream patch 0.9.3-1 to hpijs:
+    + Fixed a bi-di problem with all LIDIL printers (DJ3320, DJ3600)
+    + Fixed a 64-bit problem with LJJetReady printers
+    + Fixed a KRGB issue in the VIP path in HPIJS. This fixes a problem
+      where black text would drop some pixels with VIP printers (DJ9xxVIP,
+      DJGenericVIP)
+  * Henrique de Moraes Holschuh:
+    * Minor updates to README.Debian on the various packages
+    * Rework package descriptions a bit in control file
+    * Stop confliting with HPOJ.  We are fine with it as long as the same
+      device is NOT being used by HPOJ and HPIJS
+    * Remove hplip-base dependency from hplip-ppds. Instead, suggest
+      hpijs and hplip-base in hplip-ppds, and ship changelog instead of symlink
+    * Remove some stray -Nhplip crap from arch-dep section of rules files
+    * Remove 12_fix-gcc4-errors.dpatch, accepted upstream (patch 0.9.3-1)
+    * debian/rules: avoid useless /usr/bin/find warnings about 
+      maxdepth/mindepth
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 29 Jun 2005 00:48:18 -0300
+
 hplip (0.9.3-2) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:
