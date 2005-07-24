@@ -343,7 +343,7 @@ int System::IsUdev(char *dnode)
 int System::GetModel(char *id, char *buf, int bufSize)
 {
    char *pMd;
-   int i;
+   int i, j, dd=0;
 
    buf[0] = 0;
 
@@ -354,16 +354,31 @@ int System::GetModel(char *id, char *buf, int bufSize)
    else
       return 0;
 
-   for (i=0; (pMd[i] != ';') && (i < bufSize); i++)
+   for (i=0; pMd[i] == ' ' && i < bufSize; i++);  /* eat leading white space */
+
+   for (j=0; (pMd[i] != ';') && (i < bufSize); i++)
    {
       if (pMd[i]==' ' || pMd[i]=='/')
-         buf[i] = '_';   /* convert space to "_" */
+      {
+         /* Remove double spaces. */
+         if (!dd)
+         { 
+            buf[j++] = '_';   /* convert space to "_" */
+            dd=1;              
+         }
+      }
       else
-         buf[i] = pMd[i];
+      {
+         buf[j++] = pMd[i];
+         dd=0;       
+      }
    }
-   buf[i] = 0;
 
-   return i;
+   for (j--; buf[j] == '_' && j > 0; j--);  /* eat trailing white space */
+
+   buf[++j] = 0;
+
+   return j;    /* return size does not include zero terminator */
 }
 
 //System::GetSerialNum
@@ -498,7 +513,7 @@ int System::GetURISerial(char *uri, char *buf, int bufSize)
 ******************************************************************************/
 int System::GeneralizeURI(MsgAttributes *ma)
 {
-   char dev[255];
+   MsgAttributes ma2;
    char model[128];
    char serial[128];
    char uriModel[128];
@@ -525,9 +540,10 @@ int System::GeneralizeURI(MsgAttributes *ma)
       
    for (i = 0; i < 16 && !found; i ++)
    {
-      sprintf(dev, "hp:/usb/ANY?device=/dev/usb/lp%d", i);
+      ma2.prt_mode = RAW_MODE;
+      sprintf(ma2.uri, "hp:/usb/ANY?device=/dev/usb/lp%d", i);
 
-      pD = NewDevice(dev);
+      pD = NewDevice(&ma2);
       len = pD->Open(sendBuf, &result);
       if (result == R_AOK)
       {
@@ -561,6 +577,7 @@ int System::GeneralizeURI(MsgAttributes *ma)
 ******************************************************************************/
 int System::UsbDiscovery(char *lst, int *cnt)
 {
+   MsgAttributes ma2;
    char dev[255];
    char model[128];
    char serial[128];
@@ -571,9 +588,10 @@ int System::UsbDiscovery(char *lst, int *cnt)
 
    for (*cnt=0, i=0; i < 16; i++)
    {
-      sprintf(dev, "hp:/usb/ANY?device=/dev/usb/lp%d", i);
+      ma2.prt_mode = RAW_MODE;
+      sprintf(ma2.uri, "hp:/usb/ANY?device=/dev/usb/lp%d", i);
 
-      pD = NewDevice(dev);
+      pD = NewDevice(&ma2);
       len = pD->Open(sendBuf, &result);
       if (result == R_AOK)
       {
@@ -825,16 +843,16 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int 
             /* Convert SNMP little-endian to PML big-endian byte stream. */
             len = (sizeof(uint32_t) < (unsigned int)size) ? sizeof(uint32_t) : size;
             val = *vars->val.integer;
-            for(i=len-1; i>0; i--)
+            for(i=len; i>0; i--)
             {
-               tmp[i] = val & 0xff;
+               tmp[i-1] = val & 0xff;
                val >>= 8;
             }
 
             /* Remove any in-significant bytes. */
-            for (; tmp[i]==0 && i<len; i++)
+            for (; tmp[i-1]==0 && i<=len; i++)
                ;
-            len -= i;
+            len -= --i;
 
             memcpy(buffer, tmp+i, len);
             break;
@@ -1107,7 +1125,7 @@ bugout:
 int System::MakeUriFromDevice(char *dnode, char *sendBuf)
 {
    char res[] = "msg=MakeURIResult\nresult-code=%d\n";
-   char dev[255];
+   MsgAttributes ma;
    char model[128];
    char serial[128];
    char dummyBuf[2048];
@@ -1123,9 +1141,10 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
       goto bugout;
    }
 
-   sprintf(dev, "hp:/usb/ANY?device=%s", dnode);  /* dnode = /dev/usb/lpxx or /dev/udev_name */
+   ma.prt_mode = RAW_MODE;
+   sprintf(ma.uri, "hp:/usb/ANY?device=%s", dnode);  /* dnode = /dev/usb/lpxx or /dev/udev_name */
 
-   pD = NewDevice(dev);
+   pD = NewDevice(&ma);
    pD->Open(dummyBuf, &result);
    if (result != R_AOK)
    {
@@ -1172,11 +1191,13 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
    ma->cmd[0] = 0;
    ma->uri[0] = 0;
    ma->service[0] = 0;
-   ma->io_mode[0] = 0;
-   ma->flow_ctl[0] = 0;
    ma->oid[0] = 0;
    ma->ip[0] = 0;
    ma->dnode[0] = 0;
+   ma->prt_mode = UNI_MODE;
+   ma->mfp_mode = MLC_MODE;
+   ma->flow_ctl = GUSHER;
+   ma->scan_port = SCAN_PORT0;
    ma->type = PML_DT_UNKNOWN;
    ma->descriptor = -1;
    ma->length = 0;
@@ -1186,6 +1207,10 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
    ma->result = -1;
    ma->timeout = EXCEPTION_TIMEOUT;
    ma->ip_port = 1;
+   ma->pml_result = -1;
+
+   if (buf == NULL)
+      return R_AOK;  /* initialize ma */
 
    i = GetPair(buf, key, value, &tail);
    if (strcasecmp(key, "msg") != 0)
@@ -1270,7 +1295,15 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       }
       else if (strcasecmp(key, "io-mode") == 0)
       {
-         strncpy(ma->io_mode, value, sizeof(ma->io_mode));      /* raw | mlc */
+         ma->prt_mode = strtol(value, &tail2, 10);      /* uni | raw | mlc */
+      }
+      else if (strcasecmp(key, "io-mfp-mode") == 0)
+      {
+         ma->mfp_mode = strtol(value, &tail2, 10);      /* mfc | dot4 */
+      }
+      else if (strcasecmp(key, "io-scan-port") == 0)
+      {
+         ma->scan_port = strtol(value, &tail2, 10);      /* normal | CLJ28xx */
       }
       else if (strcasecmp(key, "result-code") == 0)
       {
@@ -1278,7 +1311,7 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       }
       else if (strcasecmp(key, "io-control") == 0)
       {
-         strncpy(ma->flow_ctl, value, sizeof(ma->flow_ctl));    /* gusher | miser */
+         ma->flow_ctl = strtol(value, &tail2, 10);     /* gusher | miser */
       }
       else if (strcasecmp(key, "oid") == 0)
       {
@@ -1288,6 +1321,10 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       {
         //         strncpy(ma->type, value, sizeof(ma->type)); 
          ma->type = strtol(value, &tail2, 10);
+      }
+      else if (strcasecmp(key, "pml-result-code") == 0)
+      {
+         ma->pml_result = strtol(value, &tail2, 10);  /* for debug */
       }
       else if (strcasecmp(key, "hostname") == 0)
       {
@@ -1328,21 +1365,32 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
 int System::DeviceCleanUp(SessionAttributes *psa)
 {
    char dummyBuf[255];
-   int i, dummy;
+   int i, n, dummy;
    Device *pD = pDevice[psa->descriptor];
 
    for (i=0; i<MAX_CHANNEL; i++)
    {
       if (psa->channel[i])
       {
-         syslog(LOG_INFO, "channel cleanup id=%d\n", i);
+         syslog(LOG_INFO, "channel cleanup ci=%d\n", i);
          pD->ChannelClose(i, dummyBuf, &dummy);
       }
    }
 
-   syslog(LOG_INFO, "device cleanup id=%d\n", psa->descriptor);
+   syslog(LOG_INFO, "device cleanup uri=%s\n", pD->GetURI());
    pD->Close(dummyBuf, &dummy);
    DelDevice(psa->descriptor);
+
+   /* Check cleanup results. */
+   for (i=0, n=0; i<MAX_DEVICE && n<DeviceCnt; i++)
+   {
+      if (pDevice[i] != NULL)
+      {
+         n++;
+         pD = pDevice[i];
+         syslog(LOG_INFO, "device active clientcnt=%d channelcnt=%d uri=%s\n", pD->GetClientCnt(), pD->GetChannelCnt(), pD->GetURI());
+      }
+   }
 
    return 0;
 }
@@ -1351,14 +1399,14 @@ int System::DeviceCleanUp(SessionAttributes *psa)
 //!  Create or re-use device object given the URI.
 /*!
 ******************************************************************************/
-Device *System::NewDevice(char *uri)
+Device *System::NewDevice(MsgAttributes *ma)
 {
    char newDL[255];
    char oldDL[255];
    Device *pD=NULL;
    int i, n;
 
-   if (uri[0] == 0)
+   if (ma->uri[0] == 0)
       return pD;
 
    if (pthread_mutex_lock(&mutex) != 0)
@@ -1373,12 +1421,21 @@ Device *System::NewDevice(char *uri)
       if (pDevice[i] != NULL)
       {
          n++;
-         GetURIDataLink(uri, newDL, sizeof(newDL));
+         GetURIDataLink(ma->uri, newDL, sizeof(newDL));
          GetURIDataLink(pDevice[i]->GetURI(), oldDL, sizeof(oldDL));
          if (strcmp(newDL, oldDL) == 0)
          {
             pD = pDevice[i];   /* same data link */
             pD->SetClientCnt(pD->GetClientCnt()+1);
+
+            /* If existing ProbeDevice/GeneralizeURI set DeviceOpen attributes. */
+	    if (strncmp(pD->GetURI(), "ANY?", 4) == 0)
+            {
+               pD->SetPrintMode(ma->prt_mode);            /* io mode for printing */
+               pD->SetMfpMode(ma->mfp_mode);              /* io mode for mfp functions */
+               pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
+               pD->SetScanPort(ma->scan_port);            /* network scan port selection */ 
+            }
             goto bugout;
          }
       }
@@ -1392,12 +1449,39 @@ Device *System::NewDevice(char *uri)
    {
       if (pDevice[i] == NULL)
       {
-         if (strcasestr(uri, "usb/") != NULL)
-            pD = new UsbDevice(this);
-         else
+         if (strcasestr(ma->uri, "usb/") != NULL)
+         {
+            if (ma->prt_mode == UNI_MODE)
+            {
+//               syslog(LOG_INFO, "using uni-di backend for %s\n", ma->uri);
+               pD = new UniUsbDevice(this);
+            }
+	    else
+            {
+               pD = new UsbDevice(this);
+               pD->SetPrintMode(ma->prt_mode);            /* io mode for printing */
+               pD->SetMfpMode(ma->mfp_mode);              /* io mode for mfp functions */
+               pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
+            }
+         }
+         else if (strcasestr(ma->uri, "net/") != NULL)
+         {
             pD = new JetDirectDevice(this);
+            pD->SetScanPort(ma->scan_port);            /* network scan port selection */ 
+         }
+         else if (strcasestr(ma->uri, "par/") !=NULL)
+         {
+            /* TODO: Check for UniParDevice here. */ 
+//            pD = new ParDevice(this);
+            goto bugout;
+         }
+	 else
+         {
+            goto bugout;
+         }
+
          pD->SetIndex(i);
-         pD->SetURI(uri);
+         pD->SetURI(ma->uri);
          pDevice[i] = pD;
          DeviceCnt++;
          break;
@@ -1511,7 +1595,7 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    {
       if (psa->descriptor != -1)
          len = sprintf(sendBuf, ERR_MSG, R_INVALID_DEVICE_OPEN); /* allow only one DeviceOpen per session */
-      else if ((pD = NewDevice(ma.uri)) == NULL)
+      else if ((pD = NewDevice(&ma)) == NULL)
          len = sprintf(sendBuf, ERR_MSG, R_INVALID_URI);
       else
       {
@@ -1539,7 +1623,7 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    {
       int channel;
       pD = pDevice[ma.descriptor];
-      len = pD->ChannelOpen(ma.service, ma.io_mode, ma.flow_ctl, &channel, sendBuf, &ret);
+      len = pD->ChannelOpen(ma.service, &channel, sendBuf, &ret);
       if (ret == R_AOK)
          psa->channel[channel] = 1;   /* track channel descriptor for session clean up */
    }
@@ -1579,7 +1663,7 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    }
    else
    {
-      syslog(LOG_INFO, "-tid:%x %s di=%d ci=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.length);
+      syslog(LOG_INFO, "-tid:%x %s di=%d ci=%d result=%d pml_result=%d pml_type=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.result, ma.pml_result, ma.type, ma.length);
       if (ma.length < 64)
 	sysdump(ma.data, ma.length);
    }

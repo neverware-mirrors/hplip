@@ -62,7 +62,8 @@ public:
         if (fTopOverSpray)
             *fTopOverSpray  = (float) 0.03;
 
-		if (ps == PHOTO_SIZE || ps == A6_WITH_TEAR_OFF_TAB)
+		if (ps == PHOTO_SIZE || ps == A6_WITH_TEAR_OFF_TAB ||
+            ps == PHOTO_5x7)
 		{
 			*fbType = fullbleed4EdgeAllMedia;
 		}
@@ -128,8 +129,8 @@ public:
         "PHOTOSMART 230\0"
 		"photosmart 240\0"
 		"photosmart 140\0"
-		"Photosmart 320\0"
-		"Photosmart 370\0"
+        "Photosmart 420\0"
+        "Photosmart 470\0"
 #ifdef APDK_MLC_PRINTER
 #endif
     ) {m_iPrinterType = ePSP100;}

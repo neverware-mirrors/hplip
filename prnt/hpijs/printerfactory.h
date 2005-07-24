@@ -50,6 +50,11 @@ PrinterFactory is a singleton that allows the caller to enumerate:
 Callers use the factory to create the appropriate printer class based on
 familiy name, model name, or device ID string.
 ******************************************************************************/
+
+// Specify a class prototype, otherwise "virtual printer" fails with error: ISO C++
+// forbids declaration of "Printer" with no type
+class Printer;
+
 class PrinterFactory
 {
 	friend class dummy;

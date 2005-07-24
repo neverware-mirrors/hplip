@@ -46,7 +46,9 @@ typedef enum PROXY_VOTE
     VOTE_EXACT_MATCH = 100                  //!< exact match id on this printer
 } PROXY_VOTE;
 
-
+// Specify a class prototype, otherwise "virtual printer" fails with error: ISO C++
+// forbids declaration of "Printer" with no type
+class Printer;
 
 //PrinterProxy
 //!Provide act on behalf of the printer class for matching, names, voting, etc

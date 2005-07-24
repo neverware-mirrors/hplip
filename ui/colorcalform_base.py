@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/colorcalform_base.ui'
 #
-# Created: Fri Apr 1 14:51:27 2005
+# Created: Wed Jul 13 09:36:13 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,10 +21,6 @@ class ColorCalForm_base(QDialog):
 
 
         ColorCalForm_baseLayout = QGridLayout(self,1,1,11,6,"ColorCalForm_baseLayout")
-
-        self.helpButton = QPushButton(self,"helpButton")
-
-        ColorCalForm_baseLayout.addWidget(self.helpButton,1,0)
 
         self.ContinueButton = QPushButton(self,"ContinueButton")
 
@@ -88,7 +84,6 @@ class ColorCalForm_base(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("HP Device Manager - Color Calibration"))
-        self.helpButton.setText(self.__tr("Help"))
         self.ContinueButton.setText(self.__tr("Next >"))
         self.CancelButton.setText(self.__tr("Cancel"))
         self.ColorCalGroup.setTitle(self.__tr("Color Calibration"))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.14 $ 
+# $Date: 2005/06/28 23:13:40 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -33,7 +33,7 @@ import getopt
 
 # Local
 from base.g import *
-from base import device, service, utils, maint
+from base import device, utils, maint
 from prnt import cups
    
 def usage():
@@ -134,14 +134,14 @@ if device_uri and printer_name:
     
 if not device_uri and not printer_name:
     try:
-        device_uri = utils.getInteractiveDeviceURI( bus )
+        device_uri = device.getInteractiveDeviceURI( bus )
         if device_uri is None:
             sys.exit(0)
     except Error:
         log.error( "Error occured during interactive mode. Exiting." )
         sys.exit(0)
    
-d = device.Device( None, device_uri, printer_name )
+d = device.Device( device_uri, printer_name )
 
 if d.device_uri is None and printer_name:
     log.error( "Printer '%s' not found." % printer_name )
@@ -154,25 +154,13 @@ if d.device_uri is None and device_uri:
 #log.info( "Cleaning device..." )
 
 try:
-    s = None
     try:
         device_id = d.open()
     except Error:
         log.error( "Unable to open device. Exiting. " )
         raise Error(0)
 
-    try:
-        s = service.Service()
-    except Error:
-        log.error( "Unable to contact services daemon. Exiting." )
-        raise Error(0)
-
-    try:
-        fields = s.queryModel( d.model )
-        clean_type = int( fields.get( 'clean-type', 0 ) )
-    except Error:
-        log.error( "Query for model failed. Exiting." )
-        raise Error(0)
+    clean_type = d.mq.get( 'clean-type', 0 )
         
     log.info( "Performing type %d, level %d cleaning..." % ( clean_type, level ) )
 
@@ -208,8 +196,8 @@ finally:
     log.info( "" )
     if d is not None:
         d.close()
-    if s is not None:
-        s.close()
+##    if s is not None:
+##        s.close()
 
     log.info( "Done." )
     

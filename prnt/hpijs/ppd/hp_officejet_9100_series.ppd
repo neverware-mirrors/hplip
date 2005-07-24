@@ -42,13 +42,13 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *cupsICCProfile RGB../sRGB Matching Profile: "/Library/Printers/hp/Profiles/sRGB_A.icc"
-*APPrinterIconPath: "/Library/Printers/hp/Icons/HP Officejet 9100 series.icns"
+*APPrinterIconPath: "/Library/Printers/hp/Icons/hp officejet 9100 series.icns"
 *% Product Name and Version Information
 *Manufacturer: "HP"
 *Product:      "(hp officejet 9100 series)"
 *ModelName:     "HP Officejet 9100 series PS"
 *ShortNickName: "HP Officejet 9100 series PS"
-*NickName:      "HP Officejet 9100 series PS v3010.107 (recommended)"
+*NickName:      "HP Officejet 9100 series PS v3010.107 Postscript (recommended)"
 *PSVersion:	"(3010.107) 0"
 *% =================================
 *% Basic Device Capabilities
@@ -64,7 +64,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols:PJL TBCP
+*Protocols: TBCP
 *%==========================================================
 *% Printer Specific Custom Data - HPDryTime - Removed for MAC
 *%==========================================================

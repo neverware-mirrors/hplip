@@ -95,7 +95,7 @@
 *%=================================================
 *%		 Emulations and Protocols
 *%=================================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout:  "0"
 *SuggestedWaitTimeout: "120"
@@ -369,12 +369,12 @@ ifelse = flush"
 *UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin UStapler
 *UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin HP8BinMB
 *UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin HPBooklet
-*UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin Stacker
+*UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin StackerFaceUp
 
 *UIConstraints: *OutputBin UStapler *HPOption_MBM_Mixed MBMStacker
 *UIConstraints: *OutputBin HP8BinMB *HPOption_MBM_Mixed MBMStacker
 *UIConstraints: *OutputBin HPBooklet *HPOption_MBM_Mixed MBMStacker
-*UIConstraints: *OutputBin Stacker *HPOption_MBM_Mixed MBMStacker
+*UIConstraints: *OutputBin StackerFaceUp *HPOption_MBM_Mixed MBMStacker
 
 *UIConstraints: *HPOption_MBM_Mixed MBMStacker *HPMailboxMode MBMode
 *UIConstraints: *HPOption_MBM_Mixed MBMStacker *HPMailboxMode StackerMode
@@ -425,11 +425,13 @@ ifelse = flush"
 *% StaplerStacker
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin HP8BinMB
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin HPBooklet
-*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin Stacker
+*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin StackerFaceUp
+*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin Left
+*UIConstraints: *HPOption_MBM_Mixed MBMStacker *OutputBin Left
 
 *UIConstraints: *OutputBin HP8BinMB *HPOption_MBM_Mixed MBMStaplerStacker
 *UIConstraints: *OutputBin HPBooklet *HPOption_MBM_Mixed MBMStaplerStacker
-*UIConstraints: *OutputBin Stacker *HPOption_MBM_Mixed MBMStaplerStacker
+*UIConstraints: *OutputBin StackerFaceUp *HPOption_MBM_Mixed MBMStaplerStacker
 
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *HPMailboxMode MBMode
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *HPMailboxMode StackerMode
@@ -529,9 +531,11 @@ ifelse = flush"
 *UIConstraints: *HPStaplerOptions HPBooklet *OutputBin Stacker
 *UIConstraints: *HPStaplerOptions HPBooklet *OutputBin HP8BinMB
 *UIConstraints: *HPStaplerOptions HPBooklet *OutputBin UStapler
+*UIConstraints: *HPStaplerOptions HPBooklet *OutputBin Upper
 
 *UIConstraints: *OutputBin PrinterDefault *HPStaplerOptions HPBooklet
 *UIConstraints: *OutputBin Left *HPStaplerOptions HPBooklet
+*UIConstraints: *OutputBin Upper *HPStaplerOptions HPBooklet
 *UIConstraints: *OutputBin StackerFaceUp *HPStaplerOptions HPBooklet
 *UIConstraints: *OutputBin Stacker *HPStaplerOptions HPBooklet
 *UIConstraints: *OutputBin HP8BinMB *HPStaplerOptions HPBooklet
@@ -772,6 +776,18 @@ ifelse = flush"
 *UIConstraints: *HPStaplerOptions 2parallel *OutputBin Left
 *UIConstraints: *HPStaplerOptions 3parallel *OutputBin Left
 *UIConstraints: *HPStaplerOptions 6parallel *OutputBin Left
+
+*UIConstraints: *OutputBin Upper *HPStaplerOptions 1diagonal
+*UIConstraints: *OutputBin Upper *HPStaplerOptions 1parallel
+*UIConstraints: *OutputBin Upper *HPStaplerOptions 2parallel
+*UIConstraints: *OutputBin Upper *HPStaplerOptions 3parallel
+*UIConstraints: *OutputBin Upper *HPStaplerOptions 6parallel
+
+*UIConstraints: *HPStaplerOptions 1diagonal *OutputBin Upper
+*UIConstraints: *HPStaplerOptions 1parallel *OutputBin Upper
+*UIConstraints: *HPStaplerOptions 2parallel *OutputBin Upper
+*UIConstraints: *HPStaplerOptions 3parallel *OutputBin Upper
+*UIConstraints: *HPStaplerOptions 6parallel *OutputBin Upper
 
 *UIConstraints: *OutputBin Stacker *HPStaplerOptions 1diagonal
 *UIConstraints: *OutputBin Stacker *HPStaplerOptions 1parallel
@@ -1189,6 +1205,14 @@ ifelse = flush"
 *UIConstraints: *MediaType Envelope *InputSlot Tray2
 *UIConstraints: *MediaType Envelope *InputSlot Tray3
 *UIConstraints: *MediaType Envelope *InputSlot Tray4Optional
+
+*UIConstraints: *InputSlot Tray2 *MediaType Labels
+*UIConstraints: *InputSlot Tray3 *MediaType Labels
+*UIConstraints: *InputSlot Tray4Optional *MediaType Labels
+
+*UIConstraints: *MediaType Labels *InputSlot Tray2
+*UIConstraints: *MediaType Labels *InputSlot Tray3
+*UIConstraints: *MediaType Labels *InputSlot Tray4Optional
 
 *% Duplex
 *UIConstraints: *MediaType Transparency *Duplex DuplexNoTumble
@@ -1837,7 +1861,7 @@ ifelse = flush"
 *HPwmBrightness Light/Light:              "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .33 mul } forall setcolor } put"
 *HPwmBrightness Lighter/Lighter:          "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .22 mul } forall setcolor } put"
 *HPwmBrightness Lightest/Lightest:        "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .11 mul } forall setcolor } put"
-*CloseUI: *HpwmBrightness
+*CloseUI: *HPwmBrightness
 
 *CloseGroup: HPWaterOverlayPanel
 
@@ -1850,13 +1874,22 @@ ifelse = flush"
 *OrderDependency: 100 AnySetup *OutputBin
 *DefaultOutputBin: PrinterDefault
 *OutputBin PrinterDefault/Printer's Current Setting: ""
-*OutputBin Upper/Top Bin: "<</Staple 0 /OutputType (TOP OUTPUT BIN)>> setpagedevice"
-*OutputBin Left/Left Bin: "
-   currentpagedevice /OutputAttributes get
-   4 known
-         {<</Staple 0 /OutputType (FACE UP BIN)>> setpagedevice}
-         {<</Staple 0 /OutputType (LEFT OUTPUT BIN)>> setpagedevice}
-       ifelse"
+*OutputBin Left/Left Output Bin (Face Up): "
+   currentpagedevice /MediaProcessingDetails known
+   {   currentpagedevice /MediaProcessingDetails get /DeviceID known
+       {   currentpagedevice /MediaProcessingDetails get /DeviceID get (multifunction) search
+           { currentpagedevice /OutputAttributes get
+                {
+                pop pop pop
+                <</MediaProcessing (FACE_UP) /MediaProcessingDetails
+                <</MediaProcessingOption (FACE_UP) /MediaProcessingBoundary 0 /Type 8>> >> setpagedevice
+           		}
+           	}
+       } <</MediaProcessing (FACE_UP) /MediaProcessingDetails
+                <</MediaProcessingOption (FACE_UP) /MediaProcessingBoundary 0 /Type 8>> >> setpagedevice 
+   }
+   {<</Staple 0 /OutputType (FACE UP BIN)>> setpagedevice} ifelse   	
+"
 *End
 *OutputBin StackerFaceUp/Stacker (Face-UP): "
 currentpagedevice /MediaProcessing known
@@ -1873,15 +1906,22 @@ currentpagedevice /MediaProcessing known
 } ifelse"
 *End
 *OutputBin Stacker/Stacker (Face-Down): "
-currentpagedevice /MediaProcessing known
-	{<< /MediaProcessing (FACE_DOWN) /MediaProcessingDetails<<
-	/MediaProcessingOption (FACE_DOWN)
-	/MedaiProcessingBoundary 0 /ImageOrientation 0 /Type 8 >> >> setpagedevice put }
-	{<</Staple 0 /OutputType (OPTIONAL OUTBIN 2)>> setpagedevice} ifelse"
+  currentpagedevice /MediaProcessingDetails known{
+	currentpagedevice /MediaProcessingDetails get /ModelID get
+	(C8088A) eq {<< /MediaProcessing (FACE_DOWN) /MediaProcessingDetails
+	<</MediaProcessingOption (FACE_DOWN)/MedaiProcessingBoundary 0
+	/ImageOrientation 0 /Type 8 >> >> setpagedevice put }
+		{<</MediaProcessing (STAPLING)
+        /MediaProcessingDetails<<
+        /MediaProcessingOption (NONE)
+        /MediaProcessingBoundary 0
+        /ImageOrientation 0
+        /Type 8 >> >> setpagedevice} ifelse}
+  {<</Staple 0 /OutputType (OPTIONAL OUTBIN 2)>> setpagedevice} ifelse "
 *End
+*OutputBin HP8BinMB/8-Bin Mailbox: ""
 *OutputBin UStapler/Stapler: ""
 *OutputBin HPBooklet/Booklet Bin: ""
-*OutputBin HP8BinMB/8-Bin Mailbox: ""
 *?OutputBin:"
 save
  currentpagedevice /OutputAttributes get dup
@@ -1900,11 +1940,15 @@ restore
 *OpenUI *HPStaplerOptions/Finishing Options: PickOne
 *OrderDependency: 45 AnySetup *HPStaplerOptions
 *DefaultHPStaplerOptions: PrintersDefault
-*HPStaplerOptions PrintersDefault/Printer's Current Setting: ""
+*HPStaplerOptions PrintersDefault/Printer's Current Setting: "
+  <</MediaProcessing (STAPLING) /MediaProcessingDetails<<
+    /MediaProcessingOption (NONE) /MediaProcessingBoundary 0
+    /ImageOrientation 1 /Type 8 >> >> setpagedevice"
+*End
 *HPStaplerOptions 1diagonal/1 Staple, diagonal: "
   <</MediaProcessing (STAPLING) /MediaProcessingDetails<<
     /MediaProcessingOption (ANGLED_STAPLE) /MediaProcessingBoundary 0
-    /ImageOrientation 1 /Type 8 >> >> setpagedevice"
+    /ImageOrientation 0 /Type 8 >> >> setpagedevice"
 *End
 *HPStaplerOptions 1parallel/1 Staple, parallel: "
    <</MediaProcessing (STAPLING) /MediaProcessingDetails<<
@@ -2482,7 +2526,7 @@ restore
 *MaxMediaHeight: "1332"
 *HWMargins:      12 12 12 12
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
 "

@@ -58,7 +58,10 @@ public:
     DJ3600Proxy() : PrinterProxy(
         "DJ3600",                               // family name
 		"deskjet 3600\0"                        // DeskJet 3600
-		"Deskjet 3840\0"                        // Deskjet 3840
+        "Deskjet 3740\0"
+        "Deskjet 3745\0"
+		"Deskjet 3840\0"
+        "Deskjet 3845\0"
 #ifdef APDK_MLC_PRINTER
 		"officejet 5500\0"
 		"psc 1300\0"

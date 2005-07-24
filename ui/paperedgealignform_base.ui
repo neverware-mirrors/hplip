@@ -19,14 +19,6 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QPushButton" row="1" column="0">
-            <property name="name">
-                <cstring>pushButton40</cstring>
-            </property>
-            <property name="text">
-                <string>Help</string>
-            </property>
-        </widget>
         <spacer row="1" column="1">
             <property name="name">
                 <cstring>spacer37</cstring>

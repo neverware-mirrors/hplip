@@ -1,6 +1,4 @@
-00_upstream_0.9.3-1
 01_rss
-10_missing-prototypes
 11_fix-misc-gcc-warnings
 13_intsign-fixes
 40_testmail_fix

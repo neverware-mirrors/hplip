@@ -28,17 +28,6 @@
 
 #include "io.h"
 
-#define HPIOD_PORT_FILE "/var/run/hpiod.port"
-#define HPSSD_PORT_FILE "/var/run/hpssd.port"
-
-static int hpiod_port_num = 0;
-static int hpiod_socket = -1;
-
-static int hpssd_port_num = 0;
-static int hpssd_socket = -1;
-
-static int inited = 0;
-
 #if defined( HPAIO_DEBUG )
 void DBG(int level, const char *format, ...)
 {
@@ -147,239 +136,6 @@ unsigned long DivideAndShift( int line,
     return result;
 }
 
-static int GetPair( char * buf, char * key, char * value, char ** tail )
-{
-    int i = 0, j;
-
-    key[0] = 0;
-    value[0] = 0;
-
-    if( buf[i] == '#' )
-    {
-        for( ; buf[i] != '\n' && i < BUFFER_SIZE; i++ )
-            ;  /* eat comment line */
-        i++;
-    }
-
-    if( strncasecmp( &buf[i], "data:", 5 ) == 0 )
-    {
-        strcpy( key, "data:" );   /* "data:" key has no value */
-        i += 5;
-    }
-    else
-    {
-        j = 0;
-        while( ( buf[i] != '=' ) && ( i < BUFFER_SIZE ) && ( j < LINE_SIZE ) )
-        {
-            key[j++] = buf[i++];
-        }
-        for( j--; key[j] == ' ' && j > 0; j-- )
-            ;  /* eat white space before = */
-        key[++j] = 0;
-
-        for( i++; buf[i] == ' ' && i < BUFFER_SIZE; i++ )
-            ;  /* eat white space after = */
-
-        j = 0;
-        while( ( buf[i] != '\n' ) && ( i < BUFFER_SIZE ) && ( j < LINE_SIZE ) )
-        {
-            value[j++] = buf[i++];
-        }
-        for( j--; value[j] == ' ' && j > 0; j-- )
-            ;  /* eat white space before \n */
-        value[++j] = 0;
-    }
-
-    i++;   /* bump past '\n' */
-
-    if( tail != NULL )
-    {
-        *tail = buf + i;
-    }  /* tail points to next line */
-
-    return i;
-}
-
-
-static int ParseMsg( char * buf, int len, MsgAttributes * ma )
-{
-    char key[LINE_SIZE];
-    char value[LINE_SIZE];
-    char * tail, * tail2;
-    int i, ret = R_AOK;
-
-    ma->cmd[0] = 0;
-    ma->flow_ctl[0] = 0;
-    ma->length = 0;
-    ma->data = NULL;
-    ma->resultcode = -1;
-    ma->deviceid = -1;
-    ma->channelid = -1;
-    ma->byteswritten = 0;
-    ma->numdevices = 0;
-    ma->scantype = 0;
-
-    i = GetPair( buf, key, value, &tail );
-    
-    if( strcasecmp( key, "msg" ) != 0 )
-    {
-        DBG( 1, "invalid message:%s\n", key);
-        return R_INVALID_MESSAGE;
-    }
-    
-    strncpy( ma->cmd, value, sizeof( ma->cmd ) );
-
-    while( i < len )
-    {
-        i += GetPair( tail, key, value, &tail );
-
-        if( strcasecmp( key, "device-id" ) == 0 )
-        {
-            ma->deviceid = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "channel-id" ) == 0 )
-        {
-            ma->channelid = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "bytes-written" ) == 0 )
-        {
-            ma->byteswritten = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "num-devices" ) == 0 )
-        {
-            ma->numdevices = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "scan-type" ) == 0 )
-        {
-            ma->scantype = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "length" ) == 0 )
-        {
-            ma->length = strtol( value, &tail2, 10 );
-            if( ma->length > BUFFER_SIZE )
-            {
-                ret = R_INVALID_LENGTH;
-            }
-        }
-        else if( strcasecmp( key, "data:" ) == 0 )
-        {
-            ma->data = ( unsigned char * ) tail;
-            break;  /* done parsing */
-        }
-        else if( strcasecmp( key, "result-code" ) == 0 )
-        {
-            ma->resultcode = strtol( value, &tail2, 10 );
-        }
-        else if (strcasecmp(key, "io-control") == 0)
-        {
-            strncpy(ma->flow_ctl, value, sizeof(ma->flow_ctl));
-        }
-        else if( strcasecmp( key, "type" ) == 0 )
-        {
-            ma->type = strtol( value, &tail2, 10 );
-        }
-        else if( strcasecmp( key, "pml-result-code" ) == 0 )
-        {
-            ma->pmlresult = strtol( value, &tail2, 10 );
-        }
-        else
-        {
-            /* Unknown keys are ignored (R_AOK). */
-        }
-    }  // end while (i < len)
-
-    return ret;
-}
-
-
-static int XmitAndParseMessage( char * message, int len, int maxlen, MsgAttributes * ma )
-{
-    if( !inited )
-    {
-        bug("XmitAndParseMessage(): not inited, call sane_init() first\n" );
-        goto abort;
-    }
-
-    if ( send( hpiod_socket, message, len, 0 ) == -1 ) 
-    {  
-       bug("XmitAndParseMessage(): unable to send message: %m\n" );  
-       goto abort;  
-    }  
-    
-    memset( message, '\0', maxlen );
-
-    if ( ( len = recv( hpiod_socket, message, maxlen, 0 ) ) == -1 ) 
-    {  
-       bug("XmitAndParseMessage(): unable to receive result message: %m\n" );  
-       goto abort;
-    }  
-
-    ParseMsg( message, len, ma );
-    
-    return len;
-    
-abort:
-    return 0;
-}
-
-
-static int ReadConfig()
-{
-    DBG( 0, "Reading port files...\n"  );
-    char rcbuf[255];
-    FILE * inFile;
-    char * tail;
-
-    
-    if( ( inFile = fopen(HPIOD_PORT_FILE, "r") ) == NULL ) 
-    {
-        bug("unable to open %s: %m\n", HPIOD_PORT_FILE );
-        goto bugout;
-    } 
-
-    if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
-    {
-        hpiod_port_num = strtol(rcbuf, &tail, 10);
-    }
-
-    fclose(inFile);
-    
-    if( ( inFile = fopen(HPSSD_PORT_FILE, "r") ) == NULL ) 
-    {
-        bug("unable to open %s: %m\n", HPSSD_PORT_FILE );
-        goto bugout;
-    } 
-    if ( fgets(rcbuf, sizeof(rcbuf), inFile) != NULL )
-    {
-        hpssd_port_num = strtol(rcbuf, &tail, 10);    
-    }
-    
-bugout:
-    return 0;
-}
-
-#if 0
-static int GetLine( char * start, char ** next )
-{
-    char * p = start;
-    int i = 0;
-    while( *p != '\0' )
-    {
-        if( *p == '\n' )
-        {
-            *p = '\0';
-            p++;
-            i++;
-            break;
-        }
-        p++;
-        i++;
-    }
-    *next = p;
-    return i;
-}
-#endif
-
 void NumListClear( int * list )
 {
     memset( list, 0, sizeof( int ) * MAX_LIST_SIZE );
@@ -464,138 +220,6 @@ int StrListAdd( const char ** list, char * s )
     return 0;
 }
 
-int Init( void )
-{
-    DBG( 0, "Init()\n" );
-    
-    struct sockaddr_in pin;  
-    
-    ReadConfig();
-
-    bzero( &pin, sizeof(pin) );  
-    pin.sin_family = AF_INET;  
-    pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    pin.sin_port = htons( hpiod_port_num );  
-    
-    if ( ( hpiod_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) == -1 ) 
-    {  
-      bug("Init(): Unable to create hpiod socket.\n" );
-      goto abort;  
-    }  
-    
-    if ( connect( hpiod_socket, (void *)&pin, sizeof(pin) ) == -1)  
-    {  
-      bug("Init(): Unable to connect hpiod socket.\n" );
-      goto abort;  
-    }  
-
-    bzero( &pin, sizeof(pin) );  
-    pin.sin_family = AF_INET;  
-    pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    pin.sin_port = htons( hpssd_port_num );  
-    
-    if ( ( hpssd_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) == -1 ) 
-    {  
-      bug("Init(): Unable to create hpssd socket.\n" );
-      goto abort;  
-    }  
-
-    if ( connect( hpssd_socket, (void *)&pin, sizeof(pin) ) == -1)  
-    {  
-      bug("Init(): Unable to connect hpssd socket.\n" );
-      goto abort;  
-    }  
-
-    inited = 1;
-    
-    return 1;
-
-abort:
-    return 0;
-}
-
-int OpenDevice( char * devicename )
-{
-    DBG( 0, "OpenDevice(%s)\n", devicename );
-    char message[ MINSIZE ];
-    int len = sprintf(message, "msg=DeviceOpen\ndevice-uri=%s\n", devicename );;
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    
-    MsgAttributes ma;
-    
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-   
-    DBG( 0, "\n<<<\n%s\n", message ); 
-
-    if (ma.resultcode == R_AOK)
-    {
-        return ma.deviceid;
-    }
-    else
-    {
-abort:
-        return -1;
-    }
-    
-}
-
-int GetDeviceID( int deviceid,  char * deviceIDString, int maxlen )
-{
-    char message[ MAXSIZE ];
-    int len = sprintf( message, "msg=DeviceID\ndevice-id=%d\n", deviceid );
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    
-    MsgAttributes ma;
-    
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-    
-    DBG( 0, "\n<<<\n%s\n", message ); 
-    
-    if( ma.resultcode == R_AOK )
-    {
-        strncpy( deviceIDString, ma.data, ma.length ); 
-    }
-    else
-    {
-        deviceIDString[0]='\0';
-    }
-    return ma.length;
-abort:
-    return ERROR;
-}
-
-int GetModel(char *id, char *buf, int bufSize)
-{
-   char *pMd;
-   int i;
-
-   buf[0] = 0;
-
-   if ((pMd = strstr(id, "MDL:")) != NULL)
-      pMd+=4;
-   else if ((pMd = strstr(id, "MODEL:")) != NULL)
-      pMd+=6;
-   else
-      return 0;
-
-   for (i=0; (pMd[i] != ';') && (i < bufSize); i++)
-   {
-      if (pMd[i]==' ' || pMd[i]=='/')
-         buf[i] = '_';   /* convert space to "_" */
-      else
-         buf[i] = pMd[i];
-   }
-   buf[i] = 0;
-
-   return i;
-}
-
 int ResetDevices( SANE_Device *** devices )
 {
     DBG( 0, "ResetDevices()\n" );
@@ -626,10 +250,9 @@ int ResetDevices( SANE_Device *** devices )
 
 int SendScanEvent( char * device_uri, int event, char * type )
 {
-    char message[ MAXSIZE ];
-    memset( message, '\0', MAXSIZE );
+    char message[ BUFFER_SIZE ];
+
     int len = sprintf( message, "msg=Event\ndevice-uri=%s\nevent-code=%d\nevent-type=%s\n", device_uri, event, type );
-    DBG( 0, "\n>>>\n%s\n", message ); 
 
     if ( send( hpssd_socket, message, len, 0 ) == -1 ) 
     {
@@ -641,11 +264,10 @@ int SendScanEvent( char * device_uri, int event, char * type )
 
 int ProbeDevices( SANE_Device *** devices )
 {
-    char message[ MAXSIZE ];
+    char message[ BUFFER_SIZE ];
     MsgAttributes ma;
-    memset( message, '\0', MAXSIZE );
+
     int len = sprintf( message, "msg=ProbeDevicesFiltered\nbus=%s\nfilter=scan\nformat=default\n", "usb,cups" );
-    DBG( 0, "\n>>>\n%s\n", message ); 
 
     if ( send( hpssd_socket, message, len, 0 ) == -1 ) 
     {
@@ -653,30 +275,28 @@ int ProbeDevices( SANE_Device *** devices )
        goto abort;  
     }
 
-    if ( ( len = recv( hpssd_socket, message, MAXSIZE, 0 ) ) == -1 ) 
+    if ( ( len = recv( hpssd_socket, message, sizeof(message), 0 ) ) == -1 ) 
     {
        bug("ProbeDevices(): unable to receive result message: %m\n" );  
        goto abort;
     }
 
-    DBG( 0, "\n<<<\n%s\n", message ); 
-    
-    ParseMsg( message, len, &ma );
+    hplip_ParseMsg( message, len, &ma );
 
     int d = 0;
     char * uri = NULL;
     char * mdl = NULL;
     
-    if( ma.numdevices > 0 )
+    if( ma.ndevice > 0 )
     {
-        *devices = malloc( sizeof( SANE_Device * ) * ( ma.numdevices + 1 ) );
+        *devices = malloc( sizeof( SANE_Device * ) * ( ma.ndevice + 1 ) );
 
         int remaining = ma.length;
         char * p = ma.data;
 
         int state = 0;
 
-        while( remaining > 0 && *p != '\0' && d < ma.numdevices )
+        while( remaining > 0 && *p != '\0' && d < ma.ndevice )
         {
             //DBG( 0, "\n>>>\n%d,%c\n", state, *p );
             
@@ -744,11 +364,10 @@ abort:
 
 int GetScannerType( SANE_String model )
 {
-    char message[ MINSIZE ];
+    char message[512];
     MsgAttributes ma;
-    memset( message, '\0', MINSIZE );
+
     int len = sprintf( message, "msg=ModelQuery\nmodel=%s\n", model );
-    DBG( 0, "\n>>>\n%s\n", message ); 
 
     if ( send( hpssd_socket, message, len, 0 ) == -1 ) 
     {
@@ -756,45 +375,18 @@ int GetScannerType( SANE_String model )
        goto abort;  
     }
 
-    if ( ( len = recv( hpssd_socket, message, MINSIZE, 0 ) ) == -1 ) 
+    if ( ( len = recv( hpssd_socket, message, sizeof(message), 0 ) ) == -1 ) 
     {
        bug("GetScannerType(): unable to receive result message: %m\n" );  
        goto abort;
     }
     
-    DBG( 0, "\n<<<\n%s\n", message ); 
-    
-    ParseMsg( message, len, &ma );
+    hplip_ParseMsg( message, len, &ma );
 
     return ma.scantype;
 
 abort:
     return 0;
-}
-
-//GetURIModel
-//! Parse the model from a uri string.
-/*!
-******************************************************************************/
-int GetURIModel(char *uri, char *buf, int bufSize)
-{
-   char *p;
-   int i;
-
-   buf[0] = 0;
-
-   if ((p = strstr(uri, "/")) == NULL)
-      return 0;
-   if ((p = strstr(p+1, "/")) == NULL)
-      return 0;
-   p++;
-
-   for (i=0; (p[i] != '?') && (i < bufSize); i++)
-      buf[i] = p[i];
-
-   buf[i] = 0;
-
-   return i;
 }
 
 int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *pml_result)
@@ -822,9 +414,9 @@ int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *
 
    message[len] = 0;
 
-   ParseMsg(message, len, &ma);
+   hplip_ParseMsg(message, len, &ma);
 
-   if (ma.resultcode == R_AOK)
+   if (ma.result == R_AOK)
    {  
       rlen = (ma.length > size) ? size : ma.length;
       memcpy(buf, ma.data, rlen);
@@ -868,9 +460,9 @@ int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *p
 
    message[len] = 0;
 
-   ParseMsg(message, len, &ma);
+   hplip_ParseMsg(message, len, &ma);
 
-   if (ma.resultcode == R_AOK)
+   if (ma.result == R_AOK)
    {  
       slen = size;
       *pml_result = ma.pmlresult;
@@ -879,139 +471,6 @@ int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *p
 mordor:
 
    return slen;
-}
-
-//ModelQuery
-//!  Request ModelQuery from hpssd.
-/*!
-******************************************************************************/
-int ModelQuery(char *devicename, MsgAttributes *ma)
-{
-   char message[4096];  
-   char model[128];
-   int len=0,stat=1;
-
-   if (hpssd_socket < 0)
-      goto bugout;  
-
-   len = GetURIModel(devicename, model, sizeof(model));
-
-   len = sprintf(message, "msg=ModelQuery\nmodel=%s\n", model);
-
-   if (send(hpssd_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send ModelQuery: %m\n");  
-      goto bugout;  
-   }  
-
-   if ((len = recv(hpssd_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ModelQueryResult: %m\n");  
-      goto bugout;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, ma);
-   stat=0;
-
-bugout:
-
-   return stat;
-}
-
-int OpenChannel( int deviceid, char * channelname, char *flow_ctl )
-{
-    char message[ MINSIZE ];
-    int len=0, channel=-1;
-    MsgAttributes ma;
-
-   if (flow_ctl[0] == 0)
-      len = sprintf(message, "msg=ChannelOpen\ndevice-id=%d\nservice-name=%s\n", deviceid, channelname);
-   else
-      len = sprintf(message, "msg=ChannelOpen\ndevice-id=%d\nservice-name=%s\nio-control=%s\n", deviceid, channelname, flow_ctl);
-
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-        goto bugout;
-    
-    if (ma.resultcode == R_AOK)
-        channel = ma.channelid;
-
-bugout:
-
-    return channel;    
-}
-
-
-int CloseChannel( int deviceid, int channelid )
-{
-    char message[ MINSIZE ];
-    memset( message, '\0', MINSIZE );
-    int len = sprintf( message, "msg=ChannelClose\ndevice-id=%d\nchannel-id=%d\n", deviceid, channelid );
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    
-    MsgAttributes ma;
-
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-    
-    DBG( 0, "\n<<<\n%s\n", message ); 
-
-    if (ma.resultcode == R_AOK)
-    {
-        return 1;
-    }
-    else
-    {
-abort:
-        return 0;
-    }
-}
-
-
-int ReadChannel( int deviceid, int channelid, unsigned char * buffer, int maxlen, int timeout )
-{
-    if( timeout == -1 )
-        timeout = DEFAULT_CHANNEL_READ_TIMEOUT;
-    
-    char message[ MAXSIZE ];
-
-    int len = sprintf( message, "msg=ChannelDataIn\ndevice-id=%d\nchannel-id=%d\nbytes-to-read=%d\ntimeout=%d\n", 
-                       deviceid, channelid, maxlen, timeout );
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    
-    MsgAttributes ma;
-
-    DBG( 0, "Reading data from channel %d...\n", channelid );
-
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-
-    DBG( 0, "\n<<<\nChannelDataInResult\nlength=%d\nresult-code=%d\n", ma.length, ma.resultcode  ); 
-    DBG_DUMP( ma.data, ma.length );
-    
-    if (ma.resultcode == R_AOK)
-    {
-        if( ma.length > maxlen )
-        {
-            return -1; 
-        }
-        
-        memcpy( buffer, ma.data, ma.length );
-        
-        return ma.length;
-    }
-    else
-    {
-abort:
-        DBG( 0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX READ ERROR %d XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n", ma.resultcode );
-        return -1;
-    }
-
 }
 
 /* Read full requested data length in BUFFER_SIZE chunks. Return number of bytes read. */
@@ -1025,7 +484,7 @@ int ReadChannelEx(int deviceid, int channelid, unsigned char * buffer, int lengt
    {
       len = size > BUFFER_SIZE ? BUFFER_SIZE : size;
         
-      n = ReadChannel(deviceid, channelid, buffer+total, len, timeout);
+      n = hplip_ReadHP(deviceid, channelid, buffer+total, len, timeout);
       if (n <= 0)
       {
          break;    /* error or timeout */
@@ -1037,102 +496,3 @@ int ReadChannelEx(int deviceid, int channelid, unsigned char * buffer, int lengt
    return total;
 }
 
-int WriteChannel( int deviceid, int channelid, unsigned char * buffer, int numbytes )
-{
-    char message[ MAXSIZE ] ;
-    int len = sprintf( message, "msg=ChannelDataOut\ndevice-id=%d\nchannel-id=%d\nlength=%d\ndata:\n", deviceid, channelid, numbytes );
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    DBG_DUMP( buffer, numbytes );
-
-    MsgAttributes ma;
-    
-    DBG( 0, "Writing data to channel %d...\n", channelid );
-
-    if( numbytes + len > MAXSIZE )
-    {
-        return 0;
-    }
-    
-    memcpy( message + len, buffer, numbytes );
-
-    if( XmitAndParseMessage( message, len + numbytes, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-    
-    DBG( 0, "\n<<<\n%s\n", message ); 
-    
-    if (ma.resultcode == R_AOK)
-    {
-        if( ma.byteswritten == numbytes )
-        {
-            return ma.byteswritten;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    else if( ma.resultcode == R_INVALID_CHANNEL_ID )
-    {
-        DBG( 0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX WRITE ERROR %d XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n", ma.resultcode );
-        return -1;
-    }
-    
-    else
-    {
-abort:
-        return 0;
-    }
-
-}
-
-int CloseDevice( int deviceid )
-{
-    char message[ MINSIZE ];
-    int len = sprintf(message, "msg=DeviceClose\ndevice-id=%d\n", deviceid );
-    DBG( 0, "\n>>>\n%s\n", message ); 
-    
-    MsgAttributes ma;
-
-    if( XmitAndParseMessage( message, len, sizeof( message ), &ma ) == 0 )
-    {
-        goto abort;
-    }
-
-    DBG( 0, "\n<<<\n%s\n", message ); 
-    
-    if( !inited )
-    {
-        bug("CloseDevice(): not inited, call sane_init() first\n" );
-        return SANE_STATUS_INVAL;
-    }
-    
-    if (ma.resultcode == R_AOK)
-    {
-        return 1;
-    }
-    else
-    {
-abort:
-        return 0;
-    }
-    
-
-}
-
-int Exit( void )
-{
-    inited = 0; 
-    
-    close( hpiod_socket );
-    hpiod_socket = -1;  
-
-    close( hpssd_socket );
-    hpssd_socket = -1;
-    
-    return SANE_STATUS_GOOD;
-
-}
-
-/************************************************************************************/

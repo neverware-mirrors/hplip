@@ -189,6 +189,8 @@ int Device::Open(char *sendBuf, int *result)
       if ((OpenFD = open(dev, O_RDWR | O_NONBLOCK | O_EXCL)) < 0) 
       {
          *result = R_IO_ERROR;
+         if (strcmp(uriModel, "ANY") != 0)
+            syslog(LOG_ERR, "unable to Device::Open %s: %m\n", URI);
          goto blackout;
       }
 
@@ -276,14 +278,13 @@ int Device::GetDeviceID(char *sendBuf, int slen, int *result)
 {
    char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
    int len=0, idLen;
-   char id[1024];
 
    *result = R_AOK;
 
 //   if (pthread_mutex_trylock(&mutex) == 0)
    if (pthread_mutex_lock(&mutex) == 0)
    {
-      idLen = DeviceID(id, sizeof(id));  /* get new copy */
+      idLen = DeviceID(ID, sizeof(ID));  /* get new copy */
       pthread_mutex_unlock(&mutex);
 
       if (idLen == 0)
@@ -313,7 +314,7 @@ int Device::GetDeviceID(char *sendBuf, int slen, int *result)
       goto hijmp;
    }
    len = sprintf(sendBuf, "msg=DeviceIDResult\nresult-code=%d\nlength=%d\ndata:\n", *result, idLen); 
-   memcpy(&sendBuf[len], id, idLen);
+   memcpy(&sendBuf[len], ID, idLen);
    len += idLen; 
 //   sendBuf[len] = '\n';  /* for ascii data */
 
@@ -457,7 +458,7 @@ rjmp:
 //!  Create channel object given the service name.
 /*!
 ******************************************************************************/
-Channel *Device::NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl)
+Channel *Device::NewChannel(unsigned char sockid)
 {
    Channel *pC=NULL;
    int i, n, mode;
@@ -483,14 +484,11 @@ Channel *Device::NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl)
    if (ChannelCnt >= MAX_CHANNEL)
       goto bugout;
 
-   /* For printing, check the IO mode (RAW or MLC). All other services use MLC. */
+   /* Get requested IO mode. */
    if (sockid == PRINT_CHANNEL)
-   {
-      /* Get requested IO mode. */
-      mode = (strcasecmp(io_mode, "mlc") == 0) ? MLC_MODE : RAW_MODE;
-   }
+      mode = GetPrintMode();
    else
-      mode = MLC_MODE;
+      mode = GetMfpMode();
 
    /* Make sure requested io mode matches any current io mode. */
    if (ChannelCnt && ChannelMode != mode)
@@ -504,10 +502,7 @@ Channel *Device::NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl)
          if (mode == RAW_MODE)
             pC = new RawChannel(this);  /* constructor sets ClientCnt=1 */
          else
-         {
             pC = new MlcChannel(this);  /* constructor sets ClientCnt=1 */
-            ((MlcChannel *)pC)->SetMiser((strcasecmp(flow_ctl, "miser") == 0) ? 1 : 0);
-         }
 
          pC->SetIndex(i);
          pC->SetSocketID(sockid);
@@ -540,7 +535,7 @@ int Device::DelChannel(int chan)
    return 0;
 }
 
-int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, char *sendBuf, int *result)
+int Device::ChannelOpen(char *sn, int *channel, char *sendBuf, int *result)
 {
    char res[] = "msg=ChannelOpenResult\nresult-code=%d\n";
    Channel *pC;
@@ -581,9 +576,9 @@ int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, c
    //   if (pthread_mutex_trylock(&mutex) == 0)
    if (pthread_mutex_lock(&mutex) == 0)
    {
-      if ((pC = NewChannel(sockid, io_mode, flow_ctl)) == NULL)
+      if ((pC = NewChannel(sockid)) == NULL)
       {
-         syslog(LOG_ERR, "service busy uri:%s mode:%s ctl:%s Device::ChannelOpen: %s\n", URI, io_mode, flow_ctl, sn);
+         syslog(LOG_ERR, "service busy uri:%s Device::ChannelOpen: %s\n", URI, sn);
          *result = R_CHANNEL_BUSY;
          len = sprintf(sendBuf, res, *result);
       }

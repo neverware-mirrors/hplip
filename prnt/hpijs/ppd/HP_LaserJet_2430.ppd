@@ -47,6 +47,8 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpColorOptions.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpEdgeToEdge.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpFinishing.plugin"
+*APDialogExtension: "/Library/Printers/hp/PDEs/hpJobStorage.plugin"
+
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *APPrinterIconPath: "/Library/Printers/hp/Icons/hp LaserJet 2300.icns"
@@ -82,7 +84,7 @@
 *%=================================================
 *%		 Emulations and Protocols
 *%=================================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout:  "0"
 *SuggestedWaitTimeout: "120"
@@ -669,7 +671,7 @@
 *MaxMediaHeight: "1008"
 *HWMargins:      12 12 12 12
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
 "
@@ -747,8 +749,8 @@
 *%=================================================
 *OpenUI *InputSlot: PickOne
 *OrderDependency: 20 AnySetup *InputSlot
-*DefaultInputSlot: AutomaticallySelect
-*InputSlot AutomaticallySelect/Automatically Select: ""*InputSlot Tray1/Tray 1: "<</ManualFeed false /MediaPosition 3>> setpagedevice"
+*DefaultInputSlot: Tray2
+*InputSlot Tray1/Tray 1: "<</ManualFeed false /MediaPosition 3>> setpagedevice"
 *InputSlot Tray2/Tray 2: "<</ManualFeed false /MediaPosition 0>> setpagedevice"
 *InputSlot Tray3_500/Tray 3 (500 sheet): "<</ManualFeed false /MediaPosition 1>> setpagedevice"
 *?InputSlot: "
@@ -785,6 +787,7 @@
 *% ================================================
 *%The following are here for the Manual Duplex plugin
 *HPDisallowManualFeedForManualDuplex: True
+*HPManualDuplexSupport:    True
 
 *OpenGroup: HPJobRetention/Job Storage
 
@@ -1124,7 +1127,7 @@
 *%===================================
 *% Select Printer Resolution
 *OpenUI *Resolution/Printer Resolution: PickOne
-*DefaultResolution: 1200x1200dpi
+*DefaultResolution: 600x600x2dpi
 *OrderDependency: 5 DocumentSetup  *Resolution
 *Resolution 1200x1200dpi/ProRes 1200: "
     <</HWResolution [1200 1200] /PreRenderingEnhance false>> setpagedevice"

@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip-base.README.Debian,v 1.4 2005/06/22 03:03:18 hmh Exp $
+$Id: hplip-base.README.Debian,v 1.5 2005/07/24 11:22:01 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't 
@@ -22,10 +22,10 @@ have this problem, but other printers might, too.
 Quick Install:
 --------------
 
-1. Install the hplip-ppd, hpijs and cupsys packages.  Optionally, 
+1. Install the hplip-ppds, hpijs and cupsys packages.  Optionally, 
    install the hplip package for the GUIs.  If you want newer PPDs,
    you can use the foomatic-filters-ppds or the foomatic-db-engine and
-   foomatic-db-hpijs packages instead of hplip-ppd.
+   foomatic-db-hpijs packages instead of hplip-ppds.
 
 2. Make sure hplip can find your printer (see the Detecting the printer
    section of this document).

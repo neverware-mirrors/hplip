@@ -4,14 +4,13 @@ Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
 Build-Depends: libcupsys2-dev, libsnmp5-dev (>> 5.1.2-6), libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
-Standards-Version: 3.6.1
+Standards-Version: 3.6.2
 
 Package: hplip-base
 Architecture: any
-Conflicts: hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1)
+Conflicts: hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1), hplip (<< 0.9.3), hplip-data (<< 0.9.3)
 Depends: cupsys (>= 1.1.20), hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Recommends: cupsys-client (>= 1.1.20), hplip-ppds (= ${Source-Version})
-Conflicts: hplip (<< 0.9.3), hplip-data (<< 0.9.3)
 Replaces: hplip (<< 0.9.3)
 Suggests: hpijs, hplip
 Description: HP Linux Printing and Imaging System - base system

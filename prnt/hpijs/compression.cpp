@@ -98,7 +98,7 @@ BYTE* Compressor::NextOutputRaster(COLORTYPE color)
 	}
 }
 
-Mode9::Mode9(SystemServices* pSys,unsigned int RasterSize)
+Mode9::Mode9 (SystemServices* pSys,unsigned int RasterSize, BOOL bVIPPrinter)
     : Compressor(pSys,RasterSize, TRUE)
 {
     if (constructor_error != NO_ERROR)  // if error in base constructor
@@ -113,6 +113,7 @@ Mode9::Mode9(SystemServices* pSys,unsigned int RasterSize)
     memset(SeedRow,0,RasterSize);
 
 	ResetSeedRow = FALSE;
+    m_bVIPPrinter = bVIPPrinter;
 }
 
 Mode9::~Mode9()
@@ -271,7 +272,13 @@ BOOL Mode9::Process(RASTERDATA* input)
     {
         offset = 0;
 
-        if (seeded)
+/*
+ *      If we are here because we are doing KRGB processing, don't offset off of
+ *      the seedrow because seedrow here and one setup with mode10 may be out of sync,
+ *      causing artifacts in the output.
+ */
+
+        if (seeded && !m_bVIPPrinter)
         {
             /* find a difference between the seed row and this row. */
             while ((*sptr++ == *nptr++) && (offset < size) )

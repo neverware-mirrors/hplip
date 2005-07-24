@@ -37,7 +37,7 @@
 *% PPD File Version Information
 *FormatVersion: "4.3"
 *FileVersion: "1.1.0 X"
-*LanguageEncoding: ISOLatin1
+*LanguageEncoding: MacStandard
 *LanguageVersion: English
 *PCFileName: "HP4SI6_1.PPD"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpColorOptions.plugin"
@@ -74,7 +74,7 @@
 *% Emulations and Protocols
 *% ===================================
 
-*Protocols: PJL
+*Protocols: TBCP
 
 
 *% ===================================

@@ -51,7 +51,7 @@
 *ModelName:     "HP Business Inkjet 3000 PS"
 *ShortNickName: "HP Business Inkjet 3000 PS"
 
-*NickName:      "HP Business Inkjet 3000 PS - RC1.1 (recommended)"
+*NickName:      "HP Business Inkjet 3000 PS - RC1.1 Postscript (recommended)"
 *PSVersion:	"(3010.107) 0"
 
 *% =================================
@@ -1413,7 +1413,7 @@ restore
 *% =================================
 *OpenUI *HPwmTextMessage/Watermark:  PickOne
 *OrderDependency: 65 AnySetup *HPwmTextMessage
-*DefaultHPwmTextMessage:None
+*DefaultHPwmTextMessage:Draft
 *HPwmTextMessage Draft/Draft: "userdict /HPwmText (Draft) put"
 *HPwmTextMessage CompanyConfidential/Company Confidential: "userdict /HPwmText (Company Confidential) put"
 *HPwmTextMessage CompanyProprietary/Company Proprietary: "userdict /HPwmText (Company Proprietary) put"

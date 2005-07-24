@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.16 $ 
+# $Date: 2005/06/28 23:13:41 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -253,7 +253,6 @@ class Console(cmd.Cmd):
             
         
         unload_list = self.pc.get_unload_list()
-        #print unload_list
         print
         
         if len( unload_list ) > 0:
@@ -659,7 +658,7 @@ if printer_name:
 
 if not device_uri and not printer_name:
     try:
-        device_uri = utils.getInteractiveDeviceURI( bus, 'pcard' )
+        device_uri = device.getInteractiveDeviceURI( bus, 'pcard' )
         if device_uri is None:
             sys.exit(0)
     except Error:
@@ -677,12 +676,16 @@ if pc.device.device_uri is None and device_uri:
     log.error( "Malformed/invalid device-uri: %s" % device_uri )
     sys.exit(0)
     
+pc.device.sendEvent( EVENT_START_PCARD_JOB, 'event', 0, 
+    prop.username, pc.device.device_uri )
 
 try:
     pc.mount()
 except Error:
     log.error( "Unable to mount photo card on device. Check that device is powered on and photo card is correctly inserted." )
     pc.umount()
+    pc.device.sendEvent( EVENT_PCARD_UNABLE_TO_MOUNT, 'error', 0, prop.username, 
+        pc.device.device_uri )      
     sys.exit(0)
     
 log.info( utils.bold("\nPhotocard on device %s mounted" % pc.device.device_uri ) )
@@ -696,6 +699,9 @@ try:
         log.error( "An error occured: %s" % e )
 finally:
     pc.umount()
+
+pc.device.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
+    pc.device.device_uri )  
 
 log.info( "Done." )
 

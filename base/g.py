@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.23 $ 
-# $Date: 2005/05/11 20:25:02 $
+# $Revision: 1.26 $ 
+# $Date: 2005/07/18 20:28:20 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -123,7 +123,10 @@ prop.i18n_dir = os.path.join( prop.home_dir, 'data', 'qm' )
 prop.image_dir = os.path.join( prop.home_dir, 'data', 'images' )
 prop.html_dir = os.path.join( prop.home_dir, 'data', 'html', prop.lang_code )
 
-prop.max_message_len = 65536
+prop.max_message_len = 8192
+prop.max_message_read = 65536
+prop.read_timeout = 45
+
 prop.ppd_search_path = '/usr/share;/usr/local/share;/usr/lib;/usr/local/lib;/usr/libexec;/opt'
 prop.ppd_search_pattern = 'HP-*.ppd.*'
 prop.ppd_download_url = 'http://www.linuxprinting.org/ppd-o-matic.cgi'
@@ -198,6 +201,8 @@ ERROR_STRINGS = {
                 ERROR_INVALID_HOSTNAME : "Invalid hostname ip address",
                 ERROR_INVALID_PORT_NUMBER : "Invalid JetDirect port number",
                 ERROR_INTERFACE_BUSY : "Interface busy",
+                ERROR_NO_CUPS_QUEUE_FOUND_FOR_DEVICE : "No CUPS queue found for device.",
+                ERROR_UNSUPPORTED_MODEL : "Unsupported printer model.",
                }
 
 class Error( Exception ):

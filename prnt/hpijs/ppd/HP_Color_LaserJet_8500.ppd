@@ -41,6 +41,8 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpColorOptions.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpEdgeToEdge.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpFinishing.plugin"
+*APDialogExtension: "/Library/Printers/hp/PDEs/hpJobStorage.plugin"
+
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *cupsICCProfile RGB../sRGB Matching Profile: "/Library/Printers/hp/Profiles/sRGB_A.icc"
@@ -51,7 +53,7 @@
 *% ===================================
 *% Emulations and Protocols
 *% ===================================
-*Protocols:             PJL TBCP
+*Protocols: TBCP
 
 *% Protocols: BCP TBCP
 
@@ -585,7 +587,7 @@
 *% =================================
 *OpenUI *ColorModel/Print Color as Gray:  PickOne
 *OrderDependency: 20 AnySetup *ColorModel
-*DefaultColorModel: Gray
+*DefaultColorModel: CMYK
 *ColorModel Gray/On: "<</ProcessColorModel /DeviceGray>> setpagedevice"
 *ColorModel CMYK/Off: "<</ProcessColorModel /DeviceCMYK>> setpagedevice"
 *?ColorModel: "
@@ -796,7 +798,7 @@
 *% ===================================
 
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: Plain
 
 *MediaType Plain/Plain: "
@@ -897,7 +899,7 @@
 
 *OpenUI *Collate/Collate: Boolean
 *OrderDependency: 35 AnySetup *Collate
-*DefaultCollate: True
+*DefaultCollate: False
 *Collate True/Yes: "
 	userdict /FieryXJdict known {
 		FieryXJdict /ExtCmdGetExec known
@@ -1014,7 +1016,7 @@
 *% ================================================
 *% Enable/Disable Manual Feed
 *OpenUI *ManualFeed/Manual Feed (Tray 1): Boolean
-*OrderDependency: 20 AnySetup *ManualFeed
+*OrderDependency: 25 AnySetup *ManualFeed
 *DefaultManualFeed: False
 *ManualFeed True/True: "
 	userdict /FieryXJdict known {
@@ -1335,7 +1337,7 @@
 
 *RequiresPageRegion All: True
 
-*DefaultOutputOrder: Reverse
+
 
 *% =================================
 *%  Watermark Printing

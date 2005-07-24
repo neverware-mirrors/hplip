@@ -27,14 +27,6 @@
                 <string>OK</string>
             </property>
         </widget>
-        <widget class="QPushButton" row="1" column="0">
-            <property name="name">
-                <cstring>pushButton32</cstring>
-            </property>
-            <property name="text">
-                <string>Help</string>
-            </property>
-        </widget>
         <widget class="QPushButton" row="1" column="2">
             <property name="name">
                 <cstring>pushButton31</cstring>
@@ -652,7 +644,6 @@
 <tabstops>
     <tabstop>TabWidget</tabstop>
     <tabstop>pushButton30</tabstop>
-    <tabstop>pushButton32</tabstop>
     <tabstop>pushButton31</tabstop>
     <tabstop>EmailAddress</tabstop>
     <tabstop>SMTPServer</tabstop>

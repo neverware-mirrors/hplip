@@ -67,9 +67,7 @@ class SettingsDialog(SettingsDialog_base):
         smtp_server = str( self.SMTPServer.text() )
         username = str( self.Username.text() )
         password = str( self.Password.text() )
-        s = service.Service()
-        resultCode = s.testEmail(email_address, smtp_server, username, password)
+        resultCode = service.testEmail(email_address, smtp_server, username, password)
         if resultCode != ERROR_SUCCESS:
             log.debug( "Failure-Result_Code: %s" % resultCode )
         log.debug( "Success-Result_Code: %s" % resultCode )
-        s.close()

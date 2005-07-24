@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.21 $ 
-# $Date: 2005/04/14 17:01:49 $
+# $Revision: 1.24 $ 
+# $Date: 2005/07/19 23:21:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -32,7 +32,7 @@ import getopt
 
 # Local
 from base.g import *
-from base import device, service, status, utils, maint
+from base import device, status, utils, maint
 from prnt import cups   
 
 def usage():
@@ -112,26 +112,26 @@ def invalidPen():
 def aioUI1():
     log.info( "To perform alignment, you will need the alignment page that is automatically\nprinted after you install a print cartridge." )
     log.info( "If you would like to cancel, enter 'C' or 'c'" )
-    log.info( "If you do not have this page, enter 'N' or 'n'" )
+    log.info( "If you do not have this page (and need it to be printed), enter 'N' or 'n'" )
     log.info( "If you already have this page, enter 'Y' or 'y'" )
     
     while 1:
-        x = raw_input( utils.bold( "Enter 'C', 'c','Y', 'y', 'N', or 'n': " ) )
+        x = raw_input( utils.bold( "Enter 'C', 'c'; 'Y', 'y'; 'N', or 'n': " ) )
         if len(x) > 0:
             x = x.lower()
             if x[0] in ['c', 'y', 'n']:
                 break
             
-        info.warning( "Please enter 'C', 'c', 'Y', 'y', 'N' or 'n'." )
+        info.warning( "Please enter 'C', 'c'; 'Y', 'y'; 'N' or 'n'." )
     
     if x[0] == 'n':
-        return True, True
+        return False
         
     elif x[0] == 'c':
-        return False, False
+        sys.exit(0)
         
     elif x[0] == 'y':
-        return True, False
+        return True
         
     
 def aioUI2():    
@@ -208,14 +208,14 @@ if device_uri and printer_name:
     
 if not device_uri and not printer_name:
     try:
-        device_uri = utils.getInteractiveDeviceURI( bus )
+        device_uri = device.getInteractiveDeviceURI( bus )
         if device_uri is None:
             sys.exit(0)
     except Error:
         log.error( "Error occured during interactive mode. Exiting." )
         sys.exit(0)
   
-d = device.Device( None, device_uri, printer_name )
+d = device.Device( device_uri, printer_name )
 
 if d.device_uri is None and printer_name:
     log.error( "Printer '%s' not found." % printer_name )
@@ -227,29 +227,14 @@ if d.device_uri is None and device_uri:
     
 #log.info( "Aligning device..." )
 try:
-    s = None
     try:
         device_id = d.open()
     except Error:
         log.error( "Unable to open device. Exiting. " )
-        #sys.exit(0)
-        raise Error(0)
-    
-    try:
-        s = service.Service()
-    except Error:
-        log.error( "Unable to contact services daemon. Exiting." )
-        #sys.exit(0)
         raise Error(0)
         
-    try:
-        fields = s.queryModel( d.model )
-        align_type = fields.get( 'align-type', 0 )
-    except Error:
-        log.error( "Query for model failed. Exiting." )
-        #sys.exit(0)
-        raise Error(0)
-    
+    align_type = d.mq.get( 'align-type', 0 )
+
     log.debug( "Alignment type=%d" % align_type )
     
     if align_type == 0: 
@@ -281,7 +266,5 @@ finally:
     log.info( "" )
     if d is not None:
         d.close()
-    if s is not None:
-        s.close()
         
     log.info( 'Done.' )

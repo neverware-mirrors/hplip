@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.50 $ 
-# $Date: 2005/05/11 17:10:31 $
+# $Revision: 1.58 $ 
+# $Date: 2005/07/07 20:37:07 $
 # $Author: dwelch $
 #
 # (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
@@ -29,23 +29,13 @@
 from __future__ import generators 
 
 # Std Lib
-import sys, os
-import fnmatch
-import tempfile
-import socket
-import msg
-import struct
-import select
-import time
-import traceback
-import fcntl
-import errno
-import stat
-import string
+import sys, os, fnmatch, tempfile, socket, struct, select, time
+import fcntl, errno, stat, string, xml.parsers.expat
 
 # Local
 from g import *
 from codes import *
+import msg
 
 
 def Translator(frm='', to='', delete='', keep=None):
@@ -327,114 +317,6 @@ class Column:
 
 
 
-def getInteractiveDeviceURI( bus='cups,usb', filter='none' ): 
-    from prnt import cups
-    bus = bus.lower()
-
-    log.warn( "Device not specified.")
-
-##    if bus == 'cups':
-##        log.info(  bold( "\nChoose device:" ) )
-##        cups_devices = {}
-##        cups_printers = cups.getPrinters()
-##        x = len( cups_printers )
-##        max_deviceid_size = 0
-##
-##        for p in cups_printers:
-##            device_uri = p.device_uri
-##            if p.device_uri == '':
-##                device_uri = '?UNKNOWN?'
-##
-##            try:
-##                cups_devices[ device_uri ]
-##            except KeyError: 
-##                cups_devices[ device_uri ] = ( device_uri, [ p.name ] )
-##            else:
-##                cups_devices[ device_uri ][1].append( p.name )
-##
-##            max_deviceid_size = max( len( p.device_uri ), max_deviceid_size ) 
-##
-##        devices, x = {}, 0
-##        for y in cups_devices:
-##            devices[x] = cups_devices[y]
-##            x += 1
-
-    #else:   
-    if 1:
-        log.info(  bold( "\nChoose device from probed devices connected on bus(es) %s:\n" % bus ) ) 
-        hpssd_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        hpssd_sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
-
-        fields, data = msg.xmitMessage( hpssd_sock, 
-                                        "ProbeDevicesFiltered",
-                                        None, 
-                                        { 
-                                            'bus' : bus,
-                                            'timeout' : 5,
-                                            'ttl' : 4,
-                                            'format' : 'default',
-                                            'filter' : filter,
-
-                                        } 
-                                      )
-        hpssd_sock.close()  
-        temp = data.splitlines()
-        probed_devices = []
-        for t in temp:
-            probed_devices.append( t.split(',')[0] )
-        cups_printers = cups.getPrinters()
-        log.debug( probed_devices )
-        log.debug( cups_printers )
-        max_deviceid_size, x, devices = 0, 0, {} 
-
-        for d in probed_devices:
-            printers = []
-            for p in cups_printers:
-                if p.device_uri == d:
-                    printers.append( p.name )
-            devices[x] = ( d, printers )
-            x += 1
-            max_deviceid_size = max( len(d), max_deviceid_size )
-
-    if x == 0:
-        log.error( "No devices found." )
-        raise Error( ERROR_NO_PROBED_DEVICES_FOUND )
-    elif x == 1:
-        log.info( "Using device: %s" % devices[0][0] )
-        return devices[0][0]
-    else:    
-
-        formatter = TextFormatter( 
-                (
-                    {'width': 4},
-                    {'width': max_deviceid_size, 'margin': 2},
-                    {'width': 80-max_deviceid_size-8, 'margin': 2},
-                )
-            )
-        log.info(  formatter.compose( ( "Num.", "Device-URI", "CUPS printer(s)" ) ) )
-        log.info( formatter.compose( ( '-'*4, '-'*(max_deviceid_size), '-'*( 80-max_deviceid_size-10 ) ) ) )
-        for y in range( x ):
-            log.info(  formatter.compose( ( str(y), devices[y][0], ', '.join( devices[y][1] ) ) ) )
-
-        while 1:
-            user_input = raw_input( bold( "\nEnter number 0...%d for device (q=quit) ?" % (x-1) ) )
-            if user_input == '': 
-                log.warn( "Invalid input - enter a numeric value or 'q' to quit." )
-                continue
-            if user_input.strip()[0] in ( 'q', 'Q' ):
-                return
-            try:
-                i = int(user_input)
-            except ValueError:
-                log.warn( "Invalid input - enter a numeric value or 'q' to quit." )
-                continue
-            if i < 0 or i > (x-1):
-                log.warn( "Invalid input - enter a value between 0 and %d or 'q' to quit." % (x-1) )
-                continue
-            break
-
-        return devices[i][0]
-
 
 
 class Stack:
@@ -687,21 +569,26 @@ def deviceDefaultFunctions():
         '', '', '', '', ''
     
     # Print
-    path = which( 'kprinter' )
+    path = which( 'hp-print' )
     
-    if len(path) > 0:
-        cmd_print = 'kprinter -P%PRINTER% --system cups'
+    if len( path ) > 0:
+        cmd_print = 'hp-print -p%PRINTER%'
     else:
-        path = which( 'gtklp' )
-
-        if len(path) > 0:
-            cmd_print = 'gtklp -P%PRINTER%'
+        path = which( 'kprinter' )
         
+        if len(path) > 0:
+            cmd_print = 'kprinter -P%PRINTER% --system cups'
         else:
-            path = which( 'xpp' )
-             
-            if len( path ) > 0:
-                cmd_print = 'xpp -P%PRINTER%'
+            path = which( 'gtklp' )
+    
+            if len(path) > 0:
+                cmd_print = 'gtklp -P%PRINTER%'
+            
+            else:
+                path = which( 'xpp' )
+                 
+                if len( path ) > 0:
+                    cmd_print = 'xpp -P%PRINTER%'
             
 
     # Scan
@@ -723,12 +610,12 @@ def deviceDefaultFunctions():
                 cmd_scan = 'xscanimage'
 
     # Photo Card
-    files = os.listdir( prop.home_dir )
+    path = which( 'hp-unload' )
     
-    if 'unload' in files:
-        cmd_pcard = 'python %HOME%/unload -d %DEVICE_URI%'
+    if len( path ) > 0:
+        cmd_pcard = 'hp-unload -d %DEVICE_URI%'
     
-    elif 'unload.py' in files:
+    else: 
         cmd_pcard = 'python %HOME%/unload.py -d %DEVICE_URI%'
 
     # Copy
@@ -782,125 +669,97 @@ ICMP_ECHO_REQUEST = 8 # Seems to be the same on Solaris.
 # I'm not too confident that this is right but testing seems
 # to suggest that it gives the same answers as in_cksum in ping.c
 def checksum( str ):
-  csum = 0
-  countTo = ( len(str) / 2 ) * 2
-  count = 0
-  while count < countTo:
-    thisVal = ord( str[count+1] ) * 256 + ord( str[count] )
-    csum = csum + thisVal
-    csum = csum & 0xffffffffL # Necessary?
-    count = count + 2
+    csum = 0
+    countTo = ( len(str) / 2 ) * 2
+    count = 0
+    while count < countTo:
+        thisVal = ord( str[count+1] ) * 256 + ord( str[count] )
+        csum = csum + thisVal
+        csum = csum & 0xffffffffL # Necessary?
+        count = count + 2
 
-  if countTo < len(str):
-    csum = csum + ord( str[ len(str) - 1 ] )
-    csum = csum & 0xffffffffL # Necessary?
+    if countTo < len(str):
+        csum = csum + ord( str[ len(str) - 1 ] )
+        csum = csum & 0xffffffffL # Necessary?
 
-  csum = ( csum >> 16 ) + ( csum & 0xffff )
-  csum = csum + ( csum >> 16 )
-  answer = ~csum
-  answer = answer & 0xffff
+    csum = ( csum >> 16 ) + ( csum & 0xffff )
+    csum = csum + ( csum >> 16 )
+    answer = ~csum
+    answer = answer & 0xffff
 
-  # Swap bytes. Bugger me if I know why.
-  answer = answer >> 8 | (answer << 8 & 0xff00)
+    # Swap bytes. Bugger me if I know why.
+    answer = answer >> 8 | (answer << 8 & 0xff00)
 
-  return answer
+    return answer
 
 def receiveOnePing(mySocket, ID, timeout ):
-  timeLeft = timeout
+    timeLeft = timeout
 
-  while 1:
-    startedSelect = time.time()
-    whatReady = select.select( [mySocket], [], [], timeLeft )
-    howLongInSelect = ( time.time() - startedSelect )
-
-    if whatReady[0] == []: # Timeout
-      return -1
-
-    timeReceived = time.time()
-    recPacket, addr = mySocket.recvfrom(1024)
-    icmpHeader = recPacket[20:28]
-    typ, code, checksum, packetID, sequence = struct.unpack( "bbHHh", icmpHeader )
-
-    if packetID == ID:
-      bytesInDouble = struct.calcsize( "d" )
-      timeSent = struct.unpack( "d", recPacket[ 28:28 + bytesInDouble ] )[0]
-      return timeReceived - timeSent
-
-    timeLeft = timeLeft - howLongInSelect
-
-    if timeLeft <= 0:
-      return -1
+    while 1:
+        startedSelect = time.time()
+        whatReady = select.select( [mySocket], [], [], timeLeft )
+        howLongInSelect = ( time.time() - startedSelect )
+    
+        if whatReady[0] == []: # Timeout
+            return -1
+    
+        timeReceived = time.time()
+        recPacket, addr = mySocket.recvfrom(1024)
+        icmpHeader = recPacket[20:28]
+        typ, code, checksum, packetID, sequence = struct.unpack( "bbHHh", icmpHeader )
+    
+        if packetID == ID:
+            bytesInDouble = struct.calcsize( "d" )
+            timeSent = struct.unpack( "d", recPacket[ 28:28 + bytesInDouble ] )[0]
+            return timeReceived - timeSent
+    
+        timeLeft = timeLeft - howLongInSelect
+    
+        if timeLeft <= 0:
+            return -1
 
 def sendOnePing( mySocket, destAddr, ID ):
-  # Header is type (8), code (8), checksum (16), id (16), sequence (16)
-  myChecksum = 0
-  
-  # Make a dummy heder with a 0 checksum.
-  header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1 )
-  bytesInDouble = struct.calcsize( "d" )
-  data = ( 192 - bytesInDouble ) * "Q"
-  data = struct.pack( "d", time.time() ) + data
-  
-  # Calculate the checksum on the data and the dummy header.
-  myChecksum = checksum( header + data )
-  
-  # Now that we have the right checksum, we put that in. It's just easier
-  # to make up a new header than to stuff it into the dummy.
-  header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, 
-                        socket.htons( myChecksum ), ID, 1 )
+    # Header is type (8), code (8), checksum (16), id (16), sequence (16)
+    myChecksum = 0
+    
+    # Make a dummy heder with a 0 checksum.
+    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1 )
+    bytesInDouble = struct.calcsize( "d" )
+    data = ( 192 - bytesInDouble ) * "Q"
+    data = struct.pack( "d", time.time() ) + data
+    
+    # Calculate the checksum on the data and the dummy header.
+    myChecksum = checksum( header + data )
+    
+    # Now that we have the right checksum, we put that in. It's just easier
+    # to make up a new header than to stuff it into the dummy.
+    if prop.platform == 'darwin':
+        myChecksum = socket.htons( myChecksum ) & 0xffff
+    else:
+        myChecksum = socket.htons( myChecksum )
+    
+    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, 
+                        myChecksum, ID, 1 )
                         
-  packet = header + data
-  mySocket.sendto( packet, ( destAddr, 1 ) ) # Don't know about the 1 
+    packet = header + data
+    mySocket.sendto( packet, ( destAddr, 1 ) ) # Don't know about the 1 
 
 def doOne( destAddr, timeout=10 ):
-  # Returns either the delay (in seconds) or none on timeout.
-  icmp = socket.getprotobyname( "icmp" )
-  mySocket = socket.socket( socket.AF_INET,socket.SOCK_RAW,icmp )
-  myID = os.getpid() & 0xFFFF
-  sendOnePing( mySocket, destAddr, myID )
-  delay = receiveOnePing( mySocket, myID, timeout )
-  mySocket.close()
-  
-  return delay
+    # Returns either the delay (in seconds) or none on timeout.
+    icmp = socket.getprotobyname( "icmp" )
+    mySocket = socket.socket( socket.AF_INET,socket.SOCK_RAW,icmp )
+    myID = os.getpid() & 0xFFFF
+    sendOnePing( mySocket, destAddr, myID )
+    delay = receiveOnePing( mySocket, myID, timeout )
+    mySocket.close()
+    
+    return delay
 
 
 def ping( host, timeout=1 ):
-  dest = socket.gethostbyname( host )
-  delay = doOne( dest, timeout )
-  return delay
-
-# log_exception() adapted from ASPN:
-#    Recipe 65332 by Dirk Holtwick
-#    Recipe 52215 by Bryn Keller
-#    Adapted by Don Welch, 2004
-
-# TODO: Move this to logger module
-def log_exception():
-    """
-    Print the usual traceback information, followed by a listing of all the
-    local variables in each frame.
-    """
-    typ, value, tb = sys.exc_info()
-
-    while 1:
-        if not tb.tb_next:
-            break
-        tb = tb.tb_next
-
-    stack = []
-    f = tb.tb_frame
-
-    while f:
-        stack.append(f)
-        f = f.f_back
-
-    stack.reverse()
-
-    body = "Traceback (innermost last):\n"
-    lst = traceback.format_tb(tb) + traceback.format_exception_only(typ, value)
-    body = body + "%-20s %s" % (''.join( lst[:-1] ), lst[-1], )
-
-    log.error( body )
+    dest = socket.gethostbyname( host )
+    delay = doOne( dest, timeout )
+    return delay
 
 
 def checkPyQtImport():
@@ -999,3 +858,206 @@ def loadTranslators( app, user_config ):
         log.debug( "Using locale: %s" % loc )
         
     return loc
+
+try:
+    from string import Template # will fail in Python <= 2.3
+except ImportError:
+    # Code from Python 2.4 string.py
+    import re as _re
+    
+    class _multimap:
+        """Helper class for combining multiple mappings.
+    
+        Used by .{safe_,}substitute() to combine the mapping and keyword
+        arguments.
+        """
+        def __init__(self, primary, secondary):
+            self._primary = primary
+            self._secondary = secondary
+    
+        def __getitem__(self, key):
+            try:
+                return self._primary[key]
+            except KeyError:
+                return self._secondary[key]
+    
+    
+    class _TemplateMetaclass(type):
+        pattern = r"""
+        %(delim)s(?:
+          (?P<escaped>%(delim)s) |   # Escape sequence of two delimiters
+          (?P<named>%(id)s)      |   # delimiter and a Python identifier
+          {(?P<braced>%(id)s)}   |   # delimiter and a braced identifier
+          (?P<invalid>)              # Other ill-formed delimiter exprs
+        )
+        """
+    
+        def __init__(cls, name, bases, dct):
+            super(_TemplateMetaclass, cls).__init__(name, bases, dct)
+            if 'pattern' in dct:
+                pattern = cls.pattern
+            else:
+                pattern = _TemplateMetaclass.pattern % {
+                    'delim' : _re.escape(cls.delimiter),
+                    'id'    : cls.idpattern,
+                    }
+            cls.pattern = _re.compile(pattern, _re.IGNORECASE | _re.VERBOSE)
+    
+    
+    class Template:
+        """A string class for supporting $-substitutions."""
+        __metaclass__ = _TemplateMetaclass
+    
+        delimiter = '$'
+        idpattern = r'[_a-z][_a-z0-9]*'
+    
+        def __init__(self, template):
+            self.template = template
+    
+        # Search for $$, $identifier, ${identifier}, and any bare $'s
+    
+        def _invalid(self, mo):
+            i = mo.start('invalid')
+            lines = self.template[:i].splitlines(True)
+            if not lines:
+                colno = 1
+                lineno = 1
+            else:
+                colno = i - len(''.join(lines[:-1]))
+                lineno = len(lines)
+            raise ValueError('Invalid placeholder in string: line %d, col %d' %
+                             (lineno, colno))
+    
+        def substitute(self, *args, **kws):
+            if len(args) > 1:
+                raise TypeError('Too many positional arguments')
+            if not args:
+                mapping = kws
+            elif kws:
+                mapping = _multimap(kws, args[0])
+            else:
+                mapping = args[0]
+            # Helper function for .sub()
+            def convert(mo):
+                # Check the most common path first.
+                named = mo.group('named') or mo.group('braced')
+                if named is not None:
+                    val = mapping[named]
+                    # We use this idiom instead of str() because the latter will
+                    # fail if val is a Unicode containing non-ASCII characters.
+                    return '%s' % val
+                if mo.group('escaped') is not None:
+                    return self.delimiter
+                if mo.group('invalid') is not None:
+                    self._invalid(mo)
+                raise ValueError('Unrecognized named group in pattern',
+                                 self.pattern)
+            return self.pattern.sub(convert, self.template)
+    
+        def safe_substitute(self, *args, **kws):
+            if len(args) > 1:
+                raise TypeError('Too many positional arguments')
+            if not args:
+                mapping = kws
+            elif kws:
+                mapping = _multimap(kws, args[0])
+            else:
+                mapping = args[0]
+            # Helper function for .sub()
+            def convert(mo):
+                named = mo.group('named')
+                if named is not None:
+                    try:
+                        # We use this idiom instead of str() because the latter
+                        # will fail if val is a Unicode containing non-ASCII
+                        return '%s' % mapping[named]
+                    except KeyError:
+                        return self.delimiter + named
+                braced = mo.group('braced')
+                if braced is not None:
+                    try:
+                        return '%s' % mapping[braced]
+                    except KeyError:
+                        return self.delimiter + '{' + braced + '}'
+                if mo.group('escaped') is not None:
+                    return self.delimiter
+                if mo.group('invalid') is not None:
+                    return self.delimiter
+                raise ValueError('Unrecognized named group in pattern',
+                                 self.pattern)
+            return self.pattern.sub(convert, self.template)
+    
+
+
+cat = lambda _ : Template(_).substitute(sys._getframe(1).f_globals, **sys._getframe(1).f_locals)
+    
+    
+class ModelParser:
+
+    def __init__( self ):
+        self.model = None
+        self.cur_model = None
+        self.stack = []
+        self.in_model = False
+        self.models = {}
+
+    def startElement( self, name, attrs ):
+        if name == 'models':
+            return
+
+        elif name == 'model':
+            self.model = {}
+            self.cur_model = str( attrs[ 'name' ] ).replace('_', ' ').\
+                replace( 'HP', '' ).replace( 'hp', '' ).strip()
+            self.in_model = True
+            self.stack = []
+
+        else:
+            self.stack.append( str(name).lower() )
+            if len(attrs):
+                for a in attrs:
+                    self.stack.append( str(a).lower() )
+                    try:
+                        i = int( attrs[a] )
+                    except ValueError:
+                        i = str( attrs[a] )
+
+                    self.model[ str( '-'.join( self.stack ) ) ] = i
+                    self.stack.pop()
+
+
+    def endElement( self, name ):
+        if name == 'model':
+            self.in_model = False
+
+            if self.cur_model in self.models:
+                log.error( "Duplicate model in XML: %s" % self.cur_model )
+                raise Error( ERROR_INTERNAL )
+
+            self.models[ self.cur_model ] = self.model
+
+            self.model = None
+        elif name == 'models':
+            return
+        else:
+            self.stack.pop()
+
+
+    def charData( self, data ):
+        data = str(data).strip()
+        if data and self.model is not None and self.stack:
+            self.model[ str( '-'.join( self.stack ) ) ] = str( data )
+
+    def loadModels( self, filename, untested=False ):
+        parser = xml.parsers.expat.ParserCreate()
+        parser.StartElementHandler = self.startElement
+        parser.EndElementHandler = self.endElement
+        parser.CharacterDataHandler = self.charData
+        try:
+            parser.Parse( open( filename ).read(), True )
+        except xml.parsers.expat.ExpatError, e:
+            log.error( "XML file parse error: %s" % e )
+            raise Error( ERROR_INTERNAL )
+
+        return self.models
+    
