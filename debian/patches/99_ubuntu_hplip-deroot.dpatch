@@ -1,0 +1,204 @@
+#!/bin/sh -e
+## 99_ubuntu_hplip-deroot.dpatch by Matthias Klose <doko@ubuntu.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Derootify hplip, by Matthias Klose <doko@ubuntu.com>
+## DP: Integrated into Debian hplip by Henrique de Moraes Holschuh <hmh@debian.org>
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./base/g.py /tmp/dpep-work.UdtE2c/hplip-0.9.4/base/g.py
+--- ./base/g.py	2005-07-28 22:01:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/base/g.py	2005-07-28 22:01:31.071659300 +0200
+@@ -101,12 +101,12 @@
+         prop.home_dir = os.path.realpath( os.path.normpath( os.getcwd() ) )
+ 
+ try:
+-    prop.hpiod_port = int( file( '/var/run/hpiod.port', 'r' ).read() )
++    prop.hpiod_port = int( file( '/var/run/hplip/hpiod.port', 'r' ).read() )
+ except:
+     prop.hpiod_port = 0
+     
+ try:
+-    prop.hpssd_port = int( file( '/var/run/hpssd.port', 'r' ).read() )
++    prop.hpssd_port = int( file( '/var/run/hplip/hpssd.port', 'r' ).read() )
+ except:
+     prop.hpssd_port = 0
+     
+diff -urNad --exclude=CVS --exclude=.svn ./hplip.conf /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.conf
+--- ./hplip.conf	2004-09-23 04:14:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.conf	2005-07-28 22:03:07.332930144 +0200
+@@ -1,5 +1,9 @@
+ # hplips.conf
+ 
++# If RUN_AS_ROOT is set to a non empty value to run as the root user
++# in /etc/default/hplip, you must not use registered port numbers
++# below 1024 in /etc/hp/hplip.conf.
++
+ [hpiod]
+ # port=50000 (registered IP port)
+ # port=0 (dynamic IP port)
+diff -urNad --exclude=CVS --exclude=.svn ./hplip.sh /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.sh
+--- ./hplip.sh	2005-07-28 22:01:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.sh	2005-07-28 22:01:31.073658703 +0200
+@@ -41,7 +41,7 @@
+ 
+ killproc() {
+    pid=`su - root -c "pidof -s $1"`
+-   pidfile=/var/run/${1}.pid
++   pidfile=/var/run/hplip/${1}.pid
+    if [ -z $pid ]; then
+       if [ -f $pidfile ]; then
+          read pid < $pidfile
+@@ -66,7 +66,7 @@
+ mystatus() {
+    pid=`su - root -c "pidof -s $1"`
+    if [ -z $pid ]; then
+-      pidfile=/var/run/${1}.pid
++      pidfile=/var/run/hplip/${1}.pid
+       if [ -f $pidfile ]; then
+          read pid < $pidfile
+       fi      
+@@ -114,7 +114,7 @@
+         RETVAL=$?
+         echo
+         [ $RETVAL = 0 ] && rm -f /var/lock/subsys/hpssd.py
+-        for pidfile in /var/run/*; do
++        for pidfile in /var/run/hplip/*; do
+ 	   case "$( basename $pidfile )" in 
+        		hpguid-*.pid)
+                    read pid < $pidfile
+diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-0.9.4/hpssd.py
+--- ./hpssd.py	2005-07-28 22:01:30.858722846 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hpssd.py	2005-07-28 22:01:31.074658405 +0200
+@@ -702,7 +702,7 @@
+ 
+         guis[username][typ] = (host, port, pid)
+ 
+-        pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
++        pid_file = '/var/run/hplip/hp%s-%s.pid' % (typ, username)
+ 
+         if pid != 0:
+             os.umask(0133)
+@@ -724,7 +724,7 @@
+         except KeyError:
+             pass
+ 
+-        pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
++        pid_file = '/var/run/hplip/hp%s-%s.pid' % (typ, username)
+         log.debug("Removing file %s" % pid_file)
+ 
+         try:
+@@ -1279,7 +1279,7 @@
+                     log.warning("Unable to send event to %s GUI (%s:%s). (%d)" % (typ, host, port, e.opt))
+                     continue
+ 
+-                pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
++                pid_file = '/var/run/hplip/hp%s-%s.pid' % (typ, username)
+                 log.debug("Removing file %s" % pid_file)
+ 
+                 try:
+@@ -1348,7 +1348,7 @@
+ 
+     # Lock pidfile before we muck around with system state
+     # Patch by Henrique M. Holschuh <hmh@debian.org>
+-    utils.get_pidfile_lock('/var/run/hpssd.pid')
++    utils.get_pidfile_lock('/var/run/hplip/hpssd.pid')
+ 
+     # Spawn child right away so that boot up sequence
+     # is as fast as possible
+@@ -1376,7 +1376,7 @@
+     device.ServerDevice.string_query_func = QueryString
+ 
+     os.umask(0133)
+-    file('/var/run/hpssd.port', 'w').write('%d\n' % prop.hpssd_port)
++    file('/var/run/hplip/hpssd.port', 'w').write('%d\n' % prop.hpssd_port)
+     os.umask (0077)
+     log.debug('port=%d' % prop.hpssd_port)
+     log.info("Listening on %s port %d" % (prop.hpssd_host, prop.hpssd_port))
+@@ -1405,8 +1405,8 @@
+ 
+         log.debug("Cleaning up...")
+     finally:
+-        os.remove('/var/run/hpssd.pid')
+-        os.remove('/var/run/hpssd.port')
++        os.remove('/var/run/hplip/hpssd.pid')
++        os.remove('/var/run/hplip/hpssd.port')
+         server.close()
+         hpiod_sock.close()
+ 
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.cpp /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.cpp
+--- ./io/hpiod/hpiod.cpp	2005-07-28 22:01:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.cpp	2005-07-28 22:01:31.074658405 +0200
+@@ -253,11 +253,13 @@
+       }
+    }
+ 
++#if 0
+    if (getegid() != 0)
+    {
+       fprintf(stderr, "invalid group id: Permission denied\n");
+       exit(EXIT_FAILURE);
+    }
++#endif
+ 
+    /* Write initial pidfile and lock it. */
+    get_lock(PIDFILE);
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.h /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.h
+--- ./io/hpiod/hpiod.h	2005-07-28 22:01:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.h	2005-07-28 22:01:31.074658405 +0200
+@@ -49,7 +49,7 @@
+ //#define HPIOD_DEBUG
+ 
+ #define RCFILE "/etc/hp/hplip.conf" /* The config file */
+-#define PIDFILE "/var/run/hpiod.pid" /* The pidfile */
++#define PIDFILE "/var/run/hplip/hpiod.pid" /* The pidfile */
+ #define LINE_SIZE 256     /* Length of a line. */
+ #define BUFFER_SIZE 8192  /* General Read/Write buffer. */
+ #define MAX_DEVICE 16     /* Max devices. */
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.cpp /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/system.cpp
+--- ./io/hpiod/system.cpp	2005-07-28 22:01:30.848725829 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/system.cpp	2005-07-28 22:01:31.075658107 +0200
+@@ -91,9 +91,9 @@
+       exit(EXIT_FAILURE);
+    }
+ 
+-   if((fd = open("/var/run/hpiod.port", O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
++   if((fd = open("/var/run/hplip/hpiod.port", O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
+    {
+-      syslog(LOG_ERR, "unable create /var/run/hpiod.port: %m\n");
++      syslog(LOG_ERR, "unable create /var/run/hplip/hpiod.port: %m\n");
+       exit(EXIT_FAILURE);
+    }
+ 
+diff -urNad --exclude=CVS --exclude=.svn ./prnt/hpijs/hplip_api.h /tmp/dpep-work.UdtE2c/hplip-0.9.4/prnt/hpijs/hplip_api.h
+--- ./prnt/hpijs/hplip_api.h	2005-07-28 22:01:18.000000000 +0200
++++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/prnt/hpijs/hplip_api.h	2005-07-28 22:01:31.075658107 +0200
+@@ -24,8 +24,8 @@
+ \*****************************************************************************/
+ 
+ #define RCFILE "/etc/hp/hplip.conf" /* The config file */
+-#define HPIODFILE "/var/run/hpiod.port"
+-#define HPSSDFILE "/var/run/hpssd.port"
++#define HPIODFILE "/var/run/hplip/hpiod.port"
++#define HPSSDFILE "/var/run/hplip/hpssd.port"
+ 
+ #define LINE_SIZE 256 /* Length of buffer reads */
+ #define BUFFER_SIZE 4096

@@ -17,19 +17,37 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# Kill any pre-compiled python crap
+kill_python_crappage() {
+	[ -d /usr/lib/hplip ] && \
+		find /usr/lib/hplip \
+			\( -name '*.pyc' -o -name '*.pyo' \) \
+			-exec rm -f {} \;
+	:
+}
 
 case "$1" in
-	failed-upgrade|abort-install|abort-upgrade)
+	abort-install|abort-upgrade)
 	;;
 	upgrade)
 	;;
-	purge|remove|failed-upgrade|disappear)
-		# Kill any pre-compiled python crap
-		[ -d /usr/lib/hplip ] && \
-			find /usr/lib/hplip \
-				\( -name '*.pyc' -o -name '*.pyo' \) \
-				-exec rm -f {} \;
+	remove|failed-upgrade|disappear)
+		kill_python_crappage
         ;;
+	purge)
+		kill_python_crappage
+
+		for i in /var/run/hplip ; do
+			dpkg-statoverride --remove $i || true
+		done
+
+		getent passwd hplip >/dev/null && \
+			deluser --quiet --system hplip
+		getent group hplip >/dev/null && \
+			delgroup hplip
+
+    		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
+	;;
 
     *)
         echo "postrm called with unknown argument \`$1'" >&2

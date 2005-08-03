@@ -4,7 +4,6 @@
 
   hpssd.py:
     1. remove all hardcoded paths
-    2. run as not-root?
     3. syslog() stuff instead of dumping to stdout
 
     U1. Get upstream to allow one to configure sender address, etc
@@ -25,14 +24,9 @@
    5. fix and submit upstream something less hackish than the data -> ../share/data symlink
 
   CUPSYS:
-   1. hp backend requires all hp drivers to be running
-   2. cupsys restart seems to be required to get new printers (!!!!)
+   1. cupsys restart seems to be required to get new printers (!!!!)
 
   FOOMATIC:
-   1. all PPDs should be in /etc somewhere.  The best way to do this is probably another
-      link to /etc/ppds added to /etc/share/cups/models or something.
-
-  Packaging:
-   1. package the ppds in a hplip-ppds package, that tracks whatever is known to work with
-      a given version of hplip.  Make sure not to conflict or cause trouble with the foomatic-*
-      ppd packages.
+   1. all PPDs should be in /etc somewhere.  The best way to do this is
+      probably another link to /etc/ppds added to /etc/share/cups/models
+      or something.

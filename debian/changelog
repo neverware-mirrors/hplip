@@ -1,3 +1,23 @@
+hplip (0.9.4-2) unstable; urgency=low
+
+  * Matthias Klose <doko@ubuntu.com>:
+    * hplip-base should also replace files in hplip-data (<< 0.9.3)
+    * Run HPLIP daemons as non-root user (optional, default as run as root)
+      (closes: #320936)
+  * Henrique de Moraes Holschuh:
+    * Modify Matthias' postinst to create the hplip user in a safer way
+    * Depend on the correct adduser version for the above (just in case some
+      dweeb tries to backport this to ancient Debian)
+    * Add hplip-base.post{inst,rm} and initscript machinery for the hplip
+      user, supporting ephemeral /var/run and dpkg-statoverride the way I
+      like it
+    * Make run-hplip-as-non-root *non*-optional, it is safer and there is
+      nothing in hpiod or hpssd that requires root priviledges to work in a
+      Debian system
+    * Add NEWS.Debian item about running as non-root
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue,  2 Aug 2005 23:36:19 -0300
+
 hplip (0.9.4-1) unstable; urgency=low
 
   * New upstream version

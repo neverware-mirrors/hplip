@@ -9,9 +9,9 @@ Standards-Version: 3.6.2
 Package: hplip-base
 Architecture: any
 Conflicts: hpijs (<< 2), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1), hplip (<< 0.9.3), hplip-data (<< 0.9.3)
-Depends: cupsys (>= 1.1.20), hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Recommends: cupsys-client (>= 1.1.20), hplip-ppds (= ${Source-Version})
-Replaces: hplip (<< 0.9.3)
+Replaces: hplip (<< 0.9.3), hplip-data (<< 0.9.3)
 Suggests: hpijs, hplip
 Description: HP Linux Printing and Imaging System - base system
  The HP Linux Printing and Imaging System provides full support for

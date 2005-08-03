@@ -1,23 +1,31 @@
 #! /bin/sh
-#
 # hplip	initscript for the HP Linux Printing and Imaging System
-#		Copr. 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
+# Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
+# Distributed under the same license as the Debian package hplip-base
 #
-# $Id: hplip-base.init,v 1.1 2005/05/07 13:48:45 hmh Exp $
+# $Id: hplip-base.init,v 1.2 2005/08/03 02:36:09 hmh Exp $
+
+# Note: the GUI daemons are left-overs from old HPLIP, but we retain the code
+# here because I feel it will be useful in a few months again... or for a few
+# months still, while people get rid of the old crap
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
 DESC1="HP Linux Printing and Imaging System GUIs"
 
+# For manual setuid/gid
+USER=hplip
+GROUP=lp
+
 DAEMON1=/usr/sbin/hpiod
 NAME1=hpiod
 PROCNAME1=$NAME1
-PIDFILE1=/var/run/hpiod.pid
+PIDFILE1=/var/run/hplip/hpiod.pid
 
 DAEMON2=/usr/sbin/hpssd
 NAME2=hpssd
 PROCNAME2=python
-PIDFILE2=/var/run/hpssd.pid
+PIDFILE2=/var/run/hplip/hpssd.pid
 
 HPIODOPTIONS=
 HPSSDOPTIONS=
@@ -27,8 +35,33 @@ test -f ${DAEMON1} || exit 0
 
 set -e
 
-DIDSOMETHING=0
+###
+### dpkg-statoverride support
+###
 
+createdir() {
+# $1 = user
+# $2 = group
+# $3 = permissions (octal)
+# $4 = path to directory
+	[ -d "$4" ] || mkdir -p "$4"
+	chown -c -R -H --preserve-root "$1:$2" "$4"
+	chmod -c "$3" "$4"
+}
+
+fixdirs() {
+        dir=$(dpkg-statoverride --list /var/run/hplip) || {
+		echo "You are missing a dpkg-statoverride on /var/run/hplip.  Fix it, otherwise you risk silent breakage on upgrades." >&2
+		exit 1
+	}
+	[ -z "$dir" ] || createdir $dir
+	# clear exit status
+	:
+}
+
+###
+
+DIDSOMETHING=0
 reload_cups() {
 	if [ ${DIDSOMETHING} -ne 0 ] ; then
 		# Tell cupsys that we (may) have a new ative backend
@@ -67,6 +100,8 @@ start_daemon() {
 	DAEMONOPT="$5"
 
 	START="--start --quiet --pidfile ${PIDFILE} --startas ${DAEMON} --name ${PROCNAME}"
+	[ -n "${USER}" ] && START="${START} --chuid ${USER}"
+	[ -n "${GROUP}" ] && START="${START} --group ${GROUP}"
 	[ -n "${DAEMONOPT}" ] && START="${START} -- ${DAEMONOPT}"
 	if start-stop-daemon ${START} >/dev/null 2>&1 ; then
 		echo -n "${NAME}"
@@ -113,6 +148,7 @@ stop_daemon() {
 
 do_start () {
 	echo -n "Starting $DESC: "
+	fixdirs
 	if start_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
 		"${PROCNAME1}" "${HPIODOPTIONS}" && \
 	   echo -n ", " && \

@@ -1,0 +1,20 @@
+hplip (0.9.4-2) unstable; urgency=low
+
+Thanks to an initial patch by Matthias Klose (from Ubuntu), HPLIP daemons
+(hpiod and hpssd) now run under the hplip user, and lp group.
+
+Unlike the original Ubuntu patch, Debian's changes are non-optional.  HPLIP
+running as root is not supported in Debian anymore, unless someone gives me
+very strong reasons to revert this.
+
+The only behaviour changes runing as non-root causes are that now hpiod and
+hpssd will not be able to bind to reserved ports below 1024.  This causes no
+loss of functionality as far as I know, as there are very little good reasons
+to run any of the daemons in a port below 1024, especially since they always
+bind to localhost only.
+
+In an up-to-date Debian Sarge system, all will work out-of-the-box.  If it
+doesn't work in a particular configuration, please make sure group lp has 
+write access to the USB lp devices, and so on.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue,  2 Aug 2005 23:23:48 -0300
