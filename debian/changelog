@@ -1,3 +1,12 @@
+hplip (0.9.4-3) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * New cleanup patches: 14_charsign_fixes, 20_useless_assignment_fix
+    * New dpatch: 15_64bit_fixes
+    * New hunks to dpatch: 11_fix-misc-gcc-warnings.dpatch
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat,  6 Aug 2005 02:10:24 -0300
+
 hplip (0.9.4-2) unstable; urgency=low
 
   * Matthias Klose <doko@ubuntu.com>:

@@ -23,9 +23,9 @@ esac
 exit 0
 
 @DPATCH@
-diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.dYipcz/hplip/pcard/pcardext/pcardext.c
---- hplip/pcard/pcardext/pcardext.c	2005-05-13 14:36:42.750140133 -0300
-+++ /tmp/dpep.dYipcz/hplip/pcard/pcardext/pcardext.c	2005-05-19 13:58:11.331592479 -0300
+diff -urNad --exclude=CVS --exclude=.svn ./pcard/pcardext/pcardext.c ./pcard/pcardext/pcardext.c
+--- ./pcard/pcardext/pcardext.c	2005-08-06 02:08:27.000000000 -0300
++++ ./pcard/pcardext/pcardext.c	2005-08-06 02:09:20.231045452 -0300
 @@ -20,7 +20,7 @@
  Requires:
  Python 2.2+
@@ -35,3 +35,23 @@ diff -urNad hplip/pcard/pcardext/pcardext.c /tmp/dpep.dYipcz/hplip/pcard/pcardex
  
  #include <Python.h>
  #include <structmember.h>
+diff -urNad --exclude=CVS --exclude=.svn ./prnt/cupsext/cupsext.c ./prnt/cupsext/cupsext.c
+--- ./prnt/cupsext/cupsext.c	2005-08-06 02:08:58.000000000 -0300
++++ ./prnt/cupsext/cupsext.c	2005-08-06 02:09:29.183925168 -0300
+@@ -889,7 +889,6 @@
+ PyObject *  openPPD( PyObject * self, PyObject * args )
+ {
+     char * printer;
+-    char * ppd;
+     FILE * file;
+ 
+     if ( !PyArg_ParseTuple( args, "z", &printer ) )
+@@ -897,7 +896,7 @@
+         return Py_BuildValue( "" ); // None
+     }
+ 
+-    ppd = cupsGetPPD( (const char *)printer );
++    const char *ppd = cupsGetPPD( printer );
+ 
+     file = fopen( ppd, "r" );
+     ppd_file = ppdOpen( file );

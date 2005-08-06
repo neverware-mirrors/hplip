@@ -1,6 +1,9 @@
 01_rss
 11_fix-misc-gcc-warnings
 13_intsign-fixes
+14_charsign_fixes
+15_64bit_fixes
+20_useless_assignment_fix
 40_testmail_fix
 50_hp-clean_fix
 99_ubuntu_hplip-deroot

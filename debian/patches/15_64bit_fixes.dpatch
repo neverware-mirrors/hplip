@@ -1,0 +1,61 @@
+#! /bin/sh
+## 15_64bit_fixes.dpatch by  <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Assorted 64-bit fixes
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.cpp ./io/hpiod/hpiod.cpp
+--- ./io/hpiod/hpiod.cpp	2005-08-06 01:54:19.000000000 -0300
++++ ./io/hpiod/hpiod.cpp	2005-08-06 01:55:18.182417702 -0300
+@@ -94,7 +94,7 @@
+         if (n%16 == 1) {
+             /* store address for this line */
+             snprintf(addrstr, sizeof(addrstr), "%.4x",
+-               (p-(unsigned char *)data) );
++               (p-(unsigned char *)data) & 0xffff);
+         }
+             
+         c = *p;
+diff -urNad --exclude=CVS --exclude=.svn ./pcard/ptest.c ./pcard/ptest.c
+--- ./pcard/ptest.c	2005-08-06 01:55:05.826963928 -0300
++++ ./pcard/ptest.c	2005-08-06 01:55:18.183417577 -0300
+@@ -111,7 +111,7 @@
+         if (n%16 == 1) {
+             /* store address for this line */
+             snprintf(addrstr, sizeof(addrstr), "%.4x",
+-               (p-(unsigned char *)data) );
++               (p-(unsigned char *)data) & 0xffff );
+         }
+             
+         c = *p;
+diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/io.c ./scan/sane/io.c
+--- ./scan/sane/io.c	2005-08-06 01:55:05.826963928 -0300
++++ ./scan/sane/io.c	2005-08-06 01:55:18.183417577 -0300
+@@ -78,7 +78,7 @@
+         if (n%16 == 1) {
+             /* store address for this line */
+             snprintf(addrstr, sizeof(addrstr), "%.4x",
+-               (p-(unsigned char *)data) );
++               (p-(unsigned char *)data) & 0xffff );
+         }
+             
+         c = *p;
