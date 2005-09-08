@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip-base.README.Debian,v 1.5 2005/07/24 11:22:01 hmh Exp $
+$Id: hplip-base.README.Debian,v 1.6 2005/09/08 00:27:26 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't 
@@ -43,8 +43,15 @@ Quick Install:
 Detecting the printer:
 ----------------------
 
-If you have trouble to get HPLIP's CUPS backend to detect the printer,
-you should check if it is being found by the HPLIP services.
+If you have trouble to get HPLIP's CUPS backend to detect the printer, you
+should check if it is being found by the HPLIP services.
+
+HPLIP won't be able to talk to your printer if anything on the lower layers
+is broken, so make sure you have the USB subsystem in a sane state if you
+are using USB printers (hint: usblp must be active, either loaded as a
+module, or built into the kernel, the device must be listed in lsusb, and
+you MUST have the proper /dev/usb/lp0 device inodes), and that you can ping
+the printer (for networked printers).
 
 First, you need the HPLIP services running (/etc/init.d/hplip start).
 Then, you can use the hp-probe utility to find the printer:
@@ -52,8 +59,8 @@ Then, you can use the hp-probe utility to find the printer:
 hp-probe
 
 Once it is detected, restart CUPS and add the printer to the CUPS
-configuration.  Note that networked devices are NOT always detected,
-but see below:
+configuration.  Note that networked devices are NOT always detected, but
+see below:
 
 For network-connected devices, use the hp-makeuri utility to generate
 an URI that is suitable for the HP CUPS backend for your printer, and use

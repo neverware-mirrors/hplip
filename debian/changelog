@@ -1,3 +1,17 @@
+hplip (0.9.4-4) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Rebuild for C++ transition
+    * Mention usblp on README.Debian (closes: #326684)
+    * Fix invocation of dh_python for all binary packages other than hplip
+    * Do not remove pyc/pyo python compiled files from package hplip-base
+      when package hplip is removed
+    * Switch initscript to LSB-like reporting, and remove old HPGUId cruft
+      while at it
+    * hplip-base: add dependency on lsb-base due to initscript changes
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu,  8 Sep 2005 12:47:58 -0300
+
 hplip (0.9.4-3) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

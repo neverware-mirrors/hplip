@@ -3,15 +3,10 @@
 # Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
 # Distributed under the same license as the Debian package hplip-base
 #
-# $Id: hplip-base.init,v 1.2 2005/08/03 02:36:09 hmh Exp $
-
-# Note: the GUI daemons are left-overs from old HPLIP, but we retain the code
-# here because I feel it will be useful in a few months again... or for a few
-# months still, while people get rid of the old crap
+# $Id: hplip-base.init,v 1.5 2005/09/08 22:36:24 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
-DESC1="HP Linux Printing and Imaging System GUIs"
 
 # For manual setuid/gid
 USER=hplip
@@ -33,6 +28,8 @@ HPSSDOPTIONS=
 
 test -f ${DAEMON1} || exit 0
 
+. /lib/lsb/init-functions
+
 set -e
 
 ###
@@ -44,9 +41,9 @@ createdir() {
 # $2 = group
 # $3 = permissions (octal)
 # $4 = path to directory
-	[ -d "$4" ] || mkdir -p "$4"
-	chown -c -R -H --preserve-root "$1:$2" "$4"
-	chmod -c "$3" "$4"
+	[ -d "$4" ] || mkdir -p -m "$3" "$4"
+	chown -R -H --preserve-root "$1:$2" "$4"
+	chmod "$3" "$4"
 }
 
 fixdirs() {
@@ -77,21 +74,6 @@ reload_cups() {
 	return 0
 }
 
-stop_hpuid() {
-	start-stop-daemon --stop --pidfile "$1" --name "python" --quiet && {
-		rm -f "$1"
-		echo -n $(basename "$1" | sed -e 's/.pid//')
-		echo -n ", "
-	}
-}
-
-kill_all_hpguid() {
-	echo -n "Stopping ${DESC1}: "
-	find /var/run -type f -name 'hpguid-*.pid' -print | \
-		while read -r i ; do stop_hpuid "$i" ; done
-	echo "done."
-}
-
 start_daemon() {
 	DAEMON="$1"
 	PIDFILE="$2"
@@ -104,14 +86,14 @@ start_daemon() {
 	[ -n "${GROUP}" ] && START="${START} --group ${GROUP}"
 	[ -n "${DAEMONOPT}" ] && START="${START} -- ${DAEMONOPT}"
 	if start-stop-daemon ${START} >/dev/null 2>&1 ; then
-		echo -n "${NAME}"
+		#success
 		DIDSOMETHING=1
 	else
 		if start-stop-daemon --test ${START} >/dev/null 2>&1; then
-			echo -n "(${NAME} failed)"
+			#failed
 			return 1
 		else
-			echo -n "(${NAME} already running)"
+			#already running
 			return 0
 		fi
 	fi
@@ -130,16 +112,16 @@ stop_daemon() {
 	if start-stop-daemon --stop --quiet --pidfile ${PIDFILE} \
 		--retry 10 --name ${PROCNAME} \
 		>/dev/null 2>&1 ; then
-			echo -n "${NAME}"
+			# success
 			DIDSOMETHING=1
 			# FIXME: change hpiod so that this is not necessary
 			sleep 2
 	else
 		if start-stop-daemon --test ${STOP} >/dev/null 2>&1; then
-			echo -n "(${NAME} not running)"
+			# already stopped
 			return 0
 		else
-			echo -n "(${NAME} failed)"
+			# failed, still running
 			return 1
 		fi
 	fi
@@ -147,36 +129,51 @@ stop_daemon() {
 }
 
 do_start () {
-	echo -n "Starting $DESC: "
+	log_daemon_msg "Starting ${DESC}"
 	fixdirs
+	log_progress_msg "${NAME1}"
 	if start_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
 		"${PROCNAME1}" "${HPIODOPTIONS}" && \
-	   echo -n ", " && \
-	   start_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
-	   	"${PROCNAME2}" "${HPSSDOPTIONS}"; then
-	   echo
+	   {
+	     log_progress_msg "${NAME2}"
+	     start_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
+	   	"${PROCNAME2}" "${HPSSDOPTIONS}"
+	   } ; then
+	   log_end_msg 0
 	   reload_cups
 	else
+	   log_end_msg 1 || true
 	   return 1
 	fi
 	return 0
 }
 
 do_stop () {
-	kill_all_hpguid
-	echo -n "Stopping $DESC: "
+	log_daemon_msg "Stopping ${DESC}"
+        log_progress_msg "${NAME1}"
 	if stop_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
-			"${PROCNAME2}" ; then
-	   echo -n ", "
+			"${PROCNAME2}"
+	then
+	   log_progress_msg "${NAME2}"
 	   stop_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
-	   		"${PROCNAME1}" && echo && return 0
-	   echo
+	   		"${PROCNAME1}" && {
+	     log_end_msg 0
+	     return 0
+	   }
+	   log_end_msg 1 || true
 	   return 1
 	else
-	   echo -n ", "
-	   stop_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
-	   		"${PROCNAME1}"
-	   echo
+	   log_end_msg 1 || true
+	   log_daemon_msg "Stopping ${DESC}"
+	   log_progress_msg "${NAME2}"
+	   if stop_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
+	   		"${PROCNAME1}" ;
+	   then
+	     log_end_msg 1 || true
+	   else
+	     log_end_msg 0
+	   fi
+	   log_failure_msg "Failed to stop all components of ${DESC}."
 	   return 1
 	fi
 }
@@ -199,7 +196,7 @@ case "$1" in
 	exit 0
 	;;
   *)
-	echo "Usage: $0 {start|stop|restart|force-reload}" 1>&2
+	log_warning_msg "Usage: $0 {start|stop|restart|force-reload}"
 	exit 1
 	;;
 esac

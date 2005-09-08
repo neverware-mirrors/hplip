@@ -37,11 +37,6 @@ case "$1" in
 		fi
 	;;
 	purge|remove|failed-upgrade|disappear)
-	    	# Kill any pre-compiled python crap
-		[ -d /usr/lib/hplip ] && \
-			find /usr/lib/hplip \
-				\( -name '*.pyc' -o -name '*.pyo' \) \
-				-exec rm -f {} \;
         ;;
 
     *)
