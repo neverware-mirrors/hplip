@@ -1,32 +1,14 @@
-#!/bin/sh -e
+#!/bin/sh /usr/share/dpatch/dpatch-run
 ## 99_ubuntu_hplip-deroot.dpatch by Matthias Klose <doko@ubuntu.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Derootify hplip, by Matthias Klose <doko@ubuntu.com>
 ## DP: Integrated into Debian hplip by Henrique de Moraes Holschuh <hmh@debian.org>
 
-if [ $# -ne 1 ]; then
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
-
-case "$1" in
-       -patch) patch $patch_opts -p1 < $0;;
-       -unpatch) patch $patch_opts -p1 -R < $0;;
-        *)
-                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-                exit 1;;
-esac
-
-exit 0
-
 @DPATCH@
-diff -urNad --exclude=CVS --exclude=.svn ./base/g.py /tmp/dpep-work.UdtE2c/hplip-0.9.4/base/g.py
---- ./base/g.py	2005-07-28 22:01:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/base/g.py	2005-07-28 22:01:31.071659300 +0200
+diff -urNad --exclude=CVS --exclude=.svn ./base/g.py ./base/g.py
+--- ./base/g.py	2005-09-17 00:43:28.000000000 -0300
++++ ./base/g.py	2005-09-17 13:24:06.245404555 -0300
 @@ -101,12 +101,12 @@
          prop.home_dir = os.path.realpath( os.path.normpath( os.getcwd() ) )
  
@@ -35,16 +17,16 @@ diff -urNad --exclude=CVS --exclude=.svn ./base/g.py /tmp/dpep-work.UdtE2c/hplip
 +    prop.hpiod_port = int( file( '/var/run/hplip/hpiod.port', 'r' ).read() )
  except:
      prop.hpiod_port = 0
-     
+ 
  try:
 -    prop.hpssd_port = int( file( '/var/run/hpssd.port', 'r' ).read() )
 +    prop.hpssd_port = int( file( '/var/run/hplip/hpssd.port', 'r' ).read() )
  except:
      prop.hpssd_port = 0
-     
-diff -urNad --exclude=CVS --exclude=.svn ./hplip.conf /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.conf
---- ./hplip.conf	2004-09-23 04:14:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.conf	2005-07-28 22:03:07.332930144 +0200
+ 
+diff -urNad --exclude=CVS --exclude=.svn ./hplip.conf ./hplip.conf
+--- ./hplip.conf	2005-09-08 13:07:28.000000000 -0300
++++ ./hplip.conf	2005-09-17 13:23:21.890974361 -0300
 @@ -1,5 +1,9 @@
  # hplips.conf
  
@@ -55,9 +37,9 @@ diff -urNad --exclude=CVS --exclude=.svn ./hplip.conf /tmp/dpep-work.UdtE2c/hpli
  [hpiod]
  # port=50000 (registered IP port)
  # port=0 (dynamic IP port)
-diff -urNad --exclude=CVS --exclude=.svn ./hplip.sh /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.sh
---- ./hplip.sh	2005-07-28 22:01:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hplip.sh	2005-07-28 22:01:31.073658703 +0200
+diff -urNad --exclude=CVS --exclude=.svn ./hplip.sh ./hplip.sh
+--- ./hplip.sh	2005-09-17 00:43:27.000000000 -0300
++++ ./hplip.sh	2005-09-17 13:23:21.891974235 -0300
 @@ -41,7 +41,7 @@
  
  killproc() {
@@ -85,10 +67,10 @@ diff -urNad --exclude=CVS --exclude=.svn ./hplip.sh /tmp/dpep-work.UdtE2c/hplip-
  	   case "$( basename $pidfile )" in 
         		hpguid-*.pid)
                     read pid < $pidfile
-diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-0.9.4/hpssd.py
---- ./hpssd.py	2005-07-28 22:01:30.858722846 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/hpssd.py	2005-07-28 22:01:31.074658405 +0200
-@@ -702,7 +702,7 @@
+diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py ./hpssd.py
+--- ./hpssd.py	2005-09-17 13:23:21.690999471 -0300
++++ ./hpssd.py	2005-09-17 13:23:21.891974235 -0300
+@@ -685,7 +685,7 @@
  
          guis[username][typ] = (host, port, pid)
  
@@ -97,7 +79,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
  
          if pid != 0:
              os.umask(0133)
-@@ -724,7 +724,7 @@
+@@ -707,7 +707,7 @@
          except KeyError:
              pass
  
@@ -106,7 +88,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
          log.debug("Removing file %s" % pid_file)
  
          try:
-@@ -1279,7 +1279,7 @@
+@@ -1265,7 +1265,7 @@
                      log.warning("Unable to send event to %s GUI (%s:%s). (%d)" % (typ, host, port, e.opt))
                      continue
  
@@ -115,7 +97,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
                  log.debug("Removing file %s" % pid_file)
  
                  try:
-@@ -1348,7 +1348,7 @@
+@@ -1323,7 +1323,7 @@
  
      # Lock pidfile before we muck around with system state
      # Patch by Henrique M. Holschuh <hmh@debian.org>
@@ -124,7 +106,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
  
      # Spawn child right away so that boot up sequence
      # is as fast as possible
-@@ -1376,7 +1376,7 @@
+@@ -1349,7 +1349,7 @@
      device.ServerDevice.string_query_func = QueryString
  
      os.umask(0133)
@@ -133,7 +115,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
      os.umask (0077)
      log.debug('port=%d' % prop.hpssd_port)
      log.info("Listening on %s port %d" % (prop.hpssd_host, prop.hpssd_port))
-@@ -1405,8 +1405,8 @@
+@@ -1379,8 +1379,8 @@
  
          log.debug("Cleaning up...")
      finally:
@@ -144,9 +126,9 @@ diff -urNad --exclude=CVS --exclude=.svn ./hpssd.py /tmp/dpep-work.UdtE2c/hplip-
          server.close()
          hpiod_sock.close()
  
-diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.cpp /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.cpp
---- ./io/hpiod/hpiod.cpp	2005-07-28 22:01:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.cpp	2005-07-28 22:01:31.074658405 +0200
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.cpp ./io/hpiod/hpiod.cpp
+--- ./io/hpiod/hpiod.cpp	2005-09-17 13:23:21.676001354 -0300
++++ ./io/hpiod/hpiod.cpp	2005-09-17 13:23:21.892974110 -0300
 @@ -253,11 +253,13 @@
        }
     }
@@ -161,10 +143,10 @@ diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.cpp /tmp/dpep-work.Udt
  
     /* Write initial pidfile and lock it. */
     get_lock(PIDFILE);
-diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.h /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.h
---- ./io/hpiod/hpiod.h	2005-07-28 22:01:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/hpiod.h	2005-07-28 22:01:31.074658405 +0200
-@@ -49,7 +49,7 @@
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.h ./io/hpiod/hpiod.h
+--- ./io/hpiod/hpiod.h	2005-09-17 00:43:39.000000000 -0300
++++ ./io/hpiod/hpiod.h	2005-09-17 13:23:21.892974110 -0300
+@@ -53,7 +53,7 @@
  //#define HPIOD_DEBUG
  
  #define RCFILE "/etc/hp/hplip.conf" /* The config file */
@@ -173,9 +155,9 @@ diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/hpiod.h /tmp/dpep-work.UdtE2
  #define LINE_SIZE 256     /* Length of a line. */
  #define BUFFER_SIZE 8192  /* General Read/Write buffer. */
  #define MAX_DEVICE 16     /* Max devices. */
-diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.cpp /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/system.cpp
---- ./io/hpiod/system.cpp	2005-07-28 22:01:30.848725829 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/io/hpiod/system.cpp	2005-07-28 22:01:31.075658107 +0200
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.cpp ./io/hpiod/system.cpp
+--- ./io/hpiod/system.cpp	2005-09-17 13:23:21.644005372 -0300
++++ ./io/hpiod/system.cpp	2005-09-17 13:23:21.892974110 -0300
 @@ -91,9 +91,9 @@
        exit(EXIT_FAILURE);
     }
@@ -188,9 +170,9 @@ diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.cpp /tmp/dpep-work.Ud
        exit(EXIT_FAILURE);
     }
  
-diff -urNad --exclude=CVS --exclude=.svn ./prnt/hpijs/hplip_api.h /tmp/dpep-work.UdtE2c/hplip-0.9.4/prnt/hpijs/hplip_api.h
---- ./prnt/hpijs/hplip_api.h	2005-07-28 22:01:18.000000000 +0200
-+++ /tmp/dpep-work.UdtE2c/hplip-0.9.4/prnt/hpijs/hplip_api.h	2005-07-28 22:01:31.075658107 +0200
+diff -urNad --exclude=CVS --exclude=.svn ./prnt/hpijs/hplip_api.h ./prnt/hpijs/hplip_api.h
+--- ./prnt/hpijs/hplip_api.h	2005-09-08 13:07:28.000000000 -0300
++++ ./prnt/hpijs/hplip_api.h	2005-09-17 13:23:21.892974110 -0300
 @@ -24,8 +24,8 @@
  \*****************************************************************************/
  

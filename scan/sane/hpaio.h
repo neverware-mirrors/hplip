@@ -44,24 +44,23 @@
 #include <fcntl.h>
 #include <ctype.h>
 
-
 #define BACKEND_NAME    hpaio
 #define BACKEND_NAME_STR "hpaio"
 #define SANE_DEBUG_BACKENDNAME hpaio
-
 
 #include "sane.h"
 #include "saneopts.h"
 //#include "sanei_debug.h"
 //#include "sanei_backend.h"
-
 #include "io.h"
 #include "mfpdtf.h"
-#include "pml.h"
 #include "scl.h"
 #include "tables.h"
-
 #include "hpip.h"
+#include "hplip_api.h"
+
+typedef struct hpaioScanner_s HPAIO_RECORD;
+#include "pml.h"
 
 /************************************************************************************/
 
@@ -69,7 +68,6 @@
 #define LEN_DEVICE_ID_STRING  4096
 #define LEN_STRING_OPTION_VALUE 20
 #define LEN_MODEL_RESPONSE  20
-//#define MAX_LIST_SIZE   20
 
 #define INFINITE_TIMEOUT                ((struct timeval *)0)
 #define SCL_SEND_COMMAND_START_TIMEOUT          0
@@ -90,7 +88,6 @@
 
 #define PAD_VALUE_LINEART            0
 #define PAD_VALUE_GRAYSCALE_COLOR    -1
-
 
 enum hpaioOption_e { 
     
@@ -213,12 +210,8 @@ enum hpaioScanMode_e { SCAN_MODE_FIRST = 0,
     MILLIMETERS_PER_10_INCHES, \
     -MILLIMETER_SHIFT_FACTOR)
 
-
-struct hpaioScanner_s
+struct  hpaioScanner_s
 {
-        //ptalDevice_t    dev;
-        //ptalChannel_t   chan;
-        //ptalChannel_t   chanReserve;
         char deviceuri[128];
         int deviceid;
         int scan_channelid;
@@ -233,7 +226,6 @@ struct hpaioScanner_s
         
         struct PmlObject_s *    firstPmlObject;
         struct PmlObject_s *    lastPmlObject;
-
 
         enum { SCANNER_TYPE_SCL, SCANNER_TYPE_PML } scannerType;
         int                     decipixelsPerInch;
@@ -290,11 +282,23 @@ struct hpaioScanner_s
         IP_HANDLE               hJob;
         int                     fromDenali;
         int                     preDenali;
-        unsigned char           inBuffer[LEN_BUFFER];
+        int                     denali;
+        unsigned char           inBuffer[LEN_BUFFER];     /* mfpdtf block buffer */
         int                     bufferOffset;
         int                     bufferBytesRemaining;
         int                     totalBytesRemaining;
         int                     endOfData;
+        int BlockSize;                                    /* mfpdtf block size, including fixed header */
+        int BlockIndex;                                   /* record index in mfpdtf block */
+        int RecordSize;                                    /* record size, does not include header */
+        int RecordIndex;                                   /* data index in record */
+        int mfpdtf_done; 
+        int mfpdtf_timeout_cnt; 
+        int pml_timeout_cnt;                              /* pml done timeout count */ 
+        int pml_done;
+        int ip_done;
+        int page_done;
+        int upload_state;                                 /* last pml upload state */
 
         struct 
         {
@@ -351,7 +355,6 @@ struct hpaioScanner_s
 
 typedef struct hpaioScanner_s * hpaioScanner_t;
 
-
 #define UNDEFINED_MODEL(hpaio) (!hpaio->saneDevice.model)
 
 #define _SET_DEFAULT_MODEL(hpaio,s,len) \
@@ -384,5 +387,7 @@ typedef struct hpaioScanner_s * hpaioScanner_t;
     } \
   } while(0)
 
+SANE_Status hpaioScannerToSaneStatus( hpaioScanner_t hpaio );
+SANE_Status hpaioScannerToSaneError( hpaioScanner_t hpaio );
 
 #endif

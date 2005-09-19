@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $ 
-# $Date: 2005/06/28 23:13:41 $
+# $Revision: 1.16 $
+# $Date: 2005/07/21 17:31:38 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.1'
+_VERSION = '1.2'
 
 
 # Std Lib
@@ -45,48 +45,44 @@ if not utils.checkPyQtImport():
 from qt import *
 from ui.printerform import PrinterForm
 
-app = None   
+app = None
 printdlg = None
 
 def usage():
-    formatter = utils.TextFormatter( 
-                (
-                    {'width': 38, 'margin' : 2},
-                    {'width': 38, 'margin' : 2},
-                )
-            )
-
+    formatter = utils.usage_formatter()
     log.info( utils.TextFormatter.bold( """\nUsage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] [FILE LIST]\n\n""") )
+    log.info( utils.bold("[PRINTER|DEVICE-URI]"))
+    utils.usage_device(formatter)
+    utils.usage_printer(formatter, True)
+    utils.usage_options()
+    utils.usage_logging(formatter)
+    utils.usage_help(formatter, True)
+    log.info(utils.bold("[FILELIST]"))
+    log.info( formatter.compose( ( "Optional list of files:", """Space delimited list of files to print. """ \
+                                   """Files can also be selected for print by adding them to the file list """ \
+                                   """in the UI.""" ), True ) )
 
-    log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
-    log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
-    log.info( formatter.compose( ( "To specify a device-URI:",             "-d<device-uri> or --device=<device-uri>" ), True ) )
-    log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"),            "" ) ) )
-    log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
+    sys.exit(0)
 
 def main( args ):
 
-    utils.log_title( 'Print Utility', _VERSION )
+    utils.log_title( 'File Print Utility', _VERSION )
 
     try:
-        opts, args = getopt.getopt( sys.argv[1:], 'P:p:d:hb:l:', 
-                                   [ 'printer=', 'device=', 'help', 'logging=' ] ) 
+        opts, args = getopt.getopt( sys.argv[1:], 'P:p:d:hb:l:',
+                                   [ 'printer=', 'device=', 'help', 'logging=' ] )
     except getopt.GetoptError:
         usage()
-        sys.exit(0)
 
     printer_name = None
-    device_uri = None    
-    log_level = 'info'
+    device_uri = None
+    log_level = logger.DEFAULT_LOG_LEVEL
 
     for o, a in opts:
         if o in ( '-h', '--help' ):
             usage()
-            sys.exit(0)
 
-        elif o in ( '-p', '-P', '--printer' ): 
+        elif o in ( '-p', '-P', '--printer' ):
             printer_name = a
 
         elif o in ( '-d', '--device' ):
@@ -96,11 +92,9 @@ def main( args ):
             log_level = a.lower().strip()
 
 
-    if not log_level in ( 'info', 'warn', 'error', 'debug' ):
-        log.error( "Invalid logging level." )
-        sys.exit(0)
+    if not log.set_level( log_level ):
+        usage()
 
-    log.set_level( log_level )   
     log.set_module( 'hp-print' )
 
     # Security: Do *not* create files that other users can muck around with

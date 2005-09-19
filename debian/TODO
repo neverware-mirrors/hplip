@@ -1,3 +1,7 @@
+General:
+    1. keep one eye on fab for hp-fab symlink and to add python license to copyright
+       file when the fax support is ready.
+
   hpiod:
     1. Fix pidfile locking so that main thread waits for the others to die
        before exiting
@@ -18,7 +22,6 @@
        when that's fixed, remove "python" build-dep.
    2. get all the hplip stuff into a hplip *python* package (basically, add hplip. before every import)
       2a. then move it out of /usr/lib into the python paths
-      2b. bytecompile the mess
    3. remove hardcoding of /etc/hp, make it a configure.in thing
    4. remove python #! lines from stuff that are not end-user executables (done?)
    5. fix and submit upstream something less hackish than the data -> ../share/data symlink

@@ -280,7 +280,8 @@ typedef enum              // typedef'ed for C interface
 	ENVELOPE_JPN3 = 22,             //!< Japanese Envelope #3 (120 x 235 mm)
 	ENVELOPE_JPN4 = 23,             //!< Japanese Envelope #4 (90 x 205 mm)
 #endif
-    PHOTO_5x7 = 24,
+
+    PHOTO_5x7,
     MAX_PAPER_SIZE                  //!< Only for array size and loops
 } PAPER_SIZE;
 

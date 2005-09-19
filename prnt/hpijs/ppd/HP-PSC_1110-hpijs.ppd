@@ -29,7 +29,7 @@
 *LanguageEncoding: ISOLatin1
 *PCFileName:	"HPIJS.PPD"
 *Manufacturer:	"HP"
-*Product:	"(psc 1200 series)"
+*Product:	"(psc 1100 series)"
 *cupsVersion:	1.0
 *cupsManualCopies: True
 *cupsModelNumber:  2
@@ -52,13 +52,7 @@
 *Throughput:	"1"
 *LandscapeOrientation: Plus90
 *TTRasterizer:	Type42
-*1284DeviceID: "
-  MFG:Hewlett-Packard;
-  MDL:psc 1200 series;
-  CMD:LDL,MLC,PML,DYN;
-  CLS:PRINTER;
-"
-*End
+
 *DefaultResolution: 600dpi
 
 
@@ -136,6 +130,10 @@ ICEHEIGHTPOINTS=842"
 *PageSize Photo/Photo/4x6 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo"
 *FoomaticRIPOptionSetting PageSize=Photo: " -dDEVICEWIDTHPOINTS=288 -d&&
 DEVICEHEIGHTPOINTS=432"
+*End
+*PageSize Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+*FoomaticRIPOptionSetting PageSize=Photo5x7: " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
 *End
 *PageSize PhotoTearOff/Photo with tear-off tab: "%% FoomaticRIPOptionSetting: PageSize=PhotoTearOff"
 *FoomaticRIPOptionSetting PageSize=PhotoTearOff: " -dDEVICEWIDTHPOINTS&&
@@ -225,6 +223,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PageRegion Letter/Letter: "%% FoomaticRIPOptionSetting: PageSize=Letter"
 *PageRegion A4/A4: "%% FoomaticRIPOptionSetting: PageSize=A4"
 *PageRegion Photo/Photo/4x6 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo"
+*PageRegion Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
 *PageRegion PhotoTearOff/Photo with tear-off tab: "%% FoomaticRIPOptionSetting: PageSize=PhotoTearOff"
 *PageRegion 3x5/3x5 inch index card: "%% FoomaticRIPOptionSetting: PageSize=3x5"
 *PageRegion 5x8/5x8 inch index card: "%% FoomaticRIPOptionSetting: PageSize=5x8"
@@ -251,6 +250,7 @@ dDEVICEHEIGHTPOINTS=567"
 *ImageableArea Letter/Letter: "18 36 594 783"
 *ImageableArea A4/A4: "9.72 36 585.28 833"
 *ImageableArea Photo/Photo/4x6 inch index card: "9 36 279 423"
+*ImageableArea Photo5x7/Photo/5x7 inch index card: "9 36 351 495"
 *ImageableArea PhotoTearOff/Photo with tear-off tab: "9 9 279 423"
 *ImageableArea 3x5/3x5 inch index card: "18 36 198 351"
 *ImageableArea 5x8/5x8 inch index card: "18 36 342 567"
@@ -276,6 +276,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PaperDimension Letter/Letter: "612 792"
 *PaperDimension A4/A4: "595 842"
 *PaperDimension Photo/Photo/4x6 inch index card: "288 432"
+*PaperDimension Photo5x7/Photo/5x7 inch index card: "360 504"
 *PaperDimension PhotoTearOff/Photo with tear-off tab: "288 432"
 *PaperDimension 3x5/3x5 inch index card: "216 360"
 *PaperDimension 5x8/5x8 inch index card: "360 576"

@@ -52,13 +52,15 @@
 #if 0
     #include <stdio.h>
     #include <assert.h>
-    #include <tchar.h>
+
+    #define _T(msg) msg
 
     #define PRINT0(ctl_msg, param1, param2) \
-        _ftprintf(stdout, ctl_msg, param1, param2)
+        fprintf(stdout, ctl_msg, param1, param2)
+
     #if 0
         #define PRINT1(ctl_msg, param1, param2) \
-            _ftprintf(stdout, ctl_msg, param1, param2)
+            fprintf(stdout, ctl_msg, param1, param2)
     #else
         #define PRINT1(ctl_msg, param1, param2)
     #endif

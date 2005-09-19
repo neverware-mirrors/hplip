@@ -2,7 +2,7 @@
 
   mfpdtf.h - HP Multi-Function Peripheral Data Transfer Format filter.
 
-  (c) 2001-2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2001-2005 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -21,13 +21,12 @@
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  Current Author: Don Welch
-  Contributing Author: David Paschal
+  Contributing Author(s): David Paschal, Don Welch, David Suffield
 
 \************************************************************************************/
 
-#if !defined( __MFPDTF_H__ )
-#define __MFPDTF_H__
+#if !defined(_MFPDTF_H )
+#define _MFPDTF_H
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -279,5 +278,88 @@ int             MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
                                       unsigned char * buffer,
                                       int countdown );
 
+/* 
+ * Phase 2 rewrite. des
+ */
 
+enum MFPDTF_DATA_TYPE
+{
+   DT_FAX = 1,
+   DT_SCAN = 2
+};
+
+/* MFPDTF page flag bit fields. */
+#define PF_NEW_PAGE 1
+#define PF_END_PAGE 2
+#define PF_NEW_DOC 4
+#define PF_END_DOC 8
+
+enum MFPDTF_RECORD_ID
+{
+   ID_START_PAGE = 0,
+   ID_RASTER_DATA = 1,
+   ID_END_PAGE = 2
+};
+
+#pragma pack(1)
+
+/* All words are stored little endian. */
+
+typedef struct
+{
+   uint32_t BlockLength;   /* includes header in bytes */
+   uint16_t HeaderLength;  /* in bytes */
+   uint8_t DataType;
+   uint8_t PageFlag;      
+} MFPDTF_FIXED_HEADER;
+
+typedef struct
+{
+   uint8_t ID;
+   uint8_t Code;
+   uint16_t PageNumber;
+   uint16_t BlackPixelsPerRow;
+   uint16_t BlackBitsPerPixel;
+   uint32_t BlackRows;
+   uint32_t BlackHorzDPI;
+   uint32_t BlackVertDPI;
+   uint16_t CMYPixelsPerRow;
+   uint16_t CMYBitsPerPixel;
+   uint32_t CMYRows;
+   uint32_t CMYHorzDPI;
+   uint32_t CMYVertDPI;
+} MFPDTF_START_PAGE;
+
+typedef struct
+{
+   uint8_t ID;
+   uint8_t dummy;
+   uint16_t Size;    /* in bytes */
+} MFPDTF_RASTER;
+
+typedef struct
+{
+   uint8_t ID;
+   char dummy[3];
+   uint32_t BlackRows;
+   uint32_t CMYRows;
+} MFPDTF_END_PAGE;
+
+#pragma pack()  
+
+#if defined(WORDS_BIGENDIAN)
+#define htole16(A) ((((uint16_t)(A) & 0xff00) >> 8) | (((uint16_t)(A) & 0x00ff) << 8))    /* host to little-endian 16-bit value */
+#define letoh16 h2le16                         /* little-endian to host 16-bit value */
+#define htole32(A) ((((uint32_t)(A) & (uint32_t)0x000000ff) << 24) | (((uint32_t)(A) & (uint32_t)0x0000ff00) << 8) | \
+                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))))
+#define letoh32 htole32
+#else
+#define htole16(A) (A)
+#define letoh16(A) (A)
+#define letoh32(A) (A)
+#define htole32(A) (A)
 #endif
+
+int read_mfpdtf_block(int device, int channel, char *buf, int bufSize, int timeout);
+
+#endif  // _MFPDTF_H

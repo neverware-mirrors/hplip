@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.58 $ 
-# $Date: 2005/07/07 20:37:07 $
+# $Revision: 1.62 $
+# $Date: 2005/09/08 18:23:07 $
 # $Author: dwelch $
 #
 # (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
@@ -26,31 +26,30 @@
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
 
-from __future__ import generators 
+from __future__ import generators
 
 # Std Lib
 import sys, os, fnmatch, tempfile, socket, struct, select, time
-import fcntl, errno, stat, string, xml.parsers.expat
+import fcntl, errno, stat, string, xml.parsers.expat, commands
 
 # Local
 from g import *
 from codes import *
-import msg
 
 
 def Translator(frm='', to='', delete='', keep=None):
     allchars = string.maketrans('','')
-    
+
     if len(to) == 1:
         to = to * len(frm)
     trans = string.maketrans(frm, to)
-    
+
     if keep is not None:
         delete = allchars.translate(allchars, keep.translate(allchars, delete))
-    
+
     def callable(s):
         return s.translate(trans, delete)
-    
+
     return callable
 
 # For pidfile locking (must be "static" and global to the whole app)
@@ -60,7 +59,7 @@ prv_pidfile_name = ""
 
 def get_pidfile_lock ( a_pidfile_name="" ):
     """ Call this to either lock the pidfile, or to update it after a fork()
-        Credit: Henrique M. Holschuh <hmh@debian.org> 
+        Credit: Henrique M. Holschuh <hmh@debian.org>
     """
     global prv_pidfile
     global prv_pidfile_name
@@ -109,28 +108,28 @@ def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
     """
     # Try to lock pidfile if not locked already
     if prv_pidfile_name != '' or prv_pidfile_name != "":
-        get_pidfile_lock( prv_pidfile_name )    
+        get_pidfile_lock( prv_pidfile_name )
 
     # Do first fork.
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             sys.exit(0) # Exit first parent.
-    except OSError, e: 
+    except OSError, e:
         sys.stderr.write ("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror)    )
         sys.exit(1)
 
     # Decouple from parent environment.
-    os.chdir("/") 
-    os.umask(0) 
-    os.setsid() 
+    os.chdir("/")
+    os.umask(0)
+    os.setsid()
 
     # Do second fork.
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             sys.exit(0) # Exit second parent.
-    except OSError, e: 
+    except OSError, e:
         sys.stderr.write ("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror)    )
         sys.exit(1)
 
@@ -154,7 +153,7 @@ def ifelse( cond, t, f ):
     else: return f
 
 def to_bool_str( s, default='0' ):
-    """ Convert an arbitrary 0/1/T/F/Y/N string to a normalized string 0/1.""" 
+    """ Convert an arbitrary 0/1/T/F/Y/N string to a normalized string 0/1."""
     if len( s ):
         if s[0].lower() in [ '1', 't', 'y' ]:
             return '1'
@@ -164,7 +163,7 @@ def to_bool_str( s, default='0' ):
     return default
 
 def to_bool( s, default=False ):
-    """ Convert an arbitrary 0/1/T/F/Y/N string to a boolean True/False value.""" 
+    """ Convert an arbitrary 0/1/T/F/Y/N string to a boolean True/False value."""
     if len( s ):
         if s[0].lower() in [ '1', 't', 'y' ]:
             return True
@@ -220,20 +219,20 @@ def walkFiles( root, recurse=True, abs_paths=False, return_folders=False, patter
 
 
 def is_path_writable( path ):
-    
+
     if os.path.exists( path ):
         s = os.stat( path )
         mode = s[ stat.ST_MODE ] & 0777
-        
+
         if mode & 02:
             return True
         elif s[ stat.ST_GID ] == os.getgid() and mode & 020:
             return True
         elif s[ stat.ST_UID ] == os.getuid() and mode & 0200:
             return True
-    
+
     return False
-    
+
 
 # Provides the TextFormatter class for formatting text into columns.
 # Original Author: Hamish B Lawson, 1999
@@ -247,7 +246,7 @@ class TextFormatter:
     def __init__( self, colspeclist ):
         self.columns = []
         for colspec in colspeclist:
-            self.columns.append( Column( **colspec ) ) 
+            self.columns.append( Column( **colspec ) )
 
     def compose(self, textlist, add_newline=False):
         numlines = 0
@@ -336,7 +335,7 @@ class Stack:
         self.stack = []
 
 
-# RingBuffer class       
+# RingBuffer class
 # Source: Python Cookbook 1st Ed., sec. 5.18, pg. 201
 # Credit: Sebastien Keim
 # License: Modified BSD
@@ -359,7 +358,7 @@ class RingBufferFull:
     def __init__(self,n):
         #raise "you should use RingBuffer"
         pass
-    def append(self,x):     
+    def append(self,x):
         self.data[self.cur]=x
         self.cur=(self.cur+1) % self.max
     def get(self):
@@ -403,7 +402,7 @@ def updateCRC(crc, data, mask=MASK_CRC16):
                 crc = crc << 1L
             c = c << 1L
 
-    return crc & 0xffffL    
+    return crc & 0xffffL
 
 def calcCRC( data ):
     crc = 0
@@ -501,7 +500,7 @@ def red(text):
     return codes["red"]+text+codes["reset"]
 
 def darkred(text):
-    return codes["darkred"]+text+codes["reset"]    
+    return codes["darkred"]+text+codes["reset"]
 
 
 def commafy(val):
@@ -528,19 +527,19 @@ def format_bytes( s, show_bytes=False ):
 
 try:
     make_temp_file = tempfile.mkstemp # 2.3+
-except AttributeError: 
+except AttributeError:
     def make_temp_file( suffix='', prefix='', dir='', text=False ): # pre-2.3
-        path = tempfile.mktemp( suffix ) 
+        path = tempfile.mktemp( suffix )
         fd = os.open( path, os.O_RDWR|os.O_CREAT|os.O_EXCL, 0700 )
         #os.unlink( path ) # TODO... make this secure
-        #return ( os.fdopen( fd, 'w+b' ), path ) 
+        #return ( os.fdopen( fd, 'w+b' ), path )
         return ( fd, path )
 
 def log_title( program_name, version ):
     log.info( "" )
     log.info( bold( "HP Linux Imaging and Printing System (ver. %s)" % prop.version ) )
     log.info( bold( "%s ver. %s" % ( program_name,version) ) )
-    log.info( "" ) 
+    log.info( "" )
     log.info( "Copyright (c) 2003-5 Hewlett-Packard Development Company, LP" )
     log.info( "This software comes with ABSOLUTELY NO WARRANTY." )
     log.info( "This is free software, and you are welcome to distribute it" )
@@ -567,29 +566,29 @@ def which( command ):
 def deviceDefaultFunctions():
     cmd_print, cmd_copy, cmd_fax, cmd_pcard, cmd_scan = \
         '', '', '', '', ''
-    
+
     # Print
     path = which( 'hp-print' )
-    
+
     if len( path ) > 0:
         cmd_print = 'hp-print -p%PRINTER%'
     else:
         path = which( 'kprinter' )
-        
+
         if len(path) > 0:
             cmd_print = 'kprinter -P%PRINTER% --system cups'
         else:
             path = which( 'gtklp' )
-    
+
             if len(path) > 0:
                 cmd_print = 'gtklp -P%PRINTER%'
-            
+
             else:
                 path = which( 'xpp' )
-                 
+
                 if len( path ) > 0:
                     cmd_print = 'xpp -P%PRINTER%'
-            
+
 
     # Scan
     path = which( 'xsane' )
@@ -598,24 +597,24 @@ def deviceDefaultFunctions():
         cmd_scan = 'xsane -V %SANE_URI%'
     else:
         path = which( 'kooka' )
-        
+
         if len(path)>0:
             #cmd_scan = 'kooka -d "%SANE_URI%"'
             cmd_scan = 'kooka'
-            
+
         else:
             path = which( 'xscanimage' )
-            
+
             if len(path)>0:
                 cmd_scan = 'xscanimage'
 
     # Photo Card
     path = which( 'hp-unload' )
-    
+
     if len( path ) > 0:
         cmd_pcard = 'hp-unload -d %DEVICE_URI%'
-    
-    else: 
+
+    else:
         cmd_pcard = 'python %HOME%/unload.py -d %DEVICE_URI%'
 
     # Copy
@@ -699,50 +698,50 @@ def receiveOnePing(mySocket, ID, timeout ):
         startedSelect = time.time()
         whatReady = select.select( [mySocket], [], [], timeLeft )
         howLongInSelect = ( time.time() - startedSelect )
-    
+
         if whatReady[0] == []: # Timeout
             return -1
-    
+
         timeReceived = time.time()
         recPacket, addr = mySocket.recvfrom(1024)
         icmpHeader = recPacket[20:28]
         typ, code, checksum, packetID, sequence = struct.unpack( "bbHHh", icmpHeader )
-    
+
         if packetID == ID:
             bytesInDouble = struct.calcsize( "d" )
             timeSent = struct.unpack( "d", recPacket[ 28:28 + bytesInDouble ] )[0]
             return timeReceived - timeSent
-    
+
         timeLeft = timeLeft - howLongInSelect
-    
+
         if timeLeft <= 0:
             return -1
 
 def sendOnePing( mySocket, destAddr, ID ):
     # Header is type (8), code (8), checksum (16), id (16), sequence (16)
     myChecksum = 0
-    
+
     # Make a dummy heder with a 0 checksum.
     header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1 )
     bytesInDouble = struct.calcsize( "d" )
     data = ( 192 - bytesInDouble ) * "Q"
     data = struct.pack( "d", time.time() ) + data
-    
+
     # Calculate the checksum on the data and the dummy header.
     myChecksum = checksum( header + data )
-    
+
     # Now that we have the right checksum, we put that in. It's just easier
     # to make up a new header than to stuff it into the dummy.
     if prop.platform == 'darwin':
         myChecksum = socket.htons( myChecksum ) & 0xffff
     else:
         myChecksum = socket.htons( myChecksum )
-    
-    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, 
+
+    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0,
                         myChecksum, ID, 1 )
-                        
+
     packet = header + data
-    mySocket.sendto( packet, ( destAddr, 1 ) ) # Don't know about the 1 
+    mySocket.sendto( packet, ( destAddr, 1 ) ) # Don't know about the 1
 
 def doOne( destAddr, timeout=10 ):
     # Returns either the delay (in seconds) or none on timeout.
@@ -752,7 +751,7 @@ def doOne( destAddr, timeout=10 ):
     sendOnePing( mySocket, destAddr, myID )
     delay = receiveOnePing( mySocket, myID, timeout )
     mySocket.close()
-    
+
     return delay
 
 
@@ -769,42 +768,42 @@ def checkPyQtImport():
     except ImportError:
         log.error( "PyQt not installed. GUI not available. Exiting." )
         return False
-    
+
     # check version of Qt
     qtMajor = int( qt.qVersion().split('.')[0] )
-    
-    if qtMajor < MINIMUM_QT_MAJOR_VER: 
-    
+
+    if qtMajor < MINIMUM_QT_MAJOR_VER:
+
         log.error( "Incorrect version of Qt installed. Ver. 3.0.0 or greater required.")
         return False
-    
+
     #check version of PyQt
     try:
         pyqtVersion = qt.PYQT_VERSION_STR
     except:
         pyqtVersion = qt.PYQT_VERSION
-    
+
     while pyqtVersion.count('.') < 2:
         pyqtVersion += '.0'
-    
+
     (maj_ver, min_ver, pat_ver) = pyqtVersion.split('.')
-    
+
     if pyqtVersion.find( 'snapshot' ) >= 0:
         log.warning( "A non-stable snapshot version of PyQt is installed.")
-    else:    
+    else:
         try:
             maj_ver = int(maj_ver)
             min_ver = int(min_ver)
             pat_ver = int(pat_ver)
         except ValueError:
             maj_ver, min_ver, pat_ver = 0, 0, 0
-    
+
         if maj_ver < MINIMUM_PYQT_MAJOR_VER or \
             (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
             log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver) )
             log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
             return False
-            
+
     return True
 
 
@@ -835,7 +834,7 @@ def loadTranslators( app, user_config ):
             loc = str(qt.QTextCodec.locale())
 
         if loc.lower() != 'c':
-            
+
             log.debug( "Trying to load .qm file for %s locale." % loc )
 
             dirs = [ prop.home_dir, prop.data_dir, prop.i18n_dir ]
@@ -856,7 +855,7 @@ def loadTranslators( app, user_config ):
         log.debug( "Using default 'C' locale" )
     else:
         log.debug( "Using locale: %s" % loc )
-        
+
     return loc
 
 try:
@@ -864,24 +863,24 @@ try:
 except ImportError:
     # Code from Python 2.4 string.py
     import re as _re
-    
+
     class _multimap:
         """Helper class for combining multiple mappings.
-    
+
         Used by .{safe_,}substitute() to combine the mapping and keyword
         arguments.
         """
         def __init__(self, primary, secondary):
             self._primary = primary
             self._secondary = secondary
-    
+
         def __getitem__(self, key):
             try:
                 return self._primary[key]
             except KeyError:
                 return self._secondary[key]
-    
-    
+
+
     class _TemplateMetaclass(type):
         pattern = r"""
         %(delim)s(?:
@@ -891,7 +890,7 @@ except ImportError:
           (?P<invalid>)              # Other ill-formed delimiter exprs
         )
         """
-    
+
         def __init__(cls, name, bases, dct):
             super(_TemplateMetaclass, cls).__init__(name, bases, dct)
             if 'pattern' in dct:
@@ -902,20 +901,20 @@ except ImportError:
                     'id'    : cls.idpattern,
                     }
             cls.pattern = _re.compile(pattern, _re.IGNORECASE | _re.VERBOSE)
-    
-    
+
+
     class Template:
         """A string class for supporting $-substitutions."""
         __metaclass__ = _TemplateMetaclass
-    
+
         delimiter = '$'
         idpattern = r'[_a-z][_a-z0-9]*'
-    
+
         def __init__(self, template):
             self.template = template
-    
+
         # Search for $$, $identifier, ${identifier}, and any bare $'s
-    
+
         def _invalid(self, mo):
             i = mo.start('invalid')
             lines = self.template[:i].splitlines(True)
@@ -927,7 +926,7 @@ except ImportError:
                 lineno = len(lines)
             raise ValueError('Invalid placeholder in string: line %d, col %d' %
                              (lineno, colno))
-    
+
         def substitute(self, *args, **kws):
             if len(args) > 1:
                 raise TypeError('Too many positional arguments')
@@ -953,7 +952,7 @@ except ImportError:
                 raise ValueError('Unrecognized named group in pattern',
                                  self.pattern)
             return self.pattern.sub(convert, self.template)
-    
+
         def safe_substitute(self, *args, **kws):
             if len(args) > 1:
                 raise TypeError('Too many positional arguments')
@@ -986,12 +985,12 @@ except ImportError:
                 raise ValueError('Unrecognized named group in pattern',
                                  self.pattern)
             return self.pattern.sub(convert, self.template)
-    
+
 
 
 cat = lambda _ : Template(_).substitute(sys._getframe(1).f_globals, **sys._getframe(1).f_locals)
-    
-    
+
+
 class ModelParser:
 
     def __init__( self ):
@@ -1060,4 +1059,78 @@ class ModelParser:
             raise Error( ERROR_INTERNAL )
 
         return self.models
+
+
+identity = string.maketrans('','')
+unprintable = identity.translate(identity, string.printable)
+
+def printable(s):
+    return s.translate(identity, unprintable)
+
+
+def usage_logging(formatter, space_after=False):
+    log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
+    log.info( formatter.compose( ( "", "<level>: none, info*, error, warn, debug (*default)" ), space_after ) )
+
+def usage_help(formatter, space_after=False):
+    log.info( formatter.compose( ( "This help information:", "-h or --help" ), space_after ) )
+
+def usage_device(formatter, space_after=False):
+    log.info( formatter.compose( ( "To specify a device-URI:", "-d<device-uri> or --device=<device-uri>" ) ) )
+
+def usage_printer(formatter, space_after=False):
+    log.info( formatter.compose( ( "To specify a CUPS printer:", "-p<printer> or --printer=<printer>" ), space_after ) )
+
+def usage_options():
+    log.info(bold("[OPTIONS]"))
+
+def usage_bus(formatter, space_after=False):
+    log.info( formatter.compose( ( "Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>" ) ) )
+    log.info( formatter.compose( ( "",
+        "<bus>: cups*, usb*, net, bt, fw, par* (*default) (Note: bw and bt not supported)" ), space_after ) )
+
+def usage_examples():
+    log.info(bold("Examples:"))
+
+def usage_notes():
+    log.info(bold("**NOTES"))
+    log.info( """\t1. If device or printer is not specified, the local device bus\n""" \
+              """ \t   is probed and the program enters interactive mode.\n""" \
+              """\t2. If -p* is specified, the default CUPS printer will be used.\n""" )
+
+def ttysize():
+    ln1 = commands.getoutput( 'stty -a' ).splitlines()[0]
+    vals = {'rows':None, 'columns':None}
+    for ph in ln1.split(';'):
+        x = ph.split()
+        if len(x) == 2:
+            vals[x[0]] = x[1]
+            vals[x[1]] = x[0]
+    return int( vals['rows'] ), int( vals['columns'] )
+
+
+def usage_formatter(override=0):
+    rows, cols = ttysize()
     
+    if override:
+        col1 = override
+        col2 = cols - col1 - 8
+    else:
+        col1 = int(cols / 3) - 8
+        col2 = cols - col1 - 8
+    
+    return TextFormatter( ( {'width': col1, 'margin' : 2},
+                            {'width': col2, 'margin' : 2}, ))
+
+
+def any(S,f=lambda x:x):
+    for x in S:
+        if f(x): return True
+    return False
+
+def all(S,f=lambda x:x):
+    for x in S:
+        if not f(x): return False
+    return True
+
+

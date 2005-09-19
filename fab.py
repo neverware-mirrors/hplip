@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.3 $ 
-# $Date: 2005/06/28 23:13:40 $
+# $Revision: 1.4 $
+# $Date: 2005/07/21 17:31:38 $
 # $Author: dwelch $
 
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,36 +44,25 @@ app = None
 addrbook = None
 
 def usage():
-    formatter = utils.TextFormatter( 
-                (
-                    {'width': 28, 'margin' : 2},
-                    {'width': 58, 'margin' : 2},
-                )
-            )
+    formatter = utils.usage_formatter()
+    log.info( utils.bold("""\nUsage: hp-fab [OPTIONS]\n\n""" ))
+    utils.usage_options()
+    utils.usage_logging(formatter)
+    utils.usage_help(formatter, True)
+    sys.exit(0)
 
-    log.info( utils.TextFormatter.bold( """\nUsage: hp-fab [OPTIONS]\n\n""" ) )
-
-    log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"), "" ) ) )
-
-    log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                       "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "This help information:", "-h or --help" ), True ) )
 
 def main( args ):
-
-    
-
     utils.log_title( 'HP Device Manager - Fax Address Book', _VERSION )
     log.info( "Includes code from KirbyBase 1.8.1" )
     log.info( "Copyright (c) Jamey Cribbs (jcribbs@twmi.rr.com)" )
     log.info( "Licensed under the Python Software Foundation License." )
 
     try:
-        opts, args = getopt.getopt( sys.argv[1:], 'l:h', [ 'level=', 'help' ] ) 
+        opts, args = getopt.getopt( sys.argv[1:], 'l:h', [ 'level=', 'help' ] )
 
     except getopt.GetoptError:
         usage()
-        sys.exit(1)
 
     for o, a in opts:
 
@@ -83,17 +72,16 @@ def main( args ):
 
         elif o in ( '-h', '--help' ):
             usage()
-            sys.exit(1)
-    
+
     log.set_module( 'fab' )
 
     # Security: Do *not* create files that other users can muck around with
     os.umask ( 0077 )
-    
+
     # create the main application object
     global app
     app = QApplication( sys.argv )
-    
+
     global addrbook
     addrbook = FaxAddrBookForm( )
     addrbook.show()

@@ -1,31 +1,13 @@
-#!/bin/sh -e
+#!/bin/sh /usr/share/dpatch/dpatch-run
 ## rss.dpatch by Torsten Landschoff <torsten@pulsar.galaxy>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Blank-ink-only patch by Richard Spencer-Smith
 
-if [ $# -ne 1 ]; then
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
-
-case "$1" in
-       -patch) patch $patch_opts -p1 < $0;;
-       -unpatch) patch $patch_opts -p1 -R < $0;;
-        *)
-                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-                exit 1;;
-esac
-
-exit 0
-
 @DPATCH@
-diff -urNad hplip/prnt/hpijs/breaks_open.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/breaks_open.cpp
+diff -urNad hplip/prnt/hpijs/breaks_open.cpp ./prnt/hpijs/breaks_open.cpp
 --- hplip/prnt/hpijs/breaks_open.cpp	2005-05-19 13:45:57.317420340 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/breaks_open.cpp	2005-05-19 13:54:07.545020405 -0300
++++ ./prnt/hpijs/breaks_open.cpp	2005-05-19 13:54:07.545020405 -0300
 @@ -1078,7 +1078,10 @@
  
  {
@@ -38,9 +20,9 @@ diff -urNad hplip/prnt/hpijs/breaks_open.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/b
  0,  3,  255,    0,
  0,  5,  255,    0,
  0,  7,  255,    0,
-diff -urNad hplip/prnt/hpijs/dj660_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj660_maps.cpp
+diff -urNad hplip/prnt/hpijs/dj660_maps.cpp ./prnt/hpijs/dj660_maps.cpp
 --- hplip/prnt/hpijs/dj660_maps.cpp	2005-05-19 13:45:57.318420218 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj660_maps.cpp	2005-05-19 13:54:07.545020405 -0300
++++ ./prnt/hpijs/dj660_maps.cpp	2005-05-19 13:54:07.545020405 -0300
 @@ -38,7 +38,10 @@
  //const
  uint32_t ulMapDJ660_CCM_KCMY[ 9 * 9 * 9 ]=
@@ -53,9 +35,9 @@ diff -urNad hplip/prnt/hpijs/dj660_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj
  2519110233UL, 807846483UL, 391693109UL, 260029471UL, 143570703UL, 42776580UL, 8501760UL, 7782400UL, 6539520UL,
  3072173868UL, 1881129514UL, 841465387UL, 524792087UL, 358391818UL, 174364420UL, 40408577UL, 6920704UL, 6530560UL,
  3407591425UL, 2551891200UL, 1612695808UL, 824489479UL, 506699268UL, 306153730UL, 105283329UL, 5144320UL, 5737216UL,
-diff -urNad hplip/prnt/hpijs/dj690_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj690_maps.cpp
+diff -urNad hplip/prnt/hpijs/dj690_maps.cpp ./prnt/hpijs/dj690_maps.cpp
 --- hplip/prnt/hpijs/dj690_maps.cpp	2005-05-19 13:45:57.319420097 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj690_maps.cpp	2005-05-19 13:54:07.546020284 -0300
++++ ./prnt/hpijs/dj690_maps.cpp	2005-05-19 13:54:07.546020284 -0300
 @@ -38,7 +38,10 @@
  uint32_t ulMapDJ690_CMYK[ 9 * 9 * 9 ]=
  // DJ690_CMYK
@@ -68,9 +50,9 @@ diff -urNad hplip/prnt/hpijs/dj690_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj
     2179072UL,    2051072UL,    1733120UL, 2013280119UL,  385897321UL,  303379741UL,
   270610688UL,  102772224UL,    1844992UL,    1911552UL,    1847296UL,    1784832UL,
  2080387626UL, 1157643294UL,  452996881UL,  335555072UL,  202384384UL,   50991872UL,
-diff -urNad hplip/prnt/hpijs/dj895_maps2.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj895_maps2.cpp
+diff -urNad hplip/prnt/hpijs/dj895_maps2.cpp ./prnt/hpijs/dj895_maps2.cpp
 --- hplip/prnt/hpijs/dj895_maps2.cpp	2005-05-19 13:45:57.319420097 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj895_maps2.cpp	2005-05-19 13:54:07.546020284 -0300
++++ ./prnt/hpijs/dj895_maps2.cpp	2005-05-19 13:54:07.546020284 -0300
 @@ -163,7 +163,10 @@
  
  uint32_t ulMapDJ895_Binary_KCMY[ 9*9*9 ]=
@@ -83,9 +65,9 @@ diff -urNad hplip/prnt/hpijs/dj895_maps2.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/d
    60292615UL,   42401028UL,    7601920UL, 4230922301UL,  571406681UL,  160889651UL,
   113048859UL,   62717200UL,   45415944UL,   27917573UL,   10419457UL,    9238272UL,
  4248940557UL, 3743081259UL,  790296119UL,  325515810UL,  127007505UL,   27196678UL,
-diff -urNad hplip/prnt/hpijs/dj895_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj895_maps.cpp
+diff -urNad hplip/prnt/hpijs/dj895_maps.cpp ./prnt/hpijs/dj895_maps.cpp
 --- hplip/prnt/hpijs/dj895_maps.cpp	2005-05-19 13:45:57.321419854 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj895_maps.cpp	2005-05-19 13:54:07.546020284 -0300
++++ ./prnt/hpijs/dj895_maps.cpp	2005-05-19 13:54:07.546020284 -0300
 @@ -37,7 +37,10 @@
  
  uint32_t ulMapDJ895_KCMY[ 9*9*9 ]=
@@ -98,9 +80,9 @@ diff -urNad hplip/prnt/hpijs/dj895_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj
  4230922555UL, 655358293UL, 176553263UL, 128253208UL, 61209869UL, 60751368UL, 26606852UL, 9305345UL, 8650496UL,
  4248940299UL, 3776766759UL, 756415798UL, 308083743UL, 142671120UL, 59440646UL, 9239553UL, 9109248UL, 8779520UL,
  4248086274UL, 4214276619UL, 2786390812UL, 942206231UL, 491516427UL, 224131588UL, 6616320UL, 7399168UL, 7857664UL,
-diff -urNad hplip/prnt/hpijs/dj970_maps3.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj970_maps3.cpp
+diff -urNad hplip/prnt/hpijs/dj970_maps3.cpp ./prnt/hpijs/dj970_maps3.cpp
 --- hplip/prnt/hpijs/dj970_maps3.cpp	2005-05-19 13:45:57.322419732 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj970_maps3.cpp	2005-05-19 13:54:07.546020284 -0300
++++ ./prnt/hpijs/dj970_maps3.cpp	2005-05-19 13:54:07.546020284 -0300
 @@ -37,7 +37,8 @@
  
  uint32_t ulMapDJ970_Draft_KCMY[ 9*9*9 ]=
@@ -111,9 +93,9 @@ diff -urNad hplip/prnt/hpijs/dj970_maps3.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/d
     5308180UL,    5504778UL,    5504768UL, 4278239136UL,      65446UL,    4194132UL,
     5308210UL,    5373728UL,    5308182UL,    5504784UL,    5504776UL,    5504768UL,
  4278498896UL, 1862336354UL,      65388UL,    2621242UL,    4128540UL,    4718348UL,
-diff -urNad hplip/prnt/hpijs/dj970_maps.cpp /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj970_maps.cpp
+diff -urNad hplip/prnt/hpijs/dj970_maps.cpp ./prnt/hpijs/dj970_maps.cpp
 --- hplip/prnt/hpijs/dj970_maps.cpp	2005-05-19 13:45:57.323419611 -0300
-+++ /tmp/dpep.92Fx2b/hplip/prnt/hpijs/dj970_maps.cpp	2005-05-19 13:54:07.547020164 -0300
++++ ./prnt/hpijs/dj970_maps.cpp	2005-05-19 13:54:07.547020164 -0300
 @@ -127,7 +127,11 @@
  
  uint32_t ulMapDJ970_KCMY[ 9*9*9 ]=

@@ -1,32 +1,14 @@
-#!/bin/sh -e
+#!/bin/sh /usr/share/dpatch/dpatch-run
 ## 13_intsign-fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fix signed/unsigned comparison issues
 
-if [ $# -ne 1 ]; then
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
-
-case "$1" in
-       -patch) patch $patch_opts -p1 < $0;;
-       -unpatch) patch $patch_opts -p1 -R < $0;;
-        *)
-                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-                exit 1;;
-esac
-
-exit 0
-
 @DPATCH@
-diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
---- hplip/io/hpiod/system.cpp	2005-05-19 14:02:48.955043693 -0300
-+++ /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp	2005-05-19 14:11:53.858988582 -0300
-@@ -711,15 +711,14 @@
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.cpp ./io/hpiod/system.cpp
+--- ./io/hpiod/system.cpp	2005-09-17 00:43:39.000000000 -0300
++++ ./io/hpiod/system.cpp	2005-09-17 13:08:44.394282417 -0300
+@@ -705,15 +705,14 @@
     return err;
  }
  
@@ -44,7 +26,7 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
     uint32_t val;
  
     *result = R_IO_ERROR;
-@@ -744,7 +743,7 @@
+@@ -738,7 +737,7 @@
        case PML_DT_ENUMERATION:
        case PML_DT_SIGNED_INTEGER:
           /* Convert PML big-endian to SNMP little-endian byte stream. */
@@ -53,7 +35,7 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
              val = ((val << 8) | buffer[i]);
           snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_INTEGER, (unsigned char *)&val, sizeof(val));
           break;
-@@ -779,12 +778,12 @@
+@@ -773,12 +772,12 @@
     return len;
  }
  
@@ -68,16 +50,16 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
     oid anOID[MAX_OID_LEN];
     size_t anOID_len = MAX_OID_LEN;
     struct variable_list *vars;
-@@ -823,7 +822,7 @@
+@@ -817,7 +816,7 @@
              *type = PML_DT_SIGNED_INTEGER;
  
              /* Convert SNMP little-endian to PML big-endian byte stream. */
 -            len = (sizeof(uint32_t) < (unsigned int)size) ? sizeof(uint32_t) : size;
 +            len = (sizeof(uint32_t) < size) ? sizeof(uint32_t) : size;
              val = *vars->val.integer;
-             for(i=len-1; i>0; i--)
+             for(i=len; i>0; i--)
              {
-@@ -843,7 +842,7 @@
+@@ -837,7 +836,7 @@
              break;
           case ASN_OCTET_STR:
              *type = PML_DT_STRING;
@@ -86,10 +68,10 @@ diff -urNad hplip/io/hpiod/system.cpp /tmp/dpep.5IUSPn/hplip/io/hpiod/system.cpp
              memcpy(buffer, vars->val.string, len);
              break;
           default:
-diff -urNad hplip/io/hpiod/system.h /tmp/dpep.5IUSPn/hplip/io/hpiod/system.h
---- hplip/io/hpiod/system.h	2005-05-13 14:36:42.650153286 -0300
-+++ /tmp/dpep.5IUSPn/hplip/io/hpiod/system.h	2005-05-19 14:02:49.179016612 -0300
-@@ -75,8 +75,8 @@
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/system.h ./io/hpiod/system.h
+--- ./io/hpiod/system.h	2005-09-17 00:43:39.000000000 -0300
++++ ./io/hpiod/system.h	2005-09-17 13:08:44.398281893 -0300
+@@ -74,8 +74,8 @@
     int DeviceCleanUp(SessionAttributes *sa);
     int SetPml(int device, int channel, char *snmp_iod, int type, unsigned char *data, int dataLen, char *sendBuf);
     int GetPml(int device, int channel, char *snmp_iod, char *sendBuf);
@@ -98,5 +80,5 @@ diff -urNad hplip/io/hpiod/system.h /tmp/dpep.5IUSPn/hplip/io/hpiod/system.h
 +   int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result);
 +   int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result);
     int MakeUriFromIP(char *ip, int port, char *sendBuf);
-    int MakeUriFromDevice(char *dnode, char *sendBuf);
- 
+    int MakeUriFromUsb(char *dnode, char *sendBuf);
+    int MakeUriFromPar(char *dnode, char *sendBuf);

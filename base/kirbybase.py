@@ -33,14 +33,7 @@ License:
     KirbyBase is licensed under the Python Software Foundation License.
     KirbyBase carries no warranty!  Use at your own risk. 
 """
-import re
-import socket
-import os.path
-import datetime
-import cPickle
-import cStringIO
-import operator
-
+import re, os.path, datetime, cStringIO, operator
 
 #--------------------------------------------------------------------------
 # KirbyBase Class

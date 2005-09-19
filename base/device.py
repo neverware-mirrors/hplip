@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.87 $
-# $Date: 2005/07/19 23:22:37 $
+# $Revision: 1.96 $
+# $Date: 2005/08/23 17:52:37 $
 # $Author: dwelch $
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,6 +39,10 @@ from codes import *
 import msg, utils, status, pml, slp
 from prnt import pcl, ldl, cups
 
+DEFAULT_PROBE_BUS = 'usb,par,cups'
+VALID_BUSES = ('par', 'net', 'cups', 'usb', 'bt', 'fw')
+DEFAULT_FILTER = 'none'
+VALID_FILTERS = ('none', 'print', 'scan', 'fax', 'pcard', 'copy')
 
 pat_deviceuri = re.compile(r"""(.*?):/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*)|ip=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[^&]*))(?:&port=(\d))?""", re.IGNORECASE)
 
@@ -47,13 +51,8 @@ pat_deviceuri = re.compile(r"""(.*?):/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*)
 pat_dynamic_ctr = re.compile(r"""CTR:\d*\s.*;""", re.IGNORECASE)
 
 
-def getInteractiveDeviceURI(bus='cups,usb', filter='none'):
-    from prnt import cups
+def getInteractiveDeviceURI(bus='cups,usb,par', filter='none'):
     bus = bus.lower()
-
-    #log.info( "No device specified..." )
-    log.info(utils.bold("\nChoose device from probed devices connected on bus(es): %s:\n" % bus))
-
     probed_devices = probeDevices(bus=bus, filter=filter)
     cups_printers = cups.getPrinters()
     log.debug(probed_devices)
@@ -76,10 +75,11 @@ def getInteractiveDeviceURI(bus='cups,usb', filter='none'):
         raise Error(ERROR_NO_PROBED_DEVICES_FOUND)
 
     elif x == 1:
-        log.info("Using device: %s" % devices[0][0])
+        log.info(utils.bold("Using device: %s" % devices[0][0]))
         return devices[0][0]
 
     else:
+        log.info(utils.bold("\nChoose device from probed devices connected on bus(es): %s:\n" % bus))
         formatter = utils.TextFormatter(
                 (
                     {'width': 4},
@@ -120,7 +120,7 @@ def getInteractiveDeviceURI(bus='cups,usb', filter='none'):
 
 
 
-def probeDevices(sock=None, bus='cups,usb', timeout=5,
+def probeDevices(sock=None, bus='cups,usb,par', timeout=5,
                   ttl=4, filter='', format='default'):
     close_sock = False
 
@@ -237,7 +237,8 @@ def parseDeviceURI(device_uri):
         raise Error(ERROR_INVALID_DEVICE_URI)
 
     back_end = m.group(1).lower() or ''
-    is_hp = (back_end in ('hp', 'hpfax'))
+    #is_hp = (back_end in ('hp', 'hpfax'))
+    is_hp = (back_end == 'hp')
     bus = m.group(2).lower() or ''
 
     if bus not in ('usb', 'net', 'bt', 'fw', 'par'):
@@ -259,6 +260,24 @@ def parseDeviceURI(device_uri):
             port = 1
 
     return back_end, is_hp, bus, model, serial, dev_file, host, port
+
+
+def validateBusList(bus):
+    for x in bus.split(','):
+        bb = x.lower().strip()
+        if bb not in VALID_BUSES:
+            log.error( "Invalid bus name: %s" % bb )
+            return False
+
+    return True
+
+def validateFilterList(filter):
+    for f in filter.split(','):
+        if f not in VALID_FILTERS:
+            log.error( "Invalid term '%s' in filter list" % f )
+            return False
+
+    return True
 
 
 AGENT_types = {AGENT_TYPE_NONE        : 'invalid',
@@ -343,7 +362,8 @@ def isLocal(bus):
 # **************************************************************************** #
 
 
-class BaseDevice:
+class BaseDevice(object):
+
     def __init__(self, device_uri, sock=None, host=None, port=None, callback=None):
         self.device_uri = device_uri
         self.callback = callback
@@ -395,17 +415,18 @@ class BaseDevice:
         if self.close_socket:
             self.sock.close()
 
+# **************************************************************************** #
+
 default_pics = {'deskjet'    : 'default_deskjet.png',
-                     'business'   : 'default_business_inkjet.png',
-                     'psc'        : 'default_psc.png',
-                     'laserjet'   : 'default_laserjet.png',
-                     'officejet'  : 'default_officejet.png',
-                     'photosmart' : 'default_photosmart.png',
-                     'default'    : 'default_printer.png',
+                'business'   : 'default_business_inkjet.png',
+                'psc'        : 'default_psc.png',
+                'laserjet'   : 'default_laserjet.png',
+                'officejet'  : 'default_officejet.png',
+                'photosmart' : 'default_photosmart.png',
+                'default'    : 'default_printer.png',
                 }
 
 # **************************************************************************** #
-
 
 class Device(BaseDevice):
     def __init__(self, device_uri=None, printer_name=None,
@@ -426,7 +447,7 @@ class Device(BaseDevice):
                              callback)
 
         self.cups_printers = cups_printers
-
+        
         self.icon_file = os.path.join(prop.image_dir, self.model + ".png")
 
         if not os.path.exists(self.icon_file):
@@ -438,17 +459,23 @@ class Device(BaseDevice):
                     f = default_pics['default']
 
             self.icon_file = os.path.join(prop.image_dir, f)
-
+            
+        if not self.cups_printers:
+            printers = cups.getPrinters()
+            for p in printers:
+                if self.device_uri == p.device_uri:
+                    self.cups_printers.append(p.name)
+        
         try:
-            first_cups_printer = self.cups_printers[0]
+            self.first_cups_printer = self.cups_printers[0]
         except IndexError:
-            first_cups_printer = ''
+            self.first_cups_printer = ''
 
         self.device_vars = {
             'URI'        : self.device_uri,
             'DEVICE_URI' : self.device_uri,
             'SANE_URI'   : self.device_uri.replace('hp:', 'hpaio:'),
-            'PRINTER'    : first_cups_printer,
+            'PRINTER'    : self.first_cups_printer,
             'HOME'       : prop.home_dir,
                            }
 
@@ -535,7 +562,7 @@ class Device(BaseDevice):
         return result_code
 
 
-    def __closeChannel(self):
+    def __closeChannel(self, service_name):
         fields, data, result_code = \
             self.xmitMessage("CloseChannel",
                                {
@@ -545,7 +572,7 @@ class Device(BaseDevice):
                               )
         return result_code
 
-
+    
     def queryDevice(self):
         self.dq, data, result_code = \
             self.xmitMessage("QueryDevice",
@@ -574,7 +601,18 @@ class Device(BaseDevice):
 
         return status.parseStatus(parseDeviceID(data))
 
+    def getDeviceID(self):
+        fields, data, result_code = \
+            self.xmitMessage("DeviceId",
+                              {
+                                'device-uri' : self.device_uri,
+                              }
+                            )
 
+        return parseDeviceID(data)
+
+    
+    
     def queryModel(self):
         result_code = ERROR_SUCCESS
 
@@ -613,14 +651,14 @@ class Device(BaseDevice):
 
 
     def openPML(self):
-        if not self.mq['io-mode'] in (IO_MODE_UNI, IO_MODE_RAW):
+        if not self.mq['io-mode'] == IO_MODE_UNI:
             return self.__openChannel('HP-MESSAGE')
         else:
             return -1
 
 
     def getPML(self, oid):
-        if not self.mq['io-mode'] in (IO_MODE_UNI, IO_MODE_RAW):
+        if not self.mq['io-mode'] == IO_MODE_UNI:
             fields, data, result_code = \
                 self.xmitMessage("GetPML",
                                   {
@@ -636,7 +674,7 @@ class Device(BaseDevice):
 
 
     def setPML(self, oid, value):
-        if not self.mq['io-mode'] in (IO_MODE_UNI, IO_MODE_RAW):
+        if not self.mq['io-mode'] == IO_MODE_UNI:
             fields, data, result_code = \
                 self.xmitMessage("SetPML",
                                   {
@@ -653,21 +691,30 @@ class Device(BaseDevice):
 
 
     def closePML(self):
-        if not self.mq['io-mode'] in (IO_MODE_UNI, IO_MODE_RAW):
+        if not self.mq['io-mode'] == IO_MODE_UNI:
             return self.__closeChannel('HP-MESSAGE')
 
 
-    def getDynamicCounter(self, counter, convert_int=True):
-        fields, data, result_code = \
+    def getDynamicCounter(self, counter, convert_to_int=True):
+        fields, value, result_code = \
             self.xmitMessage("GetDynamicCounter",
                               {
                                 'device-uri' : self.device_uri,
                                 'counter' : counter,
-                                'convert-int' : convert_int,
+                                #'convert-int' : convert_int,
                               }
                             )
 
-        return result_code
+        if value.startswith('#'):
+            value = value[1:]
+
+        if convert_to_int:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+
+        return value
 
 
     def openPrint(self):
@@ -716,12 +763,12 @@ class Device(BaseDevice):
             temp_file_fd, temp_file_name = utils.make_temp_file()
             os.write(temp_file_fd, data)
             os.close(temp_file_fd)
-            
+
             if len(data) < 1024 and \
                 log.get_level() == log.LOG_LEVEL_DEBUG:
-                
+
                 log.debug("Printing data: %s" % repr(data))
-                
+
             self.printFile(temp_file_name, direct, raw, remove=True)
             #os.remove(temp_file_name)
 
@@ -747,11 +794,11 @@ class Device(BaseDevice):
             else:
                 raw_str = ('', '-l')[raw]
                 rem_str = ('', '-r')[remove]
-                    
+
                 if is_gzip:
-                    c = ' '.join(['gunzip -c', filename, '| lpr -P', self.cups_printers[0], raw_str, rem_str])
+                    c = ' '.join(['gunzip -c', filename, '| lpr -P', self.first_cups_printer, raw_str, rem_str])
                 else:
-                    c = ' '.join(['lpr -P', self.cups_printers[0], raw_str, rem_str, filename])
+                    c = ' '.join(['lpr -P', self.first_cups_printer, raw_str, rem_str, filename])
 
                 log.debug(c)
                 os.system(c)
@@ -759,6 +806,11 @@ class Device(BaseDevice):
 
     def printGzipFile(self, filename, direct=False, raw=True, remove=False):
         return self.printFile(filename, direct, raw, remove)
+
+
+    def printTestPage(self):
+        return self.printParsedGzipPostscript(os.path.join( prop.home_dir, 'data',
+                                              'ps', 'testpage.ps.gz' ))
 
 
     def writeEmbeddedPML(self, oid, value, direct=False):
@@ -804,7 +856,7 @@ class Device(BaseDevice):
         while not x.startswith('%PY_END'):
             sub_lines.append(x)
             x = f.readline()
-
+            
         SUBS = {'VERSION' : prop.version,
                  'MODEL'   : self.model_ui,
                  'URI'     : self.device_uri,
@@ -1001,7 +1053,7 @@ class ServerDevice(BaseDevice):
         self.is_local = isLocal(self.bus)
         self.dev_file = ''
         self.serial = ''
-
+        
         printers = cups.getPrinters()
         for p in printers:
             if self.device_uri == p.device_uri:
@@ -1019,8 +1071,8 @@ class ServerDevice(BaseDevice):
         else:
             self.supported = True
 
-            self.mq.update({'model'    : self.model,
-                            'model-ui' : self.model_ui})
+        self.mq.update({'model'    : self.model,
+                        'model-ui' : self.model_ui})
 
         self.error_state = ERROR_STATE_ERROR
         self.device_state = DEVICE_STATE_NOT_FOUND
@@ -1044,7 +1096,23 @@ class ServerDevice(BaseDevice):
             '3bit-status-name' : 'IOTrap',
             'device-state'     : self.device_state,
             'error-state'      : self.error_state,
+            'device-uri'       : self.device_uri,
+            'cups-uri'         : self.device_uri,
             })
+
+        if self.mq.get('fax-type', FAX_TYPE_NONE) != FAX_TYPE_NONE:
+            self.dq.update({ 'fax-uri' : self.device_uri.replace('hp:/', 'hpfax:/')})
+            self.fax_info = None # { job_id : { 'state' : FAX_STATE_*,
+                                 #              'send_timedate' : datetime,
+                                 #              'receip_list' : [list of receip objects],
+                                 #              'options' : option tuple,
+                                 #              'username' : username,
+                                 #              'mh_file' : fax-file,
+                                 #              'send_thread' : thread object,
+                                 # }
+
+        if self.mq.get('scan-type', SCAN_TYPE_NONE) != SCAN_TYPE_NONE:
+            self.dq.update({ 'scan-uri' : self.device_uri.replace('hp:/', 'hpaio:/')})
 
 
     def createHistory(self, code, jobid=0, username=prop.username):
@@ -1064,7 +1132,7 @@ class ServerDevice(BaseDevice):
 
 
     def open(self, network_timeout=5):
-
+        #print "open()"
         if self.supported and self.io_state in (IO_STATE_HP_READY, IO_STATE_HP_NOT_AVAIL):
             log.debug("Opening device: %s" % self.device_uri)
             prev_device_state = self.device_state
@@ -1228,7 +1296,7 @@ class ServerDevice(BaseDevice):
 
 
     def closeChannel(self, service_name):
-        return __closeChannel(self, service_name)
+        return self.__closeChannel(service_name)
 
 
     def getDeviceID(self):
@@ -1257,7 +1325,7 @@ class ServerDevice(BaseDevice):
                 return
 
         if self.mq.get('status-type', STATUS_TYPE_NONE) != STATUS_TYPE_NONE and \
-            not self.mq.get('io-mode', IO_MODE_UNI) in (IO_MODE_UNI, IO_MODE_RAW):
+            not self.mq.get('io-mode', IO_MODE_UNI) == IO_MODE_UNI:
 
             try:
                 error_code, self.serial = self.getPML(pml.OID_SERIAL_NUMBER)
@@ -1295,7 +1363,7 @@ class ServerDevice(BaseDevice):
         if not self.supported:
             self.dq = {}
             return
-        
+
         try:
             self.getThreeBitStatus()
         except Error, e:
@@ -1334,13 +1402,14 @@ class ServerDevice(BaseDevice):
         r_type = self.mq.get('r-type', 0)
         tech_type = self.mq.get('tech-type', TECH_TYPE_NONE)
         status_type = self.mq.get('status-type', STATUS_TYPE_NONE)
+        agents = []
 
         if self.device_state != DEVICE_STATE_NOT_FOUND:
             status_block = {}
 
             if status_type == STATUS_TYPE_NONE:
                 log.warn("No status available for device.")
-                status_block = {'status-code' : STATUS_UNKNOWN}
+                status_block = {'status-code' : STATUS_PRINTER_IDLE}
 
             elif status_type in (STATUS_TYPE_VSTATUS, STATUS_TYPE_S):
                 log.debug("Type 1/2 (S: or VSTATUS:) status")
@@ -1359,6 +1428,7 @@ class ServerDevice(BaseDevice):
                 log.error("Unimplemented status type: %d" % status_type)
 
             if status_block:
+                log.debug(status_block)
                 self.dq.update(status_block)
                 try:
                     status_block['agents']
@@ -1440,8 +1510,6 @@ class ServerDevice(BaseDevice):
                     agent_level_trigger = agent.get('level-trigger',
                         AGENT_LEVEL_TRIGGER_SUFFICIENT_0)
 
-
-
                     try:
                         agent_desc = self.string_query_func('agent_%s_%s' %
                             (AGENT_types.get(agent_type, 'unknown'),
@@ -1463,6 +1531,7 @@ class ServerDevice(BaseDevice):
                         'agent%d-dvc' % a :           agent.get('dvc', 0),
                         'agent%d-virgin' % a :        agent.get('virgin', False),
                         'agent%d-desc' % a :          agent_desc,
+                        'agent%d-id' % a :            agent.get('id', 0 )
                     })
 
                 else:
@@ -1490,6 +1559,7 @@ class ServerDevice(BaseDevice):
                         'agent%d-dvc' % a :           0,
                         'agent%d-virgin' % a :        False,
                         'agent%d-desc' % a :          agent_desc,
+                        'agent%d-id' % a :            0,
                     })
 
                 query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
@@ -1500,19 +1570,26 @@ class ServerDevice(BaseDevice):
                 except Error:
                     self.dq['agent%d-desc' % a] = ''
 
-                # If agent health is OK, check for low supplies. If low, use
+                # If printer is not in an error state, and
+                # if agent health is OK, check for low supplies. If low, use
                 # the agent level trigger description for the agent description.
                 # Otherwise, report the agent health.
-                if agent_health == AGENT_HEALTH_OK and \
-                  agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
+                if status_code == STATUS_PRINTER_IDLE and \
+                    agent_health == AGENT_HEALTH_OK and \
+                    agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
 
                     # Low
                     query = 'agent_level_%s' % AGENT_levels.get(agent_level_trigger, 'unknown')
 
                     if tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
-                        self.dq['status-code'] = agent_type + STATUS_PRINTER_LOW_INK_BASE
+                        code = agent_type + STATUS_PRINTER_LOW_INK_BASE
                     else:
-                        self.dq['status-code'] = agent_type + STATUS_PRINTER_LOW_TONER_BASE
+                        code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
+
+                    self.dq['status-code'] = code
+                    self.dq['status-desc'] = self.string_query_func(code)
+                    self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
+                    self.createHistory(code)
 
                 else:
                     # OK
@@ -1529,7 +1606,7 @@ class ServerDevice(BaseDevice):
 
             r_value = 0
             if r_type > 0 and self.r_values is not None:
-                r_value = r_values[0]
+                r_value = self.r_values[0]
 
             a = 1
             while True:
@@ -1564,6 +1641,7 @@ class ServerDevice(BaseDevice):
                     'agent%d-virgin' % a :        False,
                     'agent%d-health-desc' % a :   self.string_query_func('agent_health_unknown'),
                     'agent%d-desc' % a :          agent_desc,
+                    'agent%d-id' % a :            0,
                 })
 
                 a += 1
@@ -1609,12 +1687,12 @@ class ServerDevice(BaseDevice):
         return fields.get('pml-result-code', pml.ERROR_OK)
 
 
-    def getDynamicCounter(self, counter):
-        self.__deviceID()
+    def getDynamicCounter(self, counter, convert_to_int=True):
+        self.getDeviceID()
 
         if 'DYN' in self.deviceID.get('CMD', '').split(','):
 
-            self.printData(pcl.buildDynamicCounter(counter))
+            self.printData(pcl.buildDynamicCounter(counter), direct=True)
 
             value, tries, times_seen, sleepy_time, max_tries = 0, 0, 0, 0.1, 20
             time.sleep(0.1)
@@ -1629,19 +1707,21 @@ class ServerDevice(BaseDevice):
 
                 time.sleep(sleepy_time)
 
-                self.__deviceID()
+                self.getDeviceID()
 
                 if 'CTR' in self.deviceID and \
                     pat_dynamic_ctr.search(self.raw_deviceID) is not None:
-
                     dev_counter, value = parseDynamicCounter(self.deviceID['CTR'], convert_to_int)
 
                     if counter == dev_counter:
-                        self.printData(pcl.buildDynamicCounter(0))
+                        self.printData(pcl.buildDynamicCounter(0), direct=True)
+                        # protect the value as a string during msg handling
+                        if not convert_to_int:
+                            value = '#' + value
                         return value
 
                 if tries > max_tries:
-                    self.printData(pcl.buildDynamicCounter(0))
+                    self.printData(pcl.buildDynamicCounter(0), direct=True)
                     return 0
 
         else:
@@ -1741,7 +1821,7 @@ class ServerDevice(BaseDevice):
                                                     value,
                                                     oid[1])))
 
-        self.printData(data, direct, False)
+        self.printData(data, direct=True)
 
 
     def printFile(self, file_name, direct=True, raw=True, remove=False):

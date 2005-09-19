@@ -1,3 +1,9 @@
+hplip (0.9.5-1) unstable; urgency=low
+
+HPLIP fully supports parallel-port devices as of version 0.9.5.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 17 Sep 2005 12:51:02 -0300
+
 hplip (0.9.4-2) unstable; urgency=low
 
 Thanks to an initial patch by Matthias Klose (from Ubuntu), HPLIP daemons

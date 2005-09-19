@@ -49,14 +49,15 @@ cups_PROGRAMS = hp$(EXEEXT)
 sbin_PROGRAMS = hpiod$(EXEEXT)
 noinst_PROGRAMS = ptest$(EXEEXT)
 DIST_COMMON = $(am__configure_deps) $(dist_base_SCRIPTS) \
-	$(dist_cmd_SCRIPTS) $(dist_hplip_DATA) $(dist_hplipdoc_DATA) \
-	$(dist_hpliplibexec_SCRIPTS) $(dist_ldl_DATA) \
-	$(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
-	$(dist_pcard_SCRIPTS) $(dist_pcl_DATA) $(dist_prnt_SCRIPTS) \
-	$(dist_ps_DATA) $(dist_scan_SCRIPTS) $(dist_ui_SCRIPTS) \
-	$(dist_xml_DATA) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure COPYING ChangeLog INSTALL config.guess \
-	config.sub depcomp install-sh ltmain.sh missing
+	$(dist_cmd_SCRIPTS) $(dist_fax_SCRIPTS) $(dist_hplip_DATA) \
+	$(dist_hplipdoc_DATA) $(dist_hpliplibexec_SCRIPTS) \
+	$(dist_ldl_DATA) $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
+	$(dist_pcard_SCRIPTS) $(dist_pcl_DATA) $(dist_plugins_SCRIPTS) \
+	$(dist_prnt_SCRIPTS) $(dist_ps_DATA) $(dist_scan_SCRIPTS) \
+	$(dist_ui_SCRIPTS) $(dist_xml_DATA) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure COPYING \
+	ChangeLog INSTALL config.guess config.sub depcomp install-sh \
+	ltmain.sh missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
@@ -74,8 +75,9 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" \
 	"$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" \
-	"$(DESTDIR)$(cmddir)" "$(DESTDIR)$(hpliplibexecdir)" \
-	"$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(prntdir)" \
+	"$(DESTDIR)$(cmddir)" "$(DESTDIR)$(faxdir)" \
+	"$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" \
+	"$(DESTDIR)$(pluginsdir)" "$(DESTDIR)$(prntdir)" \
 	"$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" \
 	"$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" \
 	"$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" \
@@ -104,7 +106,8 @@ hp_OBJECTS = $(am_hp_OBJECTS)
 hp_DEPENDENCIES = libhplip-api.la
 am_hpiod_OBJECTS = hpiod.$(OBJEXT) channel.$(OBJEXT) device.$(OBJEXT) \
 	mlc.$(OBJEXT) system.$(OBJEXT) jddevice.$(OBJEXT) \
-	jetdirect.$(OBJEXT) udevice.$(OBJEXT)
+	jetdirect.$(OBJEXT) udevice.$(OBJEXT) uppdevice.$(OBJEXT) \
+	ppdevice.$(OBJEXT) pp.$(OBJEXT)
 hpiod_OBJECTS = $(am_hpiod_OBJECTS)
 hpiod_LDADD = $(LDADD)
 am_ptest_OBJECTS = ptest.$(OBJEXT) fat.$(OBJEXT)
@@ -112,15 +115,17 @@ ptest_OBJECTS = $(am_ptest_OBJECTS)
 ptest_DEPENDENCIES = libhplip-api.la
 dist_baseSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_cmdSCRIPT_INSTALL = $(INSTALL_SCRIPT)
+dist_faxSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_hpliplibexecSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_pcardSCRIPT_INSTALL = $(INSTALL_SCRIPT)
+dist_pluginsSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_prntSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_scanSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_uiSCRIPT_INSTALL = $(INSTALL_SCRIPT)
-SCRIPTS = $(dist_base_SCRIPTS) $(dist_cmd_SCRIPTS) \
+SCRIPTS = $(dist_base_SCRIPTS) $(dist_cmd_SCRIPTS) $(dist_fax_SCRIPTS) \
 	$(dist_hpliplibexec_SCRIPTS) $(dist_noinst_SCRIPTS) \
-	$(dist_pcard_SCRIPTS) $(dist_prnt_SCRIPTS) \
-	$(dist_scan_SCRIPTS) $(dist_ui_SCRIPTS)
+	$(dist_pcard_SCRIPTS) $(dist_plugins_SCRIPTS) \
+	$(dist_prnt_SCRIPTS) $(dist_scan_SCRIPTS) $(dist_ui_SCRIPTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -303,14 +308,15 @@ dist_hplipdoc_DATA = hplip_readme.html hplip_overview.png COPYING
 dist_hplip_DATA = hplip.conf
 dist_hpliplibexec_SCRIPTS = hpssd.py __init__.py hplip.sh
 cmddir = $(hpliplibexecdir)
-dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py
+dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py levels.py
 
 # hp backend.
 cupsdir = $(CUPS_BACKEND_PATH)
 hp_SOURCES = backend/hp/hp.c 
 hp_LDADD = libhplip-api.la
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/udevice.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
+    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h\
+    io/hpiod/system.h 
 
 
 # base
@@ -318,8 +324,12 @@ basedir = $(hpliplibexecdir)/base
 dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
-    base/imagesize.py
+    base/imagesize.py base/subproc.py
 
+
+# fax
+faxdir = $(hpliplibexecdir)/fax
+dist_fax_SCRIPTS = fax/fax.py fax/__init__.py
 ptest_SOURCES = pcard/ptest.c pcard/ptest.h pcard/fat.c pcard/fat.h 
 ptest_LDADD = libhplip-api.la
 
@@ -359,7 +369,7 @@ dist_prnt_SCRIPTS = prnt/cups.py prnt/__init__.py prnt/ldl.py prnt/pcl.py prnt/c
 
 # scan
 scandir = $(hpliplibexecdir)/scan
-dist_scan_SCRIPTS = scan/__init__.py scan/pml_scanner.py scan/sane.py scan/scanner.py scan/scl.py scan/scl_scanner.py
+dist_scan_SCRIPTS = scan/__init__.py
 
 # ip and api libraries
 noinst_LTLIBRARIES = libhpip.la libhplip-api.la
@@ -402,14 +412,21 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
     ui/colorcal4form_base.py ui/printerform.py ui/printerform_base.py \
     ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
-    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
     ui/nodevicesform_base.ui ui/cleaningform_base.ui ui/colorcalform_base.ui ui/devmgr4_base.ui ui/loadpaperform_base.ui \
     ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
+    ui/colorcal4form_base.ui ui/printerform_base.ui \
     ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
-    ui/colorcal4form_base.ui ui/printerform_base.ui
+    plugins/powersettingsdialog_base.ui ui/align10form_base.ui
+
+
+# ui plugins
+pluginsdir = $(hpliplibexecdir)/plugins
+dist_plugins_SCRIPTS = plugins/dj450.py plugins/__init__.py plugins/powersettings.py plugins/powersettingsdialog.py \
+    plugins/powersettingsdialog_base.py 
 
 all: all-recursive
 
@@ -600,6 +617,25 @@ uninstall-dist_cmdSCRIPTS:
 	  echo " rm -f '$(DESTDIR)$(cmddir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(cmddir)/$$f"; \
 	done
+install-dist_faxSCRIPTS: $(dist_fax_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(faxdir)" || $(mkdir_p) "$(DESTDIR)$(faxdir)"
+	@list='$(dist_fax_SCRIPTS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f $$d$$p; then \
+	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	    echo " $(dist_faxSCRIPT_INSTALL) '$$d$$p' '$(DESTDIR)$(faxdir)/$$f'"; \
+	    $(dist_faxSCRIPT_INSTALL) "$$d$$p" "$(DESTDIR)$(faxdir)/$$f"; \
+	  else :; fi; \
+	done
+
+uninstall-dist_faxSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_fax_SCRIPTS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	  echo " rm -f '$(DESTDIR)$(faxdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(faxdir)/$$f"; \
+	done
 install-dist_hpliplibexecSCRIPTS: $(dist_hpliplibexec_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	test -z "$(hpliplibexecdir)" || $(mkdir_p) "$(DESTDIR)$(hpliplibexecdir)"
@@ -637,6 +673,25 @@ uninstall-dist_pcardSCRIPTS:
 	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
 	  echo " rm -f '$(DESTDIR)$(pcarddir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(pcarddir)/$$f"; \
+	done
+install-dist_pluginsSCRIPTS: $(dist_plugins_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(pluginsdir)" || $(mkdir_p) "$(DESTDIR)$(pluginsdir)"
+	@list='$(dist_plugins_SCRIPTS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f $$d$$p; then \
+	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	    echo " $(dist_pluginsSCRIPT_INSTALL) '$$d$$p' '$(DESTDIR)$(pluginsdir)/$$f'"; \
+	    $(dist_pluginsSCRIPT_INSTALL) "$$d$$p" "$(DESTDIR)$(pluginsdir)/$$f"; \
+	  else :; fi; \
+	done
+
+uninstall-dist_pluginsSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_plugins_SCRIPTS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	  echo " rm -f '$(DESTDIR)$(pluginsdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pluginsdir)/$$f"; \
 	done
 install-dist_prntSCRIPTS: $(dist_prnt_SCRIPTS)
 	@$(NORMAL_INSTALL)
@@ -716,10 +771,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfpdtf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mlc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pml.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppdevice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/udevice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/uppdevice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xbi2gray.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xchgbpp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xcolrspc.Plo@am__quote@
@@ -1198,6 +1256,48 @@ udevice.obj: io/hpiod/udevice.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o udevice.obj `if test -f 'io/hpiod/udevice.cpp'; then $(CYGPATH_W) 'io/hpiod/udevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/udevice.cpp'; fi`
 
+uppdevice.o: io/hpiod/uppdevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT uppdevice.o -MD -MP -MF "$(DEPDIR)/uppdevice.Tpo" -c -o uppdevice.o `test -f 'io/hpiod/uppdevice.cpp' || echo '$(srcdir)/'`io/hpiod/uppdevice.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/uppdevice.Tpo" "$(DEPDIR)/uppdevice.Po"; else rm -f "$(DEPDIR)/uppdevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/uppdevice.cpp' object='uppdevice.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o uppdevice.o `test -f 'io/hpiod/uppdevice.cpp' || echo '$(srcdir)/'`io/hpiod/uppdevice.cpp
+
+uppdevice.obj: io/hpiod/uppdevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT uppdevice.obj -MD -MP -MF "$(DEPDIR)/uppdevice.Tpo" -c -o uppdevice.obj `if test -f 'io/hpiod/uppdevice.cpp'; then $(CYGPATH_W) 'io/hpiod/uppdevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/uppdevice.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/uppdevice.Tpo" "$(DEPDIR)/uppdevice.Po"; else rm -f "$(DEPDIR)/uppdevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/uppdevice.cpp' object='uppdevice.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o uppdevice.obj `if test -f 'io/hpiod/uppdevice.cpp'; then $(CYGPATH_W) 'io/hpiod/uppdevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/uppdevice.cpp'; fi`
+
+ppdevice.o: io/hpiod/ppdevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ppdevice.o -MD -MP -MF "$(DEPDIR)/ppdevice.Tpo" -c -o ppdevice.o `test -f 'io/hpiod/ppdevice.cpp' || echo '$(srcdir)/'`io/hpiod/ppdevice.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/ppdevice.Tpo" "$(DEPDIR)/ppdevice.Po"; else rm -f "$(DEPDIR)/ppdevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/ppdevice.cpp' object='ppdevice.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ppdevice.o `test -f 'io/hpiod/ppdevice.cpp' || echo '$(srcdir)/'`io/hpiod/ppdevice.cpp
+
+ppdevice.obj: io/hpiod/ppdevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ppdevice.obj -MD -MP -MF "$(DEPDIR)/ppdevice.Tpo" -c -o ppdevice.obj `if test -f 'io/hpiod/ppdevice.cpp'; then $(CYGPATH_W) 'io/hpiod/ppdevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/ppdevice.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/ppdevice.Tpo" "$(DEPDIR)/ppdevice.Po"; else rm -f "$(DEPDIR)/ppdevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/ppdevice.cpp' object='ppdevice.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ppdevice.obj `if test -f 'io/hpiod/ppdevice.cpp'; then $(CYGPATH_W) 'io/hpiod/ppdevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/ppdevice.cpp'; fi`
+
+pp.o: io/hpiod/pp.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pp.o -MD -MP -MF "$(DEPDIR)/pp.Tpo" -c -o pp.o `test -f 'io/hpiod/pp.cpp' || echo '$(srcdir)/'`io/hpiod/pp.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/pp.Tpo" "$(DEPDIR)/pp.Po"; else rm -f "$(DEPDIR)/pp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/pp.cpp' object='pp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pp.o `test -f 'io/hpiod/pp.cpp' || echo '$(srcdir)/'`io/hpiod/pp.cpp
+
+pp.obj: io/hpiod/pp.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pp.obj -MD -MP -MF "$(DEPDIR)/pp.Tpo" -c -o pp.obj `if test -f 'io/hpiod/pp.cpp'; then $(CYGPATH_W) 'io/hpiod/pp.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/pp.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/pp.Tpo" "$(DEPDIR)/pp.Po"; else rm -f "$(DEPDIR)/pp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/pp.cpp' object='pp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pp.obj `if test -f 'io/hpiod/pp.cpp'; then $(CYGPATH_W) 'io/hpiod/pp.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/pp.cpp'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -1445,7 +1545,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/base $(distdir)/data/ldl $(distdir)/data/pcl $(distdir)/data/ps $(distdir)/data/xml $(distdir)/pcard $(distdir)/pcard/pcardext $(distdir)/prnt $(distdir)/prnt/cupsext $(distdir)/scan $(distdir)/ui
+	$(mkdir_p) $(distdir)/base $(distdir)/data/ldl $(distdir)/data/pcl $(distdir)/data/ps $(distdir)/data/xml $(distdir)/fax $(distdir)/pcard $(distdir)/pcard/pcardext $(distdir)/plugins $(distdir)/prnt $(distdir)/prnt/cupsext $(distdir)/scan $(distdir)/ui
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -1589,7 +1689,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"; do \
+	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(faxdir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(pluginsdir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -1640,9 +1740,10 @@ info: info-recursive
 info-am:
 
 install-data-am: install-cupsPROGRAMS install-dist_baseSCRIPTS \
-	install-dist_cmdSCRIPTS install-dist_hplipDATA \
-	install-dist_hplipdocDATA install-dist_ldlDATA \
-	install-dist_pcardSCRIPTS install-dist_pclDATA \
+	install-dist_cmdSCRIPTS install-dist_faxSCRIPTS \
+	install-dist_hplipDATA install-dist_hplipdocDATA \
+	install-dist_ldlDATA install-dist_pcardSCRIPTS \
+	install-dist_pclDATA install-dist_pluginsSCRIPTS \
 	install-dist_prntSCRIPTS install-dist_psDATA \
 	install-dist_scanSCRIPTS install-dist_uiSCRIPTS \
 	install-dist_xmlDATA install-saneLTLIBRARIES
@@ -1681,10 +1782,11 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-cupsPROGRAMS uninstall-dist_baseSCRIPTS \
-	uninstall-dist_cmdSCRIPTS uninstall-dist_hplipDATA \
-	uninstall-dist_hplipdocDATA uninstall-dist_hpliplibexecSCRIPTS \
-	uninstall-dist_ldlDATA uninstall-dist_pcardSCRIPTS \
-	uninstall-dist_pclDATA uninstall-dist_prntSCRIPTS \
+	uninstall-dist_cmdSCRIPTS uninstall-dist_faxSCRIPTS \
+	uninstall-dist_hplipDATA uninstall-dist_hplipdocDATA \
+	uninstall-dist_hpliplibexecSCRIPTS uninstall-dist_ldlDATA \
+	uninstall-dist_pcardSCRIPTS uninstall-dist_pclDATA \
+	uninstall-dist_pluginsSCRIPTS uninstall-dist_prntSCRIPTS \
 	uninstall-dist_psDATA uninstall-dist_scanSCRIPTS \
 	uninstall-dist_uiSCRIPTS uninstall-dist_xmlDATA \
 	uninstall-info-am uninstall-saneLTLIBRARIES \
@@ -1703,10 +1805,11 @@ uninstall-info: uninstall-info-recursive
 	dvi-am html html-am info info-am install install-am \
 	install-cupsPROGRAMS install-data install-data-am \
 	install-data-hook install-dist_baseSCRIPTS \
-	install-dist_cmdSCRIPTS install-dist_hplipDATA \
-	install-dist_hplipdocDATA install-dist_hpliplibexecSCRIPTS \
-	install-dist_ldlDATA install-dist_pcardSCRIPTS \
-	install-dist_pclDATA install-dist_prntSCRIPTS \
+	install-dist_cmdSCRIPTS install-dist_faxSCRIPTS \
+	install-dist_hplipDATA install-dist_hplipdocDATA \
+	install-dist_hpliplibexecSCRIPTS install-dist_ldlDATA \
+	install-dist_pcardSCRIPTS install-dist_pclDATA \
+	install-dist_pluginsSCRIPTS install-dist_prntSCRIPTS \
 	install-dist_psDATA install-dist_scanSCRIPTS \
 	install-dist_uiSCRIPTS install-dist_xmlDATA install-exec \
 	install-exec-am install-exec-hook install-info install-info-am \
@@ -1718,9 +1821,10 @@ uninstall-info: uninstall-info-recursive
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-cupsPROGRAMS \
 	uninstall-dist_baseSCRIPTS uninstall-dist_cmdSCRIPTS \
-	uninstall-dist_hplipDATA uninstall-dist_hplipdocDATA \
-	uninstall-dist_hpliplibexecSCRIPTS uninstall-dist_ldlDATA \
-	uninstall-dist_pcardSCRIPTS uninstall-dist_pclDATA \
+	uninstall-dist_faxSCRIPTS uninstall-dist_hplipDATA \
+	uninstall-dist_hplipdocDATA uninstall-dist_hpliplibexecSCRIPTS \
+	uninstall-dist_ldlDATA uninstall-dist_pcardSCRIPTS \
+	uninstall-dist_pclDATA uninstall-dist_pluginsSCRIPTS \
 	uninstall-dist_prntSCRIPTS uninstall-dist_psDATA \
 	uninstall-dist_scanSCRIPTS uninstall-dist_uiSCRIPTS \
 	uninstall-dist_xmlDATA uninstall-info-am \

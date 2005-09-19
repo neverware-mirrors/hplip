@@ -151,98 +151,6 @@ int System::ReadConfig()
    return 0;
 }
 
-//System::Write
-//!  Kernel write with timeout. File descriptor must be opened with O_NONBLOCK.
-/*!
-******************************************************************************/
-int System::Write(int fd, const void *buf, int size)
-{
-   struct timeval tmo;
-   fd_set master;
-   fd_set writefd;
-   int maxfd, ret, len=0;
-
-   if (fd<0)
-   {
-      syslog(LOG_ERR, "invalid System::Write: %d\n", fd);  /* extra sanity check */
-      len = -2;
-      goto bugout;
-   }
-
-   FD_ZERO(&master);
-   FD_SET(fd, &master);
-   maxfd = fd;
-   tmo.tv_sec = EXCEPTION_TIMEOUT;
-   tmo.tv_usec = 0;
-
-   while(1)
-   {
-      writefd = master;
-      if ((ret = select(maxfd+1, NULL, &writefd, NULL, &tmo)) == 0)
-      {
-         len = -1;
-         break;   /* timeout */
-      }
-      len = write(fd, buf, size);
-      if (len < 0)
-         if (errno == EAGAIN)
-            continue;
-      break;
-   }
-
-bugout:
-   return len;
-}
-
-//System::Read
-//!  Kernel read with timeout. File descriptor must be opened with O_NONBLOCK.
-/*!
-******************************************************************************/
-int System::Read(int fd, void *buf, int size, int sec, int usec)
-{
-   struct timeval tmo;
-   fd_set master;
-   fd_set readfd;
-   int maxfd, ret, len=0;
-
-   if (fd<0)
-   {
-      syslog(LOG_ERR, "invalid System::Read: %d\n", fd);  /* extra sanity check */
-      len = -2;
-      goto bugout;
-   }
-
-   FD_ZERO(&master);
-   FD_SET(fd, &master);
-   maxfd = fd;
-   tmo.tv_sec = sec;
-   tmo.tv_usec = usec;
-
-   while(1)
-   {
-      readfd = master;
-      if ((ret = select(maxfd+1, &readfd, NULL, NULL, &tmo)) == 0)
-      {
-         len = -1;
-         break;   /* timeout */
-      }
-      len = read(fd, buf, size);
-      if (len == 0)
-      {
-         // Zero reads wasts cpu resources, but this appears to be normal. 
-         //         syslog(LOG_ERR, "zero read\n");   
-         continue;
-      }
-      if (len < 0)
-         if (errno == EAGAIN)
-            continue;
-      break;
-   }
-
-bugout:
-   return len;
-}
-
 //System::GetPair
 //!  Get key value pair from buffer. Assumes one key value pair per line.
 //!  Note, end-of-line '/n' is stripped out. Both key/value pairs are zero
@@ -316,7 +224,7 @@ int System::IsHP(char *id)
 }
 
 //System::IsUdev
-//! Given a usb device node, determine if this is a udev node (a non-legacy device node).
+//! Given a usb or parallel device node, determine if this is a udev node (a non-legacy device node).
 /*!
 ******************************************************************************/
 int System::IsUdev(char *dnode)
@@ -328,9 +236,16 @@ int System::IsUdev(char *dnode)
       return 1;
 
    p+=11;
-
    n = strtol(p, &tail, 10);
    if (n < 0 || n > 15)
+     return 1;
+
+   if ((p = strstr(dnode, "/dev/parport")) == NULL)
+      return 1;
+
+   p+=12;
+   n = strtol(p, &tail, 10);
+   if (n < 0 || n > 3)
      return 1;
 
    return 0; /* looks like a legacy device node */
@@ -417,7 +332,14 @@ int System::GetURIDataLink(char *uri, char *buf, int bufSize)
 
    buf[0] = 0;
 
-   if (strcasestr(uri, "usb/") != NULL)
+   if (strcasestr(uri, "hp:/usb") != NULL)
+   {
+      if ((p = strcasestr(uri, "device=")) != NULL)
+         p+=7;
+      else
+         return 0;
+   }
+   else if (strcasestr(uri, "hp:/par") != NULL)
    {
       if ((p = strcasestr(uri, "device=")) != NULL)
          p+=7;
@@ -523,7 +445,7 @@ int System::GeneralizeURI(MsgAttributes *ma)
    int i, len, found=0, result;
    Device *pD;
 
-   if (strcasestr(ma->uri, "usb/") == NULL && strcasestr(ma->uri, "net/") == NULL)
+   if (strcasestr(ma->uri, "hp:/usb") == NULL && strcasestr(ma->uri, "hp:/net") == NULL && strcasestr(ma->uri, "hp:/par") == NULL)
       return 1;  /* invalid uri */
 
    if (strcasestr(ma->uri, "device=") != NULL)
@@ -586,7 +508,7 @@ int System::UsbDiscovery(char *lst, int *cnt)
    int i, len, size=0, result;
    Device *pD;
 
-   for (*cnt=0, i=0; i < 16; i++)
+   for (i=0; i < 16; i++)
    {
       ma2.prt_mode = RAW_MODE;
       sprintf(ma2.uri, "hp:/usb/ANY?device=/dev/usb/lp%d", i);
@@ -617,17 +539,71 @@ int System::UsbDiscovery(char *lst, int *cnt)
    return size;
 }
 
+//System::ParDiscovery
+//! Walk the parallel ports looking for HP products. 
+/*!
+******************************************************************************/
+int System::ParDiscovery(char *lst, int *cnt)
+{
+   MsgAttributes ma2;
+   char dev[255];
+   char model[128];
+   char sendBuf[2048];
+   char *id;
+   int i, len, size=0, result;
+   Device *pD;
+
+   for (i=0; i < 4; i++)
+   {
+      ma2.prt_mode = RAW_MODE;
+      sprintf(ma2.uri, "hp:/par/ANY?device=/dev/parport%d", i);
+
+      pD = NewDevice(&ma2);
+      len = pD->Open(sendBuf, &result);
+      if (result == R_AOK)
+      {
+         id = pD->GetID(); /* use cached copy */
+
+         if (id[0] != 0 && IsHP(id))
+         {
+            GetModel(id, model, sizeof(model));
+            sprintf(dev, "hp:/par/%s?device=/dev/parport%d", model, i);
+            size += sprintf(lst+size,"direct %s \"HP %s\" \"%s\"\n", dev, model, dev);
+            *cnt+=1;
+         }
+      }
+
+      pD->Close(sendBuf, &result);
+      DelDevice(pD->GetIndex());
+   }
+
+   return size;
+}
+
 //System::ProbeDevices
 //!  Perform hp device discovery. Works simultaneously with other open clients.
 /*!
 ******************************************************************************/
-int System::ProbeDevices(char *sendBuf)
+int System::ProbeDevices(char *sendBuf, char *bus)
 {
    char lst[LINE_SIZE*MAX_DEVICE];
-   int len, lstLen, cnt;
+   int len, lstLen, cnt=0;
 
    lst[0] = 0;
-   lstLen = UsbDiscovery(lst, &cnt);
+
+   if (strcasecmp(bus, "usb") == 0)
+   {
+      lstLen = UsbDiscovery(lst, &cnt);
+   }
+   else if (strcasecmp(bus, "par") == 0)
+   {
+      lstLen = ParDiscovery(lst, &cnt);
+   }
+   else
+   {
+      lstLen = UsbDiscovery(lst, &cnt);
+      lstLen += ParDiscovery(lst+lstLen, &cnt);
+   }
 
    len = sprintf(sendBuf, "msg=ProbeDevicesResult\nresult-code=%d\nnum-devices=%d\nlength=%d\ndata:\n%s", R_AOK, cnt, lstLen, lst); 
 
@@ -920,7 +896,17 @@ int System::SetPml(int device, int channel, char *snmp_oid, int type, unsigned c
       goto bugout;       
    }   
       
-   if (strcasestr(pD->GetURI(), "usb/") != NULL)
+   if (strcasestr(pD->GetURI(), "net/") != NULL)
+   {
+      /* Process pml via snmp. */
+      SetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, type, data, dataLen, &status, &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }
+   }       
+   else
    {
       /* Process pml via local transport. */
 
@@ -946,7 +932,7 @@ int System::SetPml(int device, int channel, char *snmp_oid, int type, unsigned c
       }    
 
       len = pD->ReadData(PML_MAX_DATALEN, channel, EXCEPTION_TIMEOUT, message, sizeof(message), &result);
-      if (result != R_AOK)
+      if (result != R_AOK || len == 0)
       {
          len = sprintf(sendBuf, res, R_IO_ERROR);
          goto bugout;       
@@ -966,16 +952,6 @@ int System::SetPml(int device, int channel, char *snmp_oid, int type, unsigned c
          goto bugout;       
       }   
    }
-   else
-   {
-      /* Process pml via snmp. */
-      SetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, type, data, dataLen, &status, &result);
-      if (result != R_AOK)
-      {
-         len = sprintf(sendBuf, res, R_IO_ERROR);
-         goto bugout;       
-      }
-   }       
    
    len = sprintf(sendBuf, "msg=SetPMLResult\nresult-code=%d\npml-result-code=%d\n", R_AOK, status); 
 
@@ -998,7 +974,18 @@ int System::GetPml(int device, int channel, char *snmp_oid, char *sendBuf)
    MsgAttributes ma;
    Device *pD=pDevice[device];
 
-   if (strcasestr(pD->GetURI(), "usb/") != NULL)
+   if (strcasestr(pD->GetURI(), "net/") != NULL)
+   {
+      /* Process pml via snmp. */
+      dLen = GetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, (unsigned char *)message, sizeof(message), &dt, &status, &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }
+      p = (unsigned char *)message;    
+   }       
+   else
    {
       /* Process pml via local transport. */
 
@@ -1017,7 +1004,7 @@ int System::GetPml(int device, int channel, char *snmp_oid, char *sendBuf)
       }    
 
       len = pD->ReadData(PML_MAX_DATALEN, channel, EXCEPTION_TIMEOUT, message, sizeof(message), &result);
-      if (result != R_AOK)
+      if (result != R_AOK || len == 0)
       {
          len = sprintf(sendBuf, res, R_IO_ERROR);
          goto bugout;       
@@ -1060,17 +1047,6 @@ int System::GetPml(int device, int channel, char *snmp_oid, char *sendBuf)
       dLen = ((*p & 0x3) << 8 | *(p+1));         /* read 10 bit len from 2 byte field */
       p += 2;                               /* eat type and length */
    }
-   else
-   {
-      /* Process pml via snmp. */
-      dLen = GetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, (unsigned char *)message, sizeof(message), &dt, &status, &result);
-      if (result != R_AOK)
-      {
-         len = sprintf(sendBuf, res, R_IO_ERROR);
-         goto bugout;       
-      }
-      p = (unsigned char *)message;    
-   }       
    
    len = sprintf(sendBuf, "msg=GetPMLResult\nresult-code=%d\npml-result-code=%d\ntype=%d\nlength=%d\ndata:\n", R_AOK, status, dt, dLen); 
    memcpy(&sendBuf[len], p, dLen);
@@ -1118,11 +1094,11 @@ bugout:
    return len;
 }
 
-//System::MakeUriFromDevice
-//!  Given an device node read deviceID and create valid URI.
+//System::MakeUriFromUsb
+//!  Given a device node read deviceID and create valid URI.
 /*!
 ******************************************************************************/
-int System::MakeUriFromDevice(char *dnode, char *sendBuf)
+int System::MakeUriFromUsb(char *dnode, char *sendBuf)
 {
    char res[] = "msg=MakeURIResult\nresult-code=%d\n";
    MsgAttributes ma;
@@ -1137,7 +1113,7 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
 
    if (dnode[0]==0)
    {
-      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromUsb: %s %d\n", dnode, __FILE__, __LINE__);
       goto bugout;
    }
 
@@ -1148,7 +1124,7 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
    pD->Open(dummyBuf, &result);
    if (result != R_AOK)
    {
-      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromPP: %s %d\n", dnode, __FILE__, __LINE__);
       goto bugout;
    }
 
@@ -1156,7 +1132,7 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
 
    if (!IsHP(id))
    {
-      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromPP: %s %d\n", dnode, __FILE__, __LINE__);
       goto bugout;
    }
 
@@ -1166,6 +1142,61 @@ int System::MakeUriFromDevice(char *dnode, char *sendBuf)
       len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/usb/%s?device=%s\n", R_AOK, model, dnode); 
    else
       len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/usb/%s?serial=%s\n", R_AOK, model, serial); 
+
+bugout:
+   if (pD != NULL)
+   {
+      pD->Close(dummyBuf, &result);
+      DelDevice(pD->GetIndex());
+   }
+
+   return len;
+}
+
+//System::MakeUriFromPar
+//!  Given a device node read deviceID and create valid URI.
+/*!
+******************************************************************************/
+int System::MakeUriFromPar(char *dnode, char *sendBuf)
+{
+   char res[] = "msg=MakeURIResult\nresult-code=%d\n";
+   MsgAttributes ma;
+   char model[128];
+   char dummyBuf[2048];
+   char *id;
+   int len, result;
+   Device *pD=NULL;
+
+   len = sprintf(sendBuf, res, R_INVALID_DEVICE_NODE);
+
+   if (dnode[0]==0)
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromPar: %s %d\n", dnode, __FILE__, __LINE__);
+      goto bugout;
+   }
+
+   ma.prt_mode = RAW_MODE;
+
+   sprintf(ma.uri, "hp:/par/ANY?device=%s", dnode);  /* dnode = /dev/parportx or /dev/udev_name */
+
+   pD = NewDevice(&ma);
+   pD->Open(dummyBuf, &result);
+   if (result != R_AOK)
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromPar: %s %d\n", dnode, __FILE__, __LINE__);
+      goto bugout;
+   }
+
+   id = pD->GetID(); /* use cached copy */
+
+   if (!IsHP(id))
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromPar: %s %d\n", dnode, __FILE__, __LINE__);
+      goto bugout;
+   }
+
+   GetModel(id, model, sizeof(model));
+   len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/par/%s?device=%s\n", R_AOK, model, dnode); 
 
 bugout:
    if (pD != NULL)
@@ -1194,6 +1225,7 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
    ma->oid[0] = 0;
    ma->ip[0] = 0;
    ma->dnode[0] = 0;
+   ma->bus[0] = 0;
    ma->prt_mode = UNI_MODE;
    ma->mfp_mode = MLC_MODE;
    ma->flow_ctl = GUSHER;
@@ -1263,6 +1295,12 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       else if (strcasecmp(key, "timeout") == 0)
       {
          ma->timeout = strtol(value, &tail2, 10);
+         if (ma->timeout < 0 || ma->timeout > 120)
+         {
+            syslog(LOG_ERR, "invalid timeout:%d\n", ma->timeout);
+            ret = R_INVALID_TIMEOUT;
+            break;
+         }
       }
       else if (strcasecmp(key, "length") == 0)
       {
@@ -1330,6 +1368,10 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       {
          strncpy(ma->ip, value, sizeof(ma->ip));
       }
+      else if (strcasecmp(key, "bus") == 0)
+      {
+         strncpy(ma->bus, value, sizeof(ma->bus));
+      }
       else if (strcasecmp(key, "port") == 0)
       {
          ma->ip_port = strtol(value, &tail2, 10);
@@ -1339,10 +1381,6 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
             ret = R_INVALID_IP_PORT;
             break;
          }
-      }
-      else if (strcasecmp(key, "type") == 0)
-      {
-         ma->ip_port = strtol(value, &tail2, 10);
       }
       else if (strcasecmp(key, "device-file") == 0)
       {
@@ -1429,7 +1467,7 @@ Device *System::NewDevice(MsgAttributes *ma)
             pD->SetClientCnt(pD->GetClientCnt()+1);
 
             /* If existing ProbeDevice/GeneralizeURI set DeviceOpen attributes. */
-	    if (strncmp(pD->GetURI(), "ANY?", 4) == 0)
+            if (strncmp(pD->GetURI(), "ANY?", 4) == 0)
             {
                pD->SetPrintMode(ma->prt_mode);            /* io mode for printing */
                pD->SetMfpMode(ma->mfp_mode);              /* io mode for mfp functions */
@@ -1449,14 +1487,14 @@ Device *System::NewDevice(MsgAttributes *ma)
    {
       if (pDevice[i] == NULL)
       {
-         if (strcasestr(ma->uri, "usb/") != NULL)
+         if (strcasestr(ma->uri, "hp:/usb") != NULL)
          {
             if (ma->prt_mode == UNI_MODE)
             {
 //               syslog(LOG_INFO, "using uni-di backend for %s\n", ma->uri);
                pD = new UniUsbDevice(this);
             }
-	    else
+            else
             {
                pD = new UsbDevice(this);
                pD->SetPrintMode(ma->prt_mode);            /* io mode for printing */
@@ -1464,18 +1502,27 @@ Device *System::NewDevice(MsgAttributes *ma)
                pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
             }
          }
-         else if (strcasestr(ma->uri, "net/") != NULL)
+         else if (strcasestr(ma->uri, "hp:/net") != NULL)
          {
             pD = new JetDirectDevice(this);
             pD->SetScanPort(ma->scan_port);            /* network scan port selection */ 
          }
-         else if (strcasestr(ma->uri, "par/") !=NULL)
+         else if (strcasestr(ma->uri, "hp:/par") !=NULL)
          {
-            /* TODO: Check for UniParDevice here. */ 
-//            pD = new ParDevice(this);
-            goto bugout;
+            if (ma->prt_mode == UNI_MODE)
+            {
+//               syslog(LOG_INFO, "using uni-di backend for %s\n", ma->uri);
+               pD = new UniParDevice(this);
+            }
+            else
+            {
+               pD = new ParDevice(this);
+               pD->SetPrintMode(ma->prt_mode);            /* io mode for printing */
+               pD->SetMfpMode(ma->mfp_mode);              /* io mode for mfp functions */
+               pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
+            }
          }
-	 else
+         else
          {
             goto bugout;
          }
@@ -1549,7 +1596,13 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    Device *pD;
 
    if ((ret = ParseMsg(recvBuf, rlen, &ma)) != R_AOK)
-      return (sprintf(sendBuf, ERR_MSG, ret));
+   {
+#ifdef HPIOD_DEBUG
+      sysdump(recvBuf, rlen);
+#endif 
+      len = sprintf(sendBuf, ERR_MSG, ret);
+      goto bugout;
+   }
 
 #ifdef HPIOD_DEBUG
    if (ma.length == 0)
@@ -1559,10 +1612,15 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    }
    else
    {
-      syslog(LOG_INFO, "tid:%x %s di=%d ci=%d oid=%s size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.oid, ma.length);
+      syslog(LOG_INFO, "tid:%x %s di=%d ci=%d oid=%s pml_type=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.oid, ma.type, ma.length);
       if (ma.length < 64)
-	sysdump(ma.data, ma.length);
+        sysdump(ma.data, ma.length);
    }
+   //   if (ma.descriptor > 0 && pDevice[ma.descriptor])
+   //   {
+   //      pD = pDevice[ma.descriptor];
+   //      syslog(LOG_INFO, "fd=%d clientcnt=%d channelcnt=%d channelmode=%d\n", pD->GetOpenFD(), pD->GetClientCnt(), pD->GetChannelCnt(), pD->GetChannelMode());
+   //   } 
 #endif
 
    if (strcasecmp(ma.cmd, "DeviceID") == 0) 
@@ -1635,7 +1693,7 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    }
    else if (strcasecmp(ma.cmd, "ProbeDevices") == 0)
    {
-      len = ProbeDevices(sendBuf);       
+      len = ProbeDevices(sendBuf, ma.bus);       
    }
    else if (strcasecmp(ma.cmd, "DeviceFile") == 0)
    {
@@ -1645,8 +1703,10 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    {
       if (ma.ip[0])
          len = MakeUriFromIP(ma.ip, ma.ip_port, sendBuf);
+      else if (strcasecmp(ma.bus, "par") == 0) 
+         len = MakeUriFromPar(ma.dnode, sendBuf);    
       else 
-         len = MakeUriFromDevice(ma.dnode, sendBuf);     
+         len = MakeUriFromUsb(ma.dnode, sendBuf);    
    }
    else
    {
@@ -1654,6 +1714,8 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
       syslog(LOG_ERR, "invalid message:%s\n", ma.cmd);
       len = sprintf(sendBuf, ERR_MSG, R_INVALID_MESSAGE);
    }
+
+bugout:
 
 #ifdef HPIOD_DEBUG
    ParseMsg(sendBuf, len, &ma);
@@ -1665,7 +1727,7 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    {
       syslog(LOG_INFO, "-tid:%x %s di=%d ci=%d result=%d pml_result=%d pml_type=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.result, ma.pml_result, ma.type, ma.length);
       if (ma.length < 64)
-	sysdump(ma.data, ma.length);
+        sysdump(ma.data, ma.length);
    }
 #endif
 

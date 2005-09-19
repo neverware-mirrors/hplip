@@ -1,44 +1,14 @@
-#! /bin/sh
+#!/bin/sh /usr/share/dpatch/dpatch-run
 ## 14_charsign_fixes.dpatch by  <hmh@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fixes all sort of unsigned char -> signed char bogonness
 ## DP: I hate winblows C coders :-)
 
-if [ $# -ne 1 ]; then
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
-
-case "$1" in
-       -patch) patch $patch_opts -p1 < $0;;
-       -unpatch) patch $patch_opts -p1 -R < $0;;
-        *)
-                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-                exit 1;;
-esac
-
-exit 0
-
 @DPATCH@
-diff -urNad --exclude=CVS --exclude=.svn ./backend/hp/hp.c ./backend/hp/hp.c
---- ./backend/hp/hp.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./backend/hp/hp.c	2005-08-06 01:38:00.061235626 -0300
-@@ -204,7 +204,7 @@
-    {
-       /* No S-field, use status register instead of device id. */ 
-       unsigned char status;
--      hplip_GetStatus(hd, &status, 1);      
-+      hplip_GetStatus(hd, (char *) &status, 1);
-       if (DEVICE_IS_OOP(status))
-          vstatus = VSTATUS_OOPA;
-       else if (DEVICE_PAPER_JAMMED(status))
 diff -urNad --exclude=CVS --exclude=.svn ./ip/xpnm.c ./ip/xpnm.c
---- ./ip/xpnm.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./ip/xpnm.c	2005-08-06 01:38:00.062235499 -0300
+--- ./ip/xpnm.c	2005-09-17 00:43:39.000000000 -0300
++++ ./ip/xpnm.c	2005-09-17 13:11:55.584213598 -0300
 @@ -422,7 +422,7 @@
          *pdwInputNextPos  = g->dwInNextPos;
          *pdwOutputThisPos = g->dwOutNextPos;
@@ -48,78 +18,10 @@ diff -urNad --exclude=CVS --exclude=.svn ./ip/xpnm.c ./ip/xpnm.c
              DWORD maxval=(2<<((g->traits.iBitsPerPixel/
                  g->traits.iComponentsPerPixel)-1))-1;
              int len;
-diff -urNad --exclude=CVS --exclude=.svn ./pcard/fat.c ./pcard/fat.c
---- ./pcard/fat.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./pcard/fat.c	2005-08-06 01:38:00.062235499 -0300
-@@ -221,7 +221,7 @@
-    uint8_t *p12=NULL;
-    int i, total=0;
- 
--   if (strcmp(bpb.SystemID, "FAT12") == 0)
-+   if (strcmp((char*)bpb.SystemID, "FAT12") == 0)
-    {
-       if ((p12 = malloc(da.Fat12Size)) == NULL)
-          goto bugout;
-@@ -463,7 +463,7 @@
-    RootSetCWD();
-    fatsize = bpb.SectorsPerFat * FAT_HARDSECT;
-    
--   if (strcmp(bpb.SystemID, "FAT12") == 0)
-+   if (strcmp((char*)bpb.SystemID, "FAT12") == 0)
-    {
-       da.Fat12Size = fatsize;
-       if ((da.Fat12 = (uint8_t *)malloc(da.Fat12Size)) == NULL)
-@@ -529,8 +529,8 @@
-     pa->ReservedSectors = bpb.ReservedSectors;
-     pa->SectorsPerFat = bpb.SectorsPerFat;
-     pa->RootEntries = bpb.RootEntries;
--    strncpy( pa->SystemID, bpb.SystemID, 8 );
--    strncpy( pa->VolumeLabel, bpb.VolumeLabel, 11 );
-+    strncpy( (char*) pa->SystemID, (char*) bpb.SystemID, 8 );
-+    strncpy( (char*) pa->VolumeLabel, (char*) bpb.VolumeLabel, 11 );
-     pa->WriteProtect = da.WriteProtect;
-     
-     return 0;
-diff -urNad --exclude=CVS --exclude=.svn ./pcard/ptest.c ./pcard/ptest.c
---- ./pcard/ptest.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./pcard/ptest.c	2005-08-06 01:38:00.063235373 -0300
-@@ -281,9 +281,9 @@
-       if (ma.ndevice == 1)
-       {
-          /* Only one device connected make this the default uri. */
--         for (i=0; (strncmp(&ma.data[i], "hp:", 3) != 0) && (i < LINE_SIZE); i++)  /* find start of uri */
-+         for (i=0; (strncmp((char *) &ma.data[i], "hp:", 3) != 0) && (i < LINE_SIZE); i++)  /* find start of uri */
-             ;
--         pBeg = ma.data + i;
-+         pBeg = (char*) ma.data + i;
-          for (i=0; *pBeg != ' ' && (i < urisize); i++, pBeg++)  /* copy uri */
-             uri[i] = *pBeg;
-          uri[i] = 0;      /* zero terminate */
-diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/io.c ./scan/sane/io.c
---- ./scan/sane/io.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./scan/sane/io.c	2005-08-06 01:38:00.063235373 -0300
-@@ -292,7 +292,7 @@
-         *devices = malloc( sizeof( SANE_Device * ) * ( ma.ndevice + 1 ) );
- 
-         int remaining = ma.length;
--        char * p = ma.data;
-+        char * p = (char *)ma.data;
- 
-         int state = 0;
- 
-@@ -484,7 +484,7 @@
-    {
-       len = size > BUFFER_SIZE ? BUFFER_SIZE : size;
-         
--      n = hplip_ReadHP(deviceid, channelid, buffer+total, len, timeout);
-+      n = hplip_ReadHP(deviceid, channelid, (char *)buffer+total, len, timeout);
-       if (n <= 0)
-       {
-          break;    /* error or timeout */
 diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
---- ./scan/sane/pml.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./scan/sane/pml.c	2005-08-06 01:38:00.064235247 -0300
-@@ -330,7 +330,7 @@
+--- ./scan/sane/pml.c	2005-09-17 00:43:57.000000000 -0300
++++ ./scan/sane/pml.c	2005-09-17 13:16:32.173388102 -0300
+@@ -327,7 +327,7 @@
                             int maxlen )
  {
      int type, len;
@@ -128,7 +30,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
  
      if( PmlGetPrefixValue( obj, &type, 0, 0, 0, 0 ) == ERROR )
      {
-@@ -344,7 +344,8 @@
+@@ -341,7 +341,8 @@
      }
      if( pSymbolSet )
      {
@@ -138,7 +40,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
      }
  
      return len;
-@@ -353,7 +354,7 @@
+@@ -350,7 +351,7 @@
  int PmlGetIntegerValue( PmlObject_t obj, int * pType, int * pValue )
  {
      int type;
@@ -147,7 +49,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
      int accum = 0, i, len;
  
      if( !pType )
-@@ -369,7 +370,7 @@
+@@ -366,7 +367,7 @@
  
      for( i = 0; i < len; i++ )
      {
@@ -156,35 +58,31 @@ diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
      }
      if( pValue )
      {
-@@ -415,14 +416,14 @@
-                   int request )
- {
-     //return ptalChannelRead( dev->pmlChannel, data, maxDatalen );
--    return hplip_ReadHP( deviceid, channelid, data, maxDatalen, -1 );
-+    return hplip_ReadHP( deviceid, channelid, (char *)data, maxDatalen, -1 );
- 
-     /* TODO: Check for and handle traps. */
- }
- 
- int PmlRequestSet( int deviceid, int channelid, PmlObject_t obj )
- {
--    unsigned char data[PML_MAX_DATALEN];
-+    char data[PML_MAX_DATALEN];
-     int datalen=0, status=ERROR, type, pml_result;
- 
-     DBG( 0,  "PmlRequestSet(obj=0x%8.8X)\n", obj );
-@@ -472,7 +473,7 @@
+@@ -475,18 +476,18 @@
  
  int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj ) 
  {
 -    unsigned char data[PML_MAX_DATALEN];
 +    char data[PML_MAX_DATALEN];
-     int datalen=0, status=ERROR, type, pml_result;
+     int datalen=0, stat=ERROR, result, type, pml_result;
  
      DBG( 0,  "PmlRequestGet(obj=0x%8.8X)\n", obj );
+     
+-    datalen = GetPml(deviceid, channelid, obj->oid, (char *)data, sizeof(data), &result, &type, &pml_result); 
++    datalen = GetPml(deviceid, channelid, obj->oid, data, sizeof(data), &result, &type, &pml_result); 
+ 
+     PmlSetStatus(obj, pml_result);
+ 
+     if (result == OK)
+     {
+-      PmlSetValue(obj, type, (char *)data, datalen);
++      PmlSetValue(obj, type, data, datalen);
+        stat = OK;
+     }
+ 
 diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/scl.c ./scan/sane/scl.c
---- ./scan/sane/scl.c	2005-08-06 01:35:54.000000000 -0300
-+++ ./scan/sane/scl.c	2005-08-06 01:38:00.064235247 -0300
+--- ./scan/sane/scl.c	2005-09-17 00:43:57.000000000 -0300
++++ ./scan/sane/scl.c	2005-09-17 13:11:55.586213336 -0300
 @@ -28,10 +28,11 @@
  
  #include "scl.h"

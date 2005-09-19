@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.13 $ 
-# $Date: 2005/07/18 20:28:20 $
+# $Revision: 1.14 $
+# $Date: 2005/07/28 16:55:50 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -32,10 +32,10 @@
 
 string_table = {
 
-'unknown'   :       ( lambda : _( 'Unknown' ), 
+'unknown'   :       ( lambda : _( 'Unknown' ),
                       lambda : _( 'Unknown' ) ),
 
-'try_again' :       ( '', 
+'try_again' :       ( '',
                       lambda : _( 'Please correct the problem and try again.') ),
 
 'press_continue' :  ( '',
@@ -247,7 +247,7 @@ string_table = {
 
 '1806' :            ( lambda : _( 'Service request.' ),
                       '%try_again%' ),
-                      
+
 '1900' :            ( lambda : _( 'Unsupported printer model.' ),
                       '' ),
 
@@ -257,7 +257,16 @@ string_table = {
 '2001' :            ( lambda : _( 'Scan job completed.' ),
                       '' ),
 
-'2002' :            ( lambda : _( 'Scanner error.' ),
+'2002' :            ( lambda : _( 'Scan job failed.' ),
+                      '%try_again%' ),
+
+'3000' :            ( lambda : _( 'Fax job started.' ),
+                      '' ),
+
+'3001' :            ( lambda : _( 'Fax job complete.' ),
+                      '' ),
+
+'3002' :            ( lambda : _( 'Fax job failed.' ),
                       '%try_again%' ),
 
 '5002' :            ( lambda : _( 'Device is powered down or unplugged.' ),
@@ -288,10 +297,10 @@ string_table = {
                       '' ),
 
 '6002' :            ( lambda : _( 'Photocard unload failed.' ),
-                      lambda : _( 'Make sure photocard is inserted properly and try again.' ) ),   
+                      lambda : _( 'Make sure photocard is inserted properly and try again.' ) ),
 
 '6003' :            ( lambda : _( 'Unable to mount photocard on device.' ),
-                      '%6002%' ),   
+                      '%6002%' ),
 
 '6004' :            ( lambda : _( 'Photocard unloaded successfully.' ),
                       '' ),
@@ -328,7 +337,7 @@ string_table = {
 
 'agent_unknown_unknown' : ( '%unknown%',
                             '' ),
-                            
+
 'agent_unspecified_battery' : ( 'Battery',
                             '' ),
 
@@ -462,7 +471,7 @@ string_table = {
 
 'agent_unspecified_adf_kit'   : ( lambda : _('Document feeder (ADF) kit' ),
                                   '' ),
-                                  
+
 'agent_unspecified_drum_kit'   : ( lambda : _('Drum maintenance kit' ),
                                   '' ),
 

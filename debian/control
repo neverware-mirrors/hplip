@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp5-dev (>> 5.1.2-6), libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
+Build-Depends: libcupsys2-dev, libsnmp9-dev, libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
 Standards-Version: 3.6.2
 
 Package: hplip-base
@@ -39,8 +39,7 @@ Description: HP Linux Printing and Imaging System - base system
  interface and without the HP toolbox.  Install the hplip package to
  use the graphical user interface and HP toolbox.
  .
- Only USB and JetDirect (network) devices are supported.  For parallel-port
- devices, please use the hpoj package instead.
+ USB, JetDirect (network) and parallel-port devices are supported.
  .
   Homepage: http://hpinkjet.sourceforge.net
 
@@ -100,12 +99,16 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  in firmware.  It can take advantage of Ghostscript IJS KRGB support
  to do the same on printers that do color map conversion in firmware.
  .
- Users of USB and JetDirect HP printers are advised to also install the
+ Users of the CUPS printing system are advised to also install the
  hplip package, and use the hp CUPS backend to send data to the printer.
+ HPLIP supports USB, networked and parallel-port devices, and enables
+ extended HPIJS functionality such as border-less printing.
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
- Users of parallel-port HP printers are advised to install the hpoj
- package, and use it to send the hpijs output to the printer.
+ Users of spoolers other than CUPS connected through USB or parallel
+ ports are advised to install the hpoj package.  Extended HPIJS 
+ functionality will not be available, however, as hpoj does not support
+ bi-dir mode.
  .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).

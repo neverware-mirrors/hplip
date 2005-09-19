@@ -1,31 +1,13 @@
-#!/bin/sh -e
+#!/bin/sh /usr/share/dpatch/dpatch-run
 ## 11_fix-misc-gcc-warnings.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Fix bad C code that causes warnings and strict aliasing rules problems
-
-if [ $# -ne 1 ]; then
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
-
-case "$1" in
-       -patch) patch $patch_opts -p1 < $0;;
-       -unpatch) patch $patch_opts -p1 -R < $0;;
-        *)
-                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-                exit 1;;
-esac
-
-exit 0
+## DP: Fix bad C code that causes warnings
 
 @DPATCH@
 diff -urNad --exclude=CVS --exclude=.svn ./pcard/pcardext/pcardext.c ./pcard/pcardext/pcardext.c
---- ./pcard/pcardext/pcardext.c	2005-08-06 02:08:27.000000000 -0300
-+++ ./pcard/pcardext/pcardext.c	2005-08-06 02:09:20.231045452 -0300
+--- ./pcard/pcardext/pcardext.c	2005-09-17 13:51:49.000000000 -0300
++++ ./pcard/pcardext/pcardext.c	2005-09-17 13:54:16.731760274 -0300
 @@ -20,7 +20,7 @@
  Requires:
  Python 2.2+
@@ -35,23 +17,16 @@ diff -urNad --exclude=CVS --exclude=.svn ./pcard/pcardext/pcardext.c ./pcard/pca
  
  #include <Python.h>
  #include <structmember.h>
-diff -urNad --exclude=CVS --exclude=.svn ./prnt/cupsext/cupsext.c ./prnt/cupsext/cupsext.c
---- ./prnt/cupsext/cupsext.c	2005-08-06 02:08:58.000000000 -0300
-+++ ./prnt/cupsext/cupsext.c	2005-08-06 02:09:29.183925168 -0300
-@@ -889,7 +889,6 @@
- PyObject *  openPPD( PyObject * self, PyObject * args )
- {
-     char * printer;
--    char * ppd;
-     FILE * file;
- 
-     if ( !PyArg_ParseTuple( args, "z", &printer ) )
-@@ -897,7 +896,7 @@
-         return Py_BuildValue( "" ); // None
-     }
- 
--    ppd = cupsGetPPD( (const char *)printer );
-+    const char *ppd = cupsGetPPD( printer );
- 
-     file = fopen( ppd, "r" );
-     ppd_file = ppdOpen( file );
+diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/pml.c ./scan/sane/pml.c
+--- ./scan/sane/pml.c	2005-09-17 13:54:12.000000000 -0300
++++ ./scan/sane/pml.c	2005-09-17 13:54:41.978587853 -0300
+@@ -1057,7 +1057,8 @@
+    else if ((hpaio->page_done || hpaio->pml_done) && !hpaio->ip_done)
+    {
+       /* No more scan data, flush ipconvert pipeline. */
+-      input = 0;
++      input = NULL;
++      inputAvail = 0;
+       wResult = ipConvert(hpaio->hJob, inputAvail, input, &inputUsed, &inputNextPos, outputAvail, output, &outputUsed, &outputThisPos);
+       if (wResult & (IP_INPUT_ERROR | IP_FATAL_ERROR))
+       {

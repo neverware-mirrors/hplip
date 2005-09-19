@@ -430,7 +430,7 @@ bugout:
 
 int hplip_WriteHP(int hd, int channel, char *buf, int size)
 {
-   char message[BUFFER_SIZE+HEADER_SIZE];  
+   char message[BUFFER_SIZE+256];  
    int len=0, slen=0;
    MsgAttributes ma;
  
@@ -467,11 +467,11 @@ mordor:
 
 int hplip_ReadHP(int hd, int channel, char *buf, int size, int timeout)
 {
-   char message[BUFFER_SIZE+HEADER_SIZE];  
+   char message[BUFFER_SIZE+256];  
    int len=0, rlen=0;
    MsgAttributes ma;
  
-   len = sprintf(message, "msg=ChannelDataIn\ndevice-id=%d\nchannel-id=%d\nbytes-to-read=%d\ntimeout=%d", hd, channel, size, timeout);  /* timeout = seconds */
+   len = sprintf(message, "msg=ChannelDataIn\ndevice-id=%d\nchannel-id=%d\nbytes-to-read=%d\ntimeout=%d\n", hd, channel, size, timeout);  /* timeout = seconds */
    if (size+len > sizeof(message))
    {  
       fprintf(stderr, "Error data size=%d\n", size);  

@@ -1,3 +1,49 @@
+hplip (0.9.5-1) unstable; urgency=low
+
+  * New upstream version
+    * HPIJS 2.1.5:
+      + Fixed a 4-sided full bleed printing issue in HPIJS
+      + Added support for the following new printers:
+        HP Photosmart 420 (PSP100)
+        HP Photosmart 470 (PSP100)
+        HP Photosmart 2570 (DJGenericVIP)
+        HP PSC 1400 (DJ3600)
+        HP Officejet 5600 (DJ3600)
+        HP Photosmart 3100 (DJGenericVIP)
+        HP Photosmart 3200 (DJGenericVIP)
+        HP Photosmart 3300 (DJGenericVIP)
+        HP Photosmart 8000 (DJGenericVIP)
+        HP Photosmart 7800 (DJGenericVIP)
+        HP Deskjet 5940 (DJGenericVIP)
+        HP Deskjet 5440 (DJGenericVIP)
+        HP Color laserJet 4700 (LJColor/PS)
+    * HPLIP 0.9.5:
+      + Added parallel port support for printing and scanning. See
+        Product Support table for supported devices and features
+      + Changed the PS8700 PPD inputslot from "default" to "upper"
+      + Fixed miser mode MLC credit problem in hpiod
+      + Fixed MLC credit problem with short timeouts
+      + Fixed many known hp-toolbox issues
+      + Fixed case where hp-toolbox crashed if models.xml entry was missing
+      + Fixed hp-colorcal incorrect parameter passing to maint routines
+      + Fixed a bug in hpssd.py that caused hal:\\ devices to crash hpssd
+      + Fixed supplies status for CLJ28xx
+      + Fixed powersettings for DJ4x0
+      + Fixed LJ1022 status problem
+  * Henrique de Moraes Holschuh:
+    * Dpatch maintenance:
+      + Remove 20_useless_assignment_fix: fixed properly upstream
+      + Update 11_fix-misc-gcc-warnings, 14_charsign_fixes,
+        50_hp-clean_fix: some hunks fixed upstream, some new hunks added
+      + Rediff 13_intsign-fixes, 40_testmail_fix
+      + New 20_fix_unitialized_var_bugs: fix some real bugs caused by
+        broken code with unitialized variables
+      + Switch all dpatches to /usr/share/dpatch/dpatch-run
+    * Add hp-levels symlink for new utility, that shows agent levels
+      using ASCII-art bar graphs
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 19 Sep 2005 11:44:52 -0300
+
 hplip (0.9.4-4) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

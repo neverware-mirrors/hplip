@@ -60,6 +60,7 @@
 #include "ljmono.h"
 #include "ljcolor.h"
 #include "psp100.h"
+#include "psp470.h"
 #include "pscript.h"
 #include "ljjetready.h"
 #include "ljfastraster.h"
@@ -88,6 +89,7 @@ LJFastRasterProxy DeviceRegistry::s_LJFastRasterProxy;
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
 PSP100Proxy DeviceRegistry::s_PSP100Proxy;
+PSP470Proxy DeviceRegistry::s_PSP470Proxy;
 #endif
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)

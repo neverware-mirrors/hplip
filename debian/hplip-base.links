@@ -7,4 +7,5 @@
 /usr/lib/hplip/probe		/usr/bin/hp-probe
 /usr/lib/hplip/testpage		/usr/bin/hp-testpage
 /usr/lib/hplip/makeuri  	/usr/bin/hp-makeuri
+/usr/lib/hplip/levels		/usr/bin/hp-levels
 /usr/lib/hplip/hpssd.py		/usr/sbin/hpssd

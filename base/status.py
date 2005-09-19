@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.35 $ 
-# $Date: 2005/06/29 18:12:44 $
+# $Revision: 1.42 $
+# $Date: 2005/08/25 18:08:45 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -25,25 +25,28 @@
 
 from __future__ import division
 
+# StdLib
+import struct
+
 # Local
 from g import *
 from codes import *
-from base import pml, utils
-import struct
+import pml, utils
+
 
 """
 status dict structure:
     { 'revision' :     STATUS_REV_00 .. STATUS_REV_04,
-      'agents' :       [ list of pens/agents/supplies (dicts) ],  
+      'agents' :       [ list of pens/agents/supplies (dicts) ],
       'top-door' :     TOP_DOOR_NOT_PRESENT | TOP_DOOR_CLOSED | TOP_DOOR_OPEN,
       'status-code' :  STATUS_...,
       'supply-door' :  SUPPLY_DOOR_NOT_PRESENT | SUPPLY_DOOR_CLOSED | SUPPLY_DOOR_OPEN.
       'duplexer' :     DUPLEXER_NOT_PRESENT | DUPLEXER_DOOR_CLOSED | DUPLEXER_DOOR_OPEN,
-      'photo_tray' :   PHOTO_TRAY_NOT_PRESENT | PHOTO_TRAY_ENGAGED | PHOTO_TRAY_NOT_ENGAGED, 
-      'in-tray1' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*, 
-      'in-tray2' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*, 
+      'photo_tray' :   PHOTO_TRAY_NOT_PRESENT | PHOTO_TRAY_ENGAGED | PHOTO_TRAY_NOT_ENGAGED,
+      'in-tray1' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*,
+      'in-tray2' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*,
       'media-path' :   MEDIA_PATH_NOT_PRESENT | MEDIA_PATH_CUT_SHEET | MEDIA_PATH_BANNER | MEDIA_PATH_PHOTO,
-    } 
+    }
 
     * S:02 only
 
@@ -54,7 +57,7 @@ agent dict structure: (pens/supplies/agents/etc)
       'level' :          0 ... 100,
       'level-trigger' :  AGENT_LEVEL_TRIGGER_SUFFICIENT_0 ... AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
     }
-"""   
+"""
 
 
 
@@ -103,26 +106,26 @@ REVISION_2_TYPE_MAP = { 0 : AGENT_TYPE_NONE,
 
 STATUS_BLOCK_UNKNOWN = { 'revision' : STATUS_REV_UNKNOWN,
                          'agents' : [],
-                         'status-code' : STATUS_UNKNOWN,  
+                         'status-code' : STATUS_UNKNOWN,
                        }
 
 NUM_PEN_POS = { STATUS_REV_00 : 16,
                 STATUS_REV_01 : 16,
                 STATUS_REV_02 : 16,
                 STATUS_REV_03 : 18,
-                STATUS_REV_04 : 22 } 
+                STATUS_REV_04 : 22 }
 
 PEN_DATA_SIZE = { STATUS_REV_00 : 8,
                   STATUS_REV_01 : 8,
                   STATUS_REV_02 : 4,
                   STATUS_REV_03 : 8,
-                  STATUS_REV_04 : 8 } 
+                  STATUS_REV_04 : 8 }
 
 STATUS_POS = { STATUS_REV_00 : 14,
                STATUS_REV_01 : 14,
                STATUS_REV_02 : 14,
                STATUS_REV_03 : 16,
-               STATUS_REV_04 : 20 } 
+               STATUS_REV_04 : 20 }
 
 def parseSStatus( s, z='' ):
     Z_SIZE = 6
@@ -159,11 +162,11 @@ def parseSStatus( s, z='' ):
     status_pos = STATUS_POS[ revision ]
     status_byte = ( s1[ status_pos ]<<4 ) + s1[ status_pos + 1 ]
     stat = status_byte + STATUS_PRINTER_BASE
-    
+
     pens, pen, c, d = [], {}, NUM_PEN_POS[ revision ]+1, 0
 
     num_pens = s1[ NUM_PEN_POS[ revision ] ]
-    
+    log.debug("Num pens=%d" % num_pens)
     index = 0
     pen_data_size = PEN_DATA_SIZE[revision]
 
@@ -182,10 +185,12 @@ def parseSStatus( s, z='' ):
             pen[ 'level-trigger' ] = int ( ( info & 0x0e00L ) >> 9L )
             pen[ 'health' ] = int( ( info & 0x0180L ) >> 7L )
             pen[ 'level' ] = int( info & 0x007fL )
+            pen[ 'id' ] = 0x1f
 
-        elif pen_data_size == 8: 
+        elif pen_data_size == 8:
             pen[ 'kind' ] = bool( info & 0x80000000L ) + ( ( bool( info & 0x40000000L ) )<<1L )
             pen[ 'type' ] = int( ( info & 0x3f000000L ) >> 24L )
+            pen[ 'id' ] = int( (info & 0xf80000 ) >> 19L )
             pen[ 'level-trigger' ] = int( ( info & 0x70000L ) >> 16L )
             pen[ 'health' ] = int( ( info & 0xc000L ) >> 14L )
             pen[ 'level' ] = int( info & 0xffL )
@@ -207,30 +212,30 @@ def parseSStatus( s, z='' ):
         d += Z_SIZE
 
     return { 'revision' :    revision,
-             'agents' :      pens,  
-             'top-door' :    top_door,  
+             'agents' :      pens,
+             'top-door' :    top_door,
              'status-code' : stat,
-             'supply-door' : supply_door, 
+             'supply-door' : supply_door,
              'duplexer' :    duplexer,
-             'photo-tray' :  photo_tray, 
-             'in-tray1' :    in_tray1, 
-             'in-tray2' :    in_tray2, 
+             'photo-tray' :  photo_tray,
+             'in-tray1' :    in_tray1,
+             'in-tray2' :    in_tray2,
              'media-path' :  media_path,
-           } 
+           }
 
 
 
 # $HB0$NC0,ff,DN,IDLE,CUT,K0,C0,DP,NR,KP092,CP041
 #     0    1  2  3    4   5  6  7  8  9     10
 def parseVStatus( s ):
-    pens, pen, c = [], {}, 0 
+    pens, pen, c = [], {}, 0
     fields = s.split(',')
     for p in fields[0]:
         if c == 0:
             assert p == '$'
             c += 1
         elif c == 1:
-            if p in ( 'a', 'A' ): 
+            if p in ( 'a', 'A' ):
                 pen[ 'type' ], pen[ 'kind' ] = AGENT_TYPE_NONE, AGENT_KIND_NONE
             c += 1
         elif c == 2:
@@ -272,16 +277,16 @@ def parseVStatus( s ):
     stat = vstatus_xlate.get( fields[3].lower(), STATUS_PRINTER_IDLE )
 
     return { 'revision' :   STATUS_REV_V,
-             'agents' :     pens,  
-             'top-lid' :    top_lid,  
+             'agents' :     pens,
+             'top-lid' :    top_lid,
              'status-code': stat,
              'supply-lid' : SUPPLY_DOOR_NOT_PRESENT,
-             'duplexer' :   DUPLEXER_NOT_PRESENT, 
-             'photo-tray' : PHOTO_TRAY_NOT_PRESENT, 
-             'in-tray1' :   IN_TRAY_NOT_PRESENT, 
-             'in-tray2' :   IN_TRAY_NOT_PRESENT, 
+             'duplexer' :   DUPLEXER_NOT_PRESENT,
+             'photo-tray' : PHOTO_TRAY_NOT_PRESENT,
+             'in-tray1' :   IN_TRAY_NOT_PRESENT,
+             'in-tray2' :   IN_TRAY_NOT_PRESENT,
              'media-path' : MEDIA_PATH_CUT_SHEET, # ?
-           } 
+           }
 
 def parseStatus( DeviceID ):
     if 'VSTATUS' in DeviceID:
@@ -347,9 +352,34 @@ COLORANT_INDEX_TO_AGENT_TYPE_MAP = {
                                     'black' :   AGENT_TYPE_BLACK,
                                    }
 
+MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP = {
+    pml.OID_MARKER_SUPPLIES_TYPE_OTHER :              AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_UNKNOWN :            AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_TONER :              AGENT_KIND_TONER_CARTRIDGE,
+    pml.OID_MARKER_SUPPLIES_TYPE_WASTE_TONER :        AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_INK :                AGENT_KIND_SUPPLY,
+    pml.OID_MARKER_SUPPLIES_TYPE_INK_CART :           AGENT_KIND_HEAD_AND_SUPPLY,
+    pml.OID_MARKER_SUPPLIES_TYPE_INK_RIBBON :         AGENT_KIND_HEAD_AND_SUPPLY,
+    pml.OID_MARKER_SUPPLIES_TYPE_WASTE_INK :          AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_OPC :                AGENT_KIND_DRUM_KIT,
+    pml.OID_MARKER_SUPPLIES_TYPE_DEVELOPER :          AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_FUSER_OIL :          AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_SOLID_WAX :          AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_RIBBON_WAX :         AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_WASTE_WAX :          AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_FUSER :              AGENT_KIND_MAINT_KIT,
+    pml.OID_MARKER_SUPPLIES_TYPE_CORONA_WIRE :        AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_FUSER_OIL_WICK :     AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_CLEANER_UNIT :       AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_FUSER_CLEANING_PAD : AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_TRANSFER_UNIT :      AGENT_KIND_TRANSFER_KIT,
+    pml.OID_MARKER_SUPPLIES_TYPE_TONER_CART :         AGENT_KIND_TONER_CARTRIDGE,
+    pml.OID_MARKER_SUPPLIES_TYPE_FUSER_OILER :        AGENT_KIND_UNKNOWN,
+    pml.OID_MARKER_SUPPLIES_TYPE_ADF_MAINT_KIT :      AGENT_KIND_ADF_KIT,
+}
+
 
 def StatusType3( dev, parsedID ): # LaserJet Status
-    #channel_id = dev.openChannel( 'HP-MESSAGE' )
     dev.openPML()
     result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
     result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
@@ -362,110 +392,143 @@ def StatusType3( dev, parsedID ): # LaserJet Status
     agents, x = [], 1
 
     while True:
-
+        log.debug( "%s Agent: %d %s" % ("*"*10, x, "*"*10))
+        log.debug("OID_MARKER_SUPPLIES_TYPE_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_TYPE_x % x, pml.OID_MARKER_SUPPLIES_TYPE_x_TYPE )
         result_code, value = dev.getPML( oid, pml.INT_SIZE_BYTE )
 
-        if value is None: 
-            log.debug( "End of supply information." )
+        if result_code != ERROR_SUCCESS or value is None:
+            log.debug("End of supply information.")
             break
 
-        log.debug( 'agent%d marker supplies type: %d' % ( x,value ) )
-
-        if value == pml.OID_MARKER_SUPPLIES_TYPE_FUSER:
-            agent_kind = AGENT_KIND_MAINT_KIT
-
-        elif value in ( pml.OID_MARKER_SUPPLIES_TYPE_TONER_CART,
-                        pml.OID_MARKER_SUPPLIES_TYPE_TONER ):
-
-            agent_kind = AGENT_KIND_TONER_CARTRIDGE
-
-        elif value == pml.OID_MARKER_SUPPLIES_TYPE_ADF_MAINT_KIT:
-            agent_kind = AGENT_KIND_ADF_KIT
-
-        #elif value == pml.???
-        #    agent_kind = AGENT_KIND_DRUM_KIT
-
-        elif value == pml.OID_MARKER_SUPPLIES_TYPE_TRANSFER_UNIT:
-            agent_kind = AGENT_KIND_TRANSFER_KIT
-
+        for a in MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP:
+            if value == a:
+                agent_kind = MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP[a]
+                break
         else:
-            agent_kind = AGENT_KIND_UNKNOWN
+            agent_type = AGENT_KIND_UNKNOWN
 
-        log.debug( 'agent%d-kind: %d' % ( x, agent_kind ) )
-
+        # TODO: Deal with printers that return -1 and -2 for level and max (LJ3380)
+        
+        log.debug("OID_MARKER_SUPPLIES_LEVEL_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
         result_code, agent_level = dev.getPML( oid )
 
-        log.debug( 'agent%d-level: %d' % ( x, agent_level ) )            
-
+        if result_code != ERROR_SUCCESS:
+            log.error("Failed")
+            break
+        log.debug( 'agent%d-level: %d' % ( x, agent_level ) )
+        log.debug("OID_MARKER_SUPPLIES_MAX_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
         result_code, agent_max = dev.getPML( oid )
         if agent_max == 0: agent_max = 1
 
-        log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
+        if result_code != ERROR_SUCCESS:
+            log.debug("Failed")
+            break
 
+        log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
+        log.debug("OID_MARKER_SUPPLIES_COLORANT_INDEX_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x % x, pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE )
         result_code, colorant_index = dev.getPML( oid )
 
-        log.debug( "agent%d colorant index: %d" % (x, colorant_index ) )
+        if result_code != ERROR_SUCCESS:
+            log.error("Failed")
+            break
 
+        log.debug("OID_MARKER_COLORANT_VALUE_%d" % x)
         oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
         result_code, colorant_value = dev.getPML( oid )
 
-        if colorant_value is None:
-            agent_type = None
+        if result_code != ERROR_SUCCESS:
+            log.debug("Failed. Defaulting to black.")
+            agent_type = AGENT_TYPE_BLACK
         else:
-            agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
-
-        if agent_type is None:
-            if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
-                agent_type = AGENT_TYPE_BLACK
-            else:
+            if agent_kind in (AGENT_KIND_MAINT_KIT, AGENT_KIND_ADF_KIT,
+                              AGENT_KIND_DRUM_KIT, AGENT_KIND_TRANSFER_KIT):
+    
                 agent_type = AGENT_TYPE_UNSPECIFIED
-
-        log.debug( "agent%d-type: %d" % ( x, agent_type ) )
-
+    
+            else:
+                agent_type = AGENT_TYPE_NONE
+    
+                if result_code != ERROR_SUCCESS:
+                    log.debug("OID_MARKER_SUPPLIES_DESCRIPTION_%d:" % x)
+                    oid = (pml.OID_MARKER_SUPPLIES_DESCRIPTION_x % x, pml.OID_MARKER_SUPPLIES_DESCRIPTION_x_TYPE)
+                    result_code, colorant_value = dev.getPML( oid )
+                    
+                    if result_code != ERROR_SUCCESS:
+                        log.error("Failed")
+                        break
+    
+                    if colorant_value is not None:
+                        log.debug("colorant value: %s" % colorant_value)
+                        colorant_value = colorant_value.lower().strip()
+    
+                        for c in COLORANT_INDEX_TO_AGENT_TYPE_MAP:
+                            if colorant_value.find(c) >= 0:
+                                agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP[c]
+                                break
+                        else:
+                            agent_type = AGENT_TYPE_UNSPECIFIED
+    
+                else:
+                    if colorant_value is not None:
+                        log.debug("colorant value: %s" % colorant_value)
+                        agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
+    
+                    if agent_type == AGENT_TYPE_NONE:
+                        if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
+                            agent_type = AGENT_TYPE_BLACK
+                        else:
+                            agent_type = AGENT_TYPE_UNSPECIFIED
+    
+        log.debug("OID_MARKER_STATUS_%d:" % x)
         oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
         result_code, agent_status = dev.getPML( oid )
 
-        agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
-
-        if agent_status is None:
+        if result_code != ERROR_SUCCESS:
+            log.error("Failed")
+            agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
             agent_health = AGENT_HEALTH_OK
-
-        elif agent_status == pml.OID_MARKER_STATUS_OK:
-            agent_health = AGENT_HEALTH_OK
-
-        elif agent_status == pml.OID_MARKER_STATUS_MISINSTALLED:
-            agent_health = AGENT_HEALTH_MISINSTALLED
-
-        elif agent_status in ( pml.OID_MARKER_STATUS_LOW_TONER_CONT, 
-                               pml.OID_MARKER_STATUS_LOW_TONER_STOP ):
-
-            agent_health = AGENT_HEALTH_OK
-            agent_trigger = AGENT_LEVEL_TRIGGER_MAY_BE_LOW
-
         else:
-            agent_health = AGENT_HEALTH_OK
+            agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
+
+            if agent_status is None:
+                agent_health = AGENT_HEALTH_OK
+
+            elif agent_status == pml.OID_MARKER_STATUS_OK:
+                agent_health = AGENT_HEALTH_OK
+
+            elif agent_status == pml.OID_MARKER_STATUS_MISINSTALLED:
+                agent_health = AGENT_HEALTH_MISINSTALLED
+
+            elif agent_status in ( pml.OID_MARKER_STATUS_LOW_TONER_CONT,
+                                   pml.OID_MARKER_STATUS_LOW_TONER_STOP ):
+
+                agent_health = AGENT_HEALTH_OK
+                agent_trigger = AGENT_LEVEL_TRIGGER_MAY_BE_LOW
+
+            else:
+                agent_health = AGENT_HEALTH_OK
+
+        agent_level = int( agent_level/agent_max * 100 )
+
+        log.debug("agent%d: kind=%d, type=%d, health=%d, level=%d, level-trigger=%d" % \
+            (x, agent_kind, agent_type, agent_health, agent_level, agent_trigger))
 
 
-        log.debug( "agent%d-health: %d" % ( x, agent_health ) )
-        log.debug( "agent%d-level-trigger: %d" % ( x, agent_trigger ) )
-
-        agents.append( 
+        agents.append(
                     {  'kind' : agent_kind,
                        'type' : agent_type,
                        'health' : agent_health,
-                       'level' : int( agent_level/agent_max * 100 ),
+                       'level' : agent_level,
                        'level-trigger' : agent_trigger,
                     }
                     )
 
         x += 1
 
-
-    #dev.closeChannel( 'HP-MESSAGE' )
     dev.closePML()
 
     log.debug( "on_off_line=%d" % on_off_line )
@@ -485,19 +548,19 @@ def StatusType3( dev, parsedID ): # LaserJet Status
         supply_door = 1
 
     return { 'revision' :    STATUS_REV_UNKNOWN,
-             'agents' :      agents,  
-             'top-door' :    cover_status,  
+             'agents' :      agents,
+             'top-door' :    cover_status,
              'status-code' : stat,
-             'supply-door' : supply_door, 
+             'supply-door' : supply_door,
              'duplexer' :    1,
-             'photo-tray' :  0, 
-             'in-tray1' :    1, 
-             'in-tray2' :    1, 
+             'photo-tray' :  0,
+             'in-tray1' :    1,
+             'in-tray2' :    1,
              'media-path' :  1,
-           } 
+           }
 
 def setup_panel_translator():
-    printables = list( 
+    printables = list(
 """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~""" )
 
@@ -537,13 +600,11 @@ setup_panel_translator()
 
 
 def PanelCheck( dev ):
-    # Assumes dev is already open (i.e., dev.io_state==IO_STATE_HP_OPEN)
     line1, line2 = '', ''
     try:
-        #channel = dev.openChannel( 'HP-MESSAGE' ) 
         dev.openPML()
     except Error:
-        panel_check = False
+        pass
     else:
 
         oids = [ ( pml.OID_HP_LINE1, pml.OID_HP_LINE2 ),
@@ -565,7 +626,6 @@ def PanelCheck( dev ):
                     line2 = PANEL_TRANSLATOR_FUNC( line2 ).rstrip()
                     break
 
-        #dev.closeChannel( 'HP-MESSAGE' )
         dev.closePML()
 
     return bool( line1 or line2 ), line1 or '', line2 or ''
@@ -584,10 +644,10 @@ BATTERY_TRIGGER_MAP = { 0 : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
                         2 : AGENT_LEVEL_TRIGGER_PROBABLY_OUT,
                         3 : AGENT_LEVEL_TRIGGER_SUFFICIENT_4,
                         4 : AGENT_LEVEL_TRIGGER_SUFFICIENT_2,
-                        5 : AGENT_LEVEL_TRIGGER_SUFFICIENT_0, 
+                        5 : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
                        }
 
-BATTERY_PML_TRIGGER_MAP = { 
+BATTERY_PML_TRIGGER_MAP = {
         ( 100, 80 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
         ( 79,  60 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_1,
         ( 59,  40 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_2,
@@ -609,38 +669,38 @@ def BatteryCheck( dev, status_block ):
         try_dynamic_counters = True
     else:
         result, battery_level = dev.getPML( pml.OID_BATTERY_LEVEL)
-        result, power_mode =  dev.getPML( pml.OID_POWER_MODE)        
-      
+        result, power_mode =  dev.getPML( pml.OID_POWER_MODE)
+
         if battery_level is not None and \
             power_mode is not None:
-            
+
             if power_mode & pml.POWER_MODE_BATTERY_LEVEL_KNOWN and \
                 battery_level >= 0:
-            
+
                 for x in BATTERY_PML_TRIGGER_MAP:
                     if x[0] >= battery_level > x[1]:
                         battery_trigger_level = BATTERY_PML_TRIGGER_MAP[ x ]
                         break
-                
+
                 if power_mode & pml.POWER_MODE_CHARGING:
                     agent_health = AGENT_HEALTH_CHARGING
-                
+
                 elif power_mode & pml.POWER_MODE_DISCHARGING:
                     agent_health = AGENT_HEALTH_DISCHARGING
-                
+
                 else:
                     agent_health = AGENT_HEALTH_OK
-                
-                status_block['agents'].append( { 
-                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+
+                status_block['agents'].append( {
+                                                'kind'   : AGENT_KIND_INT_BATTERY,
                                                 'type'   : AGENT_TYPE_UNSPECIFIED,
                                                 'health' : agent_health,
                                                 'level'  : battery_level,
                                                 'level-trigger' : battery_trigger_level,
                                                 } )
             else:
-                status_block['agents'].append( { 
-                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                status_block['agents'].append( {
+                                                'kind'   : AGENT_KIND_INT_BATTERY,
                                                 'type'   : AGENT_TYPE_UNSPECIFIED,
                                                 'health' : AGENT_HEALTH_UNKNOWN,
                                                 'level'  : 0,
@@ -652,71 +712,66 @@ def BatteryCheck( dev, status_block ):
 
         #dev.closeChannel( 'HP-MESSAGE' )
         dev.closePML()
-        
+
         if try_dynamic_counters:
-        
+
             try:
                 battery_health = dev.getDynamicCounter( 200 )
                 battery_trigger_level = dev.getDynamicCounter( 201 )
                 battery_level = dev.getDynamicCounter( 202 )
-        
-                status_block['agents'].append( { 
-                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+
+                status_block['agents'].append( {
+                                                'kind'   : AGENT_KIND_INT_BATTERY,
                                                 'type'   : AGENT_TYPE_UNSPECIFIED,
                                                 'health' : BATTERY_HEALTH_MAP[ battery_health ],
                                                 'level'  : battery_level,
                                                 'level-trigger' : BATTERY_TRIGGER_MAP[ battery_trigger_level ],
                                                 } )
             except Error:
-                status_block['agents'].append( { 
-                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                status_block['agents'].append( {
+                                                'kind'   : AGENT_KIND_INT_BATTERY,
                                                 'type'   : AGENT_TYPE_UNSPECIFIED,
                                                 'health' : AGENT_HEALTH_UNKNOWN,
                                                 'level'  : 0,
                                                 'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
                                                 } )
-        
-        
-# this works for 2 pen products that allow 1 or 2 pens inserted 
-# from: k, kcm, cmy    
-def getPenConfiguration( s ): # s=status dict from parsed device ID
-    pen1_type = s['agents'][0]['type']
-    pen2_type = s['agents'][1]['type']
-    #one_pen = False
 
-    if pen1_type == AGENT_TYPE_NONE and pen2_type == AGENT_TYPE_NONE:
-        #log.debug( "No pens" )
+
+# this works for 2 pen products that allow 1 or 2 pens inserted
+# from: k, kcm, cmy, ggk
+def getPenConfiguration( s ): # s=status dict from parsed device ID
+    pens = [p['type'] for p in s['agents']]
+
+    if utils.all(pens, lambda x : x==AGENT_TYPE_NONE):
         return AGENT_CONFIG_NONE
 
-    if pen1_type == AGENT_TYPE_NONE or pen2_type == AGENT_TYPE_NONE:
-        #log.debug( "1 pen" )
+    if AGENT_TYPE_NONE in pens:
 
-        if pen1_type == AGENT_TYPE_BLACK or pen2_type == AGENT_TYPE_BLACK:
-            #log.debug( "Black pen only" )
+        if AGENT_TYPE_BLACK in pens:
             return AGENT_CONFIG_BLACK_ONLY
 
-        elif pen1_type == AGENT_TYPE_CMY or pen2_type == AGENT_TYPE_CMY:
-            #log.debug( "Color pen only" )
+        elif AGENT_TYPE_CMY in pens:
             return AGENT_CONFIG_COLOR_ONLY
 
-        elif pen1_type == AGENT_TYPE_KCM or pen2_type == AGENT_TYPE_KCM:
-            #log.debug( "Photo pen only" )
+        elif AGENT_TYPE_KCM in pens:
             return AGENT_CONFIG_PHOTO_ONLY
 
+        elif AGENT_TYPE_GGK in pens:
+            return AGENT_CONFIG_GREY_ONLY
+
         else:
-            #log.debug( "Invalid pen config" )
             return AGENT_CONFIG_INVALID
 
     else:
-        if pen1_type == AGENT_TYPE_BLACK or pen2_type == AGENT_TYPE_BLACK:
-            #log.debug( "Color and black pens" )
+        if AGENT_TYPE_BLACK in pens and AGENT_TYPE_CMY in pens:
             return AGENT_CONFIG_COLOR_AND_BLACK
 
-        elif pen1_type == AGENT_TYPE_KCM or pen2_type == AGENT_TYPE_KCM:
-            #log.debug( "Color and photo pens" )
+        elif AGENT_TYPE_CMY in pens and AGENT_TYPE_KCM in pens:
             return AGENT_CONFIG_COLOR_AND_PHOTO
 
+        elif AGENT_TYPE_CMY in pens and AGENT_TYPE_GGK in pens:
+            return AGENT_CONFIG_COLOR_AND_GREY
+
         else:
-            #log.debug( "Invalid pen config" )
             return AGENT_CONFIG_INVALID
 

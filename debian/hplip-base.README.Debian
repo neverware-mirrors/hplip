@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip-base.README.Debian,v 1.6 2005/09/08 00:27:26 hmh Exp $
+$Id: hplip-base.README.Debian,v 1.7 2005/09/17 15:58:44 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't 
@@ -7,16 +7,12 @@ exactly true at this point in time, but it is shaping rather nicely, only
 the network autodetection is still somewhat arcane, plus problems with a
 few selected printers that have misbehaving or buggy firmware.
 
-Parallel-port IO is not supported at all, HPOJ must be used instead of
-HPLIP to talk to printers using the parallel interface.
-
 HPOJ and HPLIP cannot share a device.  For HPLIP to work, you must
 configure HPOJ properly so that it does not talk to the devices you want
 to use HPLIP with.
 
 Warning: Some broken as designed USB printers cannot work in bi-dir mode,
-and thus HPLIP won't work with them.  The HP LaserJet 101x series
-have this problem, but other printers might, too.
+and thus HPLIP will at best work with reduced functionality, if at all.
 
 
 Quick Install:

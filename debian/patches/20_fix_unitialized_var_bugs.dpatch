@@ -1,0 +1,49 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+## 20_fix_unitialized_var_bugs.dpatch by 
+##   Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix bugs caused by unitialized variables
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/ppdevice.cpp ./io/hpiod/ppdevice.cpp
+--- ./io/hpiod/ppdevice.cpp	2005-09-17 13:54:12.000000000 -0300
++++ ./io/hpiod/ppdevice.cpp	2005-09-17 13:56:47.325833897 -0300
+@@ -554,7 +554,7 @@
+    if (ioctl(OpenFD, PPNEGOT, &m))
+    {
+       syslog(LOG_ERR, "ParDevice::compat_read failed: %m\n");
+-      goto bugout;
++      return -1;
+    }
+ 
+    for (i=0; i < size; i++)
+@@ -569,7 +569,6 @@
+       }
+    }
+ 
+-bugout:
+    return i;
+ }
+ 
+diff -urNad --exclude=CVS --exclude=.svn ./io/hpiod/uppdevice.cpp ./io/hpiod/uppdevice.cpp
+--- ./io/hpiod/uppdevice.cpp	2005-09-17 13:54:12.000000000 -0300
++++ ./io/hpiod/uppdevice.cpp	2005-09-17 13:56:47.326833772 -0300
+@@ -173,7 +173,7 @@
+ Channel *UniParDevice::NewChannel(unsigned char sockid)
+ {
+    Channel *pC=NULL;
+-   int i, mode;
++   int i;
+ 
+    /* Only support one channel. */
+    if (ChannelCnt >= 1)
+@@ -189,7 +189,7 @@
+          pC->SetSocketID(sockid);
+          pChannel[i] = pC;
+          ChannelCnt++;
+-         ChannelMode = mode;
++         ChannelMode = UNI_MODE;
+          break;
+       }
+    }     

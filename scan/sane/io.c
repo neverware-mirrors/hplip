@@ -26,7 +26,7 @@
 
 \************************************************************************************/
 
-#include "io.h"
+#include "hpaio.h"
 
 #if defined( HPAIO_DEBUG )
 void DBG(int level, const char *format, ...)
@@ -252,7 +252,8 @@ int SendScanEvent( char * device_uri, int event, char * type )
 {
     char message[ BUFFER_SIZE ];
 
-    int len = sprintf( message, "msg=Event\ndevice-uri=%s\nevent-code=%d\nevent-type=%s\n", device_uri, event, type );
+    int len = sprintf( message, "msg=Event\ndevice-uri=%s\nevent-code=%d\nevent-type=%s\n", 
+        device_uri, event, type );
 
     if ( send( hpssd_socket, message, len, 0 ) == -1 ) 
     {
@@ -267,7 +268,8 @@ int ProbeDevices( SANE_Device *** devices )
     char message[ BUFFER_SIZE ];
     MsgAttributes ma;
 
-    int len = sprintf( message, "msg=ProbeDevicesFiltered\nbus=%s\nfilter=scan\nformat=default\n", "usb,cups" );
+    int len = sprintf( message, "msg=ProbeDevicesFiltered\nbus=%s\nfilter=scan\nformat=default\n", 
+        "usb,cups,par" );
 
     if ( send( hpssd_socket, message, len, 0 ) == -1 ) 
     {
@@ -292,7 +294,7 @@ int ProbeDevices( SANE_Device *** devices )
         *devices = malloc( sizeof( SANE_Device * ) * ( ma.ndevice + 1 ) );
 
         int remaining = ma.length;
-        char * p = ma.data;
+        char *p = (char *)ma.data;
 
         int state = 0;
 
@@ -389,12 +391,13 @@ abort:
     return 0;
 }
 
-int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *pml_result)
+int GetPml(int hd, int channel, char *oid, char *buf, int size, int *result, int *type, int *pml_result)
 {
    char message[BUFFER_SIZE+HEADER_SIZE];  
    int len=0, rlen=0;
    MsgAttributes ma;
 
+   *result = ERROR;
    *type = PML_TYPE_NULL_VALUE;
    *pml_result = PML_ERROR; 
  
@@ -420,6 +423,7 @@ int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *
    {  
       rlen = (ma.length > size) ? size : ma.length;
       memcpy(buf, ma.data, rlen);
+      *result = OK;
       *type = ma.type;
       *pml_result = ma.pmlresult;
    }
@@ -429,12 +433,13 @@ mordor:
    return rlen;
 }
 
-int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *pml_result)
+int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *result, int *pml_result)
 {
    char message[BUFFER_SIZE+HEADER_SIZE];  
    int len=0, slen=0;
    MsgAttributes ma;
  
+   *result = ERROR;
    *pml_result = PML_ERROR; 
 
    len = sprintf(message, "msg=SetPML\ndevice-id=%d\nchannel-id=%d\noid=%s\ntype=%d\nlength=%d\ndata:\n", hd, channel, oid, type, size);
@@ -465,6 +470,7 @@ int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *p
    if (ma.result == R_AOK)
    {  
       slen = size;
+      *result = OK;
       *pml_result = ma.pmlresult;
    }
 
@@ -484,7 +490,7 @@ int ReadChannelEx(int deviceid, int channelid, unsigned char * buffer, int lengt
    {
       len = size > BUFFER_SIZE ? BUFFER_SIZE : size;
         
-      n = hplip_ReadHP(deviceid, channelid, buffer+total, len, timeout);
+      n = hplip_ReadHP(deviceid, channelid, (char *)buffer+total, len, timeout);
       if (n <= 0)
       {
          break;    /* error or timeout */

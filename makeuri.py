@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.8 $ 
-# $Date: 2005/07/12 16:43:09 $
+# $Revision: 1.9 $ 
+# $Date: 2005/09/08 18:22:23 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '2.3'
+_VERSION = '2.4'
 
 # Std Lib
 import sys
@@ -38,35 +38,39 @@ from base.g import *
 from base import device, utils, msg
 
 def usage():
-    formatter = utils.TextFormatter( 
-                (
-                    {'width': 48, 'margin' : 2},
-                    {'width': 38, 'margin' : 2},
-                )
-            )
-
+##    formatter = utils.TextFormatter( 
+##                (
+##                    {'width': 48, 'margin' : 2},
+##                    {'width': 38, 'margin' : 2},
+##                )
+##            )
+    formatter = utils.usage_formatter(48)
     log.info( utils.bold( """\nUsage: hp-makeuri [OPTIONS] IPs|DEVNODEs\n\n""" ) )
 
-    log.info( formatter.compose( ( "[OPTIONS]",                            "" ) ) )
-    log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "Show the CUPS URI only (quiet mode)(See note):","-c or --cups" ) ) )
-    log.info( formatter.compose( ( "Show the SANE URI only (quiet mode)(See note):","-s or --sane" ) ) )
-    log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
+    log.info( formatter.compose( ( utils.bold("[OPTIONS]"), "" ) ) )
+    utils.usage_bus(formatter)
+    utils.usage_logging(formatter)
+    log.info( formatter.compose( ( "", "<level>: none, info*, error, warn, debug (*default)" ) ) )
+    log.info( formatter.compose( ( "Show the CUPS URI only (quiet mode)(See note 1):","-c or --cups" ) ) )
+    log.info( formatter.compose( ( "Show the SANE URI only (quiet mode)(See note 1):","-s or --sane" ) ) )
+    log.info( formatter.compose( ( "This help information:", "-h or --help" ) ) )
     log.info("")
-    log.info( "Note: Sets logging level to 'none'" )
+    log.info(utils.bold("Notes:"))
+    log.info("\t1. Sets logging level to 'none'")
+    log.info("\t2. Bus setting (par and/or usb) only applies if target is a DEVNODE.")
 
-
+    sys.exit(0)
 
 
 
 try:
     opts, args = getopt.getopt( sys.argv[1:], 
-                                'hl:cs', 
+                                'hl:csb:', 
                                 [ 'help', 
                                   'logging=',
                                   'cups',
-                                  'sane'
+                                  'sane',
+                                  'bus=',
                                 ] 
                               ) 
 except getopt.GetoptError:
@@ -77,6 +81,7 @@ except getopt.GetoptError:
 log_level = 'info'
 cups_quiet_mode = False
 sane_quiet_mode = False
+bus = 'usb,par'
 
 for o, a in opts:
 
@@ -92,19 +97,22 @@ for o, a in opts:
         
     elif o in ( '-s', '--sane' ):
         sane_quiet_mode = True
+        
+    elif o in ('-b', '--bus'):
+        bus = a.lower().strip()
+        
 
-
-if not log_level in ( 'none', 'info', 'warn', 'error', 'debug' ):
-    log.error( "Invalid logging level." )
+if not device.validateBusList(bus):
     usage()
-    sys.exit(0)
+    
+utils.log_title( 'Device URI Creation Utility', _VERSION )    
+
+if not log.set_level(log_level):
+    usage()
+    
     
 if cups_quiet_mode or sane_quiet_mode:
     log_level = 'none'
-
-log.set_level( log_level )
-
-utils.log_title( 'Device URI Creation Utility', _VERSION )
 
 hpiod_sock = None
 try:
@@ -126,6 +134,7 @@ for a in args:
     log.info( utils.bold( "Creating URIs for '%s':" % a ) )
 
     if ip_pat.search(a) is not None:
+        
         try:
             fields, data, result_code = \
                 msg.xmitMessage( hpiod_sock, 
@@ -156,30 +165,44 @@ for a in args:
             log.error( "Failed (error code=%d). Please check address of device and try again." % result_code )
         
     elif dev_pat.search(a) is not None:
-        try:
-            fields, data, result_code = \
-                msg.xmitMessage( hpiod_sock, 
-                                "MakeURI", 
-                                None, 
-                                { 
-                                    'device-file' : a,
-                                } 
-                               )
-        except Error:
-            result_code = ERROR_INTERNAL
-
-        if result_code == ERROR_SUCCESS:
-            cups_uri = fields.get( 'device-uri', '' )
-            sane_uri = cups_uri.replace("hp:","hpaio:")
+        if 'usb' not in bus and 'par' not in bus:
+            log.error("%s: DEVNODE specified but bus specification does not include 'usb' or 'par'." % a)
+            usage()
+        
+        found = False
+        for b in bus.split(','):
             
-            if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
-                print "CUPS URI:", cups_uri
-            
-            if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
-                print "SANE URI:", sane_uri
-            
-        else:
-            log.error( "Failed. Please check device node of device and try again." )
+            if b in ('usb', 'par'):
+                log.info("Trying bus: %s..." % b)
+                
+                try:
+                    fields, data, result_code = \
+                        msg.xmitMessage( hpiod_sock, 
+                                        "MakeURI", 
+                                        None, 
+                                        { 
+                                            'device-file' : a,
+                                            'bus' : b,
+                                        } 
+                                       )
+                except Error:
+                    result_code = ERROR_INTERNAL
+        
+                if result_code == ERROR_SUCCESS:
+                    cups_uri = fields.get( 'device-uri', '' )
+                    sane_uri = cups_uri.replace("hp:","hpaio:")
+                    
+                    if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                        print "CUPS URI:", cups_uri
+                    
+                    if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                        print "SANE URI:", sane_uri
+                        
+                    found = True
+                    break
+                    
+        if not found:
+            log.error( "%s: Failed. Please check device node of device and try again." % a )
             
     else:
         log.error( "Invalid IP or device node." )
