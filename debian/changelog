@@ -1,3 +1,12 @@
+hplip (0.9.5-2) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Added upstream patch 0.9.5-2
+      + Fix scanning on Laserjets
+      + Fix scanning on parallel-port only Inkjets
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 20 Sep 2005 01:01:05 -0300
+
 hplip (0.9.5-1) unstable; urgency=low
 
   * New upstream version

@@ -1,0 +1,19 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+## Upstream 0.9.5-2 patch
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix scanning issues with laserjets and parallel ports
+
+@DPATCH@
+diff -uNr hplip-0.9.5.old/scan/sane/mfpdtf.c hplip-0.9.5.new/scan/sane/mfpdtf.c
+--- hplip-0.9.5.old/scan/sane/mfpdtf.c	2005-09-09 13:55:39.000000000 -0700
++++ hplip-0.9.5.new/scan/sane/mfpdtf.c	2005-09-16 18:00:57.000000000 -0700
+@@ -575,7 +575,7 @@
+ 
+    /* Read fixed header with timeout in seconds. */
+    size = sizeof(MFPDTF_FIXED_HEADER);
+-   if ((len = hplip_ReadHP(device, channel, buf, size, timeout)) != size)
++   if ((len = ReadChannelEx(device, channel, (unsigned char *)buf, size, timeout)) != size)
+       goto bugout;
+ 
+    bsize = letoh32(phd->BlockLength);
