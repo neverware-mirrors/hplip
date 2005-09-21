@@ -1,10 +1,9 @@
-00_upstream-0.9.5-2
+00_upstream-0.9.5-3
 01_rss
 11_fix-misc-gcc-warnings
 13_intsign-fixes
 14_charsign_fixes
 15_64bit_fixes
 20_fix_unitialized_var_bugs
-40_testmail_fix
 50_hp-clean_fix
 99_ubuntu_hplip-deroot

@@ -1,0 +1,35 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+## Upstream 0.9.5-3 patch (includes 0.9.5-2 patch as well)
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix scanning issues with laserjets and parallel ports
+## DP: Fix scanning on little-endian platforms
+
+@DPATCH@
+diff -uNr hplip-0.9.5.old/scan/sane/mfpdtf.c hplip-0.9.5.new/scan/sane/mfpdtf.c
+--- hplip-0.9.5.old/scan/sane/mfpdtf.c	2005-09-09 13:55:39.000000000 -0700
++++ hplip-0.9.5.new/scan/sane/mfpdtf.c	2005-09-16 18:00:57.000000000 -0700
+@@ -575,7 +575,7 @@
+ 
+    /* Read fixed header with timeout in seconds. */
+    size = sizeof(MFPDTF_FIXED_HEADER);
+-   if ((len = hplip_ReadHP(device, channel, buf, size, timeout)) != size)
++   if ((len = ReadChannelEx(device, channel, (unsigned char *)buf, size, timeout)) != size)
+       goto bugout;
+ 
+    bsize = letoh32(phd->BlockLength);
+diff -uNr hplip-0.9.5.old/scan/sane/mfpdtf.h hplip-0.9.5.new/scan/sane/mfpdtf.h
+--- hplip-0.9.5.old/scan/sane/mfpdtf.h	2005-09-02 17:46:23.000000000 -0700
++++ hplip-0.9.5.new/scan/sane/mfpdtf.h	2005-09-20 11:28:19.201334144 -0700
+@@ -349,9 +349,9 @@
+ 
+ #if defined(WORDS_BIGENDIAN)
+ #define htole16(A) ((((uint16_t)(A) & 0xff00) >> 8) | (((uint16_t)(A) & 0x00ff) << 8))    /* host to little-endian 16-bit value */
+-#define letoh16 h2le16                         /* little-endian to host 16-bit value */
++#define letoh16 htole16                         /* little-endian to host 16-bit value */
+ #define htole32(A) ((((uint32_t)(A) & (uint32_t)0x000000ff) << 24) | (((uint32_t)(A) & (uint32_t)0x0000ff00) << 8) | \
+-                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))))
++                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))
+ #define letoh32 htole32
+ #else
+ #define htole16(A) (A)

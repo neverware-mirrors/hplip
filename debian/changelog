@@ -1,3 +1,14 @@
+hplip (0.9.5-3) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Added upstream patch 0.9.5-3
+      + Fix scanning on little-endian hosts
+    * Dropped 40_testmail_fix, not only it was already present upstream,
+      but I failed to notice patch screwing up royally when I rediffed it
+      for 0.9.5-1.  Thanks to HPLIP upstream for the heads'up(!)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 21 Sep 2005 00:06:21 -0300
+
 hplip (0.9.5-2) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:
