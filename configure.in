@@ -123,51 +123,76 @@ AS_IF([test "$network_build" = "yes"],
 	[AC_MSG_RESULT([no])]
 )
 
-CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
 
+AC_ARG_VAR([CUPS_BACKEND_PATH], [CUPS backend directory])
 AC_MSG_CHECKING([for cups backend path])
-CUPS_BACKEND_PATH="/usr/lib/cups/backend"
-for i in $CUPSSEARCHPATH; do
-   if test -d "$i/cups/backend"; then
-      CUPS_BACKEND_PATH="$i/cups/backend"
-      break
-   fi
-done
-AC_MSG_RESULT([using $CUPS_BACKEND_PATH])
+AS_IF([test "x${CUPS_BACKEND_PATH}" = "x"],
+	[
+	CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
+	CUPS_BACKEND_PATH="/usr/lib/cups/backend"
+	for i in $CUPSSEARCHPATH; do
+	   if test -d "$i/cups/backend"; then
+	      CUPS_BACKEND_PATH="$i/cups/backend"
+	      break
+	   fi
+	done
+	])
+AC_MSG_RESULT([using ${CUPS_BACKEND_PATH}])
 
 ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
-ICON="hplip hplip.desktop"
+ICONFILETYPES="hplip hplip.desktop"
 
-AC_MSG_CHECKING([for icon directory])
+AC_MSG_CHECKING([for icon/menu/desktop file install])
 ICON_PATH=""
 ICON_FILE=""
-idx=1
-for i in $ICONSEARCHPATH; do
-   if test -d "$i"; then
-      ICON_PATH="$i"
-      jdx=1
-      for j in $ICON; do
-         if test "$jdx" = "$idx"; then
-            break
-         fi
-         jdx=$jdx=1
-      done
-      ICON_FILE="$j"
-      break
-   fi
-   idx=$idx+1
-done
-if test "$ICON_PATH" != ""; then
-   AC_MSG_RESULT([using $ICON_PATH/$ICON_FILE])
-else
-   AC_MSG_RESULT([none])
-fi
+AC_ARG_WITH([icon],
+	AS_HELP_STRING([--with-icon@<:@=path@:>@],
+		[Where to install menu/desktop file (default=yes (autodetect))]),
+	[
+	AS_IF([test "x$withval" != "xyes" || test "x$withval" = "x"],
+		[
+		DO_ICON_AUTODETECT="no"
+		AS_IF([test "x$withval" != "xno"],
+			[
+			ICON_FILE=$(basename "${withval}")
+			ICON_PATH="${withval%${ICON_FILE}}"
+			],
+		)
+		],
+		[DO_ICON_AUTODETECT="yes"]
+	)
+	],
+	[DO_ICON_AUTODETECT="yes"]
+)
+AS_IF([test "x${DO_ICON_AUTODETECT}" = "xyes"],
+	[
+	idx=1
+	for i in ${ICONSEARCHPATH}; do
+	   if test -d "$i"; then
+	      ICON_PATH="$i"
+	      jdx=1
+	      for j in ${ICONFILETYPES}; do
+	         if test "$jdx" = "$idx"; then
+	            break
+	         fi
+	         jdx=$jdx+1
+	      done
+	      ICON_FILE="$j"
+	      break
+	   fi
+	   idx=$idx+1
+	done
+	])
+AS_IF([test "x${ICON_PATH}${ICON_FILE}" != "x"],
+   [AC_MSG_RESULT([using ${ICON_PATH}/${ICON_FILE}])],
+   [AC_MSG_RESULT([none])]
+)
 
-if test "$network_build" = "yes"; then
-   if test "$libsnmp" = "no"; then
+if test "x$network_build" = "xyes"; then
+   if test "x$libsnmp" = "xno"; then
       AC_MSG_ERROR([cannot find net-snmp support (or --disable-network-build)])
    fi
-   if test "$snmpdevel" = "no"; then
+   if test "x$snmpdevel" = "xno"; then
       AC_MSG_ERROR([cannot find net-snmp-devel support (or --disable-network-build)])
    fi
    AC_DEFINE(HAVE_LIBSNMP)

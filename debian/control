@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp9-dev, libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
+Build-Depends: libcupsys2-dev, libsnmp9-dev, libjpeg62-dev, python, python-dev, python-qt3 (>= 3.15-3), pyqt-tools (>= 3.15-3), debhelper (>> 4), autotools-dev, dpatch (>= 2)
 Standards-Version: 3.6.2
 
 Package: hplip-base
@@ -17,7 +17,7 @@ Description: HP Linux Printing and Imaging System - base system
  The HP Linux Printing and Imaging System provides full support for
  printing on most HP SFP (single function peripheral) InkJets and
  many LaserJets, and for scanning and photo-card access on most HP
- MFP (multi-funtcion peripheral) printers.
+ MFP (multi-function peripheral) printers.
  .
  HPLIP is composed of:
   * HP CUPS backend driver (hp:/) with bi-directional communication with

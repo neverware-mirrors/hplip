@@ -1846,10 +1846,11 @@ build-cupsext:
 maintainer-clean-local:
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-install-exec-hook: test-destdir
+install-exec-hook:
 #
 #       Do full install if not RPM_INSTALL.
 	if [ "$(RPM_INSTALL)" = "no" ]; then \
+	   $(mkinstalldirs) "$(DESTDIR)$(sanedir)"; \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SONOVER); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOSHORT); \
 	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOLONG); \
@@ -1860,12 +1861,13 @@ install-exec-hook: test-destdir
 	      fi \
 	   else \
 	       echo "Adding /etc/sane.d/dll.conf with hpaio entry..." ; \
+	       $(mkinstalldirs) "$(DESTDIR)/etc/sane.d"; \
 	       echo hpaio >$(DESTDIR)/etc/sane.d/dll.conf ; \
 	   fi \
 	fi
 
-install-data-hook: test-destdir
-	$(mkinstalldirs) $(DESTDIR)$(imagesdir)
+install-data-hook:
+	$(mkinstalldirs) "$(DESTDIR)$(imagesdir)"; \
 	find "$(CURDIR)/data/images" \( -name '*.jpg' -o -name '*.png' -o \
 			-name '*.pnm' -o -name '*.xpm' \) -print0 | \
 		xargs -0 -r -i $(INSTALL_DATA) {} "$(DESTDIR)$(imagesdir)"
@@ -1891,30 +1893,32 @@ install-data-hook: test-destdir
 	   echo -e "                longtitle=\"HPLIP Device Manager\" \\" >> $(srcdir)/$(ICON_FILE); \
 	   echo -e "                mimetypes=\"\" accept_url=\"false\" multiple_files=\"true\"" >> $(srcdir)/$(ICON_FILE); \
 	fi
-	$(INSTALL_DATA)  $(srcdir)/$(ICON_FILE) $(DESTDIR)$(icondir); \
-	rm -f $(srcdir)/$(ICON_FILE)
+	if [ -n "$(ICON_FILE)" ] && [ -f "$(srcdir)/$(ICON_FILE)" ]; then \
+		$(INSTALL_DATA) "$(srcdir)/$(ICON_FILE)" "$(DESTDIR)$(icondir)"; \
+		rm -f "$(srcdir)/$(ICON_FILE)"; \
+	fi
 #
 #       Do full install if not RPM_INSTALL.
 	if [ "$(RPM_INSTALL)" = "no" ]; then \
-	   if [ -d $(DESTDIR)$(ICON_PATH) ]; then \
-	      ln -sf $(icondir)/$(ICON_FILE) $(DESTDIR)$(ICON_PATH)/$(ICON_FILE); \
+	   if [ -d "$(DESTDIR)$(ICON_PATH)" ]; then \
+	      ln -sf "$(icondir)/$(ICON_FILE)" "$(DESTDIR)$(ICON_PATH)/$(ICON_FILE)"; \
 	   fi \
 	fi
 #
 #       Install pcard extension.
 	cd pcard/pcardext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   $(PYTHON) setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install "--prefix=$(prefix)"; \
 	else \
-	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install "--root=$(DESTDIR)" "--prefix=$(prefix)"; \
 	fi
 #
 #       Install cups extension.
 	cd prnt/cupsext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   $(PYTHON) setup.py install --prefix=$(prefix); \
+	   $(PYTHON) setup.py install "--prefix=$(prefix)"; \
 	else \
-	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install "--root=$(DESTDIR)" "--prefix=$(prefix)"; \
 	fi
 #       Remove .py extensions in destdir and if not RPM_INSTALL create hp-xxx commands in bindir.
 	for i in $(dist_cmd_SCRIPTS); do \
@@ -1935,8 +1939,8 @@ install-data-hook: test-destdir
 	rm -f $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp
 #
 #       Do full install if not RPM_INSTALL. Also only run chkconfig/install_initd if DESTDIR="". 
-	$(mkinstalldirs) $(DESTDIR)/etc/hp;
-	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp;
+	$(mkinstalldirs) $(DESTDIR)/etc/hp; \
+	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp; \
 	if [ "$(RPM_INSTALL)" = "no" ]; then \
 	   if [ -d $(DESTDIR)/etc/init.d ]; then \
 	      $(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d; \
@@ -1950,17 +1954,7 @@ install-data-hook: test-destdir
 	   fi \
 	fi
 
-#
-# Add prerequisites for testing (or building?) "make install DESTDIR=/build".
-test-destdir:
-	if [ "$(DESTDIR)" != "" ]; then \
-	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
-	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
-	   $(mkinstalldirs) $(DESTDIR)/usr/lib/sane; \
-	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
-	fi
-
-.PHONY: build-pcardext build-cupsext test-destdir
+.PHONY: build-pcardext build-cupsext
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

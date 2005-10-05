@@ -64,10 +64,10 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 	rm -f config.cache
 
 	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
+		CUPS_BACKEND_PATH=/usr/lib/cups/backend \
 		$(CONFFLAGS) \
 	 	--config-cache \
 		--disable-dependency-tracking \
-		--enable-rpm-install \
 		--prefix=/usr \
 		--mandir=\$${prefix}/share/man \
 		--infodir=\$${prefix}/share/info \
@@ -75,6 +75,8 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 		--libexecdir=\$${prefix}/lib \
 		--sysconfdir=/etc \
 		--enable-debug \
+		--enable-rpm-install \
+		--without-icon \
 		--disable-foomatic-install \
 		--disable-cups-install \
 		--enable-network-install

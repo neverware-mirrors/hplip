@@ -1,5 +1,7 @@
 usr/lib/hplip/base/async_qt.py
 usr/lib/hplip/ui
+usr/lib/hplip/plugins
+usr/lib/hplip/print
 usr/lib/hplip/toolbox
 usr/lib/hplip/unload
 usr/share/applications

@@ -97,3 +97,27 @@ diff -urNad --exclude=CVS --exclude=.svn ./scan/sane/scl.c ./scan/sane/scl.c
  
      if( i >= datalen )
      {
+diff -u -u -r1.1.1.4 cupsext.c
+--- ./prnt/cupsext/cupsext.c	9 Sep 2005 22:09:34 -0000
++++ ./prnt/cupsext/cupsext.c	22 Sep 2005 00:35:18 -0000
+@@ -96,7 +96,7 @@
+   for (ptr = name; *ptr; ptr ++)
+     if (*ptr == '@')
+       break;
+-    else if ((*ptr >= 0 && *ptr <= ' ') || *ptr == 127 || *ptr == '/')
++    else if ((*ptr < '!') || (*ptr > '~') || (*ptr == '/'))
+       return (0);
+ 
+  /*
+diff -u -u -r1.1.1.2 dj3320.cpp
+--- ./prnt/hpijs/dj3320.cpp	25 Mar 2005 21:12:01 -0000
++++ ./prnt/hpijs/dj3320.cpp	22 Sep 2005 00:35:18 -0000
+@@ -2896,7 +2896,7 @@
+     FillLidilHeader (NULL, eLDLLoadPage, (UInt16) mem_needed);
+ 
+     char    mediatype = MEDIATYPE_PLAIN;
+-    char    quality   = QUALITYLEVEL_NORMAL;
++    signed char quality  = QUALITYLEVEL_NORMAL;
+     if (m_cPrintQuality == QUALITY_BEST && m_cMediaType == MEDIA_PHOTO)
+     {
+         mediatype = MEDIATYPE_PHOTO;

@@ -474,7 +474,7 @@ ac_includes_default="\
 #endif"
 
 ac_subdirs_all="$ac_subdirs_all prnt/hpijs"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL subdirs PYTHON PYTHON_VERSION PYTHON_PREFIX PYTHON_EXEC_PREFIX PYTHON_PLATFORM pythondir pkgpythondir pyexecdir pkgpyexecdir PYUIC ac_ct_PYUIC CHKCONFIG ac_pt_CHKCONFIG INSTALLINITD ac_pt_INSTALLINITD RPM_INSTALL CUPS_BACKEND_PATH ICON_PATH ICON_FILE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL subdirs PYTHON PYTHON_VERSION PYTHON_PREFIX PYTHON_EXEC_PREFIX PYTHON_PLATFORM pythondir pkgpythondir pyexecdir pkgpyexecdir PYUIC ac_ct_PYUIC CHKCONFIG ac_pt_CHKCONFIG INSTALLINITD ac_pt_INSTALLINITD CUPS_BACKEND_PATH RPM_INSTALL ICON_PATH ICON_FILE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -971,6 +971,10 @@ ac_env_INSTALLINITD_set=${INSTALLINITD+set}
 ac_env_INSTALLINITD_value=$INSTALLINITD
 ac_cv_env_INSTALLINITD_set=${INSTALLINITD+set}
 ac_cv_env_INSTALLINITD_value=$INSTALLINITD
+ac_env_CUPS_BACKEND_PATH_set=${CUPS_BACKEND_PATH+set}
+ac_env_CUPS_BACKEND_PATH_value=$CUPS_BACKEND_PATH
+ac_cv_env_CUPS_BACKEND_PATH_set=${CUPS_BACKEND_PATH+set}
+ac_cv_env_CUPS_BACKEND_PATH_value=$CUPS_BACKEND_PATH
 
 #
 # Report the --help message.
@@ -1074,6 +1078,9 @@ Optional Packages:
                           both]
   --with-tags[=TAGS]
                           include additional configurations [automatic]
+  --with-icon[=path]
+                          Where to install menu/desktop file (default=yes
+                          (autodetect))
 
 Some influential environment variables:
   CC          C compiler command
@@ -1093,6 +1100,8 @@ Some influential environment variables:
   CHKCONFIG   LSB chkconfig utility
   INSTALLINITD
               LSB install_initd utility
+  CUPS_BACKEND_PATH
+              CUPS backend directory
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -3721,7 +3730,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3724 "configure"' > conftest.$ac_ext
+  echo '#line 3733 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5292,7 +5301,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5295:" \
+echo "$as_me:5304:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6388,11 +6397,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6391: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6400: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6395: \$? = $ac_status" >&5
+   echo "$as_me:6404: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6650,11 +6659,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6653: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6662: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6657: \$? = $ac_status" >&5
+   echo "$as_me:6666: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6712,11 +6721,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6715: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6724: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6719: \$? = $ac_status" >&5
+   echo "$as_me:6728: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8964,7 +8973,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8967 "configure"
+#line 8976 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9062,7 +9071,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9065 "configure"
+#line 9074 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11315,11 +11324,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11318: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11327: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11322: \$? = $ac_status" >&5
+   echo "$as_me:11331: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -11377,11 +11386,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11380: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11389: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11384: \$? = $ac_status" >&5
+   echo "$as_me:11393: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12762,7 +12771,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12765 "configure"
+#line 12774 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12860,7 +12869,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12863 "configure"
+#line 12872 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13745,11 +13754,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13748: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13757: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13752: \$? = $ac_status" >&5
+   echo "$as_me:13761: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13807,11 +13816,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13810: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13819: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13814: \$? = $ac_status" >&5
+   echo "$as_me:13823: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15948,11 +15957,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15951: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15960: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15955: \$? = $ac_status" >&5
+   echo "$as_me:15964: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16210,11 +16219,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16213: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16222: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16217: \$? = $ac_status" >&5
+   echo "$as_me:16226: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16272,11 +16281,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16275: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16284: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16279: \$? = $ac_status" >&5
+   echo "$as_me:16288: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18524,7 +18533,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18527 "configure"
+#line 18536 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18622,7 +18631,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18625 "configure"
+#line 18634 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -22991,58 +23000,97 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
+
 
 echo "$as_me:$LINENO: checking for cups backend path" >&5
 echo $ECHO_N "checking for cups backend path... $ECHO_C" >&6
-CUPS_BACKEND_PATH="/usr/lib/cups/backend"
-for i in $CUPSSEARCHPATH; do
-   if test -d "$i/cups/backend"; then
-      CUPS_BACKEND_PATH="$i/cups/backend"
-      break
-   fi
-done
-echo "$as_me:$LINENO: result: using $CUPS_BACKEND_PATH" >&5
-echo "${ECHO_T}using $CUPS_BACKEND_PATH" >&6
+if test "x${CUPS_BACKEND_PATH}" = "x"; then
 
-ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
-ICON="hplip hplip.desktop"
+	CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
+	CUPS_BACKEND_PATH="/usr/lib/cups/backend"
+	for i in $CUPSSEARCHPATH; do
+	   if test -d "$i/cups/backend"; then
+	      CUPS_BACKEND_PATH="$i/cups/backend"
+	      break
+	   fi
+	done
 
-echo "$as_me:$LINENO: checking for icon directory" >&5
-echo $ECHO_N "checking for icon directory... $ECHO_C" >&6
-ICON_PATH=""
-ICON_FILE=""
-idx=1
-for i in $ICONSEARCHPATH; do
-   if test -d "$i"; then
-      ICON_PATH="$i"
-      jdx=1
-      for j in $ICON; do
-         if test "$jdx" = "$idx"; then
-            break
-         fi
-         jdx=$jdx=1
-      done
-      ICON_FILE="$j"
-      break
-   fi
-   idx=$idx+1
-done
-if test "$ICON_PATH" != ""; then
-   echo "$as_me:$LINENO: result: using $ICON_PATH/$ICON_FILE" >&5
-echo "${ECHO_T}using $ICON_PATH/$ICON_FILE" >&6
-else
-   echo "$as_me:$LINENO: result: none" >&5
-echo "${ECHO_T}none" >&6
 fi
 
-if test "$network_build" = "yes"; then
-   if test "$libsnmp" = "no"; then
+echo "$as_me:$LINENO: result: using ${CUPS_BACKEND_PATH}" >&5
+echo "${ECHO_T}using ${CUPS_BACKEND_PATH}" >&6
+
+ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
+ICONFILETYPES="hplip hplip.desktop"
+
+echo "$as_me:$LINENO: checking for icon/menu/desktop file install" >&5
+echo $ECHO_N "checking for icon/menu/desktop file install... $ECHO_C" >&6
+ICON_PATH=""
+ICON_FILE=""
+
+# Check whether --with-icon or --without-icon was given.
+if test "${with_icon+set}" = set; then
+  withval="$with_icon"
+
+	if test "x$withval" != "xyes" || test "x$withval" = "x"; then
+
+		DO_ICON_AUTODETECT="no"
+		if test "x$withval" != "xno"; then
+
+			ICON_FILE=$(basename "${withval}")
+			ICON_PATH="${withval%${ICON_FILE}}"
+
+fi
+
+
+else
+  DO_ICON_AUTODETECT="yes"
+
+fi
+
+
+else
+  DO_ICON_AUTODETECT="yes"
+
+fi;
+if test "x${DO_ICON_AUTODETECT}" = "xyes"; then
+
+	idx=1
+	for i in ${ICONSEARCHPATH}; do
+	   if test -d "$i"; then
+	      ICON_PATH="$i"
+	      jdx=1
+	      for j in ${ICONFILETYPES}; do
+	         if test "$jdx" = "$idx"; then
+	            break
+	         fi
+	         jdx=$jdx+1
+	      done
+	      ICON_FILE="$j"
+	      break
+	   fi
+	   idx=$idx+1
+	done
+
+fi
+
+if test "x${ICON_PATH}${ICON_FILE}" != "x"; then
+  echo "$as_me:$LINENO: result: using ${ICON_PATH}/${ICON_FILE}" >&5
+echo "${ECHO_T}using ${ICON_PATH}/${ICON_FILE}" >&6
+else
+  echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+
+fi
+
+
+if test "x$network_build" = "xyes"; then
+   if test "x$libsnmp" = "xno"; then
       { { echo "$as_me:$LINENO: error: cannot find net-snmp support (or --disable-network-build)" >&5
 echo "$as_me: error: cannot find net-snmp support (or --disable-network-build)" >&2;}
    { (exit 1); exit 1; }; }
    fi
-   if test "$snmpdevel" = "no"; then
+   if test "x$snmpdevel" = "xno"; then
       { { echo "$as_me:$LINENO: error: cannot find net-snmp-devel support (or --disable-network-build)" >&5
 echo "$as_me: error: cannot find net-snmp-devel support (or --disable-network-build)" >&2;}
    { (exit 1); exit 1; }; }
@@ -23834,8 +23882,8 @@ s,@CHKCONFIG@,$CHKCONFIG,;t t
 s,@ac_pt_CHKCONFIG@,$ac_pt_CHKCONFIG,;t t
 s,@INSTALLINITD@,$INSTALLINITD,;t t
 s,@ac_pt_INSTALLINITD@,$ac_pt_INSTALLINITD,;t t
-s,@RPM_INSTALL@,$RPM_INSTALL,;t t
 s,@CUPS_BACKEND_PATH@,$CUPS_BACKEND_PATH,;t t
+s,@RPM_INSTALL@,$RPM_INSTALL,;t t
 s,@ICON_PATH@,$ICON_PATH,;t t
 s,@ICON_FILE@,$ICON_FILE,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t

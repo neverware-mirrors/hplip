@@ -1,3 +1,4 @@
 /usr/share/doc/hplip-base	/usr/share/doc/hplip
 /usr/lib/hplip/toolbox		/usr/bin/hp-toolbox
 /usr/lib/hplip/unload		/usr/bin/hp-unload
+/usr/lib/hplip/print		/usr/bin/hp-print

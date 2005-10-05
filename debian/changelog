@@ -1,3 +1,20 @@
+hplip (0.9.5-4) unstable; urgency=low
+
+  * Henrique de Moraes Holschuh:
+    * Add more hunks to 14_charsign_fixes, probably non-critical fixes
+    * Clean up and revamp configure.in/Makefile.am so that it is less buggy
+      re. some 'assumptions' made upstream (closes: #329782)
+    * Version pyqt build-dependendices to make sure no autobuilder will
+      screw us over the C++/gcc transition, these can be removed in the
+      not-so-distant future
+    * Fix minor typo in a package description
+    * Move hp-print from hplip-base to hplip, as it has a GUI now, thanks
+      to HPLIP upstream for the bug report
+    * Move /usr/lib/hplip/plugins from hplip-base to hplip package, as it
+      is an ui/ component
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  5 Oct 2005 00:14:33 -0300
+
 hplip (0.9.5-3) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:
