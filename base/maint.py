@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.36 $
-# $Date: 2005/08/15 21:19:55 $
+# $Revision: 1.37 $
+# $Date: 2005/09/14 22:49:39 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -1213,3 +1213,15 @@ def colorCalType4Phase3(dev):
                          pml.PRINT_INTERNAL_PAGE_COLOR_PALETTE_CMYK_PAGE)
 
 
+
+def colorCalType5(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 20;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")
+    
+def linefeedCalType1(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 3;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")
+    
+def printQualityDiagType1(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 14;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")

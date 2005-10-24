@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.33 $
-# $Date: 2005/08/18 17:48:54 $
+# $Revision: 1.34 $
+# $Date: 2005/09/14 22:49:39 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -500,6 +500,7 @@ COLOR_CAL_TYPE_DESKJET_450 = 1
 COLOR_CAL_TYPE_MALIBU_CRICK = 2
 COLOR_CAL_TYPE_STRINGRAY_LONGBOW_TORNADO = 3
 COLOR_CAL_TYPE_CONNERY = 4
+COLOR_CAL_TYPE_COUSTEAU = 5
 
 # status-types
 STATUS_TYPE_NONE = 0

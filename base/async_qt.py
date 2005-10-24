@@ -25,8 +25,8 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # ======================================================================
 #
-# $Revision: 1.9 $ 
-# $Date: 2005/02/02 21:54:48 $
+# $Revision: 1.10 $ 
+# $Date: 2005/10/07 20:57:07 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -119,21 +119,7 @@ class dispatcher( QObject ):
             self.socket = None
         
 
-    def __repr__ (self):
-        status = [self.__class__.__module__+"."+self.__class__.__name__]
-        if self.accepting and self.addr:
-            status.append ('listening')
-        elif self.connected:
-            status.append ('connected')
-        if self.addr is not None:
-            try:
-                status.append ('%s:%d' % self.addr)
-            except TypeError:
-                status.append (repr(self.addr))
-        return '<%s at %#x>' % (' '.join (status), id (self))
-
     def add_channel ( self ): 
-        #print "add_channel"
         global channels
         channels[ self._fileno ] = self
         
@@ -148,15 +134,11 @@ class dispatcher( QObject ):
         self.sock_write_notifier.setEnabled( False )
 
     def del_channel( self ): 
-        #print "del_channel"
         QObject.disconnect( self.sock_read_notifier, SIGNAL( "activated(int)" ), self.handle_read_event )
         QObject.disconnect( self.sock_write_notifier, SIGNAL( "activated(int)" ), self.handle_write_event )
 
         self.sock_write_notifier.setEnabled( False )
         self.sock_read_notifier.setEnabled( False )
-
-        #del self.sock_read_notifier
-        #del self.sock_write_notifier
 
         global channels
         try:
@@ -206,8 +188,11 @@ class dispatcher( QObject ):
     def connect( self, address ):
         self.connected = False
         err = self.socket.connect_ex( address )
+        
         if err in ( EINPROGRESS, EALREADY, EWOULDBLOCK ):
-            return
+            print "1"
+            r, w, e = select.select([], [self.socket.fileno()], [], 5.0)
+            err = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
         if err in (0, EISCONN):
             self.addr = address
             self.connected = True
@@ -235,9 +220,7 @@ class dispatcher( QObject ):
                 self.sock_write_notifier.setEnabled( True )
                 return 0
             else:
-                #self.sock_write_notifier.setEnabled( True )
                 raise socket.error, why
-            #return 0
         else: # write succeeded
             self.sock_write_notifier.setEnabled( False )
             return result
@@ -280,12 +263,8 @@ class dispatcher( QObject ):
         elif not self.connected:
             self.handle_connect()
             self.connected = True
-            #if self.handle_read():
-            #    self.sock_write_notifier.setEnabled( True )
             self.handle_read()
         else:
-            #if self.handle_read():
-            #    self.sock_write_notifier.setEnabled( True )
             self.handle_read()
 
     def handle_write_event( self ):
@@ -311,7 +290,8 @@ class dispatcher( QObject ):
         raise Error
         
     def handle_connect( self ):
-        raise Error
+        #raise Error
+        pass
 
     def handle_accept( self ):
         raise Error

@@ -41,11 +41,12 @@ host_triplet = @host@
 bin_PROGRAMS = hpijs$(EXEEXT)
 DIST_COMMON = $(am__configure_deps) $(srcdir)/../../config.guess \
 	$(srcdir)/../../config.sub $(srcdir)/../../depcomp \
-	$(srcdir)/../../install-sh $(srcdir)/../../missing \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure ../../COPYING ../../ChangeLog \
-	../../INSTALL ../../config.guess ../../config.sub \
-	../../depcomp ../../install-sh ../../missing COPYING INSTALL
+	$(srcdir)/../../install-sh $(srcdir)/../../ltmain.sh \
+	$(srcdir)/../../missing $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure ../../COPYING \
+	../../ChangeLog ../../INSTALL ../../config.guess \
+	../../config.sub ../../depcomp ../../install-sh \
+	../../ltmain.sh ../../missing COPYING INSTALL
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
@@ -60,22 +61,23 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_hpijs_OBJECTS = hpijs.$(OBJEXT) ijs_server.$(OBJEXT) ijs.$(OBJEXT) \
-	models.$(OBJEXT) breaks_open.$(OBJEXT) dj9xxvip.$(OBJEXT) \
-	dj9xx.$(OBJEXT) capture.$(OBJEXT) colormatch.$(OBJEXT) \
-	colormatcher_open.$(OBJEXT) compression.$(OBJEXT) \
-	context.$(OBJEXT) create_so.$(OBJEXT) creator.$(OBJEXT) \
-	dj600.$(OBJEXT) dj630.$(OBJEXT) dj660.$(OBJEXT) \
-	dj690.$(OBJEXT) dj6xx.$(OBJEXT) dj8xx.$(OBJEXT) \
-	dj600_maps.$(OBJEXT) dj660_maps.$(OBJEXT) dj690_maps.$(OBJEXT) \
-	dj895_maps.$(OBJEXT) dj895_maps2.$(OBJEXT) \
-	dj970_maps.$(OBJEXT) dj970_maps2.$(OBJEXT) \
-	dj970_maps3.$(OBJEXT) filterhpa.$(OBJEXT) apollo21xx.$(OBJEXT) \
-	apollo2560.$(OBJEXT) apollo2xxx.$(OBJEXT) dj8x5.$(OBJEXT) \
-	psp100.$(OBJEXT) phobos_cmaps.$(OBJEXT) dj350.$(OBJEXT) \
-	halftoner.$(OBJEXT) halftoner_open.$(OBJEXT) globals.$(OBJEXT) \
-	header.$(OBJEXT) htmtxhi.$(OBJEXT) pmselect.$(OBJEXT) \
-	job.$(OBJEXT) printer.$(OBJEXT) registry.$(OBJEXT) \
-	scaler.$(OBJEXT) scaler_open.$(OBJEXT) script.$(OBJEXT) \
+	models.$(OBJEXT) breaks_open.$(OBJEXT) hpijsfax.$(OBJEXT) \
+	dj9xxvip.$(OBJEXT) dj9xx.$(OBJEXT) capture.$(OBJEXT) \
+	colormatch.$(OBJEXT) colormatcher_open.$(OBJEXT) \
+	compression.$(OBJEXT) context.$(OBJEXT) create_so.$(OBJEXT) \
+	creator.$(OBJEXT) dj600.$(OBJEXT) dj630.$(OBJEXT) \
+	dj660.$(OBJEXT) dj690.$(OBJEXT) dj6xx.$(OBJEXT) \
+	dj8xx.$(OBJEXT) dj600_maps.$(OBJEXT) dj660_maps.$(OBJEXT) \
+	dj690_maps.$(OBJEXT) dj895_maps.$(OBJEXT) \
+	dj895_maps2.$(OBJEXT) dj970_maps.$(OBJEXT) \
+	dj970_maps2.$(OBJEXT) dj970_maps3.$(OBJEXT) \
+	filterhpa.$(OBJEXT) apollo21xx.$(OBJEXT) apollo2560.$(OBJEXT) \
+	apollo2xxx.$(OBJEXT) dj8x5.$(OBJEXT) psp100.$(OBJEXT) \
+	phobos_cmaps.$(OBJEXT) dj350.$(OBJEXT) halftoner.$(OBJEXT) \
+	halftoner_open.$(OBJEXT) globals.$(OBJEXT) header.$(OBJEXT) \
+	htmtxhi.$(OBJEXT) pmselect.$(OBJEXT) job.$(OBJEXT) \
+	printer.$(OBJEXT) registry.$(OBJEXT) scaler.$(OBJEXT) \
+	scaler_open.$(OBJEXT) script.$(OBJEXT) \
 	systemservices.$(OBJEXT) services.$(OBJEXT) \
 	translator.$(OBJEXT) version.$(OBJEXT) versioncode.$(OBJEXT) \
 	djgenericvip.$(OBJEXT) dj540.$(OBJEXT) dj850.$(OBJEXT) \
@@ -86,7 +88,7 @@ am_hpijs_OBJECTS = hpijs.$(OBJEXT) ijs_server.$(OBJEXT) ijs.$(OBJEXT) \
 	ljjetready.$(OBJEXT) jdatadbf.$(OBJEXT) jccolor.$(OBJEXT) \
 	ljfastraster.$(OBJEXT) hplip_api.$(OBJEXT)
 hpijs_OBJECTS = $(am_hpijs_OBJECTS)
-hpijs_LDADD = $(LDADD)
+@HPLIP_BUILD_TRUE@hpijs_DEPENDENCIES = ../../libhpip.la
 binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 SCRIPTS = $(bin_SCRIPTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
@@ -94,13 +96,20 @@ depcomp = $(SHELL) $(top_srcdir)/../../depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
+CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(hpijs_SOURCES)
 DIST_SOURCES = $(hpijs_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -128,6 +137,7 @@ ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
+AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -142,18 +152,24 @@ CUPS_INSTALL_FALSE = @CUPS_INSTALL_FALSE@
 CUPS_INSTALL_TRUE = @CUPS_INSTALL_TRUE@
 CUPS_PPD_PATH = @CUPS_PPD_PATH@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+F77 = @F77@
+FFLAGS = @FFLAGS@
 FOOMATIC_INSTALL_FALSE = @FOOMATIC_INSTALL_FALSE@
 FOOMATIC_INSTALL_TRUE = @FOOMATIC_INSTALL_TRUE@
+HPLIP_BUILD_FALSE = @HPLIP_BUILD_FALSE@
+HPLIP_BUILD_TRUE = @HPLIP_BUILD_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -161,6 +177,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
@@ -174,12 +192,16 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
+ac_ct_F77 = @ac_ct_F77@
+ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
@@ -222,7 +244,7 @@ hpijsdocdir = $(docdir)/$(PACKAGE)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL = HPLIP-0_9_5_2
+APDKLABEL = HPLIP-0_9_6_4
 APDKCOMMON = slimhost/source/common
 APDKOPEN = slimhost/source/open
 APDKDEBUG = slimhost/source/debug
@@ -239,7 +261,7 @@ FOOMATICLABEL = foomatic-3_0-branch
 @CUPS_INSTALL_FALSE@@FOOMATIC_INSTALL_TRUE@uncupshook = 
 @CUPS_INSTALL_TRUE@@FOOMATIC_INSTALL_TRUE@uncupshook = uninstall-cups
 @FOOMATIC_INSTALL_FALSE@uncupshook = 
-hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
+hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax.cpp \
 	dj9xxvip.cpp dj9xx.cpp capture.cpp colormatch.cpp colormatcher_open.cpp \
 	compression.cpp context.cpp create_so.cpp creator.cpp \
 	dj600.cpp dj630.cpp dj660.cpp dj690.cpp dj6xx.cpp dj8xx.cpp dj600_maps.cpp \
@@ -264,15 +286,16 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
 	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
 	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h \
 	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c README_LIBJPG ljfastraster.cpp ljfastraster.h \
-	jinclude.h jpegint.h hplip_api.c hplip_api.h
+	jinclude.h jpegint.h hplip_api.c hplip_api.h dj55xx.h hpijsfax.h ojprokx50.h
 
+@HPLIP_BUILD_TRUE@hpijs_LDADD = ../../libhpip.la
 hpijsdoc_DATA = hpijs_readme.html gs_hpijs.png COPYING
 bin_SCRIPTS = $(rip)
 EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.1.patch
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 am--refresh:
 	@:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -312,10 +335,11 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
 	  if test -f $$p \
+	     || test -f $$p1 \
 	  ; then \
 	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
-	   echo " $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'"; \
-	   $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) "$$p" "$(DESTDIR)$(bindir)/$$f" || exit 1; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'"; \
+	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) "$$p" "$(DESTDIR)$(bindir)/$$f" || exit 1; \
 	  else :; fi; \
 	done
 
@@ -328,7 +352,11 @@ uninstall-binPROGRAMS:
 	done
 
 clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  echo " rm -f $$p $$f"; \
+	  rm -f $$p $$f ; \
+	done
 hpijs$(EXEEXT): $(hpijs_OBJECTS) $(hpijs_DEPENDENCIES) 
 	@rm -f hpijs$(EXEEXT)
 	$(CXXLINK) $(hpijs_LDFLAGS) $(hpijs_OBJECTS) $(hpijs_LDADD) $(LIBS)
@@ -402,6 +430,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/halftoner_open.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/header.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpijs.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpijsfax.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpiom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hplip_api.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htmtxhi.Po@am__quote@
@@ -445,6 +474,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
+.c.lo:
+@am__fastdepCC_TRUE@	if $(LTCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
@@ -458,6 +494,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+@am__fastdepCXX_TRUE@	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
 uninstall-info-am:
 install-hpijsdocDATA: $(hpijsdoc_DATA)
 	@$(NORMAL_INSTALL)
@@ -685,14 +737,14 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-tags
+	distclean-libtool distclean-tags
 
 dvi: dvi-am
 
@@ -725,7 +777,8 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
 
 pdf: pdf-am
 
@@ -741,17 +794,18 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
-	clean-binPROGRAMS clean-generic ctags dist dist-all dist-bzip2 \
-	dist-gzip dist-shar dist-tarZ dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-binSCRIPTS install-data install-data-am \
-	install-data-hook install-exec install-exec-am \
-	install-hpijsdocDATA install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	clean-binPROGRAMS clean-generic clean-libtool ctags dist \
+	dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ dist-zip \
+	distcheck distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-binSCRIPTS \
+	install-data install-data-am install-data-hook install-exec \
+	install-exec-am install-hpijsdocDATA install-info \
+	install-info-am install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-binSCRIPTS uninstall-hook uninstall-hpijsdocDATA \
 	uninstall-info-am
@@ -875,6 +929,45 @@ get-ppd-tip:
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
 
+get-ppd-shadow:
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-filters
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-hpijs
+	-cp -f foomatic/foomatic-db/*.xml foomatic-db/db/source/printer/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-generator.in foomatic-db-hpijs/data-generators/hpijs/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-printermap foomatic-db-hpijs/data-generators/hpijs/
+	cd foomatic-db-hpijs; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-filters; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-db-engine; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	./hpijs-ppd
+	cp foomatic-filters/foomatic-rip ./
+	rm -rf foomatic-db-engine
+	rm -rf foomatic-filters
+	rm -rf foomatic-db
+	rm -rf foomatic-db-hpijs
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
+	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
+	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
+
 get-ppd-user:
 	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
 	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-filters
@@ -938,12 +1031,6 @@ test-ppd:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
-
-copy:
-#	cp -r $(DIST_SOURCES) $(EXTRA_DIST) $(DIST_COMMON) $(COPY_DEST)
-	cp -rL $(hpijs_SOURCES) $(EXTRA_DIST) $(DIST_COMMON) $(COPY_DEST)
-
-.PHONY: copy
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

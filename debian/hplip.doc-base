@@ -7,5 +7,5 @@ Abstract: User manual for the HP Linux Printing and Imaging
 Section: Apps/Tools
 
 Format: HTML
-Index: /usr/share/doc/hplip-base/hplip_readme.html
-Files: /usr/share/doc/hplip-base/hplip_readme.html /usr/share/doc/hplip-base/hplip_overview.png
+Index: /usr/share/doc/hplip/hplip_readme.html
+Files: /usr/share/doc/hplip/hplip_readme.html /usr/share/doc/hplip/hplip_overview.png

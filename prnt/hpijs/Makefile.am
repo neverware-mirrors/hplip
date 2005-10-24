@@ -2,7 +2,7 @@ hpijsdocdir = $(docdir)/$(PACKAGE)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_5_2
+APDKLABEL=HPLIP-0_9_6_4
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -29,7 +29,7 @@ uncupshook =
 endif
 
 bin_PROGRAMS = hpijs
-hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
+hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax.cpp \
 	dj9xxvip.cpp dj9xx.cpp capture.cpp colormatch.cpp colormatcher_open.cpp \
 	compression.cpp context.cpp create_so.cpp creator.cpp \
 	dj600.cpp dj630.cpp dj660.cpp dj690.cpp dj6xx.cpp dj8xx.cpp dj600_maps.cpp \
@@ -54,7 +54,11 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
 	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
 	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h \
 	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c README_LIBJPG ljfastraster.cpp ljfastraster.h \
-	jinclude.h jpegint.h hplip_api.c hplip_api.h
+	jinclude.h jpegint.h hplip_api.c hplip_api.h dj55xx.h hpijsfax.h ojprokx50.h
+
+if HPLIP_BUILD
+hpijs_LDADD = ../../libhpip.la
+endif
 
 hpijsdoc_DATA	= hpijs_readme.html gs_hpijs.png COPYING
 bin_SCRIPTS = $(rip)
@@ -179,6 +183,45 @@ get-ppd-tip:
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
 
+get-ppd-shadow:
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-filters
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-hpijs
+	-cp -f foomatic/foomatic-db/*.xml foomatic-db/db/source/printer/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-generator.in foomatic-db-hpijs/data-generators/hpijs/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-printermap foomatic-db-hpijs/data-generators/hpijs/
+	cd foomatic-db-hpijs; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-filters; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-db-engine; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	./hpijs-ppd
+	cp foomatic-filters/foomatic-rip ./
+	rm -rf foomatic-db-engine
+	rm -rf foomatic-filters
+	rm -rf foomatic-db
+	rm -rf foomatic-db-hpijs
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
+	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
+	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
+
 get-ppd-user:
 	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
 	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-filters
@@ -242,10 +285,4 @@ test-ppd:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
-
-copy:
-#	cp -r $(DIST_SOURCES) $(EXTRA_DIST) $(DIST_COMMON) $(COPY_DEST)
-	cp -rL $(hpijs_SOURCES) $(EXTRA_DIST) $(DIST_COMMON) $(COPY_DEST)
-
-.PHONY: copy
 

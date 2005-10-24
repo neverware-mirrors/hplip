@@ -1,15 +1,15 @@
 Notes about the Debian hplip packages
-$Id: hplip-base.README.Debian,v 1.7 2005/09/17 15:58:44 hmh Exp $
+$Id: hplip.README.Debian,v 1.8 2005/10/15 21:39:04 hmh Exp $
 ==========================================================================
 
-HPLIP is supposed to make things very easy for the end user.  That isn't 
+HPLIP is supposed to make things very easy for the end user.  That isn't
 exactly true at this point in time, but it is shaping rather nicely, only
 the network autodetection is still somewhat arcane, plus problems with a
-few selected printers that have misbehaving or buggy firmware.
+few selected printers that have misbehaving or buggy firmware/hardware.
 
 HPOJ and HPLIP cannot share a device.  For HPLIP to work, you must
-configure HPOJ properly so that it does not talk to the devices you want
-to use HPLIP with.
+configure HPOJ properly so that it does not talk to the devices you want to
+use HPLIP with.
 
 Warning: Some broken as designed USB printers cannot work in bi-dir mode,
 and thus HPLIP will at best work with reduced functionality, if at all.
@@ -18,10 +18,7 @@ and thus HPLIP will at best work with reduced functionality, if at all.
 Quick Install:
 --------------
 
-1. Install the hplip-ppds, hpijs and cupsys packages.  Optionally, 
-   install the hplip package for the GUIs.  If you want newer PPDs,
-   you can use the foomatic-filters-ppds or the foomatic-db-engine and
-   foomatic-db-hpijs packages instead of hplip-ppds.
+1. Install the hplip-ppds, hpijs and cupsys packages.
 
 2. Make sure hplip can find your printer (see the Detecting the printer
    section of this document).
@@ -45,9 +42,10 @@ should check if it is being found by the HPLIP services.
 HPLIP won't be able to talk to your printer if anything on the lower layers
 is broken, so make sure you have the USB subsystem in a sane state if you
 are using USB printers (hint: usblp must be active, either loaded as a
-module, or built into the kernel, the device must be listed in lsusb, and
-you MUST have the proper /dev/usb/lp0 device inodes), and that you can ping
-the printer (for networked printers).
+module, or built into the kernel, the device must be listed in lsusb as
+root, and you MUST have the proper /dev/usb/lp0 device inodes, with rw
+permission for group lp), and that you can ping the printer (for networked
+printers).
 
 First, you need the HPLIP services running (/etc/init.d/hplip start).
 Then, you can use the hp-probe utility to find the printer:
@@ -58,11 +56,11 @@ Once it is detected, restart CUPS and add the printer to the CUPS
 configuration.  Note that networked devices are NOT always detected, but
 see below:
 
-For network-connected devices, use the hp-makeuri utility to generate
-an URI that is suitable for the HP CUPS backend for your printer, and use
-that URI when setting up the printer in CUPS.  After that, hp-probe and
-others will work just fine.  The networked printer must be connected and
-online for hp-makeuri to work.
+For network-connected devices, use the hp-makeuri utility to generate an
+URI that is suitable for the HP CUPS backend for your printer, and use that
+URI when setting up the printer in CUPS.  After that, hp-probe and others
+will work just fine.  The networked printer must be connected and online
+for hp-makeuri to work.
 
 
 Printing:
@@ -70,25 +68,26 @@ Printing:
 
 All printing in HPLIP is done through CUPS.  If you require other printing
 system, HPLIP won't work for you, and you are stuck with HPOJ.  One *could*
-write a non-CUPS backend to fix this limitation.  If you feel like writing 
+write a non-CUPS backend to fix this limitation.  If you feel like writing
 one, please drop me a note.
 
 The HP CUPS backend tries to be very helpful and detect every printer
 automatically... at CUPS startup time.  And, sometimes, it will only work
 when the HPLIP daemons are already up and running, and your printer is
-connected (and online, for network printers). 
+connected (and online, for network printers).  It may also cause some
+annoying messages to be delivered to syslog while it tries to find any
+parallel-port devices.
 
-So, if your printer doesn't show up, please make sure the HPLIP services are 
-running (/etc/init.d/hplip start), and then reload the CUPS configuration
-(/etc/init.d/cupsys reload) or restart CUPS.
+So, if your printer doesn't show up, please make sure the HPLIP services
+are running (/etc/init.d/hplip start), and then reload the CUPS
+configuration (/etc/init.d/cupsys reload) or restart CUPS.
 
-It is necessary to add the printer to CUPS before most HPLIP utilities
-will work.  To that end, you need to configure a printer in CUPS that
-uses the hp:/ backend (other backends won't work with HPLIP).
+It is necessary to add the printer to CUPS before most HPLIP utilities will
+work.  To that end, you need to configure a printer in CUPS that uses the
+hp:/ backend (other backends won't work with HPLIP).
 
-Chances are you will need the hpijs (required by most printers supported
-by HPLIP) and one of the hplip-ppds, foomatic-db-hpijs package, or
-foomatic-filters-ppds packages installed to be able to set the printer up
+Chances are you will need the hpijs (required by most printers supported by
+HPLIP) and hplip-ppds packages installed to be able to set the printer up
 correctly in CUPS, as CUPS needs to find the PPD for your printer somewhere
 to sucessfully install it.  This PPD file can be provided by either of the
 above mentioned packages.  Note that foomatic-db-hpijs needs the PPD to be
@@ -99,10 +98,10 @@ IF you generate the PPD manually, remember to update it when you update
 hplip, as HPLIP is constantly enhancing the PPDs for new functionality.
 This is valid for PPDs from http://linuxprinting.org as well.
 
-CUPS is most braindamaged in that it will NOT automatically use an
-updated version of a PPD installed in the system, so you will need to
-perform the steps below every time you update the PPD or any of the
-packages that provide the PPD files.
+CUPS is most braindamaged in that it will NOT automatically use an updated
+version of a PPD installed in the system, so you will need to perform the
+steps below every time you update the PPD or any of the packages that
+provide the PPD files.
 
 To update a CUPS PPD:
   1. Update the PPD file (if not from a package)
@@ -118,7 +117,8 @@ Scanning:
 The HPLIP SANE backend is called hpaio.  Hpaio requires the HPLIP services
 running to work, and it should "just work" out of the box.
 
-To access the scanning functions, make sure you have xsane properly 
-installed, and either use the hp-toolbox, or run xsane to access the scanner.
+To access the scanning functions, make sure you have xsane properly
+installed, and either use the hp-toolbox, or run xsane to access the
+scanner.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>

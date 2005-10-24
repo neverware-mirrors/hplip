@@ -1,4 +1,13 @@
-/usr/share/doc/hplip-base	/usr/share/doc/hplip
+/usr/lib/hplip/hpssd.py		/usr/sbin/hpssd
+/usr/lib/hplip/align		/usr/bin/hp-align
+/usr/lib/hplip/info		/usr/bin/hp-info
+/usr/lib/hplip/clean		/usr/bin/hp-clean
+/usr/lib/hplip/colorcal		/usr/bin/hp-colorcal
+/usr/lib/hplip/photo		/usr/bin/hp-photo
+/usr/lib/hplip/probe		/usr/bin/hp-probe
+/usr/lib/hplip/testpage		/usr/bin/hp-testpage
+/usr/lib/hplip/makeuri  	/usr/bin/hp-makeuri
+/usr/lib/hplip/levels		/usr/bin/hp-levels
 /usr/lib/hplip/toolbox		/usr/bin/hp-toolbox
 /usr/lib/hplip/unload		/usr/bin/hp-unload
 /usr/lib/hplip/print		/usr/bin/hp-print

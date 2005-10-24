@@ -17,7 +17,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([HP Linux Imaging and Printing],
-	[0.9.5],
+	[0.9.6],
 	[hplip@packages.debian.org],
 	[hplip])
 

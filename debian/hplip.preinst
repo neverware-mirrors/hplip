@@ -14,21 +14,16 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-
 case "$1" in
-    upgrade)
-	# Remove old doc dir, since dpkg will not replace it with the symlink
-	if [ -d /usr/share/doc/hplip ] && ! [ -h /usr/share/doc/hplip ]; then
-		rm -rf /usr/share/doc/hplip
-	fi
-    ;;
-    install)
-    ;;
-    abort-upgrade)
-        # Remove the symlink, no matter what
+    upgrade|install|abort-upgrade)
+	# Remove symlink, dpkg doesn't like it at all
 	if [ -h /usr/share/doc/hplip ]; then
 		rm -f /usr/share/doc/hplip
 	fi
+	# Kill any pre-compiled python crap which WILL bite us in the arse
+	[ -d /usr/lib/hplip ] && \
+		find /usr/lib/hplip \( -name '*.pyc' -o -name '*.pyo' \) \
+			-exec rm -f {} \;
     ;;
 
     *)
@@ -43,5 +38,3 @@ esac
 #DEBHELPER#
 
 exit 0
-
-

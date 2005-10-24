@@ -51,9 +51,9 @@ noinst_PROGRAMS = ptest$(EXEEXT)
 DIST_COMMON = $(am__configure_deps) $(dist_base_SCRIPTS) \
 	$(dist_cmd_SCRIPTS) $(dist_fax_SCRIPTS) $(dist_hplip_DATA) \
 	$(dist_hplipdoc_DATA) $(dist_hpliplibexec_SCRIPTS) \
-	$(dist_ldl_DATA) $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
-	$(dist_pcard_SCRIPTS) $(dist_pcl_DATA) $(dist_plugins_SCRIPTS) \
-	$(dist_prnt_SCRIPTS) $(dist_ps_DATA) $(dist_scan_SCRIPTS) \
+	$(dist_images_DATA) $(dist_ldl_DATA) $(dist_noinst_DATA) \
+	$(dist_noinst_SCRIPTS) $(dist_pcard_SCRIPTS) $(dist_pcl_DATA) \
+	$(dist_plugins_SCRIPTS) $(dist_prnt_SCRIPTS) $(dist_ps_DATA) \
 	$(dist_ui_SCRIPTS) $(dist_xml_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure COPYING \
 	ChangeLog INSTALL config.guess config.sub depcomp install-sh \
@@ -78,8 +78,8 @@ am__installdirs = "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" \
 	"$(DESTDIR)$(cmddir)" "$(DESTDIR)$(faxdir)" \
 	"$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" \
 	"$(DESTDIR)$(pluginsdir)" "$(DESTDIR)$(prntdir)" \
-	"$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" \
-	"$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" \
+	"$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" \
+	"$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(imagesdir)" \
 	"$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" \
 	"$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"
 saneLTLIBRARIES_INSTALL = $(INSTALL)
@@ -120,12 +120,11 @@ dist_hpliplibexecSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_pcardSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_pluginsSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_prntSCRIPT_INSTALL = $(INSTALL_SCRIPT)
-dist_scanSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_uiSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 SCRIPTS = $(dist_base_SCRIPTS) $(dist_cmd_SCRIPTS) $(dist_fax_SCRIPTS) \
 	$(dist_hpliplibexec_SCRIPTS) $(dist_noinst_SCRIPTS) \
 	$(dist_pcard_SCRIPTS) $(dist_plugins_SCRIPTS) \
-	$(dist_prnt_SCRIPTS) $(dist_scan_SCRIPTS) $(dist_ui_SCRIPTS)
+	$(dist_prnt_SCRIPTS) $(dist_ui_SCRIPTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -159,13 +158,14 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 dist_hplipDATA_INSTALL = $(INSTALL_DATA)
 dist_hplipdocDATA_INSTALL = $(INSTALL_DATA)
+dist_imagesDATA_INSTALL = $(INSTALL_DATA)
 dist_ldlDATA_INSTALL = $(INSTALL_DATA)
 dist_pclDATA_INSTALL = $(INSTALL_DATA)
 dist_psDATA_INSTALL = $(INSTALL_DATA)
 dist_xmlDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(dist_hplip_DATA) $(dist_hplipdoc_DATA) $(dist_ldl_DATA) \
-	$(dist_noinst_DATA) $(dist_pcl_DATA) $(dist_ps_DATA) \
-	$(dist_xml_DATA) $(noinst_DATA)
+DATA = $(dist_hplip_DATA) $(dist_hplipdoc_DATA) $(dist_images_DATA) \
+	$(dist_ldl_DATA) $(dist_noinst_DATA) $(dist_pcl_DATA) \
+	$(dist_ps_DATA) $(dist_xml_DATA) $(noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -299,10 +299,11 @@ sharedstatedir = @sharedstatedir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = prnt/hpijs
+SUBDIRS = . prnt/hpijs
 INCLUDES = -Iprnt/hpijs -Iip
 hplipdir = $(datadir)/hplip
 hpliplibexecdir = $(libexecdir)/hplip
+rundir = $(localstatedir)/run/hplip
 hplipdocdir = $(datadir)/doc/$(PACKAGE)
 dist_hplipdoc_DATA = hplip_readme.html hplip_overview.png COPYING
 dist_hplip_DATA = hplip.conf
@@ -321,7 +322,7 @@ hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/h
 
 # base
 basedir = $(hpliplibexecdir)/base
-dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
+dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py  \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
     base/imagesize.py base/subproc.py
@@ -341,7 +342,9 @@ ldldir = $(hplipdir)/data/ldl
 psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
-dist_xml_DATA = data/xml/models.xml
+#dist_xml_DATA = data/xml/models.xml
+dist_xml_DATA = data/xml/*.xml
+dist_images_DATA = data/images/*
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
     data/pcl/align5_8xx.pcl.gz data/pcl/align2_9xx.pcl.gz data/pcl/align3_9xx.pcl.gz data/pcl/align4_450.pcl.gz data/pcl/align6_450.pcl.gz \
     data/pcl/colorcal1_450.pcl.gz data/pcl/colorcal2_450.pcl.gz data/pcl/crbcal.pcl.gz data/pcl/crcaldone.pcl.gz data/pcl/crcbcal.pcl.gz data/pcl/crccal.pcl.gz \
@@ -369,7 +372,6 @@ dist_prnt_SCRIPTS = prnt/cups.py prnt/__init__.py prnt/ldl.py prnt/pcl.py prnt/c
 
 # scan
 scandir = $(hpliplibexecdir)/scan
-dist_scan_SCRIPTS = scan/__init__.py
 
 # ip and api libraries
 noinst_LTLIBRARIES = libhpip.la libhplip-api.la
@@ -412,7 +414,8 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
     ui/colorcal4form_base.py ui/printerform.py ui/printerform_base.py \
     ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
-    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py \
+    ui/informationform_base.py ui/informationform.py ui/supportform_base.py ui/supportform.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
@@ -420,13 +423,14 @@ dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdia
     ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
     ui/colorcal4form_base.ui ui/printerform_base.ui \
     ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
-    plugins/powersettingsdialog_base.ui ui/align10form_base.ui
+    ui/align10form_base.ui ui/informationform_base.ui ui/supportform_base.ui \
+    plugins/powersettingsdialog_base.ui
 
 
 # ui plugins
 pluginsdir = $(hpliplibexecdir)/plugins
 dist_plugins_SCRIPTS = plugins/dj450.py plugins/__init__.py plugins/powersettings.py plugins/powersettingsdialog.py \
-    plugins/powersettingsdialog_base.py 
+    plugins/powersettingsdialog_base.py plugins/Deskjet_460.py
 
 all: all-recursive
 
@@ -711,25 +715,6 @@ uninstall-dist_prntSCRIPTS:
 	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
 	  echo " rm -f '$(DESTDIR)$(prntdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(prntdir)/$$f"; \
-	done
-install-dist_scanSCRIPTS: $(dist_scan_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	test -z "$(scandir)" || $(mkdir_p) "$(DESTDIR)$(scandir)"
-	@list='$(dist_scan_SCRIPTS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f $$d$$p; then \
-	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	    echo " $(dist_scanSCRIPT_INSTALL) '$$d$$p' '$(DESTDIR)$(scandir)/$$f'"; \
-	    $(dist_scanSCRIPT_INSTALL) "$$d$$p" "$(DESTDIR)$(scandir)/$$f"; \
-	  else :; fi; \
-	done
-
-uninstall-dist_scanSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_scan_SCRIPTS)'; for p in $$list; do \
-	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	  echo " rm -f '$(DESTDIR)$(scandir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(scandir)/$$f"; \
 	done
 install-dist_uiSCRIPTS: $(dist_ui_SCRIPTS)
 	@$(NORMAL_INSTALL)
@@ -1341,6 +1326,23 @@ uninstall-dist_hplipdocDATA:
 	  echo " rm -f '$(DESTDIR)$(hplipdocdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(hplipdocdir)/$$f"; \
 	done
+install-dist_imagesDATA: $(dist_images_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(imagesdir)" || $(mkdir_p) "$(DESTDIR)$(imagesdir)"
+	@list='$(dist_images_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(dist_imagesDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(imagesdir)/$$f'"; \
+	  $(dist_imagesDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(imagesdir)/$$f"; \
+	done
+
+uninstall-dist_imagesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_images_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(imagesdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(imagesdir)/$$f"; \
+	done
 install-dist_ldlDATA: $(dist_ldl_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(ldldir)" || $(mkdir_p) "$(DESTDIR)$(ldldir)"
@@ -1545,7 +1547,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/base $(distdir)/data/ldl $(distdir)/data/pcl $(distdir)/data/ps $(distdir)/data/xml $(distdir)/fax $(distdir)/pcard $(distdir)/pcard/pcardext $(distdir)/plugins $(distdir)/prnt $(distdir)/prnt/cupsext $(distdir)/scan $(distdir)/ui
+	$(mkdir_p) $(distdir)/base $(distdir)/data/images $(distdir)/data/ldl $(distdir)/data/pcl $(distdir)/data/ps $(distdir)/data/xml $(distdir)/fax $(distdir)/pcard $(distdir)/pcard/pcardext $(distdir)/plugins $(distdir)/prnt $(distdir)/prnt/cupsext $(distdir)/ui
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -1587,6 +1589,9 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 	-find $(distdir) -type d ! -perm -777 -exec chmod a+rwx {} \; -o \
 	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
 	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
@@ -1689,7 +1694,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(faxdir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(pluginsdir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(scandir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"; do \
+	for dir in "$(DESTDIR)$(sanedir)" "$(DESTDIR)$(cupsdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(basedir)" "$(DESTDIR)$(cmddir)" "$(DESTDIR)$(faxdir)" "$(DESTDIR)$(hpliplibexecdir)" "$(DESTDIR)$(pcarddir)" "$(DESTDIR)$(pluginsdir)" "$(DESTDIR)$(prntdir)" "$(DESTDIR)$(uidir)" "$(DESTDIR)$(hplipdir)" "$(DESTDIR)$(hplipdocdir)" "$(DESTDIR)$(imagesdir)" "$(DESTDIR)$(ldldir)" "$(DESTDIR)$(pcldir)" "$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -1742,10 +1747,10 @@ info-am:
 install-data-am: install-cupsPROGRAMS install-dist_baseSCRIPTS \
 	install-dist_cmdSCRIPTS install-dist_faxSCRIPTS \
 	install-dist_hplipDATA install-dist_hplipdocDATA \
-	install-dist_ldlDATA install-dist_pcardSCRIPTS \
-	install-dist_pclDATA install-dist_pluginsSCRIPTS \
-	install-dist_prntSCRIPTS install-dist_psDATA \
-	install-dist_scanSCRIPTS install-dist_uiSCRIPTS \
+	install-dist_imagesDATA install-dist_ldlDATA \
+	install-dist_pcardSCRIPTS install-dist_pclDATA \
+	install-dist_pluginsSCRIPTS install-dist_prntSCRIPTS \
+	install-dist_psDATA install-dist_uiSCRIPTS \
 	install-dist_xmlDATA install-saneLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
@@ -1784,10 +1789,10 @@ ps-am:
 uninstall-am: uninstall-cupsPROGRAMS uninstall-dist_baseSCRIPTS \
 	uninstall-dist_cmdSCRIPTS uninstall-dist_faxSCRIPTS \
 	uninstall-dist_hplipDATA uninstall-dist_hplipdocDATA \
-	uninstall-dist_hpliplibexecSCRIPTS uninstall-dist_ldlDATA \
-	uninstall-dist_pcardSCRIPTS uninstall-dist_pclDATA \
-	uninstall-dist_pluginsSCRIPTS uninstall-dist_prntSCRIPTS \
-	uninstall-dist_psDATA uninstall-dist_scanSCRIPTS \
+	uninstall-dist_hpliplibexecSCRIPTS uninstall-dist_imagesDATA \
+	uninstall-dist_ldlDATA uninstall-dist_pcardSCRIPTS \
+	uninstall-dist_pclDATA uninstall-dist_pluginsSCRIPTS \
+	uninstall-dist_prntSCRIPTS uninstall-dist_psDATA \
 	uninstall-dist_uiSCRIPTS uninstall-dist_xmlDATA \
 	uninstall-info-am uninstall-saneLTLIBRARIES \
 	uninstall-sbinPROGRAMS
@@ -1798,8 +1803,8 @@ uninstall-info: uninstall-info-recursive
 	check-am clean clean-cupsPROGRAMS clean-generic clean-libtool \
 	clean-noinstLTLIBRARIES clean-noinstPROGRAMS clean-recursive \
 	clean-saneLTLIBRARIES clean-sbinPROGRAMS ctags ctags-recursive \
-	dist dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ \
-	dist-zip distcheck distclean distclean-compile \
+	dist dist-all dist-bzip2 dist-gzip dist-hook dist-shar \
+	dist-tarZ dist-zip distcheck distclean distclean-compile \
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
@@ -1807,10 +1812,10 @@ uninstall-info: uninstall-info-recursive
 	install-data-hook install-dist_baseSCRIPTS \
 	install-dist_cmdSCRIPTS install-dist_faxSCRIPTS \
 	install-dist_hplipDATA install-dist_hplipdocDATA \
-	install-dist_hpliplibexecSCRIPTS install-dist_ldlDATA \
-	install-dist_pcardSCRIPTS install-dist_pclDATA \
-	install-dist_pluginsSCRIPTS install-dist_prntSCRIPTS \
-	install-dist_psDATA install-dist_scanSCRIPTS \
+	install-dist_hpliplibexecSCRIPTS install-dist_imagesDATA \
+	install-dist_ldlDATA install-dist_pcardSCRIPTS \
+	install-dist_pclDATA install-dist_pluginsSCRIPTS \
+	install-dist_prntSCRIPTS install-dist_psDATA \
 	install-dist_uiSCRIPTS install-dist_xmlDATA install-exec \
 	install-exec-am install-exec-hook install-info install-info-am \
 	install-man install-saneLTLIBRARIES install-sbinPROGRAMS \
@@ -1823,10 +1828,10 @@ uninstall-info: uninstall-info-recursive
 	uninstall-dist_baseSCRIPTS uninstall-dist_cmdSCRIPTS \
 	uninstall-dist_faxSCRIPTS uninstall-dist_hplipDATA \
 	uninstall-dist_hplipdocDATA uninstall-dist_hpliplibexecSCRIPTS \
-	uninstall-dist_ldlDATA uninstall-dist_pcardSCRIPTS \
-	uninstall-dist_pclDATA uninstall-dist_pluginsSCRIPTS \
-	uninstall-dist_prntSCRIPTS uninstall-dist_psDATA \
-	uninstall-dist_scanSCRIPTS uninstall-dist_uiSCRIPTS \
+	uninstall-dist_imagesDATA uninstall-dist_ldlDATA \
+	uninstall-dist_pcardSCRIPTS uninstall-dist_pclDATA \
+	uninstall-dist_pluginsSCRIPTS uninstall-dist_prntSCRIPTS \
+	uninstall-dist_psDATA uninstall-dist_uiSCRIPTS \
 	uninstall-dist_xmlDATA uninstall-info-am \
 	uninstall-saneLTLIBRARIES uninstall-sbinPROGRAMS
 
@@ -1931,7 +1936,7 @@ install-data-hook:
 #
 #       Edit hpiod.conf in destdir.
 	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
-	echo -e "[dirs]\nhome=$(hpliplibexecdir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+	echo -e "[dirs]\nhome=$(hpliplibexecdir)\nrun=$(rundir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
 #
 #       Edit hpiod.sh in destdir.
 	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).sh > $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp; \
@@ -1952,6 +1957,11 @@ install-data-hook:
 	         fi \
 	      fi \
 	   fi \
+	fi
+
+dist-hook:
+	if [ "$(SHADOW)" != "" ]; then \
+	   cp -f data/xml/unreleased/*.xml $(distdir)/data/xml/; \
 	fi
 
 .PHONY: build-pcardext build-cupsext

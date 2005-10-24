@@ -8,11 +8,12 @@
 %.py: %.ui
 	$(PYUIC) -x -o $@ $<
 
-SUBDIRS = prnt/hpijs
+SUBDIRS = . prnt/hpijs
 INCLUDES = -Iprnt/hpijs -Iip
 
 hplipdir = $(datadir)/hplip
 hpliplibexecdir = $(libexecdir)/hplip
+rundir = $(localstatedir)/run/hplip
 
 hplipdocdir = $(datadir)/doc/$(PACKAGE)
 dist_hplipdoc_DATA =  hplip_readme.html hplip_overview.png COPYING
@@ -37,11 +38,11 @@ hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/h
 
 # base
 basedir = $(hpliplibexecdir)/base
-dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
+dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py  \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
     base/imagesize.py base/subproc.py
-    
+
 # fax
 faxdir = $(hpliplibexecdir)/fax
 dist_fax_SCRIPTS = fax/fax.py fax/__init__.py
@@ -59,7 +60,9 @@ ldldir = $(hplipdir)/data/ldl
 psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
-dist_xml_DATA = data/xml/models.xml
+#dist_xml_DATA = data/xml/models.xml
+dist_xml_DATA = data/xml/*.xml
+dist_images_DATA = data/images/*
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
     data/pcl/align5_8xx.pcl.gz data/pcl/align2_9xx.pcl.gz data/pcl/align3_9xx.pcl.gz data/pcl/align4_450.pcl.gz data/pcl/align6_450.pcl.gz \
     data/pcl/colorcal1_450.pcl.gz data/pcl/colorcal2_450.pcl.gz data/pcl/crbcal.pcl.gz data/pcl/crcaldone.pcl.gz data/pcl/crcbcal.pcl.gz data/pcl/crccal.pcl.gz \
@@ -84,7 +87,6 @@ dist_prnt_SCRIPTS = prnt/cups.py prnt/__init__.py prnt/ldl.py prnt/pcl.py prnt/c
 
 # scan
 scandir = $(hpliplibexecdir)/scan
-dist_scan_SCRIPTS = scan/__init__.py
 
 # ip and api libraries
 noinst_LTLIBRARIES = libhpip.la libhplip-api.la
@@ -125,7 +127,8 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
     ui/colorcal4form_base.py ui/printerform.py ui/printerform_base.py \
     ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
-    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py \
+    ui/informationform_base.py ui/informationform.py ui/supportform_base.py ui/supportform.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
@@ -133,12 +136,13 @@ dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdia
     ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
     ui/colorcal4form_base.ui ui/printerform_base.ui \
     ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
-    plugins/powersettingsdialog_base.ui ui/align10form_base.ui
+    ui/align10form_base.ui ui/informationform_base.ui ui/supportform_base.ui \
+    plugins/powersettingsdialog_base.ui
 
 # ui plugins
 pluginsdir = $(hpliplibexecdir)/plugins
 dist_plugins_SCRIPTS = plugins/dj450.py plugins/__init__.py plugins/powersettings.py plugins/powersettingsdialog.py \
-    plugins/powersettingsdialog_base.py 
+    plugins/powersettingsdialog_base.py plugins/Deskjet_460.py
 
 build-pcardext: 
 	cd pcard/pcardext; \
@@ -237,7 +241,7 @@ install-data-hook:
 #
 #       Edit hpiod.conf in destdir.
 	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
-	echo -e "[dirs]\nhome=$(hpliplibexecdir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+	echo -e "[dirs]\nhome=$(hpliplibexecdir)\nrun=$(rundir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
 #
 #       Edit hpiod.sh in destdir.
 	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).sh > $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp; \
@@ -258,6 +262,11 @@ install-data-hook:
 	         fi \
 	      fi \
 	   fi \
+	fi
+
+dist-hook:
+	if [ "$(SHADOW)" != "" ]; then \
+	   cp -f data/xml/unreleased/*.xml $(distdir)/data/xml/; \
 	fi
 
 .PHONY: build-pcardext build-cupsext

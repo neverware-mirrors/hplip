@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $
-# $Date: 2005/07/12 16:12:57 $
+# $Revision: 1.13 $
+# $Date: 2005/09/14 23:02:57 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -105,9 +105,9 @@ def downloadPPD( model_name, url=prop.ppd_download_url ):
     return ppd_file
 
 
-def CUPSWebInterface():
-    import webbrowser
-    webbrowser.open_new( 'http://localhost:631/' )
+##def CUPSWebInterface():
+##    import webbrowser
+##    webbrowser.open_new( 'http://localhost:631/' )
 
 
 # cupsext wrapper

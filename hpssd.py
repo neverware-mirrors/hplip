@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 #
-
-# $Revision: 1.107 $
-# $Date: 2005/09/09 20:22:03 $
-# $Author: dsuffield $
-
-#
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,21 +20,47 @@
 #
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
+# ======================================================================
+# Async code is Copyright 1996 by Sam Rushing
+#
+#                         All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for any purpose and without fee is hereby
+# granted, provided that the above copyright notice appear in all
+# copies and that both that copyright notice and this permission
+# notice appear in supporting documentation, and that the name of Sam
+# Rushing not be used in advertising or publicity pertaining to
+# distribution of the software without specific, written prior
+# permission.
+#
+# SAM RUSHING DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+# INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN
+# NO EVENT SHALL SAM RUSHING BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+# CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+# NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+# CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# ======================================================================
+#
 
 # Remove in 2.3?
 from __future__ import generators
 
-_VERSION = '5.2'
+_VERSION = '6.0'
 
 # Std Lib
-import sys, socket, os, os.path, signal, getopt
-import smtplib, threading, atexit, gettext, re, xml.parsers.expat
+import sys, socket, os, os.path, signal, getopt, glob, time, select
+import smtplib, threading, gettext, re, xml.parsers.expat #, atexit
+from errno import EALREADY, EINPROGRESS, EWOULDBLOCK, ECONNRESET, \
+     ENOTCONN, ESHUTDOWN, EINTR, EISCONN
+import fcntl     
 
 # Local
 from base.g import *
 from base.codes import *
 from base.msg import *
-from base import async, utils, status, pml, slp, device
+from base import utils, status, pml, slp, device
 from base.strings import string_table
 
 # Printing support
@@ -48,11 +68,6 @@ from prnt import cups
 
 # Per user alert settings
 alerts = {}
-
-# Available guis
-guis = {} # { 'username' { 'tbx' : (host, port, pid),
-          #                'fax' : (host, port, pid), }, ...
-          # }
 
 # All active devices
 devices = {} # { 'device_uri' : ServerDevice, ... }
@@ -66,6 +81,7 @@ def QueryString(id, typ=0):
     try:
         s = string_table[id][typ]
     except KeyError:
+        log.debug("String %s not found" % id)
         raise Error(ERROR_STRING_QUERY_FAILED)
 
     if type(s) == type(''):
@@ -124,6 +140,7 @@ def initStrings():
             cycles +=1
             if cycles > 1000:
                 break
+                
 
 class ModelParser:
 
@@ -191,27 +208,27 @@ class ModelParser:
 
     def parseModels(self, model_name):
         self.model_name = model_name
-        parser = xml.parsers.expat.ParserCreate()
-        parser.StartElementHandler = self.startElement
-        parser.EndElementHandler = self.endElement
-        parser.CharacterDataHandler = self.charData
-        parser.Parse(open(prop.models_file).read(), True)
 
-        if not self.model_found:
-            # read the untested models.xml.untested XML file if it exists
-            untested_models_file = prop.models_file + '.untested'
+        for g in [prop.xml_dir, os.path.join(prop.xml_dir, 'unreleased')]:
 
-            if os.path.exists(untested_models_file):
-                parser = xml.parsers.expat.ParserCreate()
-                parser.StartElementHandler = self.startElement
-                parser.EndElementHandler = self.endElement
-                parser.CharacterDataHandler = self.charData
-                parser.Parse(open(untested_models_file).read(), True)
+            if os.path.exists(g):
+                log.debug("Searching directory: %s" % g)
 
-        if self.model_found:
-            return self.model
-        else:
-            raise Error(ERROR_UNSUPPORTED_MODEL)
+                for f in glob.glob(g + "/*.xml"):
+                    log.debug("Searching file: %s" % f)
+                    parser = xml.parsers.expat.ParserCreate()
+                    parser.StartElementHandler = self.startElement
+                    parser.EndElementHandler = self.endElement
+                    parser.CharacterDataHandler = self.charData
+                    parser.Parse(open(f).read(), True)
+
+                    if self.model_found:
+                        log.debug("Found")
+                        return self.model
+
+        log.error("Not found")
+        raise Error(ERROR_UNSUPPORTED_MODEL)
+
 
 
 def QueryModel(model_name):
@@ -220,19 +237,289 @@ def QueryModel(model_name):
     log.debug("Query model: %s" % model_name)
     return p.parseModels(model_name)
 
+socket_map = {}
+loopback_trigger = None
+
+def loop( timeout=1.0, sleep_time=0.1 ):
+    while socket_map:
+        r = []; w = []; e = []
+        for fd, obj in socket_map.items():
+            if obj.readable():
+                r.append( fd )
+            if obj.writable():
+                w.append( fd )
+        if [] == r == w == e:
+            time.sleep( timeout )
+        else:
+            try:
+                r,w,e = select.select( r, w, e, timeout )
+            except select.error, err:
+                if err[0] != EINTR:
+                    raise Error( ERROR_INTERNAL )
+                r = []; w = []; e = []
+
+        for fd in r:
+            try:
+                obj = socket_map[ fd ]
+            except KeyError:
+                continue
+
+            try:
+                obj.handle_read_event()
+            except Error, e:
+                obj.handle_error( e )
+
+        for fd in w:
+            try:
+                obj = socket_map[ fd ]
+            except KeyError:
+                continue
+
+            try:
+                obj.handle_write_event()
+            except Error, e:
+                obj.handle_error( e )
+
+            time.sleep( sleep_time )
 
 
-class hpssd_server(async.dispatcher):
+class dispatcher:
+    connected = False
+    accepting = False
+    closing = False
+    addr = None
+
+    def __init__ (self, sock=None ):
+        if sock:
+            self.set_socket( sock ) 
+            self.socket.setblocking( 0 )
+            self.connected = True
+            try:
+                self.addr = sock.getpeername()
+            except socket.error:
+                # The addr isn't crucial
+                pass
+        else:
+            self.socket = None
+
+    def add_channel ( self ): 
+        global socket_map
+        socket_map[ self._fileno ] = self
+
+    def del_channel( self ): 
+        global socket_map
+        fd = self._fileno
+        if socket_map.has_key( fd ):
+            del socket_map[ fd ]
+
+    def create_socket( self, family, type ):
+        self.family_and_type = family, type
+        self.socket = socket.socket (family, type)
+        self.socket.setblocking( 0 )
+        self._fileno = self.socket.fileno()
+        self.add_channel()
+
+    def set_socket( self, sock ): 
+        self.socket = sock
+        self._fileno = sock.fileno()
+        self.add_channel()
+
+    def set_reuse_addr( self ):
+        try:
+            self.socket.setsockopt (
+                socket.SOL_SOCKET, socket.SO_REUSEADDR,
+                self.socket.getsockopt (socket.SOL_SOCKET,
+                                        socket.SO_REUSEADDR) | 1
+                )
+        except socket.error:
+            pass
+
+    def readable (self):
+        return True
+
+    def writable (self):
+        return True
+
+    def listen (self, num):
+        self.accepting = True
+        return self.socket.listen( num )
+
+    def bind( self, addr ):
+        self.addr = addr
+        return self.socket.bind( addr )
+
+    def connect( self, address ):
+        self.connected = False
+        err = self.socket.connect_ex( address )
+        if err in ( EINPROGRESS, EALREADY, EWOULDBLOCK ):
+            return
+        if err in (0, EISCONN):
+            self.addr = address
+            self.connected = True
+            self.handle_connect()
+        else:
+            raise socket.error, err
+
+    def accept (self):
+        try:
+            conn, addr = self.socket.accept()
+            return conn, addr
+        except socket.error, why:
+            if why[0] == EWOULDBLOCK:
+                pass
+            else:
+                raise socket.error, why
+
+    def send (self, data):
+        try:
+            result = self.socket.send( data )
+            return result
+        except socket.error, why:
+            if why[0] == EWOULDBLOCK:
+                return 0
+            else:
+                raise socket.error, why
+            return 0
+
+    def recv( self, buffer_size ):
+        try:
+            data = self.socket.recv (buffer_size)
+            if not data:
+                self.handle_close()
+                return ''
+            else:
+                return data
+        except socket.error, why:
+            if why[0] in [ECONNRESET, ENOTCONN, ESHUTDOWN]:
+                self.handle_close()
+                return ''
+            else:
+                raise socket.error, why
+
+    def close (self):
+        self.del_channel()
+        self.socket.close()
+
+    # cheap inheritance, used to pass all other attribute
+    # references to the underlying socket object.
+    #def __getattr__ (self, attr):
+    #    return getattr (self.socket, attr)
+
+    def handle_read_event( self ):
+        if self.accepting:
+            if not self.connected:
+                self.connected = True
+            self.handle_accept()
+        elif not self.connected:
+            self.handle_connect()
+            self.connected = True
+            self.handle_read()
+        else:
+            self.handle_read()
+
+    def handle_write_event( self ):
+        if not self.connected:
+            self.handle_connect()
+            self.connected = True
+        self.handle_write()
+
+    def handle_expt_event( self ):
+        self.handle_expt()
+
+    def handle_error( self, e ):
+        log.error( "Error processing request." )
+        raise Error(ERROR_INTERNAL)
+
+    def handle_expt( self ):
+        raise Error
+
+    def handle_read( self ):
+        raise Error
+
+    def handle_write( self ):
+        raise Error
+
+    def handle_connect( self ):
+        raise Error
+
+    def handle_accept( self ):
+        raise Error
+
+    def handle_close( self ):
+        self.close()
+
+
+class file_wrapper:
+    def __init__(self, fd):
+        self.fd = fd
+
+    def recv(self, *args):
+        return os.read(self.fd, *args)
+
+    def send(self, *args):
+        return os.write(self.fd, *args)
+
+    read = recv
+    write = send
+
+    def close(self):
+        os.close(self.fd)
+
+    def fileno(self):
+        return self.fd
+
+
+class file_dispatcher(dispatcher):
+
+    def __init__(self, fd):
+        dispatcher.__init__(self, None)
+        self.connected = True
+        self.set_file(fd)
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL, 0)
+        flags = flags | os.O_NONBLOCK
+        fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+
+    def set_file(self, fd):
+        self._fileno = fd
+        self.socket = file_wrapper(fd)
+        self.add_channel()    
+
+
+class trigger(file_dispatcher):
+        def __init__(self):
+            r, w = os.pipe()
+            self.trigger = w
+            file_dispatcher.__init__(self, r)
+            self.send_events = False
+
+        def readable(self):
+            return 1
+
+        def writable(self):
+            return 0
+
+        def handle_connect(self):
+            pass
+
+        def pull_trigger(self):
+            os.write(self.trigger, '.')
+
+        def handle_read (self):
+            self.recv(8192)
+
+
+class hpssd_server(dispatcher):
 
     def __init__(self, ip, port):
         self.ip = ip
+        self.send_events = False
 
         if port != 0:
             self.port = port
         else:
             self.port = socket.htons(0)
 
-        async.dispatcher.__init__(self)
+        dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
 
@@ -242,7 +529,6 @@ class hpssd_server(async.dispatcher):
             raise Error(ERROR_UNABLE_TO_BIND_SOCKET)
 
         prop.hpssd_port = self.port = self.socket.getsockname()[1]
-
         self.listen(5)
 
 
@@ -262,25 +548,14 @@ class hpssd_server(async.dispatcher):
             log.error("EWOULDBLOCK exception on accept()")
             return
         handler = hpssd_handler(conn, addr, self)
-        log.debug(str(handler))
-
-
-    def __str__(self):
-        return "<hpssd_server listening on %s:%d (fd=%d)>" % \
-                (self.ip, self.port, self._fileno)
 
     def handle_close(self):
-        async.dispatcher.handle_close(self)
+        dispatcher.handle_close(self)
 
 
-# This handler takes care of all conversations with
-# clients when hpssd is acting as a server.
-# This dispatcher receives requests messages and
-# and replies with result messages. It does not
-# initiate sending requests.
-class hpssd_handler(async.dispatcher):
+class hpssd_handler(dispatcher):
     def __init__(self, conn, addr, server):
-        async.dispatcher.__init__(self, sock=conn)
+        dispatcher.__init__(self, sock=conn)
         self.addr = addr
         self.in_buffer = ""
         self.out_buffer = ""
@@ -289,13 +564,15 @@ class hpssd_handler(async.dispatcher):
         self.payload = ""
         self.signal_exit = False
 
+        self.send_events = False 
+        self.username = ''
+
         # handlers for all the messages we expect to receive
         self.handlers = {
             # Request/Reply Messages
             'probedevicesfiltered' : self.handle_probedevicesfiltered,
             'setalerts'            : self.handle_setalerts,
             'testemail'            : self.handle_test_email,
-            'getgui'               : self.handle_getgui,
             'opendevice'           : self.handle_opendevice,
             'closedevice'          : self.handle_closedevice,
             'openchannel'          : self.handle_openchannel,
@@ -312,13 +589,12 @@ class hpssd_handler(async.dispatcher):
             'writeembeddedpml'     : self.handle_writeembeddedpml,
             'queryhistory'         : self.handle_queryhistory,
             'querystring'          : self.handle_querystring,
-            #'printparsedgzipps'    : self.handle_printparsedgzippostscript,
             'reservechannel'       : self.handle_reserve_channel,
             'unreservechannel'     : self.handle_unreserve_channel,
 
             # Event Messages (no reply message)
             'event'                : self.handle_event,
-            'registerguievent'     : self.handle_registerguievent,
+            'registerguievent'     : self.handle_registerguievent, # register for events
             'unregisterguievent'   : self.handle_unregisterguievent,
             'exitevent'            : self.handle_exit,
 
@@ -326,9 +602,6 @@ class hpssd_handler(async.dispatcher):
             'unknown'              : self.handle_unknown,
         }
 
-    def __str__(self):
-        return "<hpssd_handler connected to %s (fd=%d)>" % \
-                (self.addr, self._fileno)
 
     def handle_read(self):
         log.debug("Reading data on channel (%d)" % self._fileno)
@@ -336,6 +609,8 @@ class hpssd_handler(async.dispatcher):
 
         if self.in_buffer == '':
             return False
+
+        log.debug(repr(self.in_buffer))
 
         remaining_msg = self.in_buffer
 
@@ -669,80 +944,18 @@ class hpssd_handler(async.dispatcher):
     # EVENT
     def handle_registerguievent(self):
         username = self.fields.get('username', '')
-        host = self.fields.get('hostname', 'localhost')
-        port = self.fields.get('port', 0)
-        pid = self.fields.get('pid', 0)
-        typ = self.fields.get('type', '')
+        self.username = username
+        typ = 'tbx'
 
-        log.debug("Registering GUI: %s %s:%d %d %s" % (username, host, port, pid, typ))
-
-        try:
-            guis[username]
-        except KeyError:
-            guis[username] = {}
-
-        guis[username][typ] = (host, port, pid)
-
-        pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
-
-        if pid != 0:
-            os.umask(0133)
-            file(pid_file, 'w').write('%d\n' % pid)
-            os.umask(0077)
-            log.debug('Wrote PID %d to %s' % (pid, pid_file))
-
-
+        log.debug("Registering GUI for events: %s" % username)
+        self.send_events = True
         return ''
-
 
     # EVENT
     def handle_unregisterguievent(self):
         username = self.fields.get('username', '')
-        typ = self.fields.get('type', '')
-
-        try:
-            del guis[username][typ]
-        except KeyError:
-            pass
-
-        pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
-        log.debug("Removing file %s" % pid_file)
-
-        try:
-            os.remove(pid_file)
-        except:
-            pass
-
+        self.send_events = False
         return ''
-
-
-    def handle_getgui(self):
-        result_code, port, host = ERROR_SUCCESS, 0, ''
-        username = self.fields.get('username', '')
-        typ = self.fields.get('type', '')
-
-        try:
-            host, port, pid = self.get_gui(username, typ)
-        except Error, e:
-            result_code = ERROR_GUI_NOT_AVAILABLE
-            host, port, pid = '', 0, 0
-        else:
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((host, port))
-            except socket.error:
-                result_code = ERROR_GUI_NOT_AVAILABLE
-                host, port = '', 0
-                self.handle_unregisterguievent()
-            else:
-                s.close()
-
-        return buildResultMessage('GetGUIResult', None,
-                                   result_code, {'port' : port,
-                                                  'hostname' : host,
-                                                  'pid' : pid,
-                                                }
-                                 )
 
 
     def handle_test_email(self):
@@ -839,24 +1052,20 @@ class hpssd_handler(async.dispatcher):
         gui_port, gui_host = None, None
         f = self.fields
         event_code, event_type = f['event-code'], f['event-type']
-
         log.debug("code (type): %d (%s)" % (event_code, event_type))
 
         try:
-
             error_string_short = QueryString(str(event_code), 0)
         except Error:
             error_string_short = ''
 
         try:
-
             error_string_long = QueryString(str(event_code), 1)
         except Error:
             error_string_long = ''
 
         log.debug("short: %s" % error_string_short)
         log.debug("long: %s" % error_string_long)
-
         job_id = f.get('job-id', 0)
 
         try:
@@ -866,7 +1075,6 @@ class hpssd_handler(async.dispatcher):
                 username = prop.username
             else:
                 jobs = cups.getAllJobs()
-
                 for j in jobs:
                     if j.id == job_id:
                         username = j.user
@@ -876,12 +1084,9 @@ class hpssd_handler(async.dispatcher):
 
 
         no_fwd = f.get('no-fwd', False)
-
         log.debug("username (jobid): %s (%d)" % (username, job_id))
-
         retry_timeout = f.get('retry-timeout', 0)
         device_uri = f.get('device-uri', '')
-
         self.__checkdevice(device_uri)
         devices[device_uri].createHistory(event_code, job_id, username)
 
@@ -889,60 +1094,33 @@ class hpssd_handler(async.dispatcher):
         if EVENT_FAX_MIN <= event_code <= EVENT_FAX_MAX:
             typ = 'fax'
 
-##        try:
-##            gui_host, gui_port, gui_pid = self.get_gui( username, typ )
-##        except Error, e:
-##            pass
-##        else:
-        # send to all GUIs
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        log.debug("Sending to all GUIs...")
+        if typ == 'fax':
+            user_alerts = {'email-alerts' : False}
+        else:
+            user_alerts = alerts.get(username, {})        
 
-        for gui in guis:
-            try:
-                gui_host, gui_port, gui_pid = guis[gui][typ]
-            except KeyError:
-                continue
-            #print gui_host, gui_port, gui_pid
+        pull = False
+        if not no_fwd:
+            for handler in socket_map:
+                handler_obj = socket_map[handler]
 
-            log.debug("%s:%d (%d)" % (gui_host, gui_port, gui_pid))
+                if handler_obj.send_events:
+                    print self, self.username
+                    log.debug("Sending event to client for user %s" % self.username)
+                    pull = True
 
-            if typ == 'fax':
-                user_alerts = {'email-alerts' : False}
-            else:
-                user_alerts = alerts.get(username, {})
+                    handler_obj.out_buffer = \
+                        buildMessage('EventGUI', 
+                            '%s\n%s\n' % (error_string_short, error_string_long),
+                            {'job-id' : job_id,
+                             'event-code' : event_code,
+                             'event-type' : event_type,
+                             'retry-timeout' : retry_timeout,
+                             'device-uri' : device_uri,
+                            })
 
-            if not no_fwd:
-                if gui_host is not None and gui_port is not None:
-
-                    log.debug("Sending to %s GUI..." % typ)
-                    try:
-
-                        s.connect((gui_host, gui_port))
-                    except socket.error:
-                        log.debug("Unable to communicate with %s GUI on port %d" % (typ, gui_port))
-                    else:
-                        try:
-                            sendEvent(s, 'EventGUI',
-                                          '%s\n%s\n' % (error_string_short, error_string_long),
-                                         {'job-id' : job_id,
-                                           'event-code' : event_code,
-                                           'event-type' : event_type,
-                                           'retry-timeout' : retry_timeout,
-                                           'device-uri' : device_uri,
-                                         }
-                                        )
-                        except Error,e:
-                            log.debug("Error sending event to %s GUI. (%d)" % (typ, e.opt))
-
-                        s.close()
-
-                else: # gui not registered or user no longer logged on
-                    log.debug("Unable to find %s GUI to display error" % typ)
-                    pass
-            else:
-                log.debug("Not sending to %s GUI, no_fwd=True" % typ)
-
+            if pull:
+                loopback_trigger.pull_trigger()
 
             if user_alerts.get('email-alerts', False) and event_type == 'error':
 
@@ -959,31 +1137,6 @@ class hpssd_handler(async.dispatcher):
                                 prop.username,
                                 '')
                 mt.start()
-
-        return ''
-
-
-    # EVENT
-    def handle_exituievent(self):
-        try:
-            username = self.fields['username']
-            try:
-                gui_host, gui_port, gui_pid = self.get_gui(username, 'tbx')
-            except Error, e:
-                raise Error(e.opt)
-
-            log.debug("Sending to GUI...")
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((gui_host, gui_port))
-
-            try:
-                sendEvent(s, 'ExitGUIEvent')
-            except Error, e:
-                pass
-            s.close()
-
-        finally:
-            pass
 
         return ''
 
@@ -1172,12 +1325,6 @@ class hpssd_handler(async.dispatcher):
         self.connected = False
         self.close()
 
-    def get_gui(self, username, typ):
-        try:
-            return guis[username][typ]
-        except KeyError:
-            raise Error(ERROR_GUI_NOT_AVAILABLE)
-
 
 class MailThread(threading.Thread):
     def __init__(self, message, smtp_server, from_addr, to_addr_list, username, server_pass):
@@ -1245,34 +1392,7 @@ def handleSIGHUP(signo, frame):
 
 
 def exitAllGUIs():
-    log.debug("Sending EXIT to all registered GUIs")
-    for username in guis:
-        for typ in guis[username]:
-            host, port, pid = guis[username][typ]
-            log.debug("Closing %s GUI %s:%d (%d)" % (typ, host, port, pid))
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((host, port))
-            except socket.error:
-                log.error("Unable to communicate with %s GUI on port %d" % (typ, port))
-                continue
-            else:
-                try:
-                    sendEvent(s, 'ExitGUIEvent', None, {})
-                except Error,e:
-                    log.warning("Unable to send event to %s GUI (%s:%s). (%d)" % (typ, host, port, e.opt))
-                    continue
-
-                pid_file = '/var/run/hp%s-%s.pid' % (typ, username)
-                log.debug("Removing file %s" % pid_file)
-
-                try:
-                    os.remove(pid_file)
-                except:
-                    pass
-
-                s.close()
-
+    pass
 
 def usage():
     formatter = utils.usage_formatter()
@@ -1321,7 +1441,7 @@ def main(args):
 
     # Lock pidfile before we muck around with system state
     # Patch by Henrique M. Holschuh <hmh@debian.org>
-    utils.get_pidfile_lock('/var/run/hpssd.pid')
+    utils.get_pidfile_lock(os.path.join(prop.run_dir, 'hpssd.pid'))
 
     # Spawn child right away so that boot up sequence
     # is as fast as possible
@@ -1337,20 +1457,28 @@ def main(args):
     # hpssd server dispatcher object
     try:
         server = hpssd_server(prop.hpssd_host, prop.hpssd_cfg_port)
-        log.debug(str(server))
+        #log.debug(str(server))
     except Error, e:
         log.error("Server exited with error: %s" % e.msg)
         sys.exit(-1)
+
+    global loopback_trigger
+    try:
+        loopback_trigger = trigger()
+    except Error, e:
+        log.error("Server exited with error: %s" % e.msg)
+        sys.exit(-1)
+
 
     #device.ServerDevice.setQueryFuncs( QueryModel, QueryString )
     device.ServerDevice.model_query_func = QueryModel
     device.ServerDevice.string_query_func = QueryString
 
     os.umask(0133)
-    file('/var/run/hpssd.port', 'w').write('%d\n' % prop.hpssd_port)
+    file(os.path.join(prop.run_dir, 'hpssd.port'), 'w').write('%d\n' % prop.hpssd_port)
     os.umask (0077)
     log.debug('port=%d' % prop.hpssd_port)
-    log.info("Listening on %s port %d" % (prop.hpssd_host, prop.hpssd_port))
+    log.info("Listening on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
 
 
     global hpiod_sock
@@ -1361,24 +1489,22 @@ def main(args):
         log.error("Unable to connect to hpiod.")
         sys.exit(-1)
 
-    atexit.register(exitAllGUIs)
+    ##atexit.register(exitAllGUIs)
     signal.signal(signal.SIGHUP, handleSIGHUP)
 
     try:
         log.debug("Starting async loop...")
         try:
-            async.loop(timeout=1.0)
+            loop(timeout=0.5)
         except KeyboardInterrupt:
             log.warn("Ctrl-C hit, exiting...")
-        except async.ExitNow:
-            log.warn("Exit message received, exiting...")
         except Exception:
             log.exception()
 
         log.debug("Cleaning up...")
     finally:
-        os.remove('/var/run/hpssd.pid')
-        os.remove('/var/run/hpssd.port')
+        os.remove(os.path.join(prop.run_dir, 'hpssd.pid'))
+        os.remove(os.path.join(prop.run_dir, 'hpssd.port'))
         server.close()
         hpiod_sock.close()
 

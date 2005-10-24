@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.32 $
-# $Date: 2005/08/10 16:39:39 $
+# $Revision: 1.33 $
+# $Date: 2005/09/26 22:57:42 $
 # $Author: dwelch $
 
 #
@@ -39,6 +39,7 @@ sock = None
 def __openServices():
     global sock
     sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+    #print prop.hpssd_host, prop.hpssd_port
     try:
         sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
     except socket.error:

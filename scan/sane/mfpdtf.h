@@ -349,9 +349,9 @@ typedef struct
 
 #if defined(WORDS_BIGENDIAN)
 #define htole16(A) ((((uint16_t)(A) & 0xff00) >> 8) | (((uint16_t)(A) & 0x00ff) << 8))    /* host to little-endian 16-bit value */
-#define letoh16 h2le16                         /* little-endian to host 16-bit value */
+#define letoh16 htole16                         /* little-endian to host 16-bit value */
 #define htole32(A) ((((uint32_t)(A) & (uint32_t)0x000000ff) << 24) | (((uint32_t)(A) & (uint32_t)0x0000ff00) << 8) | \
-                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))))
+                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))
 #define letoh32 htole32
 #else
 #define htole16(A) (A)

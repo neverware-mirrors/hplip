@@ -1,3 +1,64 @@
+hplip (0.9.6-1) unstable; urgency=low
+
+  * New upstream version
+    * HPIJS 2.1.6:
+      + Moved DJ450 from DJGenericVIP class to DJ9xxVIP class, because
+        mandatory margins are 0.25 inch on left and right sides and it does
+        not support fullbleed on any papersize
+      + Added a new printer family, DJ55xx to take care of margin issues for
+        DJ55xx printers
+      + Fixed a bug in sending custom paper size to JetReady and FastRaster
+        printers
+      + Fixed a bug in LJFastRaster when last band was less than 128 height,
+        it was incorrectly positioned.
+      + Fixed margin adjustment code to allow fullbleed or .125 inch margins
+        for those printers that support it in autoduplex mode
+      + Added support for the following new printers:
+        + HP Color LaserJet 4730 MFP (LJColor/PS)
+        + HP Deskjet 460 (DJGenericVIP)
+        + HP Officejet Pro K550, K850 (DJGenericVIP)
+    * HPLIP 0.9.6:
+      + In hp-toolbox (Device Manager) made a small LaserJet status change
+        that makes the CLJ 2550 work correctly
+      + Fixed a bug with the PSC3310 with low photo supplies (caused a
+        toolbox exception)
+      + Fixed a problem that made an offline CLJ2500 crash hpssd
+      + The hp-toolbox no longer uses a "listen" server socket.  All
+        communication is done over the same client socket to hpssd
+      + Added new hp-toolbox UI for supplies and maintenance tools
+      + Made numerous changes to hp-toolbox
+      + Set CLJ 25xx devices to uni-di mode in models.xml
+  * Henrique de Moraes Holschuh:
+    * Remove patches already applied upstream:
+      00_upstream-0.9.5-3, 11_fix-misc-gcc-warnings, 13_intsign-fixes,
+      15_64bit_fixes, 20_fix_unitialized_var_bugs, 50_hp-clean_fix,
+      99_ubuntu_hplip-deroot
+    * Remove some hunks already applied upstream:
+      14_charsign_fixes
+    * Add a NEWS file for hpijs, warning users of PPDs that are documented
+      by upstream to have been changed significantly
+    * Fix hpijs autobuild system to actually work re. libhpip, by adding
+      some automake magic and libtool support
+    * Merge hplip-base and hplip packages.  Current upstream code makes it
+      a losing battle to try to keep the two separate
+    * Don't bother explaining about alternate PPD sources in basic docs like
+      README.Debian.  Don't suggest them in control file, either.  This is
+      needed because HPLIP PPDs often change in non-forward or non-backwards
+      compatible ways
+    * Remove stray scan/__init__.py file
+    * New patch 30_noping: Do not attempt to send icmp packets in hpssd, as
+      it will not work since it doesn't run as root anymore.  Thanks to
+      tatu.mannisto@iki.fi for the report (closes: #333850)
+    * New patch 40_quiet-hpiod: Shut hpiod up while trying to autodetect
+      parallel port printers, it was being waay too annoying in syslog
+    * New patch 50_doc-location: Add final / to URIs and point the readme
+      to the /usr/share/doc location inside hp-toolbox.  If the local admin
+      doesn't like documentation and removes /usr/share/doc/hplip, this
+      doesn't break anything... you just get no documentation, which was
+      kind the point the admin was trying to make, I suppose ;-)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 24 Oct 2005 13:08:43 -0200
+
 hplip (0.9.5-4) unstable; urgency=low
 
   * Henrique de Moraes Holschuh:

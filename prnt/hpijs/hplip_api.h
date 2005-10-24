@@ -24,8 +24,8 @@
 \*****************************************************************************/
 
 #define RCFILE "/etc/hp/hplip.conf" /* The config file */
-#define HPIODFILE "/var/run/hpiod.port"
-#define HPSSDFILE "/var/run/hpssd.port"
+#define HPIODFILE "hpiod.port"
+#define HPSSDFILE "hpssd.port"
 
 #define LINE_SIZE 256 /* Length of buffer reads */
 #define BUFFER_SIZE 4096

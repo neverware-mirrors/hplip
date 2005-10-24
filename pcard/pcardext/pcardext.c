@@ -20,7 +20,7 @@ pcardext - Python extension for HP photocard services
 Requires:
 Python 2.2+
 
-/*****************************************************************************/
+\*****************************************************************************/
 
 #include <Python.h>
 #include <structmember.h>

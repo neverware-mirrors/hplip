@@ -2,7 +2,7 @@
 #
 # autogen.sh glue for hplip
 #
-# Requires: automake 1.9, autoconf 2.57+
+# Requires: automake 1.9, autoconf 2.57+, libtool 1.5.6+
 # Conflicts: autoconf 2.13
 set -e
 

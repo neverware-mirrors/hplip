@@ -66,7 +66,6 @@
 #define LEND_SET_LONG(s,x) ((s)[3]=((x)>>24)&0xFF,(s)[2]=((x)>>16)&0xFF,(s)[1]=((x)>>8)&0xFF,(s)[0]=(x)&0xFF)
 
 void DBG(int level, const char *format, ...);
-void DBG_DUMP( void *data, int size );
 int bug(const char *fmt, ...);
 
 unsigned long DivideAndShift( int line,

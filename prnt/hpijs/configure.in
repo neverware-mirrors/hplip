@@ -29,7 +29,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([HP IJS Server],
-	[2.1.5],
+	[2.1.6],
 	[hpijs@packages.debian.org],
 	[hpijs])
 
@@ -62,12 +62,10 @@ it provided that the following conditions are met:
 ])
 
 AC_CONFIG_SRCDIR([hpijs.cpp])
-dnl inside hplip tree
 AC_CONFIG_AUX_DIR([../..])
 AM_INIT_AUTOMAKE([1.9 foreign])
 AM_MAINTAINER_MODE
-
-AC_CANONICAL_HOST
+AC_PROG_LIBTOOL
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -75,7 +73,7 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-dnl Checks for libraries.
+dnl Checks for libraries
 AC_CHECK_LIB([jpeg], [jpeg_set_defaults],,
 	[AC_MSG_ERROR(["cannot find libjpeg support"])]
 )
@@ -209,6 +207,19 @@ AC_CHECK_FUNC([pow],,
 		[AC_MSG_ERROR([Cannot find required pow function])]
 	)]
 )
+
+dnl libhpip support. This is a bit complicated because of libtool,
+dnl and because we have to detect whether we are inside the HPLIP
+dnl build tree or not, and use the one in the tree if so.
+
+AM_CONDITIONAL([HPLIP_BUILD], 
+	[test -r "${srcdir}/../../io/hpiod/hpiod.cpp"])
+AS_IF([test -r "${srcdir}/../../io/hpiod/hpiod.cpp"],
+	[AC_DEFINE([HAVE_LIBHPIP], [1], [Define if libhpip from HPLIP is available])
+	 AC_MSG_NOTICE([HPLIP build tree detected, using it for the HPIJS build])],
+	[AC_CHECK_LIB([hpip], [ipOpen],,
+		[AC_MSG_WARN([cannot find libhpip support, HPLIP fax support disabled])])
+	])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

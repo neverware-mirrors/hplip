@@ -53,7 +53,10 @@
 //#define HPIOD_DEBUG
 
 #define RCFILE "/etc/hp/hplip.conf" /* The config file */
-#define PIDFILE "/var/run/hpiod.pid" /* The pidfile */
+//#define PIDFILE "/var/run/hplip/hpiod.pid" /* The pidfile */
+//#define PORTFILE "/var/run/hplip/hpiod.port" 
+#define PIDFILE "hpiod.pid" /* The pidfile */
+#define PORTFILE "hpiod.port" 
 #define LINE_SIZE 256     /* Length of a line. */
 #define BUFFER_SIZE 8192  /* General Read/Write buffer. */
 #define MAX_DEVICE 16     /* Max devices. */
@@ -165,6 +168,10 @@ enum CHANNEL_ID  /* MLC socket ids */
 #define MAX_SOCKETID MEMORY_CARD_CHANNEL+1  /* must be largest numeric socketid + 1 */
 
 void sysdump(void *data, int size);
+
+extern int HpiodPortNumber;               /* IP port number */
+extern char HpiodPidFile[];             /* full pid file path */
+extern char HpiodPortFile[];             /* full port file path */
 
 #include "system.h"
 #include "device.h"

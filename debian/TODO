@@ -26,9 +26,6 @@ General:
    4. remove python #! lines from stuff that are not end-user executables (done?)
    5. fix and submit upstream something less hackish than the data -> ../share/data symlink
 
-  CUPSYS:
-   1. cupsys restart seems to be required to get new printers (!!!!)
-
   FOOMATIC:
    1. all PPDs should be in /etc somewhere.  The best way to do this is
       probably another link to /etc/ppds added to /etc/share/cups/models

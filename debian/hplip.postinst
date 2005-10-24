@@ -1,6 +1,6 @@
 #! /bin/sh
-# postinst script for hplip-base
-# $Id: hplip-base.postinst,v 1.1 2005/08/03 02:36:09 hmh Exp $
+# postinst script for hplip
+# $Id: hplip.postinst,v 1.1 2005/10/15 21:39:04 hmh Exp $
 #
 # see: dh_installdeb(1)
 
@@ -35,7 +35,7 @@ case "$1" in
 	  # adduser failed. Why?
 	  if getent passwd hplip >/dev/null ; then
 	     echo "Non-system user hplip found. I will not overwrite a non-system" >&2
-	     echo "user.  Remove the user and reinstall hplip-base." >&2
+	     echo "user.  Remove the user and reinstall hplip." >&2
 	     exit 1
 	  fi
 	  # unknown adduser error, simply exit

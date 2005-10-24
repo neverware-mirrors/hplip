@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.22 $
-# $Date: 2005/07/21 17:31:38 $
+# $Revision: 1.23 $
+# $Date: 2005/10/07 21:00:04 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -25,7 +25,7 @@
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
 
-_VERSION = '5.1'
+_VERSION = '6.0'
 
 # Std Lib
 import sys
@@ -44,7 +44,7 @@ from base.msg import *
 from base import service
 
 app = None
-server = None
+client = None
 toolbox  = None
 
 # PyQt
@@ -66,64 +66,14 @@ def usage():
     sys.exit(0)
 
 
-class hpguid_server(async.dispatcher):
+class tbx_client(async.dispatcher):
 
-    def __init__(self, ip):
-        self.ip = ip
-        self.port = socket.htons(0)
+    def __init__(self):
         async.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.set_reuse_addr()
-        try:
-            self.bind((ip, self.port))
-        except socket.error,e:
-            log.fatal("Unable to address to socket: %s" % e[1])
-            raise Error
-        self.port = self.socket.getsockname()[1]
-        prop.hpguid_port = self.port
-        self.listen(5)
-
-
-    def writable(self):
-        return False
-
-    def readable(self):
-        return self.accepting
-
-    def handle_accept(self):
-        try:
-            conn, addr = self.accept()
-        except socket.error:
-            log.error("Socket error on accept()")
-            return
-        except TypeError:
-            log.error("EWOULDBLOCK exception on accept()")
-            return
-        handler = hpguid_handler(conn, addr, self)
-
-    def __str__(self):
-        return "<hpssd_server listening on %s:%d (fd=%d)>" % \
-                (self.ip, self.port, self._fileno)
-
-    def handle_close(self):
-        async.dispatcher.handle_close(self)
-
-
-
-
-# This handler takes care of all conversations with
-# clients when hpguid is acting as a server.
-# This dispatcher receives requests messages and
-# and replies with result messages. It does not
-# initiate sending requests.
-class hpguid_handler(async.dispatcher):
-
-    def __init__(self, conn, addr, the_server):
-        async.dispatcher.__init__(self, sock=conn)
-        self.addr = addr
+        self.connect((prop.hpssd_host, prop.hpssd_port)) 
         self.in_buffer = ""
         self.out_buffer = ""
-        self.server = the_server
         self.fields = {}
         self.data = ''
         self.error_dialog = None
@@ -137,12 +87,12 @@ class hpguid_handler(async.dispatcher):
                         'exitguievent' : self.handle_exitguievent,
                         }
 
-    def __str__(self):
-        return "<hpssd_handler connected to %s (fd=%d)>" % \
-                (self.addr, self._fileno)
+        self.register_gui()
 
     def handle_read(self):
         log.debug("Reading data on channel (%d)" % self._fileno)
+        log.debug(repr(self.in_buffer))
+
         self.in_buffer = self.recv(prop.max_message_len)
 
         if self.in_buffer == '':
@@ -151,7 +101,6 @@ class hpguid_handler(async.dispatcher):
         remaining_msg = self.in_buffer
 
         while True:
-
             try:
                 self.fields, self.data, remaining_msg = parseMessage(remaining_msg)
             except Error, e:
@@ -184,6 +133,7 @@ class hpguid_handler(async.dispatcher):
 
         log.debug("Sending data on channel (%d)" % self._fileno)
         log.debug(repr(self.out_buffer))
+        
         try:
             sent = self.send(self.out_buffer)
         except:
@@ -195,7 +145,6 @@ class hpguid_handler(async.dispatcher):
     def writable(self):
         return not ((len(self.out_buffer) == 0)
                      and self.connected)
-
 
     def handle_exitguievent(self):
         self.signal_exit = True
@@ -224,7 +173,6 @@ class hpguid_handler(async.dispatcher):
                              error_string_long, retry_timeout, job_id,
                              device_uri)
 
-
         except:
             log.exception()
 
@@ -241,29 +189,18 @@ class hpguid_handler(async.dispatcher):
         self.connected = False
         async.dispatcher.close(self)
 
-
-def registerGUI():
-    try:
-        service.registerGUI(prop.username, prop.hpguid_host,
-                             prop.hpguid_port, os.getpid(), 'tbx')
-    except Error, e:
-        log.error("Unable to connect to HPLIP I/O. Please restart HPLIP and try again.")
-        sys.exit(0)
-
-def unregisterGUI():
-    try:
-        service.unregisterGUI(prop.username, os.getpid(), 'tbx')
-    except Error, e:
-        log.error("UnRegister GUI failed (code=%d). " % e.opt)
+    def register_gui(self):
+        out_buffer = buildMessage("RegisterGUIEvent", None, {'username': prop.username})
+        self.send(out_buffer)
 
 
 def toolboxCleanup():
-    unregisterGUI()
+    pass
 
 def handleEXIT():
-    if server is not None:
+    if client is not None:
         try:
-            server.close()
+            client.close()
         except:
             pass
 
@@ -292,20 +229,17 @@ def main(args):
         elif o in ('-h', '--help'):
             usage()
 
-
-
     # Security: Do *not* create files that other users can muck around with
     os.umask (0077)
 
-    # hpguid server dispatcher object
-    global server
+    global client
     try:
-        server = hpguid_server(prop.hpguid_host)
+        client = tbx_client()
     except Error:
-        log.error("Unable to create server object.")
+        log.error("Unable to create client object.")
         sys.exit(0)
 
-    log.info("Listening on %s port %d" % (prop.hpguid_host, prop.hpguid_port))
+    log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
     log.set_module('toolbox')
 
     # create the main application object
@@ -315,11 +249,6 @@ def main(args):
     global toolbox
     toolbox = devmgr4(toolboxCleanup)
     app.setMainWidget(toolbox)
-
-    registerGUI()
-
-    pid = os.getpid()
-    log.debug('pid=%d' % pid)
 
     toolbox.show()
 

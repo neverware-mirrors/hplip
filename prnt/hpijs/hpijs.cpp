@@ -43,6 +43,10 @@
 #include "services.h"
 #include "hpijs.h"
 
+#ifdef HAVE_LIBHPIP
+extern  int hpijsFaxServer (int argc, char **argv);
+#endif
+
 extern int hpijs97();
 
 int bug(const char *fmt, ...)
@@ -300,22 +304,47 @@ int hpijs_set_cb (void *set_cb_data, IjsServerCtx *ctx, IjsJobId job_id,
 int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const char *key, char *value_buf, int value_size)
 {
    UXServices *pSS = (UXServices*)get_cb_data;
+   float        fY;
 
    if (!strcmp (key, "PrintableArea"))
    {
+       fY = pSS->pPC->PrintableHeight ();
       /* If duplexing, adjust printable height to 1/2 inch top/bottom margins, except laserjets. */
       if ((pSS->pPC->QueryDuplexMode() != DUPLEXMODE_NONE) && pSS->pPC->RotateImageForBackPage())
-         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PhysicalPageSizeY()-1);
-      else
-         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PrintableHeight());
+      {
+          // User has requested fullbleed printing and printer supports 4-sided fullbleed or
+          // top and bottom margin are equal (0.125"), then
+          // don't need top and bottom margins to be 0.5" each. In other words, if physical page size -
+          // printable height is more than 0.25 inches, adjustment is required for symmetry.
+
+         if ((pSS->pPC->PrintableHeight () + 0.28) < pSS->pPC->PhysicalPageSizeY ())
+         {
+             fY = pSS->pPC->PhysicalPageSizeY () - 1.0;
+         }
+//         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PhysicalPageSizeY()-1);
+      }
+//      else
+//         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PrintableHeight());
+      return (snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth (), fY));
    }
    else if (!strcmp (key, "PrintableTopLeft"))
    {
+       fY = pSS->pPC->PrintableStartY (); 
       /* If duplexing, adjust printable top to 1/2 inch top margin, except laserjets. */
       if ((pSS->pPC->QueryDuplexMode() != DUPLEXMODE_NONE) && pSS->pPC->RotateImageForBackPage())
+      {
+         if ((pSS->pPC->PrintableHeight () + 0.28) < pSS->pPC->PhysicalPageSizeY ())
+         {
+             fY = 0.5;
+         }
+      }
+      return snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX (), fY);
+
+/*
          return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX(), 0.5);
       else
          return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX(), pSS->pPC->PrintableStartY());
+ */
    }
    else if ((!strcmp (key, "Duplex")) || (!strcmp (key, "PS:Duplex")))
    {
@@ -403,7 +432,7 @@ int hpijs_get_client_raster(IjsServerCtx *ctx, char *buf, int size, char white)
    return size;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], char *evenp[])
 {
    UXServices *pSS = NULL;
    IjsServerCtx *ctx = NULL;
@@ -421,6 +450,15 @@ int main(int argc, char *argv[])
          exit(0);
       }
    }
+
+#ifdef HAVE_LIBHPIP
+   char *pDev;
+   if ((pDev = getenv ("DEVICE_URI")) &&
+       ((strncmp (pDev, "hpfax:", 6)) == 0))
+   {
+       exit ( hpijsFaxServer (argc, argv));
+   }
+#endif
 
    ctx = ijs_server_init();
    if (ctx == NULL)

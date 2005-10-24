@@ -1,9 +1,9 @@
 #! /bin/sh
 # hplip	initscript for the HP Linux Printing and Imaging System
 # Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
-# Distributed under the same license as the Debian package hplip-base
+# Distributed under the GPLv2 or newer
 #
-# $Id: hplip-base.init,v 1.5 2005/09/08 22:36:24 hmh Exp $
+# $Id: hplip.init,v 1.11 2005/10/15 21:39:04 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"

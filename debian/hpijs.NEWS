@@ -1,0 +1,19 @@
+hpijs (2.4.6+0.9.6-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the hplip-ppds package
+as usual.  They're also available from linuxprinting.org and foomatic-*
+packages dated after 2005-10-10.
+
+Users of the following printers should reinstall their PPDs in CUPS to
+replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+
+  * HP Deskjet 450 family
+  * HP Deskjet 55xx family
+  * HP PhotoSmart 8700 (modified for hpijs 2.4.5)
+  * HP PhotoSmart 320/330/370/380 (modified for hpijs 2.1.4)
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 13 Oct 2005 10:08:51 -0300

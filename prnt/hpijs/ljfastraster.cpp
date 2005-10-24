@@ -292,7 +292,7 @@ int HeaderLJFastRaster::FrPaperToMediaSize(PAPER_SIZE psize)
 DRIVER_ERROR HeaderLJFastRaster::StartPage ()
 {
     DRIVER_ERROR err;
-    char    res[64];
+    BYTE    szCustomSize[16];
 
 	/* Orienatation: is FrFeedOrientationSeq[1]. Can take the following values:
 		Portrait				: 0x00
@@ -306,15 +306,35 @@ DRIVER_ERROR HeaderLJFastRaster::StartPage ()
 	
 	//Put the papersize into the FrPaperSizeSeq[]
 	PAPER_SIZE ps = thePrintContext->GetPaperSize ();
-	int msizeCode = FrPaperToMediaSize(ps);	
+	int msizeCode = FrPaperToMediaSize(ps);
 	FrPaperSizeSeq[1] = (BYTE) msizeCode; 
 #ifdef APDK_EXTENDED_MEDIASIZE
 	if(msizeCode == 96 || msizeCode == 17) //Custom paper size or A6
-	{	
-		sprintf (res, "\xD5%d%d\xF8\x2f",
-                 (int) (thePrintContext->PhysicalPageSizeX () + 0.5),
-                 (int) (thePrintContext->PhysicalPageSizeY () + 0.5));
-		err = thePrinter->Send ((const BYTE *) res, strlen (res));
+	{
+        union
+        {
+            float       fValue;
+            uint32_t    uiValue;
+        } LJFUnion;
+        uint32_t    uiXsize;
+        uint32_t    uiYsize;
+        int         k = 0;
+        LJFUnion.fValue = (float) thePrintContext->PhysicalPageSizeX ();
+        uiXsize = LJFUnion.uiValue;
+        LJFUnion.fValue = (float) thePrintContext->PhysicalPageSizeY ();
+        uiYsize = LJFUnion.uiValue;
+        szCustomSize[k++] = 0xD5;
+        szCustomSize[k++] = (BYTE) (uiXsize & 0x000000FF);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0x0000FF00) >> 8);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0x00FF0000) >> 16);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0xFF000000) >> 24);
+        szCustomSize[k++] = (BYTE) (uiYsize & 0x000000FF);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0x0000FF00) >> 8);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0x00FF0000) >> 16);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0xFF000000) >> 24);
+        szCustomSize[k++] = 0xF8;
+        szCustomSize[k++] = 0x2F;
+        err = thePrinter->Send ((const BYTE *) szCustomSize, k);
 		ERRCHECK;
 
 
@@ -434,14 +454,14 @@ typedef enum
 
 DRIVER_ERROR LJFastRaster::Encapsulate (const RASTERDATA* InputRaster, BOOL bLastPlane)
 {
-    char    res[64];
+    BYTE    res[64];
     DRIVER_ERROR    err = NO_ERROR;
 
 	//** form FR header
 	unsigned char	pucHeader[FAST_RASTER_HEADERSIZE];
 	long lImageWidth = ((ModeDeltaPlus*)m_pCompressor)->inputsize;
 	long lResolution = 600;
-	long lBlockOffset = ((ModeDeltaPlus*)m_pCompressor)->m_lPrinterRasterRow - 128;
+	long lBlockOffset = ((((ModeDeltaPlus*)m_pCompressor)->m_lPrinterRasterRow + 127) / 128) * 128 - 128;
 	long lBitDepth = 1;
 	long lBlockHeight = ((ModeDeltaPlus*)m_pCompressor)->m_lCurrBlockHeight;
 
@@ -506,10 +526,14 @@ DRIVER_ERROR LJFastRaster::Encapsulate (const RASTERDATA* InputRaster, BOOL bLas
 	BYTE FrEnterFRModeSeq[] = {0xC2, 0x06, 0x20, 0x70,0x68, 0xF8, 0x91, 0xC2};
 	err = Send ((const BYTE *)FrEnterFRModeSeq, sizeof(FrEnterFRModeSeq));
 	ERRCHECK;
-	err = Send ((const BYTE *)&ulVUDataLength, 4);
-	ERRCHECK;
-	strcpy (res, "\xF8\x92\x46");
-	err = Send ((const BYTE *) res, strlen (res));
+    res[0] = (BYTE) (ulVUDataLength & 0xFF);
+    res[1] = (BYTE) ((ulVUDataLength & 0x0000FF00) >> 8);
+    res[2] = (BYTE) ((ulVUDataLength & 0x00FF0000) >> 16);
+    res[3] = (BYTE) ((ulVUDataLength & 0xFF000000) >> 24);
+    res[4] = 0xF8;
+    res[5] = 0x92;
+    res[6] = 0x46;
+    err = Send (res, 7);
 	ERRCHECK;
 
 	//** now embed raster data, header and all 	

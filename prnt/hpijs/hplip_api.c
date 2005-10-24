@@ -47,9 +47,11 @@ int ReadConfig()
 {
    char rcbuf[255];
    char section[32];
+   char rundir[255];
+   char file[255];
    FILE *inFile = NULL;
    char *tail;
-   int stat=1;
+   int n, stat=1;
         
    if((inFile = fopen(RCFILE, "r")) == NULL) 
    {
@@ -66,22 +68,30 @@ int ReadConfig()
          strncpy(section, rcbuf, sizeof(section)); /* found new section */
       else if ((strncasecmp(section, "[hplip]", 7) == 0) && (strncasecmp(rcbuf, "jdprobe=", 8) == 0))
          jdprobe = strtol(rcbuf+8, &tail, 10);
+      else if ((strncasecmp(section, "[dirs]", 6) == 0) && (strncasecmp(rcbuf, "run=", 4) == 0))
+      {
+         strncpy(rundir, rcbuf+4, sizeof(rundir));
+         n = strlen(rundir);
+         rundir[n-1]=0;  /* remove CR */
+      }
    }
         
    fclose(inFile);
 
-   if((inFile = fopen(HPIODFILE, "r")) == NULL) 
+   snprintf(file, sizeof(file), "%s/%s", rundir, HPIODFILE); 
+   if((inFile = fopen(file, "r")) == NULL) 
    {
-      bug("unable to open %s: %m: %s %d\n", HPIODFILE, __FILE__, __LINE__);
+      bug("unable to open %s: %m: %s %d\n", file, __FILE__, __LINE__);
       goto bugout;
    } 
    if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
       hpiod_port_num = strtol(rcbuf, &tail, 10);
    fclose(inFile);
 
-   if((inFile = fopen(HPSSDFILE, "r")) == NULL) 
+   snprintf(file, sizeof(file), "%s/%s", rundir, HPSSDFILE); 
+   if((inFile = fopen(file, "r")) == NULL) 
    {
-      bug("unable to open %s: %m: %s %d\n", HPSSDFILE, __FILE__, __LINE__);
+      bug("unable to open %s: %m: %s %d\n", file, __FILE__, __LINE__);
       goto bugout;
    } 
    if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
