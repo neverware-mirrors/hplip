@@ -836,7 +836,6 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
     }
 
     char    *p = str + 1;
-    BYTE    penColor;
 
 /*
  *  Pen Type Info
@@ -918,7 +917,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
                     {
                         ePen = BOTH_PENS;
                     }
-                    else
+                    else if (ePen != BOTH_PENS)
                     {
                         ePen = COLOR_PEN;
                     }
@@ -933,6 +932,17 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
         }
         return NO_ERROR;
     }
+
+#if 0
+
+    BYTE    penColor;
+
+/*
+ *  These printers don't need all pens to be installed to print. Parsing the pen info
+ *  is not all that useful. Also, the note about incompatible pen is not valid anymore,
+ *  it just means unknown or other pen.
+ *  Raghu - 11/17/05
+ */
 
     for (i = 0; i < num_pens; i++, p += 8)
     {
@@ -1032,6 +1042,11 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
         }
     }
     return NO_ERROR;
+#endif
+
+    ePen = BOTH_PENS;
+    return NO_ERROR;
+
 } //ParsePenInfo
 
 

@@ -1,3 +1,47 @@
+hplip (0.9.7-1) unstable; urgency=low
+
+  * New upstream version
+    * HPIJS 2.1.7:
+      + Fixed OJ K550 typo in HPIJS
+      + Added photo tray support to DJGenericVIP device class. This effects
+        all DJGenericVIP PPD files
+      + Added support for the following new printers:
+        + HP Color LaserJet 3000 (LJColor/PS)
+        + HP Color LaserJet 3600 (LJJetReady)
+        + HP Color LaserJet 3800 (LJColor/PS)
+    * HPLIP 0.9.7:
+      + Added 1284.4 support to hpiod. Previous support was MLC only
+      + Changed hp-toolbox startup behavior to increase performance
+      + Added checks in messaging code to prevent invalid messages from
+        crashing hpssd
+      + Added hp-toolbox PML cleanup code to LJ status code
+      + Fixed clj28xx scanning issue. Mfpdtf buffer was too small
+        libsane-hpaio. This fixes a problem introduced in 0.9.5
+      + Modified hp-makeuri to allow hostnames for network addresses
+      + Added support for "alternate n-up" for PS documents to hp-print
+      + Fixed an issue where the website link for support information is
+        wrong in "HP" tab of "Support Information" dialog
+      + Fixed an issue setting the scan token in libsane-hpaio
+      + Fixed an issue where an error occurs while executing the command
+        "hp-check -lnone" in terminal
+      + Fixed an issue where an exception is caught but the program does not
+        show a correct prompt when running the command "hp-align" with parameter
+        -p
+      + Fixed System::GetSnmp sigfault in hpiod. This will fix network
+        scanning/hp-toolbox issues in previous HPLIP releases
+      + Fixed an issue where an error occurs while executing hp-photo after
+        the usb cable was disconnected
+  * Use far less tight versioning that works with the new rules for binNMUs,
+    and break a dependency loop while at it (closes: #339909)
+  * Add versioned dependency on coreutils 5.1+ (closes: #337375)
+  * New dpatch 60_lp_instead_of_lpr:
+    Use "lp" instead of "lpr" to submit jobs (closes: #336407)
+  * Ship copyright and changelogs along with hplip-data too, as it is not
+    depending on hplip anymore and the /usr/share/doc/hplip-data symlink has
+    to go away
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 24 Nov 2005 16:20:29 -0200
+
 hplip (0.9.6-1) unstable; urgency=low
 
   * New upstream version

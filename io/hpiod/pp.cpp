@@ -25,6 +25,8 @@
 
 #include "hpiod.h"
 
+#ifdef HAVE_PPORT
+
 ParMlcChannel::ParMlcChannel(Device *pD) : MlcChannel(pD)
 {
 }
@@ -124,5 +126,5 @@ int ParMlcChannel::Close(char *sendBuf, int *result)
    return len;
 }
 
-
+#endif /* HAVE_PPORT */
 

@@ -107,7 +107,8 @@ hp_DEPENDENCIES = libhplip-api.la
 am_hpiod_OBJECTS = hpiod.$(OBJEXT) channel.$(OBJEXT) device.$(OBJEXT) \
 	mlc.$(OBJEXT) system.$(OBJEXT) jddevice.$(OBJEXT) \
 	jetdirect.$(OBJEXT) udevice.$(OBJEXT) uppdevice.$(OBJEXT) \
-	ppdevice.$(OBJEXT) pp.$(OBJEXT)
+	ppdevice.$(OBJEXT) pp.$(OBJEXT) dot4.$(OBJEXT) \
+	ppdot4.$(OBJEXT)
 hpiod_OBJECTS = $(am_hpiod_OBJECTS)
 hpiod_LDADD = $(LDADD)
 am_ptest_OBJECTS = ptest.$(OBJEXT) fat.$(OBJEXT)
@@ -243,7 +244,6 @@ PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
 PYUIC = @PYUIC@
 RANLIB = @RANLIB@
-RPM_INSTALL = @RPM_INSTALL@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -294,6 +294,7 @@ prefix = @prefix@
 program_transform_name = @program_transform_name@
 pyexecdir = @pyexecdir@
 pythondir = @pythondir@
+rpm_install = @rpm_install@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 subdirs = @subdirs@
@@ -315,9 +316,9 @@ dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py pho
 cupsdir = $(CUPS_BACKEND_PATH)
 hp_SOURCES = backend/hp/hp.c 
 hp_LDADD = libhplip-api.la
-hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h\
-    io/hpiod/system.h 
+hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp \
+    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h \
+    io/hpiod/system.h io/hpiod/dot4.cpp io/hpiod/ppdot4.cpp io/hpiod/dot4.h
 
 
 # base
@@ -744,6 +745,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/device.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dot4.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpaio.Plo@am__quote@
@@ -758,6 +760,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pml.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppdevice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppdot4.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Po@am__quote@
@@ -1282,6 +1285,34 @@ pp.obj: io/hpiod/pp.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/pp.cpp' object='pp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pp.obj `if test -f 'io/hpiod/pp.cpp'; then $(CYGPATH_W) 'io/hpiod/pp.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/pp.cpp'; fi`
+
+dot4.o: io/hpiod/dot4.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dot4.o -MD -MP -MF "$(DEPDIR)/dot4.Tpo" -c -o dot4.o `test -f 'io/hpiod/dot4.cpp' || echo '$(srcdir)/'`io/hpiod/dot4.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dot4.Tpo" "$(DEPDIR)/dot4.Po"; else rm -f "$(DEPDIR)/dot4.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/dot4.cpp' object='dot4.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dot4.o `test -f 'io/hpiod/dot4.cpp' || echo '$(srcdir)/'`io/hpiod/dot4.cpp
+
+dot4.obj: io/hpiod/dot4.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dot4.obj -MD -MP -MF "$(DEPDIR)/dot4.Tpo" -c -o dot4.obj `if test -f 'io/hpiod/dot4.cpp'; then $(CYGPATH_W) 'io/hpiod/dot4.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/dot4.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dot4.Tpo" "$(DEPDIR)/dot4.Po"; else rm -f "$(DEPDIR)/dot4.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/dot4.cpp' object='dot4.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dot4.obj `if test -f 'io/hpiod/dot4.cpp'; then $(CYGPATH_W) 'io/hpiod/dot4.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/dot4.cpp'; fi`
+
+ppdot4.o: io/hpiod/ppdot4.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ppdot4.o -MD -MP -MF "$(DEPDIR)/ppdot4.Tpo" -c -o ppdot4.o `test -f 'io/hpiod/ppdot4.cpp' || echo '$(srcdir)/'`io/hpiod/ppdot4.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/ppdot4.Tpo" "$(DEPDIR)/ppdot4.Po"; else rm -f "$(DEPDIR)/ppdot4.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/ppdot4.cpp' object='ppdot4.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ppdot4.o `test -f 'io/hpiod/ppdot4.cpp' || echo '$(srcdir)/'`io/hpiod/ppdot4.cpp
+
+ppdot4.obj: io/hpiod/ppdot4.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ppdot4.obj -MD -MP -MF "$(DEPDIR)/ppdot4.Tpo" -c -o ppdot4.obj `if test -f 'io/hpiod/ppdot4.cpp'; then $(CYGPATH_W) 'io/hpiod/ppdot4.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/ppdot4.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/ppdot4.Tpo" "$(DEPDIR)/ppdot4.Po"; else rm -f "$(DEPDIR)/ppdot4.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/ppdot4.cpp' object='ppdot4.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ppdot4.obj `if test -f 'io/hpiod/ppdot4.cpp'; then $(CYGPATH_W) 'io/hpiod/ppdot4.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/ppdot4.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1957,6 +1988,11 @@ install-data-hook:
 	         fi \
 	      fi \
 	   fi \
+	fi
+#
+#       For internal testing.
+	if [ "$(SHADOW)" != "" ]; then \
+	   cp -f data/xml/unreleased/*.xml $(DESTDIR)$(hplipdir)/data/xml/; \
 	fi
 
 dist-hook:

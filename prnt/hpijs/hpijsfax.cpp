@@ -469,6 +469,7 @@ int hpijsFaxServer (int argc, char **argv)
 	HPLIPPUTBYTES ((szFileHeader + 12), uiPageNum);
 	fwrite (szFileHeader + 12, 1, 4, fpFax);
 	fclose (fpFax);
+    chmod (hpFileName, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     hpFileName[strlen (hpFileName)] = '\n';
     write (pFaxStruct->iOutputPath, hpFileName, strlen (hpFileName));
 

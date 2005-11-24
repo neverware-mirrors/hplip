@@ -1,0 +1,117 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 60_lp_instead_of_lpr.dpatch by  <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Use SysV lp instead of BSD lpr
+
+@DPATCH@
+diff -urNad hplip~/base/device.py hplip/base/device.py
+--- hplip~/base/device.py	2005-11-24 15:37:15.000000000 -0200
++++ hplip/base/device.py	2005-11-24 15:38:13.387165477 -0200
+@@ -771,16 +771,17 @@
+                     os.remove(filename)
+ 
+             else:
+-                raw_str = ('', '-l')[raw]
+-                rem_str = ('', '-r')[remove]
++                raw_str = ('', '-oraw')[raw]
+ 
+                 if is_gzip:
+-                    c = ' '.join(['gunzip -c', filename, '| lpr -P', self.first_cups_printer, raw_str, rem_str])
++                    c = ' '.join(['gunzip -c', filename, '| lp -c -d', self.first_cups_printer, raw_str, rem_str])
+                 else:
+-                    c = ' '.join(['lpr -P', self.first_cups_printer, raw_str, rem_str, filename])
++                    c = ' '.join(['lp -c -d', self.first_cups_printer, raw_str, rem_str, filename])
+ 
+                 log.debug(c)
+                 os.system(c)
++                if remove:
++                    os.remove(filename)
+ 
+ 
+     def printGzipFile(self, filename, direct=False, raw=True, remove=False):
+@@ -1844,19 +1845,20 @@
+                 self.writePrint(file(file_name, 'r').read())
+ 
+         elif len(self.cups_printers) > 0:
+-            if is_gzip:
+-                c = 'gunzip -c %s | lpr -P%s' % (file_name, cups_printers[0])
+-            else:
+-                c = 'lpr -P%s %s' % (self.cups_printers[0], file_name)
+-
+             if raw:
+-                c = ''.join([c, ' -l'])
++                r = " -oraw"
++            else:
++                r = ''
+ 
+-            if remove:
+-                c = ''.join([c, ' -r'])
++            if is_gzip:
++                c = 'gunzip -c %s | lp -c -d%s %s' % (file_name, cups_printers[0], r)
++            else:
++                c = 'lp -c -d%s %s %s' % (self.cups_printers[0], r, file_name)
+ 
+             log.debug(c)
+             os.system(c)
++            if remove:
++                os.remove(file_name)
+ 
+         else:
+             raise Error(ERROR_NO_CUPS_QUEUE_FOUND_FOR_DEVICE)
+diff -urNad hplip~/hplip_readme.html hplip/hplip_readme.html
+--- hplip~/hplip_readme.html	2005-11-24 15:37:15.000000000 -0200
++++ hplip/hplip_readme.html	2005-11-24 15:38:13.386165606 -0200
+@@ -2266,7 +2266,7 @@
+ <b>Issue 2: I tried printing a document with 'hp-print' but it didn't work.<br>
+ Solution:</b><br>
+ 'hp-print' is only designed to print raw printer ready data to the printer. 'hp-print' by-passes the CUPS backend and is not intended for general use.
+-To print raw printer ready data use the "lpr -oraw" command line.<br>
++To print raw printer ready data use the "lp -oraw" command line.<br>
+ <p>
+ 
+ <b>Issue 3: I'd like to view the CUPS error log for debugging and troubleshooting purposes.<br>
+@@ -2299,7 +2299,7 @@
+ <p>
+ 1. Setup a default printer queue for your printer. Use the following command to print a postscript file from the spooler. See your distribution for spooler setup if you have questions.
+ <pre>
+-$ lpr /usr/share/printconf/tests/testpage.ps
++$ lp /usr/share/printconf/tests/testpage.ps
+ </pre>
+ If this command fails goto the next step. If this command passes, but fails to print from your application you have an application issue, see your distribution for help.
+ <p>
+diff -urNad hplip~/prnt/hpijs/hpijs_readme.html hplip/prnt/hpijs/hpijs_readme.html
+--- hplip~/prnt/hpijs/hpijs_readme.html	2005-11-24 15:37:15.000000000 -0200
++++ hplip/prnt/hpijs/hpijs_readme.html	2005-11-24 15:38:13.389165219 -0200
+@@ -4080,10 +4080,10 @@
+   will print a postscript file to the lp0 spooler.
+   <p>
+ <pre>
+-$ lpr -Plp0 tiger.ps
++$ lp -dlp0 tiger.ps
+ </pre>
+   <p>
+-  Most applications use the lpr command to print documents. 
++  Most applications use the lp or lpr commands to print documents. 
+ <p>
+ <H4><a name="Command"></a>7.2 Ghostscript Example</H4>
+ Here is a Ghostscript example using our driver on a 990C deskjet from the command line.
+diff -urNad hplip~/ui/printerform.py hplip/ui/printerform.py
+--- hplip~/ui/printerform.py	2005-11-24 15:37:15.000000000 -0200
++++ hplip/ui/printerform.py	2005-11-24 15:38:13.390165090 -0200
+@@ -322,12 +322,12 @@
+             alt_nup = (nup > 1 and t == 'application/postscript' and utils.which('psnup'))
+                 
+             if alt_nup:
+-                cmd = ' '.join(['psnup', '-%d' % nup, ''.join(['"', p, '"']), '| lpr -P', self.current_printer])
++                cmd = ' '.join(['psnup', '-%d' % nup, ''.join(['"', p, '"']), '| lp -c -d', self.current_printer])
+             else:
+-                cmd = ' '.join(['lpr -P', self.current_printer])
++                cmd = ' '.join(['lp -c -d', self.current_printer])
+ 
+             if copies > 1:
+-                cmd = ' '.join([cmd, '-#%d' % copies])
++                cmd = ' '.join([cmd, '-n%d' % copies])
+ 
+             if not all_pages and len(page_range) > 0:
+                 cmd = ' '.join([cmd, '-o page-ranges=%s' % page_range])

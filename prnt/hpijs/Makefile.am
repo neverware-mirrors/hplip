@@ -2,7 +2,7 @@ hpijsdocdir = $(docdir)/$(PACKAGE)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_6_4
+APDKLABEL=HPLIP-0_9_7_9
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -53,14 +53,14 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax
 	dj3320.cpp dj3320.h dj3320_cmap.cpp dj3600.cpp dj3600.h dj3600_cmap.cpp ldlencap.h \
 	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
 	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h \
-	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c README_LIBJPG ljfastraster.cpp ljfastraster.h \
+	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c ljfastraster.cpp ljfastraster.h \
 	jinclude.h jpegint.h hplip_api.c hplip_api.h dj55xx.h hpijsfax.h ojprokx50.h
 
 if HPLIP_BUILD
 hpijs_LDADD = ../../libhpip.la
 endif
 
-hpijsdoc_DATA	= hpijs_readme.html gs_hpijs.png COPYING
+hpijsdoc_DATA	= hpijs_readme.html gs_hpijs.png COPYING README_LIBJPG
 bin_SCRIPTS = $(rip)
 
 EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.1.patch
@@ -130,19 +130,14 @@ get-ppd:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
+	cp foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
 	rm -rf foomatic-db-engine
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
-	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
-	rm -fr www.linuxprinting.org
 	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
@@ -166,19 +161,14 @@ get-ppd-tip:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
+	cp foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
 	rm -rf foomatic-db-engine
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
-	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
-	rm -fr www.linuxprinting.org
 	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
@@ -205,19 +195,18 @@ get-ppd-shadow:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
+	cp foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
 	rm -rf foomatic-db-engine
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
-	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
-	rm -fr www.linuxprinting.org
 	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
@@ -241,19 +230,52 @@ get-ppd-user:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
+	cp foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
 	rm -rf foomatic-db-engine
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
-	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
-	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
-	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
-	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
+
+get-ppd-user-shadow:
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-filters
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-db
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-db-hpijs
+	-cp -f foomatic/foomatic-db/*.xml foomatic-db/db/source/printer/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-generator.in foomatic-db-hpijs/data-generators/hpijs/
+	-cp -f foomatic/foomatic-db-hpijs/hpijs-printermap foomatic-db-hpijs/data-generators/hpijs/
+	cd foomatic-db-hpijs; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-filters; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-db-engine; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	./hpijs-ppd
+	cp foomatic-filters/foomatic-rip ./
+	cp -f foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp -f foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp -f foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp -f foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	-cp -f foomatic/foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
+	rm -rf foomatic-db-engine
+	rm -rf foomatic-filters
+	rm -rf foomatic-db
+	rm -rf foomatic-db-hpijs
 	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
 	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
 	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
@@ -285,4 +307,8 @@ test-ppd:
 	make inplace
 	./hpijs-ppd
 	cp foomatic-filters/foomatic-rip ./
+	cp foomatic-db/db/source/PPD/HP/all_in_one/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
+	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.3 $ 
-# $Date: 2005/04/21 21:02:07 $
+# $Revision: 1.5 $ 
+# $Date: 2005/10/13 16:34:51 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '0.1'
+_VERSION = '1.0'
 
 # Std Lib
 import sys
@@ -45,12 +45,8 @@ def usage():
             )
 
     log.info( utils.TextFormatter.bold( """\nUsage: hp-check[OPTIONS]\n\n""") )
-    
-    log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
-    log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"),            "" ) ) )
-    log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
+    utils.usage_options()
+    utils.usage_logging(formatter)
 
         
 utils.log_title( 'Dependency/Version Check Utility', _VERSION )
@@ -72,11 +68,8 @@ for o, a in opts:
         log_level = a.lower().strip()
         
         
-if not log_level in ( 'info', 'warn', 'error', 'debug' ):
-    log.error( "Invalid logging level." )
-    sys.exit(0)
-
-log.set_level( log_level )
+if not log.set_level( log_level ):
+    usage()
 
 log.info( "Checking Python version..." )
 ver = sys.version_info

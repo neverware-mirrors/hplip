@@ -31,7 +31,8 @@ enum IO_MODE
    UNI_MODE=0, /* uni-di */
    RAW_MODE,   /* bi-di */
    MLC_MODE,
-   DOT4_MODE
+   DOT4_MODE,
+   DOT4_PHOENIX_MODE
 };
 
 enum FLOW_CONTROL
@@ -65,6 +66,8 @@ class Device
 friend class Channel;
 friend class MlcChannel;
 friend class ParMlcChannel;
+friend class Dot4Channel;
+friend class ParDot4Channel;
 friend class JetDirectChannel;
 
 protected:
@@ -82,11 +85,12 @@ protected:
 
    Channel *pChannel[MAX_CHANNEL];
    int ChannelCnt;
-   virtual Channel *NewChannel(unsigned char sockid);
+   virtual Channel *NewChannel(unsigned char sockid, char *sn);
    int DelChannel(int i);
    int ChannelMode;            /* raw | mlc */
    int MlcUp;
    int CurrentProtocol;
+   int NewProtocol;
    ChannelAttributes CA[MAX_SOCKETID];
 
    System *pSys;
@@ -145,7 +149,7 @@ public:
 class UniUsbDevice : public Device
 {
 protected:
-   Channel *NewChannel(unsigned char sockid);
+   Channel *NewChannel(unsigned char sockid, char *sn);
 
 public:
    UniUsbDevice(System *pSys) : Device(pSys) {}
@@ -163,9 +167,10 @@ public:
 class ParDevice : public Device
 {
 friend class ParMlcChannel;
+friend class ParDot4Channel;
 
 protected:
-   virtual Channel *NewChannel(unsigned char sockid);
+   virtual Channel *NewChannel(unsigned char sockid, char *sn);
    int DeviceID(char *buffer, int size);
 
    int frob_control(int fd, unsigned char mask, unsigned char val);
@@ -205,7 +210,7 @@ public:
 class UniParDevice : public ParDevice
 {
 protected:
-   Channel *NewChannel(unsigned char sockid);
+   Channel *NewChannel(unsigned char sockid, char *sn);
 
 public:
    UniParDevice(System *pSys) : ParDevice(pSys) {}
@@ -226,7 +231,7 @@ protected:
    char IP[LINE_SIZE];
    int Port;      /* jetdirect port specified by uri */
 
-   Channel *NewChannel(unsigned char sockid);
+   Channel *NewChannel(unsigned char sockid, char *sn);
    int DeviceID(char *buffer, int size);
    int GetSnmpStr(char *oid, char *buffer, int size);
 

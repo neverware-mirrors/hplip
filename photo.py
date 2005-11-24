@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.17 $
-# $Date: 2005/07/21 17:31:38 $
+# $Revision: 1.18 $
+# $Date: 2005/10/13 18:08:12 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -642,7 +642,12 @@ if not device_uri and not printer_name:
         log.error( "Error occured during interative mode. Exiting." )
         sys.exit(0)
 
-pc = photocard.PhotoCard( None, device_uri, printer_name )
+try:
+    pc = photocard.PhotoCard( None, device_uri, printer_name )
+except Error, e:
+    log.error("Unable to start photocard session: %s" % e.msg)
+    sys.exit(0)
+
 pc.set_callback( update_spinner )
 
 if pc.device.device_uri is None and printer_name:

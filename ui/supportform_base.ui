@@ -80,7 +80,7 @@
                             <cursor>13</cursor>
                         </property>
                         <property name="text">
-                            <string>http://hpinket.sourceforge.net</string>
+                            <string>http://hpinkjet.sourceforge.net</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="2" column="0">

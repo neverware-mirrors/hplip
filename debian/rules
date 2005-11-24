@@ -24,6 +24,9 @@ ifeq	(,$(HPLIP_VERSION))
 	$(error Could not get debian package version from debian/changelog)
 endif
 
+HPLIP_UPSTREAM_VERSION:=$(shell echo "$(HPLIP_VERSION)" | \
+			  sed -e 's/-[^-]\+$$//')
+
 # Autoconf
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -180,8 +183,8 @@ binary-indep: build install
 	dh_testdir -i
 	dh_testroot
 #	dh_installdebconf -i
-	dh_installdocs -i -Nhplip-data
-	dh_installexamples -i -Nhplip-data
+	dh_installdocs -i
+	dh_installexamples -i
 	dh_installmenu -i
 #	dh_installlogrotate -i
 #	dh_installemacsen -i
@@ -191,7 +194,7 @@ binary-indep: build install
 #	dh_installcron -i
 	dh_installman -i
 #	dh_installinfo -i
-	dh_installchangelogs -i ChangeLog -Nhplip-data
+	dh_installchangelogs -i ChangeLog
 	dh_link -i
 	dh_strip -i
 	dh_compress -i
@@ -201,7 +204,8 @@ binary-indep: build install
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i
-	dh_gencontrol -i
+	dh_gencontrol -i -- \
+		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -i
 	dh_builddeb -i
 
@@ -232,8 +236,11 @@ binary-arch: build install debian/hpijs.version
 #	dh_makeshlibs -a
 	dh_installdeb -a
 	dh_shlibdeps -a
-	dh_gencontrol -phpijs -- -v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)"
-	dh_gencontrol -a -Nhpijs
+	dh_gencontrol -phpijs -- \
+		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+	dh_gencontrol -a -Nhpijs -- \
+		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -a
 	dh_builddeb -a
 

@@ -1,3 +1,60 @@
+hpijs (2.4.7+0.9.7-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the hplip-ppds package
+as usual.  They're also available from linuxprinting.org and foomatic-*
+packages dated after 2005-11-22.
+
+Users of the following printers should reinstall their PPDs in CUPS to
+replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+
+  * ALL DJGenericVIP devices, which include but is not restricted to:
+    HP Business Inkjet 1xxx
+    HP Business Inkjet 2600
+    HP Deskjet 5100
+    HP Deskjet 5400 series
+    HP Deskjet 555x
+    HP Deskjet 56xx
+    HP Deskjet 57xx
+    HP Deskjet 58xx
+    HP Deskjet 5900 series
+    HP Deskjet 6500
+    HP Deskjet 6600
+    HP Deskjet 6800
+    HP Deskjet 9600
+    HP Deskjet 9800
+    HP dj450
+    HP Officejet pro k550
+    HP Officejet pro k850
+    HP Officejet 6100 series
+    HP Officejet 6150 series
+    HP Officejet 6200 series
+    HP Officejet 7200 series
+    HP Officejet 7300 series
+    HP Officejet 7400 series
+    HP PSC 1500 series
+    HP PSC 1600 series
+    HP PSC 21xx series
+    HP PSC 2200 series
+    HP PSC 23xx series
+    HP PSC 2400 series
+    HP PSC 2500 series
+    HP Photosmart 2570 series
+    HP Photosmart 2600 series
+    HP Photosmart 2700 series
+    HP Photosmart 3100 series
+    HP Photosmart 3200 series
+    HP Photosmart 3300 series
+    HP Photosmart 3xx series
+    HP Photosmart 4xx series
+    HP Photosmart 7xxx series
+    HP Photosmart 8xxx series
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 23 Nov 2005 09:34:06 -0200
+
 hpijs (2.4.6+0.9.6-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hplip-ppds package

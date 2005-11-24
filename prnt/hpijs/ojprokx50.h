@@ -63,7 +63,7 @@ class OJProKx50Proxy : public PrinterProxy
 {
 public:
     OJProKx50Proxy() : PrinterProxy(
-        "OJProKX50",                // family name
+        "OJProKx50",                // family name
         "Officejet Pro K550\0"
         "Officejet Pro K850\0"
     ) {m_iPrinterType = eOJProKx50;}

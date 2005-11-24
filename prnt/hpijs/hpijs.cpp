@@ -316,11 +316,14 @@ int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const ch
           // top and bottom margin are equal (0.125"), then
           // don't need top and bottom margins to be 0.5" each. In other words, if physical page size -
           // printable height is more than 0.25 inches, adjustment is required for symmetry.
-
+          // Update - 11/22/05: Not so, the autoduplexer still requires a half inch margin.
+#if 0
          if ((pSS->pPC->PrintableHeight () + 0.28) < pSS->pPC->PhysicalPageSizeY ())
          {
              fY = pSS->pPC->PhysicalPageSizeY () - 1.0;
          }
+#endif
+         fY = pSS->pPC->PhysicalPageSizeY () - 1.0;
 //         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PhysicalPageSizeY()-1);
       }
 //      else
@@ -333,10 +336,13 @@ int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const ch
       /* If duplexing, adjust printable top to 1/2 inch top margin, except laserjets. */
       if ((pSS->pPC->QueryDuplexMode() != DUPLEXMODE_NONE) && pSS->pPC->RotateImageForBackPage())
       {
+#if 0
          if ((pSS->pPC->PrintableHeight () + 0.28) < pSS->pPC->PhysicalPageSizeY ())
          {
              fY = 0.5;
          }
+#endif
+         fY = 0.5;
       }
       return snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX (), fY);
 

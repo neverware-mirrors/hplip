@@ -1,3 +1,136 @@
+2005-11-22 dsuffield
+    * Release 0.9.7.11 (public release 0.9.7)
+
+2005-11-22 dsuffield
+    * Removed 0.9.6 auto duplex margin adjustment. Auto duplex uses 1/2 inch top/bottom margin. 
+	
+2005-11-21 dsuffield
+    * Release 0.9.7.10
+
+2005-11-21 dwelch
+    * Fixed upper/lower case mismatch in hpssd that caused pml close to not function
+    
+2005-11-21 dsuffield
+    * Release 0.9.7.9
+
+2005-11-21 dwelch
+    * Added code to toolbox to ensure that the device is always closed after each operation (clean, align, etc).
+    
+2005-11-18 dsuffield
+    * Fixed "make install" issue with chkconfig/install_initd.
+
+2005-11-15 dsuffield
+    * Release 0.9.7.8
+
+2005-11-15 dsuffield
+    * Fixed System::GetSnmp sigfault in hpiod. This will fix network scanning issues in previous HPLIP releases.
+
+2005-11-15 dsuffield
+    * Release 0.9.7.7
+
+2005-11-15 dsuffield
+    * Fixed HPLIP configure/Makefile issues.
+	
+2005-11-15 dsuffield
+    * Release 0.9.7.6
+	
+2005-11-15 dsuffield
+    * Fixed NewChannel sigfault with Jetdirect/PP in hpiod.
+
+2005-11-14 dsuffield
+    * Added hpijs configure option --enable-hplip-build. Fixed hpijs fax build so that libhpip is linked from
+    * HPLIP source tree instead of /usr/lib/libhpip.
+    * Converted HPLIP and HPIJS to autoconf 2.59.
+
+2005-11-14 dwelch
+    * Fixed problem in sendevent that caused pcard to not function (reported by aalbright)
+
+2005-11-10 dsuffield
+    * Release 0.9.7.5
+
+2005-11-10 dwelch
+    * Changed toolbox startup behavior to increase performance
+    * Added wait cursor in toolbox during refresh device and update all
+    * Increased messaging timeout w/hpiod to 90s
+    * Added checks in messaging code to prevent invalid messages from crashing hpssd
+    * Fixed incorrect icon overlay in toolbox on startup
+    * Enhanced some logging in several places
+    * Changed device query to not attempt to perform any device functions if device not found
+    * Fixed a bug in the toolbox that caused devices to indicate offline during update
+    
+2005-11-08 dsuffield
+    * Release 0.9.7.4
+
+2005-11-08 dsuffield
+    * Fixed Dot4init USB high-speed issue.
+    * Removed space in Photo Tray inputslot for PPD files.
+
+2005-11-08 dsuffield
+    * Release 0.9.7.3
+
+2005-11-08 dsuffield
+    * Fixed OJ K550 typo in HPIJS.
+
+2005-11-07 dsuffield
+    * Release 0.9.7.2
+
+2005-11-07 dsuffield
+    * Fixed gcc error when building with "--disable-network-build".
+
+2005-10-27 dsuffield
+    * Release 0.9.7.1
+
+2005-10-27 dsuffield
+    * Added "make install SHADOW=1" support.
+
+2005-10-26 dsuffield
+    * Changed hpiod to accept "hpfax:" and "hpaio:" URIs.
+
+2005-10-25 dsuffield
+    * Added 1284.4 USB printing and scanning support for clj2840. 
+
+2005-10-20 dwelch
+    * Added PML cleanup code to LJ status code
+
+2005-10-20 dsuffield
+    * Fixed clj28xx scanning issue. Mfpdtf buffer was too small libsane-hpaio.
+
+2005-10-18 smitty
+    * Resolved issue 726 (Makeuri does not allow hostnames for network addresses)
+
+2005-10-18 dwelch
+    * Added support for "alternate n-up" for PS documents to hp-print.
+    * Removed spurious "1" printed by UI applications as they start.
+    * Forced all MLC/1284.4 service names to uppercase.
+
+2005-10-17 dwelch    
+    * Refixed defect 719 (The website link for support information is wrong in "HP" tab of "Support Information" dialog.)
+
+2005-10-14 dsuffield
+    * Release 0.9.7.0
+
+2005-10-14 dsuffield
+    * Fixed an issue setting the scan token in libsane-hpaio.
+
+2005-10-13 dwelch
+    * Fixed defect 719 (The website link for support information is wrong in "HP" tab of "Support Information" dialog.)
+    * Fixed defect 716 (Unwanted message is displayed in the usage of "hp-check" in terminal)
+    * Fixed defect 715 (The valid items are not existed after right-click the device icon in toolbox when one of Cartridges is low on ink.)
+    * Fixed defect 710 (The same message "(level): none, info*, error, warn, debug (* default) " is displayed twice in the usage of " hp-makeuri ".)
+    * Fixed defect 711 (An error occurs while executing the command "hp-check -lnone" in terminal.)
+    * Fixed defect 712 (An exception is caught but the program does not show a correct prompt when running the command "hp-align" with parameter -p.)
+    * Fixed defect 698 (An error occurs while executing the command "hp-photo" after the usb cable disconnected.)
+    
+2005-10-13 dsuffield
+    * Fixed missing $(DESTDIR)/usr/bin directory in Makefile.am.
+
+2005-10-12 dsuffield
+    * Added auto-generation of hplip_readme.html.
+
+2005-10-11 dsuffield
+    * Added 1284.4 support to hpiod.
+    * Added configure option --disable-pp-build to disable parallel port build.
+
 2005-10-10 dsuffield
     * Release 0.9.6.4 (public release 0.9.6)
 

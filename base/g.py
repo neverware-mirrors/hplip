@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.31 $
-# $Date: 2005/10/05 20:54:12 $
+# $Revision: 1.32 $
+# $Date: 2005/11/10 17:22:08 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -134,7 +134,7 @@ prop.xml_dir = os.path.join(prop.home_dir, 'data', 'xml')
 
 prop.max_message_len = 8192
 prop.max_message_read = 65536
-prop.read_timeout = 45
+prop.read_timeout = 90
 
 prop.ppd_search_path = '/usr/share;/usr/local/share;/usr/lib;/usr/local/lib;/usr/libexec;/opt'
 prop.ppd_search_pattern = 'HP-*.ppd.*'
