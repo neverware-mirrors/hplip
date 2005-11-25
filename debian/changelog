@@ -1,3 +1,11 @@
+hplip (0.9.7-2) unstable; urgency=low
+
+  * Brown paperbag release
+  * Actually add 60_lp_instead_of_lpr to list of active dpatches.
+    This closes: #336407 for real
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 25 Nov 2005 00:24:58 -0200
+
 hplip (0.9.7-1) unstable; urgency=low
 
   * New upstream version
