@@ -1,3 +1,13 @@
+hplip (0.9.7-3) unstable; urgency=low
+
+  * Switch from two versioned conflicts to two versioned depends/recommends
+    to encode the relationship between hplip and hplip-data.  This is
+    easier on apt, since conflicts preclude unpack, while depends preclude
+    configure
+  * Fix non-removal of rem_str on 60_lp_instead_of_lpr (closes: #341445)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 30 Nov 2005 15:04:33 -0200
+
 hplip (0.9.7-2) unstable; urgency=low
 
   * Brown paperbag release

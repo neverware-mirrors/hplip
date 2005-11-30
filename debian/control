@@ -8,8 +8,8 @@ Standards-Version: 3.6.2
 
 Package: hplip
 Architecture: any
-Conflicts: hpijs (<< 2.1), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1), hplip-data (<< ${Upstream-Version}), hplip-data (>= ${Upstream-Version}.1), hplip-base
-Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Conflicts: hpijs (<< 2.1), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1), hplip-base
+Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${Upstream-Version}), hplip-data (<< ${Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Recommends: cupsys-client (>= 1.1.20), hplip-ppds, hpijs
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp
@@ -40,8 +40,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 
 Package: hplip-data
 Architecture: all
-Recommends: hplip
-Conflicts: hplip (<< ${Upstream-Version}), hplip (>= ${Upstream-Version}.1)
+Recommends: hplip (>> ${Upstream-Version}), hplip (<< ${Upstream-Version}.1)
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.

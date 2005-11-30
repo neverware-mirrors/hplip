@@ -18,10 +18,10 @@ diff -urNad hplip~/base/device.py hplip/base/device.py
  
                  if is_gzip:
 -                    c = ' '.join(['gunzip -c', filename, '| lpr -P', self.first_cups_printer, raw_str, rem_str])
-+                    c = ' '.join(['gunzip -c', filename, '| lp -c -d', self.first_cups_printer, raw_str, rem_str])
++                    c = ' '.join(['gunzip -c', filename, '| lp -c -d', self.first_cups_printer, raw_str])
                  else:
 -                    c = ' '.join(['lpr -P', self.first_cups_printer, raw_str, rem_str, filename])
-+                    c = ' '.join(['lp -c -d', self.first_cups_printer, raw_str, rem_str, filename])
++                    c = ' '.join(['lp -c -d', self.first_cups_printer, raw_str, filename])
  
                  log.debug(c)
                  os.system(c)
