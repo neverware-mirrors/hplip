@@ -1,3 +1,17 @@
+hplip (0.9.7-4) unstable; urgency=low
+
+  * New upstream 0.9.7-2 patch: fixes for the following problems:
+    + Photosmart 2570 series blue screen scanning error
+    + GetDeviceStatus overwrite in hpiod (from RedHat)
+    + SuperB margin issue with OJ K550, OJ K850 and DJ9800
+    + _GNU_SOURCE define in hpaio.h. (from RedHat)
+  * Remove versioning of python-qt3 and pyqt-utils build-dependencies to
+    make backports easier.  Current versions in stable, testing and sid
+    are safe AFAIK
+  * Build-depend on libsnmp9-dev|libsnmp5-dev, to ease sarge backports
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  7 Dec 2005 14:05:12 -0200
+
 hplip (0.9.7-3) unstable; urgency=low
 
   * Switch from two versioned conflicts to two versioned depends/recommends
