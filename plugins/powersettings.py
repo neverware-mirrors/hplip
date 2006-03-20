@@ -1,12 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.5 $
-# $Date: 2005/07/25 16:28:05 $
-# $Author: dwelch $
-#
-#
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -6,8 +6,8 @@
 
 @DPATCH@
 diff -urNad hplip~/ui/supportform.py hplip/ui/supportform.py
---- hplip~/ui/supportform.py	2005-09-14 19:46:47.000000000 -0300
-+++ hplip/ui/supportform.py	2005-10-24 13:04:10.608383000 -0200
+--- hplip~/ui/supportform.py	2006-01-31 23:42:24.000000000 -0200
++++ hplip/ui/supportform.py	2006-02-01 01:20:13.643402101 -0200
 @@ -12,14 +12,14 @@
          SupportForm_base.__init__(self,parent,name,modal,fl)
  
@@ -24,6 +24,6 @@ diff -urNad hplip~/ui/supportform.py hplip/ui/supportform.py
 +        utils.openURL("http://cups.org/")
          
      def hpinktjetButton_2_clicked(self):
--        utils.openURL("file://" + os.path.join( prop.home_dir ,"hplip_readme.html"))
+-        utils.openURL("file://" + os.path.join(prop.home_dir ,"hplip_readme.html"))
 +        utils.openURL("file:///usr/share/doc/hplip/hplip_readme.html")
      

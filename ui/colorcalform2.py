@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #
 # Author: Don Welch
 #
+
 import sys
 from qt import *
 from colorcalform2_base import ColorCalForm2_base
@@ -27,7 +28,7 @@ import os.path
 class ColorCalForm2(ColorCalForm2_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         ColorCalForm2_base.__init__(self,parent,name,modal,fl)
-        self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir,  'color-adj.png' ) ) )
+        self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, 'color-adj.png')))
         self.value = 1
 
     def SpinBox_valueChanged(self,a0):

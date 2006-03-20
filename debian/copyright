@@ -6,29 +6,29 @@ It was downloaded from
 
 The Debian packaging of hplip and hpijs is:
   Copyright (c) 2003-2004 by Torsten Landschoff <torsten@debian.org>
-  Copyright (c) 2004-2005 by Henrique de Moraes Holschuh <hmh@debian.org>
+  Copyright (c) 2004-2006 by Henrique de Moraes Holschuh <hmh@debian.org>
   and distributed in the same license as the upstream source it applies to.
 
 Upstream Authors: 
-  David Suffield <david_suffield@hp.com>
-  and probably a lot more I do not know of
+  David Suffield <david_suffield@hp.com> and others
 
   The -rss series was primarily provided by Matthias Bunte
   and was adapted to hpijs 1.2.x by Richard Spencer-Smith.
 
 Copyright:
-  Copyright (c) 2001-2005 Hewlett-Packard Company
-  Copyright (c) 2001-2005 Hewlett-Packard Development Company, L.P.
+  Copyright (c) 2001-2006 Hewlett-Packard Company
+  Copyright (c) 2001-2006 Hewlett-Packard Development Company, L.P.
   All rights reserved.
 
   In general all applications are covered by the GNU General Public License
-  (GPL) version 2, and the backends are covered by a MIT license.  The printer
-  driver HPIJS uses a BSD license (DFSG-compatible).
+  (GPL) version 2, and the backends and gs KRGB patch are covered by a MIT
+  license.  The printer driver HPIJS uses a BSD license (DFSG-compatible).
 
   GPL:
-  The GPL version 2 applies to all files in the directories: base, data, 
-  data/pcl, data/ps, data/ldl, data/xml, data/images, ip, pcard, 
-  pcard/pcardext, prnt, prnt/cupsext, scan, ui.
+  The GPL version 2 (or any later version) applies to all files in the
+  directories: base, data, data/pcl, data/ps, data/ldl, data/xml,
+  data/images, ip, pcard, pcard/pcardext, prnt, prnt/cupsext, scan, ui,
+  plugins, fax.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,8 @@ Copyright:
 
   MIT:
   The MIT license applies to all files in the directories: backend,
-  backend/hp, io, io/hpiod, scan/sane.
+  backend/hp, io, io/hpiod, scan/sane. It also applies to the KRGB patches
+  to be applied to Ghostscript.
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to
@@ -60,7 +61,8 @@ Copyright:
   IN THE SOFTWARE.
 
   BSD:
-  The BSD license applies to all files in the directory prnt/hpijs.
+  The BSD license applies to all files in the directory prnt/hpijs,
+  except for the KRGB patches to be applied to Ghostscript.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -86,4 +88,4 @@ Copyright:
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
- -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 21 Jan 2005 12:39:24 -0200
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon,  6 Mar 2006 16:04:26 -0300

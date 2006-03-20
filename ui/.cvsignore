@@ -27,3 +27,6 @@ paperedgealignform_base.py
 settingsdialog_base.py
 unloadform_base.py
 waitform_base.py
+coverpageform_base.py
+faxsendjobform_base.py
+faxsettingsform_base.py

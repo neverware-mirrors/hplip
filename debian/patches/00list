@@ -1,7 +1,6 @@
-00_01_upstream_0.9.7-2
 01_rss
 14_charsign_fixes
-30_no-ping
+10_shebang_fixes
 40_quiet-hpiod
 50_doc-location
 60_lp_instead_of_lpr

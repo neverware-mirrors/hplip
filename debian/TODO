@@ -1,22 +1,21 @@
-General:
-    1. keep one eye on fab for hp-fab symlink and to add python license to copyright
-       file when the fax support is ready.
-
-  hpiod:
+hpiod:
     1. Fix pidfile locking so that main thread waits for the others to die
        before exiting
+    2. Privilege separation, do away with most crap as root
+    3. Fix hpiod syslog to also include [pid] information
 
-  hpssd.py:
+hpssd.py:
     1. remove all hardcoded paths
-    3. syslog() stuff instead of dumping to stdout
+    2. syslog() stuff instead of dumping to stdout, and do it in a less
+       hideous way than "khazad-dum python:  [ERROR] ..."
 
     U1. Get upstream to allow one to configure sender address, etc
     U2. Date header (#291277), precedence header too.
 
-  sane stuff:
+sane backend:
     1. provide sane-<whatever> manpage
 
-  build:
+build:
    1. use python automake support
    1a. Make sure to call python as the detected python in autoconf, NOT as "python"
        when that's fixed, remove "python" build-dep.
@@ -25,8 +24,3 @@ General:
    3. remove hardcoding of /etc/hp, make it a configure.in thing
    4. remove python #! lines from stuff that are not end-user executables (done?)
    5. fix and submit upstream something less hackish than the data -> ../share/data symlink
-
-  FOOMATIC:
-   1. all PPDs should be in /etc somewhere.  The best way to do this is
-      probably another link to /etc/ppds added to /etc/share/cups/models
-      or something.

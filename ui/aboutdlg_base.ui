@@ -67,7 +67,7 @@
             </property>
             <property name="text">
                 <string>&lt;b&gt;License and Copyright:&lt;/b&gt;
-(c) Copyright 2004 Hewlett-Packard Development Company, L.P. This software is licensed under the GNU General Public License (GPL) and the MIT License. See the software sources for details.</string>
+(c) Copyright 2006 Hewlett-Packard Development Company, L.P. This software is licensed under the GNU General Public License (GPL), BSD, and MIT licenses. See the software sources for details.</string>
             </property>
         </widget>
         <widget class="QLabel" row="2" column="0">
@@ -84,12 +84,7 @@
             </property>
             <property name="text">
                 <string>&lt;b&gt;Authors and Contributors:&lt;/b&gt;
-David Suffield, Don Welch, Shiyun Yie, 
-John Oleinik, Cory Meisch, Foster Nuffer,
-Pete Parks, Jacqueline Pitter, Raghothama Cauligi,
-David Paschal,
-Steve DeRoos, Kathy Hartshorn, Sharon Asker, 
-Bill Powell, Elizabeth Atwater, Mark Overton</string>
+David Suffield, Don Welch, Shiyun Yie, Raghothama Cauligi, John Oleinik, Cory Meisch, Foster Nuffer, Pete Parks, Jacqueline Pitter, David Paschal, Steve DeRoos, Kathy Hartshorn, Mark Overton, Aaron Albright, Smith Kennedy</string>
             </property>
         </widget>
         <widget class="QLabel" row="2" column="1">
@@ -122,7 +117,7 @@ Bill Powell, Elizabeth Atwater, Mark Overton</string>
                 <cstring>textLabel1</cstring>
             </property>
             <property name="text">
-                <string>&lt;font size="+3"&gt;&lt;p align="center"&gt;HP Linux Imaging and Printing System&lt;/p&gt;&lt;/font&gt;</string>
+                <string>&lt;font size="+3"&gt;&lt;p align="center"&gt;HP Linux Imaging and Printing System (HPLIP)&lt;/p&gt;&lt;/font&gt;</string>
             </property>
         </widget>
     </grid>

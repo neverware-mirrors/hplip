@@ -9,7 +9,9 @@ This patch tries to make sure that black is printed with just
 the black pen, if the printer supports it.  Almost all new
 HP printers (those using the DJGenericVIP model) do colormap 
 conversion in firmware, and will completely ignore the rss 
-patch.
+patch.  Also, nobody has maintained that patch for a long time,
+so it is unlikely that rss support will be ever added to newer
+printer drivers even if they could support it.
 
 Should Ghostscript have the latest version of the IJS server
 code, hpijs will be able to use the KRGB protocol to talk to
@@ -22,6 +24,10 @@ CUPS, you should use hpoj instead.
 
 A lot of enhanced functionality is only available in bi-dir
 mode, which is supported only by HPLIP.
+
+If you are going to use PPDs, it is recommended that the ones
+from the hplip PPD package be used, as they are guaranteed to
+work well with hpijs.
 
  -- Torsten Landschoff <torsten@debian.org>
  -- Henrique de Moraes Holschuh <hmh@debian.org>

@@ -1,3 +1,155 @@
+hplip (0.9.9-1) unstable; urgency=low
+
+  * New upstream version
+    * HPIJS 2.1.9:
+      + Fixed an array index underflow in ljfastraster.cpp
+      + Save paper width and height in UXServices object after a call to
+        SetPaperSize
+      + When fullbleed printing is requested, if printer supports it,
+        return actual paper dimensions for PrintableArea
+      + Added support for the following new printer(s):
+        + HP DeskJet F300 Series All-in-one (DJ3600)
+    * HPLIP 0.9.9:
+      + HPLIP now uses libusb for all USB I/O.  Libusb replaces kernel
+        modules printer and usblp, and opens an entirely new can of worms
+      + Removed support for USB URIs based on device files.  This means all
+        printers now use USB URIs based on "hp:/hp_model?serial=xxxxxxxx"
+        instead of "hp:/hp_model?device=/dev/usb/lpx".  Old CUPS queues must
+        be updated to the new device location
+      + Added full USB 1284.4 support for the Color LaserJet 2840, and for
+        LaserJets 3050, 3060, 1010, 1012, 1015 and 2500
+      + Updated HP-Fax-hplip.ppd to be in conformance with CUPS 1.2
+      + Updated most LaserJet PPDs for CUPS 1.2
+      + Changed the GetSnmp timeout from 5 to 2 seconds in hpiod
+      + Fixed incorrect supplies information for Color Laserjet 2840
+        displayed in hp-toolbox
+      + Fixed problem where title input was of no use while adding a file to
+        item list in send fax dialog
+      + Add models.xml parallel port flag for Deskjet 5550
+      + Moved hp-sendfax temp .g3 files to ~/hpfax/hpfax-*.g3.  Before,
+        they would clutter the user's home directory
+      + Files added to hp-sendfax interface are now rendered into g3 format
+        as they are added to the batch
+      + Removed temporary file creation from hpfax: (temp files now created
+        only by hp-sendfax using mkstemp)
+      + Added total page counting feature to hp-sendfax
+      + Added a BSD license to magic.py
+  * debian/control: build-depend on libusb >= 0.1.8
+  * dpatch 00_01_upstream-0.9.8-4: remove (applied upstream)
+  * dpatch 60_lp_instead_of_lpr: rediff to remove skips
+  * dpatch 40_quiet-hpiod: rediff to remove skips
+  * dpatch 01_rss: rediff to reorder file hunks
+  * dpatch 30_no-ping: remove, upstream removed icmp functionality
+  * dpatch 70_sane_ppd_directory_handling: remove (applied upstream)
+  * dpatch 45_quiet_hpijs-fax: remove (applied upstream)
+  * dpatch 35_no-fax-setuid: remove, upstream now does seteuid()/setegid()
+    only if sendfax is being run as root
+  * dpatch 10_shebang_fixes (new): new dump place for #!<interpretor> fixing
+  * hplip.menu: s/hp-fax/hp-sendfax/
+  * debian/control, debian/compat: switch to debhelper mode V5
+  * debian/control, debian/rules: provide and use hpijs:Upstream-Version,
+    rename Upstream-Version to hplip:Upstream-Version
+  * Rename hplip-ppds package to hpijs-ppds, update all documentation to
+    point to hpijs-ppds and linuxprinting.org-ppds and add a hpijs.NEWS
+    entry about the package rename as well
+  * debian/control: conflict hpijs with hplip-ppds versioned to source
+    version, as a dirty trick to not clash with hpijs-ppds providing
+    hplip-ppds
+  * debian/rules, debian/hpijs-ppds.install, debian/hpijs-ppds.links,
+    debian/hpijs-ppds.NEWS:
+    Don't ship non-hpijs PPDs anymore, linuxprinting.org-ppds takes care
+    of the pure postscript PPDs now
+  * debian/rules: version hpijs-ppds the same way we version hpijs
+  * debian/control: suggest hpijs-ppds and linuxprinting.org-ppds for hplip
+    instead of recommending the old hplip-ppds package.  Recommend hpijs
+    with fax support for hplip. Remove conflict on foomatic-db-hpijs and
+    foomatic-filters-ppds from hplip.  Conflict hpijs-ppds with
+    foomatic-filters-ppds before 20060113-1 when the PPD duplication was
+    removed from foomatic-filters-ppds
+  * debian/control: rework package descriptions a little
+  * debian/rules: ship all PPD files compressed
+  * debian/rules: separate arch-dep and arch-indep install, to avoid wasting
+    a great deal of time on slower archs gziping PPDs
+  * hplip initscript: Run hpiod as root because of libusb
+  * debian/copyright: update dates
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 19 Mar 2006 23:32:57 -0300
+
+hplip (0.9.8-1) unstable; urgency=low
+
+  * This release was not uploaded to Debian
+  * New upstream version
+    * HPIJS 2.1.8 (patchlevel 4):
+      + Moved OfficeJet 6100 and 6150 to DJ55xx.h; margins on these devices
+        are same as those on DJ5550
+      + Added support for the following new printers:
+        + HP LaserJet 3050 (LJMono/PS)
+        + HP LaserJet 3060/3062 (LJMono/PS)
+        + HP LaserJet 3390/3392 (LJMono/PS)
+        + HP Deskjet 6980 series (DJGenericVIP)
+        + HP Deskjet 6940 series (DJGenericVIP)
+      + Updated KRGB patches to version 1.2:
+        + Fixed krgb buffer overflow issue with out-of-band data in
+          fill_rectangle and copy_mono. This buffer overflow condition
+          occurred with fullbleed print jobs that had k-band images
+        + Added Dan Coby's (artifex) fix for gsijs_read_string_malloc
+          gs_free *str memory leak.
+    * HPLIP 0.9.8 (patchlevel 4):
+      + Added send fax support (still quite rough)
+      + Added HP Setup utility
+      + Fixed deviceid zero termination issue in hplip_api.c
+      + Enhanced the status history table in hp-info
+      + Changed device list in toolbox to use small icons for status overlay
+      + Modified models.xml file to add pen info back to OJ5500 and disable
+        front panel
+      + Removed probe.py from distribution
+      + Added Fax URI generation to hp-makeuri
+      + Fixed hp-makeuri so that it would not report URIs for non-existent
+        functions
+      + Fixed hp-makeuri quiet modes that they are actually quiet
+      + Added a new chooser dialog that presents a list of CUPS queues
+        rather than device URIs (hp-sendfax, hp-print)
+      + Fixed a hpiod problem with the PS 2570 series. This will fix the
+        scanning blue-screen error with USB High Speed
+  * dpatch 00_01_upstream-0.9.8-4 (new): 0.9.8 patchlevel 4
+  * hplip package: recommend python-reportlab for fax cover page support
+  * Instead of modifying the PPD manufacturer tag from HP to HP (HPLIP),
+    now append HPLIP and the upstream version to the nickname
+    (closes: #347264)
+  * Ship hpijs PPDs in /usr/share/ppd/hpijs/<PPD Manufacturer> as per
+    the Debian PPD file structure specification.  Ship the pure postscript
+    PPDs in /usr/share/ppd/hplip-postscript, for now
+  * Normalise case and start all HP PPD file names with "HP-"
+  * debian/control: Remove foomatic-db-hpijs from suggests and
+    recommends, as it will go away
+  * Update READMEs and NEWS files for the above PPD changes, add NEWS
+    file for hplip-ppds while at it
+  * Update hplip's README for hp-setup
+  * Mention that the RSS patch is stale in hpijs' README
+  * Removed patch already applied upstream: 00_01_upstream_0.9.7-2
+  * dpatches 30_no-ping, 50_doc-location, 60_lp_instead_of_lpr: rediff
+  * Let configure detect all standard paths for CUPS, except for the
+    PPD path
+  * Prune non-shipped-files.txt, and change debian/rules to tell us
+    which files were removed instead of doing it silently
+  * dpatch 70_sane_ppd_directory_handling (new): modify hplip to
+    look for PPD files under /usr/share/ppd/hplip, instead of
+    searching the entire CUPS PPD tree (used by hp-setup)
+  * Add menu entries for hp-print, hp-sendfax and hp-fab
+  * Add HPmenu.xpm icon
+  * dpatch 35_no-fax-setuid (new): change hpssd fax queue function
+    not to setuid(), as we don't run as root.  This limits sending
+    faxes somehow, but the impact is not clear to me yet.  Bug reports
+    welcome
+  * dpatch 45_quiet_hpijs-fax (new): remove noisy hpijs debug output in
+    the fax driver
+  * debian/control: rework package descriptions, mention fax support
+  * Ship KRGB patches cleaned up and tailored for Debian's gs versions
+  * Update debian/copyright for new directories, mention license of KRGB
+    patches (MIT)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon,  6 Mar 2006 16:43:08 -0300
+
 hplip (0.9.7-4) unstable; urgency=low
 
   * New upstream 0.9.7-2 patch: fixes for the following problems:

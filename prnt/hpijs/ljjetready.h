@@ -187,7 +187,7 @@ private:
     Printer*            thePrinter;
 
     HPLJBITMAP			m_SourceBitmap;
-	HPLJBITMAP          m_DestBitmap;;
+	HPLJBITMAP          m_DestBitmap;
 	long                m_lCurrCDRasterRow;			// Current  raster index. in PrintNextBand
     long                m_lPrinterRasterRow;		// Current printer raster row.
     int                 m_iRasterWidth;             // Input image width

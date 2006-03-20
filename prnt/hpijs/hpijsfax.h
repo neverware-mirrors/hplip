@@ -46,11 +46,34 @@ extern int bug(const char *fmt, ...);
 }
 #endif
 
-#define HPLIPPUTBYTES(bytearr, val) \
+/*
+ * Raster data encoding methods
+ */
+
+#define RASTER_BITMAP      0
+#define RASTER_GRAYMAP     1
+#define RASTER_MH          2
+#define RASTER_MR          3
+#define RASTER_MMR         4
+#define RASTER_RGB         5
+#define RASTER_YCC411      6
+#define RASTER_JPEG        7
+#define RASTER_PCL         8
+#define RASTER_NOT         9
+#define RASTER_AUTO        99
+
+#define HPLIPFAX_MONO	1
+#define HPLIPFAX_COLOR	2
+
+#define HPLIPPUTINT32(bytearr, val) \
 		bytearr[0] = (val & 0xFF000000) >> 24; \
 		bytearr[1] = (val & 0x00FF0000) >> 16; \
 		bytearr[2] = (val & 0x0000FF00) >> 8;  \
 		bytearr[3] = (val & 0x000000FF)
+
+#define HPLIPPUTINT16(bytearr, val) \
+		bytearr[0] = (val & 0x0000FF00) >> 8; \
+		bytearr[1] = (val & 0x000000FF)
 
 /*
 typedef	struct
@@ -58,10 +81,10 @@ typedef	struct
     char		szHeader[8];
     uint32_t	uiVersion;
 	uint32_t	uiNumPages;				// >= 1
-	uint32_t	uiHorzRes;				// 204
-	uint32_t	uiVertRes;				// 98 or 196
+	uint32_t	uiHorzRes;				// 200 or 300
+	uint32_t	uiVertRes;				// 100, 200 or 300
 	uint32_t	uiPageSize;				// Letter - 1, A4 - 2, Legal - 3
-	uint32_t	uiOutputQuality;		// Standard - 1 or Fine - 2
+	uint32_t	uiOutputQuality;		// Standard - 1, Fine - 2 or Super Fine - 3
 	uint32_t	uiReserved;
 } HPLIPFaxFileHeader;
 
@@ -81,11 +104,12 @@ class HPIJSFax
 public:
 	HPIJSFax ()
 	{
-		iQuality = 1;
+		iQuality = 2;
 		iColorMode = 1;
 		iMediaType = 0;
 		iPaperSize = 1;
 		iFirstRaster = 1;
+		iFaxEncoding = RASTER_MH;
 		fPaperWidth = 8.5;
 		fPaperHeight = 11.0;
 	}
@@ -134,12 +158,42 @@ public:
 	void	SetColorMode (int iCm)
 	{
 		iColorMode = iCm; // 1 - Monochrome, 2 - Color
+		if (iCm == HPLIPFAX_COLOR)
+		{
+		    iFaxEncoding = RASTER_JPEG;
+		}
 	}
 	void	SetFirstRaster (int iFirst)
 	{
 		iFirstRaster = iFirst;
 	}
+	void	SetFaxEncoding (int iVal)
+	{
+	    iFaxEncoding = iVal;
+		if (iColorMode == HPLIPFAX_COLOR)
+		{
+		    iFaxEncoding = RASTER_JPEG;
+			return;
+		}
+		if (iVal == RASTER_AUTO)
+		{
+		    char	*pDev = getenv ("DEVICE_URI");
+			iFaxEncoding = RASTER_MH;
+			if (pDev == NULL)
+			{
+			    return;
+			}
+			if ((strstr (pDev, "Laser") || strstr (pDev, "laser")))
+			{
+			    iFaxEncoding = RASTER_MMR;
+			}
+		}
+	}
 
+	int		GetFaxEncoding ()
+	{
+		return iFaxEncoding;
+	}
 	int		GetColorMode ()
 	{
 		return iColorMode;
@@ -191,6 +245,10 @@ public:
 	}
 	int		EffectiveResolutionX ()
 	{
+		if (iQuality == 3)
+		{
+		    return 300;
+		}
 		return 200;
 	}
 	int		EffectiveResolutionY ()
@@ -198,6 +256,10 @@ public:
 		if (iQuality == 2)
 		{
 		    return 200;
+		}
+		if (iQuality == 3)
+		{
+		    return 300;
 		}
 		return 100;
 	}
@@ -209,11 +271,14 @@ private:
 	int		iColorMode;
 	int		iMediaType;
 	int		iPaperSize;
+	int		iFaxEncoding;
 	float	fPaperWidth;
 	float	fPaperHeight;
 	int		iFirstRaster;
 	char	szPrinterModelName[64];
 };
+
+void RGB2Gray (BYTE *pRGBData, int iNumPixels, BYTE *pBWData);
 
 #endif        /* HPIJSFAX_H */
 

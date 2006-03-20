@@ -1,15 +1,19 @@
 Notes about the Debian hplip packages
-$Id: hplip.README.Debian,v 1.8 2005/10/15 21:39:04 hmh Exp $
+$Id: hplip.README.Debian,v 1.12 2006/03/16 19:03:27 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't
-exactly true at this point in time, but it is shaping rather nicely, only
-the network autodetection is still somewhat arcane, plus problems with a
-few selected printers that have misbehaving or buggy firmware/hardware.
+exactly true at this point in time, but it is shaping up rather nicely.
+
+Almost everything works out-of-the-box after a printer is set up, except
+for a few selected printers that have misbehaving or buggy firmware/
+hardware, and for the unfortunate owners of substandard USB hubs, cables
+or host adapters.  Fax support is new, probably somewhat buggy, and it has
+some limitations which will be addressed in the near future.
 
 HPOJ and HPLIP cannot share a device.  For HPLIP to work, you must
-configure HPOJ properly so that it does not talk to the devices you want to
-use HPLIP with.
+configure HPOJ properly so that it does not talk to the devices you want
+to use HPLIP with.
 
 Warning: Some broken as designed USB printers cannot work in bi-dir mode,
 and thus HPLIP will at best work with reduced functionality, if at all.
@@ -18,49 +22,91 @@ and thus HPLIP will at best work with reduced functionality, if at all.
 Quick Install:
 --------------
 
-1. Install the hplip-ppds, hpijs and cupsys packages.
+1. Install the hplip, hpijs-ppds, hpijs and cupsys packages.  If yor
+   printer is a native PostScript printer, install the 
+   linuxprinting.org-ppds package as well.
 
-2. Make sure hplip can find your printer (see the Detecting the printer
-   section of this document).
+2. Setup your printer using the hp-setup utility (must be run as root).
+   hp-setup is capable of detecting your printer, and it can also
+   setup the normal printing (and if available, also the fax) queue
+   for CUPS.
 
-3. Setup your printer through CUPS, using the proper PPD (the ones
-   provided by the hplip-ppds package are listed under "HP (HPLIP)"),
-   and the hp: CUPS backend (installed by hplip).
+   See the "Detecting the printer" section if you have trouble getting
+   hp-setup to find your printer.
 
-   Use the "AppSocket/HP JetDirect" device, and the hp:/ URI that 
-   hp-makeuri or hp-probe will generate for you.  Note that currently
-   hp-probe does not work well for detecting networked printers, you
-   should use hp-makeuri instead.
+   To run the auto-detection of USB, CUPS (for printers that are already
+   setup, but, e.g. have no fax queue yet) and parallel-port printers,
+   just call hp-setup without parameters.
+
+   Alternatively, you can install the printer through a CUPS configuration
+   interface (such as the one in KDE or the one in GNOME, or the CUPS
+   built-in web interface), using the proper PPD (the ones provided by the
+   hpijs-ppds package have HPLIP and the version of the package in their
+   name), and the hp: CUPS backend (installed by hplip).  Use the
+   "AppSocket/HP JetDirect" device, and the hp:/ URI that hp-makeuri or
+   hp-setup can generate for you.  After that, you can use hp-setup to
+   generate a fax queue for your printer if it supports faxing.
 
 
 Detecting the printer:
 ----------------------
 
 If you have trouble to get HPLIP's CUPS backend to detect the printer, you
-should check if it is being found by the HPLIP services.
+should check if it is being found by the kernel and by the HPLIP services.
 
-HPLIP won't be able to talk to your printer if anything on the lower layers
-is broken, so make sure you have the USB subsystem in a sane state if you
-are using USB printers (hint: usblp must be active, either loaded as a
-module, or built into the kernel, the device must be listed in lsusb as
-root, and you MUST have the proper /dev/usb/lp0 device inodes, with rw
-permission for group lp), and that you can ping the printer (for networked
-printers).
+First, you need the HPLIP services running (run "/etc/init.d/hplip start" as
+root to activate them).  Run "ps U hplip" to check if the HPLIP services
+are running, it should return a line with "hpiod" and a line with "python
+/usr/sbin/hpssd".  If it doesn't, check the syslog (/var/log/*) for error
+messages.
 
-First, you need the HPLIP services running (/etc/init.d/hplip start).
-Then, you can use the hp-probe utility to find the printer:
+HPLIP won't be able to talk to your printer if anything on the lower
+layers is broken:
 
-hp-probe
+1. For USB printers:
+   * The printer must be listed in the output of the "lsusb" command when
+     you run it as root (sometimes it doesn't list printers behind hubs if
+     you run it as a normal user);
+   * Make sure you have the USB subsystem in a sane state: the usblp module
+     must be active, either loaded as a module, or built into the kernel;
+   * You must have the proper /dev/usb/lp0 (or lp1, lp2...) device inodes,
+     with read and write permission for group lp.
 
-Once it is detected, restart CUPS and add the printer to the CUPS
-configuration.  Note that networked devices are NOT always detected, but
-see below:
+   Use "hp-setup -b usb" to search the USB bus for printers, or
+   "hp-setup -b usb -m /dev/usb/lp0" (or lp1, lp2...) to select an
+   specific printer to probe.
 
-For network-connected devices, use the hp-makeuri utility to generate an
-URI that is suitable for the HP CUPS backend for your printer, and use that
-URI when setting up the printer in CUPS.  After that, hp-probe and others
-will work just fine.  The networked printer must be connected and online
-for hp-makeuri to work.
+   If that fails, remove any USB hubs between the computer and the printer,
+   change USB cabling, and try again.
+     
+2. For networked printers:
+   * Make sure that you can ping the printer.
+
+   Use "hp-setup -b net" to attempt the (very flaky) network printer
+   automatic searching and autodetection.  Warning: this may trip network
+   IDS and other anti-scanning defence systems.
+   
+   Use "hp-setup -b net -m <printer IP>" for direct printer model auto-
+   detection (much better than the automatic searching, and should not
+   trip any IDS).
+
+3. For parallel-port printers:
+   * Make sure you have the parport module loaded (or built in the kernel)
+     and that it has IEEE 1284 support active (CONFIG_PARPORT_1284=y);
+   * Make sure you have the parport_pc (or whichever parport device layer
+     module is used by your architecture) and lp modules loaded (or built in
+     the kernel);
+   * Check printer cables, etc.
+
+   Use "hp-setup -b par" for automatic searching of an IEEE 1824 printer,
+   or "hp-setup -b par -m /dev/lp0" (or lp1, lp2...) to probe an specific
+   parallel port.
+
+If these steps fail to detect and probe your printer, ask for help in one
+of the Debian user lists, or in the http://hpinkjet.sf.net forums.  Should
+you do so, always include which O.S, version of HPLIP and HPIJS, and all
+the information about your printer model and how it is connected to your
+computer) in your post.
 
 
 Printing:
@@ -87,16 +133,11 @@ work.  To that end, you need to configure a printer in CUPS that uses the
 hp:/ backend (other backends won't work with HPLIP).
 
 Chances are you will need the hpijs (required by most printers supported by
-HPLIP) and hplip-ppds packages installed to be able to set the printer up
+HPLIP) and hpijs-ppds packages installed to be able to set the printer up
 correctly in CUPS, as CUPS needs to find the PPD for your printer somewhere
-to sucessfully install it.  This PPD file can be provided by either of the
-above mentioned packages.  Note that foomatic-db-hpijs needs the PPD to be
-generated using the foomatic-configure script from the foomatic-db-engine
-package.
-
-IF you generate the PPD manually, remember to update it when you update
-hplip, as HPLIP is constantly enhancing the PPDs for new functionality.
-This is valid for PPDs from http://linuxprinting.org as well.
+to sucessfully install it.  True native PostScript printer PPD files are
+shipped by the linuxprinting.org-ppds package, so install that too if your
+printer speaks PostScript natively.
 
 CUPS is most braindamaged in that it will NOT automatically use an updated
 version of a PPD installed in the system, so you will need to perform the

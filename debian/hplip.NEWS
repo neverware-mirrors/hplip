@@ -1,3 +1,15 @@
+hplip (0.9.9-1) unstable; urgency=low
+
+Fax support is enabled, but it is still mostly untested on the Debian
+packages, and it has its set of rough edges.  Temporary fax files will
+end up in ~/hpfax/, feel free to delete them.
+
+hpiod now uses user-space drivers (through libusb) to talk to all usb
+devices (including printers).  We have reverted hpiod to run as root
+temporarily, because of that.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 18 Mar 2006 16:22:48 -0300
+
 hplip (0.9.5-1) unstable; urgency=low
 
 HPLIP fully supports parallel-port devices as of version 0.9.5.

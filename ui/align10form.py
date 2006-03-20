@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ from align10form_base import Align10Form_Base
 class Align10Form(Align10Form_Base):
     def __init__(self, pattern, parent = None, name = None, modal = 0, fl = 0):
         Align10Form_Base.__init__(self,parent,name,modal,fl)
-        self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir, 'align10.png' ) ) )
+        self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, 'align10.png')))
         if pattern == 1:
-            self.controls = { 'A' : (True, 23),
+            self.controls = {'A' : (True, 23),
                              'B' : (True, 9),
                              'C' : (True, 9),
                              'D' : (False, 0),
@@ -38,7 +38,7 @@ class Align10Form(Align10Form_Base):
                              'G' : (False, 0),
                              'H' : (False, 0),}
         elif pattern == 2:
-            self.controls = { 'A' : (True, 23),
+            self.controls = {'A' : (True, 23),
                              'B' : (True, 17),
                              'C' : (True, 23),
                              'D' : (True, 23),
@@ -48,7 +48,7 @@ class Align10Form(Align10Form_Base):
                              'H' : (True, 9),}
         
         elif pattern == 3:
-            self.controls = { 'A' : (True, 23),
+            self.controls = {'A' : (True, 23),
                              'B' : (True, 9),
                              'C' : (True, 23),
                              'D' : (True, 23),
@@ -59,7 +59,7 @@ class Align10Form(Align10Form_Base):
 
         for line in self.controls:
             if not self.controls[line][0]:
-                eval('self.comboBox%s.setEnabled(False)' % line )
+                eval('self.comboBox%s.setEnabled(False)' % line)
             else:
                 for x in range(self.controls[line][1]):
                     eval('self.comboBox%s.insertItem("%s%d")' % (line, line, x+1))

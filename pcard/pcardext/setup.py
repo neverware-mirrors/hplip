@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# -*- coding: utf-8 -*-
+#
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +25,6 @@ import distutils.core
 import os, sys
 
 
-setup( name="pcardext",
-       ext_modules=[ Extension(  "pcardext", [ "pcardext.c", "../fat.c" ] ) ],
-       version="0.1" )
+setup(name="pcardext",
+      ext_modules=[Extension("pcardext", ["pcardext.c", "../fat.c"])],
+      version="0.1")

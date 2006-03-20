@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,40 +45,54 @@
 # ======================================================================
 #
 
-# Remove in 2.3?
-from __future__ import generators
 
-_VERSION = '6.0'
+__version__ = '7.4'
+__title__ = "Services and Status Daemon"
+__doc__ = "Provides various services to HPLIP client applications. Maintains persistant device status."
+
 
 # Std Lib
 import sys, socket, os, os.path, signal, getopt, glob, time, select
-import smtplib, threading, gettext, re, xml.parsers.expat #, atexit
+import smtplib, threading, gettext, re, xml.parsers.expat, fcntl
+import cStringIO, pwd
+
 from errno import EALREADY, EINPROGRESS, EWOULDBLOCK, ECONNRESET, \
      ENOTCONN, ESHUTDOWN, EINTR, EISCONN
-import fcntl     
 
 # Local
 from base.g import *
 from base.codes import *
 from base.msg import *
-from base import utils, status, pml, slp, device
+from base import utils, slp, device
 from base.strings import string_table
 
-# Printing support
+# CUPS support
 from prnt import cups
 
 # Per user alert settings
 alerts = {}
 
-# All active devices
+# Fax temp files
+fax_file = {}
+
+
+class ServerDevice(object):
+    def __init__(self, model=''):
+        self.history = utils.RingBuffer(prop.history_size)
+        self.model = device.normalizeModelName(model)
+        self.cache = {}
+       
+
+# Active devices - to hold event history
 devices = {} # { 'device_uri' : ServerDevice, ... }
+
+# Cache for model query data
+model_cache = {} # { 'model_name'(lower) : {mq}, ...}
 
 inter_pat = re.compile(r"""%(.*)%""", re.IGNORECASE)
 
 def QueryString(id, typ=0):
     id = str(id)
-    #log.debug( "String query: %s" % id )
-
     try:
         s = string_table[id][typ]
     except KeyError:
@@ -91,6 +106,7 @@ def QueryString(id, typ=0):
         return s()
     except:
         raise Error(ERROR_STRING_QUERY_FAILED)
+
 
 
 def initStrings():
@@ -130,7 +146,6 @@ def initStrings():
                 except KeyError:
                     log.error("String interpolation error: %s" % long_match)
 
-
             if found:
                 string_table[s] = (short_replace, long_replace)
 
@@ -143,7 +158,6 @@ def initStrings():
                 
 
 class ModelParser:
-
     def __init__(self):
         self.model = {}
         self.cur_model = None
@@ -232,10 +246,21 @@ class ModelParser:
 
 
 def QueryModel(model_name):
-    p = ModelParser()
-    model_name = model_name.replace(' ', '_').strip('_').replace('__', '_').replace('~','').lower()
+    model_name = device.normalizeModelName(model_name).lower()
     log.debug("Query model: %s" % model_name)
-    return p.parseModels(model_name)
+
+    if model_name in model_cache and \
+        model_cache[model_name]:
+            log.debug("Found")
+            return model_cache[model_name]
+
+    mq = ModelParser().parseModels(model_name)
+    
+    if mq:
+        model_cache[model_name] = mq
+    
+    return mq or {}
+    
 
 socket_map = {}
 loopback_trigger = None
@@ -290,6 +315,10 @@ class dispatcher:
     addr = None
 
     def __init__ (self, sock=None ):
+        self.typ = ''
+        self.send_events = False
+        self.username = ''
+        
         if sock:
             self.set_socket( sock ) 
             self.socket.setblocking( 0 )
@@ -491,12 +520,13 @@ class trigger(file_dispatcher):
             self.trigger = w
             file_dispatcher.__init__(self, r)
             self.send_events = False
+            self.typ = 'trigger'
 
         def readable(self):
-            return 1
+            return True
 
         def writable(self):
-            return 0
+            return False
 
         def handle_connect(self):
             pass
@@ -509,10 +539,10 @@ class trigger(file_dispatcher):
 
 
 class hpssd_server(dispatcher):
-
     def __init__(self, ip, port):
         self.ip = ip
         self.send_events = False
+        
 
         if port != 0:
             self.port = port
@@ -520,6 +550,7 @@ class hpssd_server(dispatcher):
             self.port = socket.htons(0)
 
         dispatcher.__init__(self)
+        self.typ = 'server'
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
 
@@ -541,6 +572,7 @@ class hpssd_server(dispatcher):
     def handle_accept(self):
         try:
             conn, addr = self.accept()
+            log.debug("Connected to client: %s:%d (%d)" % (addr[0], addr[1], self._fileno))
         except socket.error:
             log.error("Socket error on accept()")
             return
@@ -557,40 +589,28 @@ class hpssd_handler(dispatcher):
     def __init__(self, conn, addr, server):
         dispatcher.__init__(self, sock=conn)
         self.addr = addr
-        self.in_buffer = ""
-        self.out_buffer = ""
+        self.in_buffer = ''
+        self.out_buffer = ''
         self.server = server
         self.fields = {}
-        self.payload = ""
+        self.payload = ''
         self.signal_exit = False
-
+        self.typ = ''
         self.send_events = False 
         self.username = ''
-
+        
         # handlers for all the messages we expect to receive
         self.handlers = {
             # Request/Reply Messages
             'probedevicesfiltered' : self.handle_probedevicesfiltered,
             'setalerts'            : self.handle_setalerts,
             'testemail'            : self.handle_test_email,
-            'opendevice'           : self.handle_opendevice,
-            'closedevice'          : self.handle_closedevice,
-            'openchannel'          : self.handle_openchannel,
-            'closechannel'         : self.handle_closechannel,
-            'querydevice'          : self.handle_querydevice,
-            'deviceid'             : self.handle_deviceid,
             'querymodel'           : self.handle_querymodel, # By device URI
             'modelquery'           : self.handle_modelquery, # By model (backwards compatibility)
-            'getpml'               : self.handle_getpml,
-            'setpml'               : self.handle_setpml,
-            'getdynamiccounter'    : self.handle_getdynamiccounter,
-            'readprintchannel'     : self.handle_readprintchannel,
-            'writeprintchannel'    : self.handle_writeprintchannel,
-            'writeembeddedpml'     : self.handle_writeembeddedpml,
             'queryhistory'         : self.handle_queryhistory,
             'querystring'          : self.handle_querystring,
-            'reservechannel'       : self.handle_reserve_channel,
-            'unreservechannel'     : self.handle_unreserve_channel,
+            'setvalue'             : self.handle_setvalue,
+            'getvalue'             : self.handle_getvalue,
 
             # Event Messages (no reply message)
             'event'                : self.handle_event,
@@ -598,6 +618,12 @@ class hpssd_handler(dispatcher):
             'unregisterguievent'   : self.handle_unregisterguievent,
             'exitevent'            : self.handle_exit,
 
+            # Fax
+            'hpfaxbegin'           : self.handle_hpfaxbegin,
+            'hpfaxdata'            : self.handle_hpfaxdata,
+            'hpfaxend'             : self.handle_hpfaxend,
+            'faxgetdata'           : self.handle_faxgetdata,
+            
             # Misc
             'unknown'              : self.handle_unknown,
         }
@@ -607,10 +633,10 @@ class hpssd_handler(dispatcher):
         log.debug("Reading data on channel (%d)" % self._fileno)
         self.in_buffer = self.recv(prop.max_message_read)
 
-        if self.in_buffer == '':
-            return False
-
         log.debug(repr(self.in_buffer))
+
+        if not self.in_buffer:
+            return False
 
         remaining_msg = self.in_buffer
 
@@ -619,36 +645,42 @@ class hpssd_handler(dispatcher):
                 self.fields, self.payload, remaining_msg = parseMessage(remaining_msg)
             except Error, e:
                 err = e.opt
-                log.debug(repr(self.in_buffer))
                 log.warn("Message parsing error: %s (%d)" % (e.msg, err))
                 self.out_buffer = self.handle_unknown(err)
                 log.debug(self.out_buffer)
                 return True
 
             msg_type = self.fields.get('msg', 'unknown').lower()
-            log.debug("Handling: %s %s %s" % ("*"*60, msg_type, "*"*60))
+            log.debug("Handling: %s %s %s" % ("*"*20, msg_type, "*"*20))
             log.debug(repr(self.in_buffer))
 
             try:
-                self.out_buffer = self.handlers.get(msg_type, self.handle_unknown)()
+                self.handlers.get(msg_type, self.handle_unknown)()
             except Error:
                 log.error("Unhandled exception during processing:")
                 log.exception()
 
+            self.handle_write()
+            
             if not remaining_msg:
                 break
 
         return True
 
     def handle_unknown(self, err=ERROR_INVALID_MSG_TYPE):
-        return buildResultMessage('MessageError', None, err)
+        pass
 
 
     def handle_write(self):
+        if not self.out_buffer:
+            return
+
         log.debug("Sending data on channel (%d)" % self._fileno)
         log.debug(repr(self.out_buffer))
-        sent = self.send(self.out_buffer)
-        self.out_buffer = self.out_buffer[sent:]
+        
+        while self.out_buffer:
+            sent = self.send(self.out_buffer)
+            self.out_buffer = self.out_buffer[sent:]
 
         if self.signal_exit:
             self.handle_close()
@@ -660,272 +692,78 @@ class hpssd_handler(dispatcher):
         except KeyError:
             log.debug("New device: %s" % device_uri)
 
-            try:
-                devices[device_uri] = device.ServerDevice(device_uri, hpiod_sock,
-                                                           QueryModel, QueryString)
-            except Error, e:
-                log.debug("New device init failed.")
-                return e.opt
+            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+                device.parseDeviceURI(device_uri)
+            
+            devices[device_uri] = ServerDevice(model)
+            
 
-        return ERROR_SUCCESS
-
-
-    def __opendevice(self, device_uri):
-        log.debug("Open: %s" % device_uri)
+    def handle_getvalue(self):
+        device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
         result_code = self.__checkdevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            try:
-                devices[device_uri].open()
-            except Error, e:
-                log.error("Open failed for device: %s" % device_uri)
-                result_code = e.opt
-
-        return result_code
-
-
-    def __closedevice(self, device_uri):
-        log.debug("Close: %s" % device_uri)
+        key = self.fields.get('key', '')
+        result_code = ERROR_SUCCESS
+        
         try:
-            devices[device_uri]
-        except:
-            pass
-        else:
-            devices[device_uri].close()
-
-
+            value = devices[device_uri].cache[key]
+        except KeyError:
+            value, result_code = '', ERROR_INTERNAL
+            
+        self.out_buffer = buildResultMessage('GetValueResult', value, result_code)
+        
+    def handle_setvalue(self):
+        device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
+        result_code = self.__checkdevice(device_uri)
+        key = self.fields.get('key', '')
+        value = self.fields.get('value', '')
+        devices[device_uri].cache[key] = value
+        self.out_buffer = buildResultMessage('SetValueResult', None, ERROR_SUCCESS)
+        
     def handle_queryhistory(self):
-        device_uri = self.fields.get('device-uri', '')
+        device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
         payload = ''
         result_code = self.__checkdevice(device_uri)
 
-        if result_code == ERROR_SUCCESS:
-            for h in devices[device_uri].history.get():
-                payload = '\n'.join([payload, ','.join([str(x) for x in h])])
+        for h in devices[device_uri].history.get():
+            payload = '\n'.join([payload, ','.join([str(x) for x in h])])
 
-        return buildResultMessage('QueryHistoryResult', payload, result_code)
+        self.out_buffer = buildResultMessage('QueryHistoryResult', payload, result_code)
 
-
-    def handle_opendevice(self):
-        device_uri = self.fields.get('device-uri', '')
-        return buildResultMessage('OpenDeviceResult', None,
-            self.__opendevice(device_uri))
-
-
-    def handle_closedevice(self):
-        device_uri = self.fields.get('device-uri', '')
-        self.__closedevice(device_uri)
-        return buildResultMessage('CloseDeviceResult', None, ERROR_SUCCESS)
-
-
-    def handle_openchannel(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            service_name = self.fields.get('service-name', '')
-            try:
-                devices[device_uri].openChannel(service_name)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('OpenChannelResult', None, result_code)
-
-
-    def handle_reserve_channel(self):
-        device_uri = self.fields.get('device-uri', '')
+    def handle_querymodel(self): # By device URI (used by toolbox, info, etc)
+        device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
         result_code = self.__checkdevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            service_name = self.fields.get('service-name', '')
-            try:
-                devices[device_uri].reserveChannel(service_name)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('ReserveChannelResult', None, result_code)
-
-
-    def handle_unreserve_channel(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__checkdevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            service_name = self.fields.get('service-name', '')
-            try:
-                devices[device_uri].unreserveChannel(service_name)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('UnReserveChannelResult', None, result_code)
-
-
-    def handle_closechannel(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            service_name = self.fields.get('service-name', '')
-            try:
-                devices[device_uri].closeChannel(service_name)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('CloseChannelResult', None, result_code)
-
-
-    def handle_deviceid(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-        if result_code == ERROR_SUCCESS:
-            try:
-                devices[device_uri].getDeviceID()
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('CloseChannelResult', \
-            devices[device_uri].raw_deviceID, result_code)
-
-
-    def handle_querydevice(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
 
         try:
-            devices[device_uri].queryDevice()
-        except Error, e:
-            result_code = e.opt
-
-        return buildResultMessage('QueryDeviceResult', None, result_code, \
-            devices[device_uri].dq)
-
-
-    def handle_querymodel(self): # By device URI
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__checkdevice(device_uri) # Don't open
-
-        if result_code == ERROR_SUCCESS:
-            mq = devices[device_uri].mq
-        else:
+            back_end, is_hp, bus, model, \
+                serial, dev_file, host, port = \
+                device.parseDeviceURI(device_uri)
+        except Error:
             mq = {}
+            result_code = e.opt
+        else:
+            try:
+                mq = QueryModel(model)
+            except Error, e:
+                mq = {}
+                result_code = e.opt
+    
+        self.out_buffer = buildResultMessage('QueryModelResult', None, result_code, mq)
 
-        log.debug(mq)
 
-        return buildResultMessage('QueryModelResult', None, result_code, mq)
-
-
-    def handle_modelquery(self): # By model
+    def handle_modelquery(self): # By model (used by hp: backend)
         model = self.fields.get('model', '')
-
         result_code = ERROR_SUCCESS
+
         try:
             mq = QueryModel(model)
         except Error, e:
             mq = {}
             result_code = e.opt
-            mq = {}
 
-        log.debug(mq)
-
-        return buildResultMessage('ModelQueryResult', None, result_code, mq)
-
-    def handle_getpml(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            oid = self.fields.get('oid', '')
-            typ  = self.fields.get('type', pml.TYPE_UNKNOWN)
-            int_size = self.fields.get('int-size', pml.INT_SIZE_INT)
-            try:
-                result_code, data = \
-                    devices[device_uri].getPML((oid, typ), int_size)
-            except Error, e:
-                result_code = e.opt
-        else:
-            data = None
-
-        return buildResultMessage('GetPMLResult', data, result_code)
+        self.out_buffer = buildResultMessage('ModelQueryResult', None, result_code, mq)
 
 
-    def handle_setpml(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            oid = self.fields.get('oid', '')
-            typ  = self.fields.get('type', pml.TYPE_UNKNOWN)
-            try:
-                result_code = \
-                    devices[device_uri].setPML((oid, typ), self.payload)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('SetPMLResult', None, result_code)
-
-
-    def handle_getdynamiccounter(self):
-        device_uri = self.fields.get('device-uri', '')
-        #convert_to_int = self.fields.get('convert-int', True)
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            counter = self.fields.get('counter', 0)
-            try:
-                data = devices[device_uri].getDynamicCounter(counter, False)
-            except Error, e:
-                result_code = e.opt
-        else:
-            data = 0
-
-        return buildResultMessage('GetDynamicCounterResult', data, result_code)
-
-
-    def handle_readprintchannel(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            try:
-                data = devices[device_uri].readPrint()
-            except Error, e:
-                result_code = e.opt
-        else:
-            data = ''
-
-        return buildResultMessage('ReadPrintChannel', data, result_code)
-
-
-    def handle_writeprintchannel(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            try:
-                devices[device_uri].writePrint(self.payload)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('WritePrintChannelResult', None, result_code)
-
-
-    def handle_writeembeddedpml(self):
-        device_uri = self.fields.get('device-uri', '')
-        result_code = self.__opendevice(device_uri)
-
-        if result_code == ERROR_SUCCESS:
-            oid = self.fields.get('oid', '')
-            typ  = self.fields.get('type', pml.TYPE_UNKNOWN)
-            direct = bool(self.fields.get('direct', 1))
-
-            try:
-                devices[device_uri].writeEmbeddedPML((oid, typ), self.payload, direct)
-            except Error, e:
-                result_code = e.opt
-
-        return buildResultMessage('WriteEmbeddedPMLResult', None, result_code)
-
-
+    # TODO: Need to load alerts at start-up
     def handle_setalerts(self):
         result_code = ERROR_SUCCESS
         username = self.fields.get('username', '')
@@ -934,28 +772,26 @@ class hpssd_handler(dispatcher):
         smtp_server = self.fields.get('smtp-server', '')
 
         alerts[username] = {'email-alerts'  : email_alerts,
-                               'email-address' : email_address,
-                               'smtp-server'   : smtp_server,
-                              }
+                            'email-address' : email_address,
+                            'smtp-server'   : smtp_server,
+                           }
 
-        return buildResultMessage('SetAlertsResult', None, result_code)
+        self.out_buffer = buildResultMessage('SetAlertsResult', None, result_code)
 
 
     # EVENT
     def handle_registerguievent(self):
         username = self.fields.get('username', '')
+        typ = self.fields.get('type', 'unknown')
+        self.typ = typ
         self.username = username
-        typ = 'tbx'
-
-        log.debug("Registering GUI for events: %s" % username)
         self.send_events = True
-        return ''
+        log.debug("Registering GUI for events: (%s, %s, %d)" % (username, typ, self._fileno))
 
     # EVENT
     def handle_unregisterguievent(self):
         username = self.fields.get('username', '')
         self.send_events = False
-        return ''
 
 
     def handle_test_email(self):
@@ -1019,7 +855,7 @@ class hpssd_handler(dispatcher):
             log.error("Error: %d", e.opt)
 
         log.debug("hpssd.py::handle_email_test::Current error code: %s" % str(result_code))
-        return buildResultMessage('TestEmailResult', None, result_code)
+        self.out_buffer = buildResultMessage('TestEmailResult', None, result_code)
 
 
     def handle_querystring(self):
@@ -1032,44 +868,203 @@ class hpssd_handler(dispatcher):
             payload = None
             result_code = ERROR_STRING_QUERY_FAILED
 
-        return buildResultMessage('QueryStringResult', payload, result_code)
+        self.out_buffer = buildResultMessage('QueryStringResult', payload, result_code)
 
-    def handle_errorstringquery(self):
-        payload, result_code = '', ERROR_STRING_QUERY_FAILED
+        
+    def createHistory(self, device_uri, code, jobid=0, username=prop.username):
+        self.__checkdevice(device_uri)
+        
         try:
-            error_code = self.fields['error-code']
-
-            payload = QueryString(str(error_code))
-            result_code = ERROR_SUCCESS
+            short_string = QueryString(code, 0)
         except Error:
-            result_code = ERROR_STRING_QUERY_FAILED
+            short_string, long_string = '', ''
+        else:
+            try:
+                long_string = QueryString(code, 1)
+            except Error:
+                pass
 
-        return buildResultMessage('ErrorStringQueryResult', payload, result_code)
+        devices[device_uri].history.append(tuple(time.localtime()) +
+                                            (jobid, username, code,
+                                             short_string, long_string))
+                                             
+        
+    # sent by hpfax: to indicate the start of a complete fax rendering job
+    def handle_hpfaxbegin(self):      
+        global fax_file
+        username = self.fields.get('username', prop.username)
+        job_id = self.fields.get('job-id', 0)
+        printer_name = self.fields.get('printer', '')
+        device_uri = self.fields.get('device-uri', '').replace('hp:', 'hpfax:')
+        title = self.fields.get('title', '')
+        
+        log.debug("Creating data store for %s:%d" % (username, job_id))
+        fax_file[(username, job_id)] = cStringIO.StringIO()
+        
+        # Send an early warning to the hp-sendfax UI so that
+        # the response time to something happening is as short as possible
+        for handler in socket_map:
+            handler_obj = socket_map[handler]        
+            
+            if handler_obj.send_events and \
+                handler_obj.typ == 'fax' and \
+                handler_obj.username == username:
+                
+                # send event to already running hp-sendfax
+                handler_obj.out_buffer = \
+                    buildMessage('EventGUI', 
+                                '\n\n',
+                                {'job-id' : job_id,
+                                 'event-code' : EVENT_FAX_RENDER_DISTANT_EARLY_WARNING,
+                                 'event-type' : 'event',
+                                 'retry-timeout' : 0,
+                                 'device-uri' : device_uri,
+                                 'printer' : printer_name,
+                                 'title' : title,
+                                })        
+                
+                loopback_trigger.pull_trigger()        
+        
+        self.out_buffer = buildResultMessage('HPFaxBeginResult', None, ERROR_SUCCESS)
+        
+        
+    # sent by hpfax: to transfer completed fax rendering data
+    def handle_hpfaxdata(self):
+        global fax_file
+        username = self.fields.get('username', prop.username)
+        job_id = self.fields.get('job-id', 0)
+        
+        if self.payload and (username, job_id) in fax_file:
+            fax_file[(username, job_id)].write(self.payload)
+            
+        self.out_buffer = buildResultMessage('HPFaxDataResult', None, ERROR_SUCCESS)
+        
+            
+    # sent by hpfax: to indicate the end of a complete fax rendering job
+    def handle_hpfaxend(self):
+        global fax_file
+        
+        username = self.fields.get('username', '')
+        job_id = self.fields.get('job-id', 0)
+        printer_name = self.fields.get('printer', '')
+        device_uri = self.fields.get('device-uri', '').replace('hp:', 'hpfax:')
+        title = self.fields.get('title', '')
+        job_size = self.fields.get('job-size', 0)
+        
+        fax_file[(username, job_id)].seek(0)
+        
+        for handler in socket_map:
+            handler_obj = socket_map[handler]        
+            
+            if handler_obj.send_events and \
+                handler_obj.typ == 'fax' and \
+                handler_obj.username == username:
+                
+                # send event to already running hp-sendfax
+                handler_obj.out_buffer = \
+                    buildMessage('EventGUI', 
+                                '\n\n',
+                                {'job-id' : job_id,
+                                 'event-code' : EVENT_FAX_RENDER_COMPLETE,
+                                 'event-type' : 'event',
+                                 'retry-timeout' : 0,
+                                 'device-uri' : device_uri,
+                                 'printer' : printer_name,
+                                 'title' : title,
+                                 'job-size': job_size,
+                                })        
+                
+                loopback_trigger.pull_trigger()
+                break
 
+            
+        else:
+            # launch it
+            pid = os.fork()
+            if not pid:
+                # child
+                os.setsid()
+                os.chdir("/")
+                os.umask(0)
+                
+                if utils.which('hp-sendfax'):
+                    params = ['hp-sendfax'] 
+                    exec_name = 'hp-sendfax'
+                else:
+                    params = ['python',  os.path.join(prop.home_dir, 'sendfax.py')]
+                    exec_name = 'python'
 
+                params.extend(['--job',
+                               '--printer=%s' % printer_name,
+                               '--title=%s' % title,
+                               '--jobid=%s' % job_id,
+                               '--user=%s' % username,
+                               '--jobsize=%d' % job_size])
+                
+                log.debug(params)
+                
+                home = pwd.getpwnam(username)[5]
+                
+                os.execvpe(exec_name, 
+                           params, 
+                           {'DISPLAY': ':0.0', 
+                            'HOME' : home,
+                            'USER' : username, 
+                            'PATH' : '/usr/bin:/usr/local/bin',
+                            'LANG' : 'POSIX',
+                            'LC_ALL' : 'POSIX' }) 
+        
+        self.out_buffer = buildResultMessage('HPFaxEndResult', None, ERROR_SUCCESS)
+
+        
+    # sent by hp-sendfax to retrieve a complete fax rendering job
+    # sent in response to the EVENT_FAX_RENDER_COMPLETE event or
+    # after being run with --job param, both after a hpfaxend message
+    def handle_faxgetdata(self):
+        global fax_file
+        result_code = ERROR_SUCCESS
+        username = self.fields.get('username', '')
+        job_id = self.fields.get('job-id', 0)
+        
+        try:
+            fax_file[(username, job_id)]
+        except KeyError:
+            result_code = ERROR_NO_DATA_AVAILABLE
+        
+        data = fax_file[(username, job_id)].read(prop.max_message_len)
+        
+        if not data:
+            result_code = ERROR_NO_DATA_AVAILABLE
+            log.debug("Deleting data store for %s:%d" % (username, job_id))
+            del fax_file[(username, job_id)]
+        
+        self.out_buffer = buildResultMessage('FaxGetDataResult', data, result_code)
+        
+    
     # EVENT
     def handle_event(self):
         gui_port, gui_host = None, None
-        f = self.fields
-        event_code, event_type = f['event-code'], f['event-type']
-        log.debug("code (type): %d (%s)" % (event_code, event_type))
+        event_type = self.fields.get('event-type', 'event')
+        event_code = self.fields.get('event-code', 0)
+        device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
+        log.debug("Device URI: %s" % device_uri)
 
         try:
             error_string_short = QueryString(str(event_code), 0)
         except Error:
-            error_string_short = ''
+            error_string_short, error_string_long = '', ''
+        else:
+            try:
+                error_string_long = QueryString(str(event_code), 1)
+            except Error:
+                pass
+
+        log.debug("Short/Long: %s/%s" % (error_string_short, error_string_long))
+
+        job_id = self.fields.get('job-id', 0)
 
         try:
-            error_string_long = QueryString(str(event_code), 1)
-        except Error:
-            error_string_long = ''
-
-        log.debug("short: %s" % error_string_short)
-        log.debug("long: %s" % error_string_long)
-        job_id = f.get('job-id', 0)
-
-        try:
-            username = f['username']
+            username = self.fields['username']
         except KeyError:
             if job_id == 0:
                 username = prop.username
@@ -1083,32 +1078,28 @@ class hpssd_handler(dispatcher):
                     username = prop.username
 
 
-        no_fwd = f.get('no-fwd', False)
-        log.debug("username (jobid): %s (%d)" % (username, job_id))
-        retry_timeout = f.get('retry-timeout', 0)
-        device_uri = f.get('device-uri', '')
-        self.__checkdevice(device_uri)
-        devices[device_uri].createHistory(event_code, job_id, username)
+        no_fwd = self.fields.get('no-fwd', False)
+        log.debug("Username (jobid): %s (%d)" % (username, job_id))
+        retry_timeout = self.fields.get('retry-timeout', 0)
+        user_alerts = alerts.get(username, {})        
 
-        typ = 'tbx'
-        if EVENT_FAX_MIN <= event_code <= EVENT_FAX_MAX:
-            typ = 'fax'
-
-        if typ == 'fax':
-            user_alerts = {'email-alerts' : False}
-        else:
-            user_alerts = alerts.get(username, {})        
+        if event_code <= EVENT_MAX_USER_EVENT:
+            self.createHistory(device_uri, event_code, job_id, username)
 
         pull = False
         if not no_fwd:
             for handler in socket_map:
                 handler_obj = socket_map[handler]
-
+                
                 if handler_obj.send_events:
-                    print self, self.username
-                    log.debug("Sending event to client for user %s" % self.username)
+                    log.debug("Sending event to client: (%s, %s, %d)" % (handler_obj.username, handler_obj.typ, handler_obj._fileno))
                     pull = True
 
+                    if handler_obj.typ == 'fax':
+                        t = device_uri.replace('hp:', 'hpfax:')
+                    else:
+                        t = device_uri.replace('hpfax:', 'hp:')
+                    
                     handler_obj.out_buffer = \
                         buildMessage('EventGUI', 
                             '%s\n%s\n' % (error_string_short, error_string_long),
@@ -1116,13 +1107,15 @@ class hpssd_handler(dispatcher):
                              'event-code' : event_code,
                              'event-type' : event_type,
                              'retry-timeout' : retry_timeout,
-                             'device-uri' : device_uri,
+                             'device-uri' : t,
                             })
 
             if pull:
                 loopback_trigger.pull_trigger()
 
-            if user_alerts.get('email-alerts', False) and event_type == 'error':
+            if event_code <= EVENT_MAX_USER_EVENT and \
+                user_alerts.get('email-alerts', False) and \
+                event_type == 'error':
 
                 fromaddr = prop.username + '@localhost'
                 toaddrs = user_alerts.get('email-address', 'root@localhost').split()
@@ -1138,19 +1131,17 @@ class hpssd_handler(dispatcher):
                                 '')
                 mt.start()
 
-        return ''
-
 
     def handle_probedevicesfiltered(self):
         payload, result_code = '', ERROR_SUCCESS
         num_devices, ret_devices = 0, {}
 
-        buses = self.fields.get('bus', 'cups,usb,par')
-        buses = buses.split(',')
+        buses = self.fields.get('bus', 'cups,usb,par').split(',')
         format = self.fields.get('format', 'default')
 
         for b in buses:
             bus = b.lower().strip()
+            
             if bus == 'net':
                 ttl = int(self.fields.get('ttl', 4))
                 timeout = int(self.fields.get('timeout', 5))
@@ -1171,9 +1162,7 @@ class hpssd_handler(dispatcher):
 
                                 if dev is not None and dev != '0':
                                     device_id = device.parseDeviceID(dev)
-                                    model = device_id.get('MDL', '?UNKNOWN?'). \
-                                        strip().replace('  ', '_').replace(' ', '_'). \
-                                        replace('/', '_')
+                                    model = device.normalizeModelName(device_id.get('MDL', '?UNKNOWN?'))
 
                                     if num_ports_on_jd == 1:
                                         device_uri = 'hp:/net/%s?ip=%s' % (model, ip)
@@ -1202,16 +1191,22 @@ class hpssd_handler(dispatcher):
                                     if include:
                                         ret_devices[device_uri] = (model, hn)
 
-
             elif bus in ('usb', 'par'):
+                try:
+                    prop.hpiod_port = int(file(os.path.join(prop.run_dir, 'hpiod.port'), 'r').read())
+                except:
+                    prop.hpiod_port = 0
+                
+                log.debug("Connecting to hpiod (%s:%d)..." % (prop.hpiod_host, prop.hpiod_port))
+                hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))
+            
                 fields, data, result_code = \
-                    xmitMessage(hpiod_sock,
-                                 "ProbeDevices",
-                                 None,
-                                 {
-                                   'bus' : bus,
-                                 }
-                               )
+                    xmitMessage(hpiod_sock, "ProbeDevices", None, {'bus' : bus,})
+                
+                log.debug("Closing connection.")
+                hpiod_sock.close()
+
                 if result_code != ERROR_SUCCESS:
                     detected_devices = []
                 else:
@@ -1227,14 +1222,10 @@ class hpssd_handler(dispatcher):
                     if is_hp:
 
                         device_filter = self.fields.get('filter', 'none')
-
-                        if device_filter in ('none', 'print'):
-                            include = True
-                        else:
-                            include = True
-
+                        include = True
+                        
+                        if device_filter not in ('none', 'print'):
                             try:
-
                                 fields = QueryModel(model)
                             except Error:
                                 continue
@@ -1249,8 +1240,6 @@ class hpssd_handler(dispatcher):
                             ret_devices[d] = (model, '')
 
             elif bus == 'cups':
-
-                #cups_devices = {}
                 cups_printers = cups.getPrinters()
                 x = len(cups_printers)
 
@@ -1258,7 +1247,6 @@ class hpssd_handler(dispatcher):
                     device_uri = p.device_uri
 
                     if p.device_uri != '':
-
                         device_filter = self.fields.get('filter', 'none')
 
                         try:
@@ -1270,14 +1258,10 @@ class hpssd_handler(dispatcher):
 
                         if not is_hp:
                             continue
-
-                        if device_filter in ('none', 'print'):
-                            include = True
-                        else:
-                            include = True
-
+                            
+                        include = True
+                        if device_filter not in ('none', 'print'):
                             try:
-
                                 fields = QueryModel(model)
                             except Error:
                                 continue
@@ -1304,24 +1288,22 @@ class hpssd_handler(dispatcher):
                     payload = ''.join([payload, 'direct ', d, ' "HP ', ret_devices[d][0], '" "', d, '"\n'])
 
 
-        return buildResultMessage('ProbeDevicesFilteredResult', payload,
-                                   result_code, {'num-devices' : num_devices})
+        self.out_buffer = buildResultMessage('ProbeDevicesFilteredResult', payload,
+                                             result_code, {'num-devices' : num_devices})
 
     # EVENT
     def handle_exit(self):
         self.signal_exit = True
-        return ''
 
     def handle_messageerror(self):
-        return ''
+        pass
 
     def writable(self):
-        return not ((len(self.out_buffer) == 0)
-                     and self.connected)
+        return not (not self.out_buffer and self.connected)
 
 
     def handle_close(self):
-        log.debug("closing channel (%d)" % self._fileno)
+        log.debug("Closing channel (%d)" % self._fileno)
         self.connected = False
         self.close()
 
@@ -1394,41 +1376,63 @@ def handleSIGHUP(signo, frame):
 def exitAllGUIs():
     pass
 
-def usage():
-    formatter = utils.usage_formatter()
-    log.info(utils.bold("""\nUsage: hpssd.py [OPTIONS]\n\n""" ))
-    utils.usage_options()
-    utils.usage_logging(formatter)
-    log.info(formatter.compose(("Disable daemonize:", "-x")))
-    log.info(formatter.compose(("Port to listen on:", "-p<port> or --port=<port> (overrides value in /etc/hp/hplip.conf)")))
-    utils.usage_help(formatter, True)
+    
+USAGE = [(__doc__, "", "name", True),
+         ("Usage: hpssd.py [OPTIONS]", "", "summary", True),
+         utils.USAGE_OPTIONS,
+         ("Do not daemonize:", "-x", "option", False),
+         ("Port to listen on:", "-p<port> or --port=<port> (overrides value in /etc/hp/hplip.conf)", "option", False),
+         utils.USAGE_LOGGING1, utils.USAGE_LOGGING2,
+         ("Run in debug mode:", "-g (same as options: -ldebug -x)", "option", False),
+         utils.USAGE_HELP,
+        ]
+        
+
+def usage(typ='text'):
+    if typ == 'text':
+        utils.log_title(__title__, __version__)
+        
+    utils.format_text(USAGE, typ, __title__, 'hpssd.py', __version__)
     sys.exit(0)
 
 
-hpiod_sock = None
 
 def main(args):
     prop.prog = sys.argv[0]
     prop.daemonize = True
-    utils.log_title('Services and Status Daemon', _VERSION)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'l:xhp:', ['level=', 'help', 'port='])
+        opts, args = getopt.getopt(sys.argv[1:], 'l:xhp:g', 
+            ['level=', 'help', 'help-man', 'help-rest', 'port='])
 
     except getopt.GetoptError:
         usage()
 
+    if os.getenv("HPLIP_DEBUG"):
+        log.set_level('debug')
+    
     for o, a in opts:
         if o in ('-l', '--logging'):
             log_level = a.lower().strip()
-            log.set_level(log_level)
+            if not log.set_level(log_level):
+                usage()
+                
+        elif o == '-g':
+            log.set_level('debug')
+            prop.daemonize = False
 
         elif o in ('-x',):
             prop.daemonize = False
 
         elif o in ('-h', '--help'):
             usage()
-
+            
+        elif o == '--help-rest':
+            usage('rest')
+            
+        elif o == '--help-man':
+            usage('man')
+            
         elif o in ('-p', '--port'):
             try:
                 prop.hpssd_cfg_port = int(a)
@@ -1436,6 +1440,8 @@ def main(args):
                 log.error('Port must be a numeric value')
                 usage()
 
+
+    utils.log_title(__title__, __version__)
 
     prop.history_size = 32
 
@@ -1457,22 +1463,16 @@ def main(args):
     # hpssd server dispatcher object
     try:
         server = hpssd_server(prop.hpssd_host, prop.hpssd_cfg_port)
-        #log.debug(str(server))
     except Error, e:
         log.error("Server exited with error: %s" % e.msg)
-        sys.exit(-1)
+        sys.exit(1)
 
     global loopback_trigger
     try:
         loopback_trigger = trigger()
     except Error, e:
         log.error("Server exited with error: %s" % e.msg)
-        sys.exit(-1)
-
-
-    #device.ServerDevice.setQueryFuncs( QueryModel, QueryString )
-    device.ServerDevice.model_query_func = QueryModel
-    device.ServerDevice.string_query_func = QueryString
+        sys.exit(1)
 
     os.umask(0133)
     file(os.path.join(prop.run_dir, 'hpssd.port'), 'w').write('%d\n' % prop.hpssd_port)
@@ -1480,16 +1480,6 @@ def main(args):
     log.debug('port=%d' % prop.hpssd_port)
     log.info("Listening on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
 
-
-    global hpiod_sock
-    try:
-        hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))
-    except socket.error:
-        log.error("Unable to connect to hpiod.")
-        sys.exit(-1)
-
-    ##atexit.register(exitAllGUIs)
     signal.signal(signal.SIGHUP, handleSIGHUP)
 
     try:
@@ -1506,7 +1496,7 @@ def main(args):
         os.remove(os.path.join(prop.run_dir, 'hpssd.pid'))
         os.remove(os.path.join(prop.run_dir, 'hpssd.port'))
         server.close()
-        hpiod_sock.close()
+        return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

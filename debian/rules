@@ -2,7 +2,7 @@
 # debian/rules for hplip
 # GNU copyright 1997 to 1999 by Joey Hess.
 # Copyright (c) 2003 Torsten Landschoff <torsten@debian.org>
-# Copyright (c) 2004-2005 Henrique de Moraes Holschuh <hmh@debian.org>
+# Copyright (c) 2004-2006 Henrique de Moraes Holschuh <hmh@debian.org>
 
 PACKAGE=hplip
 BASEPKG=hplip
@@ -15,9 +15,12 @@ include /usr/share/dpatch/dpatch.make
 export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
 #export DH_VERBOSE=1
 
-PKGTMP :=$(CURDIR)/debian/tmp
+PKGTMP:=$(CURDIR)/debian/tmp
+PPDDIR:=$(PKGTMP)/usr/share/ppd
 
 # Version information
+# We cannot get the hpijs version like this because we could be generating
+# it at runtime when we run autogen.sh
 HPLIP_VERSION?=$(shell dpkg-parsechangelog | grep -E "^Version:" | \
 	tr -d ' \t' | cut -d ':' -f 2-)
 ifeq	(,$(HPLIP_VERSION))
@@ -47,7 +50,12 @@ endif
 CFLAGS:=-Wall -pipe $(DEBUGFLAGS)
 CXXFLAGS:=$(CFLAGS)
 
+##
+##  Build-tree preparation
+##
+
 configure:
+	dh_testdir
 	chmod +x debian/autogen.sh
 	debian/autogen.sh
 
@@ -59,6 +67,33 @@ debian/hpijs.version: configure
 		exit 1 ; \
 	fi
 
+# Clean everything up, including everything auto-generated
+# at build time that needs not to be kept around in the Debian diff
+clean: clean-patched unpatch
+clean-patched: configure debian/hpijs.version
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -f install-stamp install-arch-stamp install-indep-stamp
+
+	-$(MAKE) clean
+	-$(MAKE) distclean
+	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
+	-rm -f platform.h auto-include.h
+	find -type d -name build -print0 | xargs -0 -r rm -rf \;
+	find \( -name config.sub -o -name config.guess \
+			-o -name config.cache -o -name config.log \) -print0 \
+		| xargs -0 -r rm -f \;
+
+	# We prefer to regenerate these using pyuic
+	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
+
+	dh_clean $(PKGITMP)
+
+##
+##  Package build
+##
+
 configure-stamp: patch-stamp configure debian/hpijs.version
 	dh_testdir
 
@@ -67,7 +102,7 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 	rm -f config.cache
 
 	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
-		CUPS_BACKEND_PATH=/usr/lib/cups/backend \
+		CUPS_PPD_PATH=/usr/share/ppd \
 		$(CONFFLAGS) \
 	 	--config-cache \
 		--disable-dependency-tracking \
@@ -95,65 +130,23 @@ build-stamp: configure-stamp
 
 	touch build-stamp
 
-# Clean everything up, including everything auto-generated
-# at build time that needs not to be kept around in the Debian diff
-clean: clean-patched unpatch
-clean-patched: configure debian/hpijs.version
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
+##
+## Debian packaging
+##
 
-	-$(MAKE) clean
-	-$(MAKE) distclean
-	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
-	-rm -f platform.h auto-include.h
-	find -type d -name build -print0 | xargs -0 -r rm -rf \;
-	find \( -name config.sub -o -name config.guess \
-			-o -name config.cache -o -name config.log \) -print0 \
-		| xargs -0 -r rm -f \;
-
-	# We prefer to regenerate these using pyuic
-	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
-
-	dh_clean
-
-install: build
+# common part of the install: Upstream makefiles, general stuff
+install-stamp: build-stamp
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
 
-	$(MAKE) install DESTDIR=$(PKGTMP)	\
-		docdir=/usr/share/doc
+	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc
 
-	rm -f $(PKGTMP)/usr/share/hplip/data/hplip
-	rm -f $(PKGTMP)/usr/lib/hplip/check
-
-	find $(PKGTMP)/usr/lib/hplip -maxdepth 1 -mindepth 1 -type d -print0 | \
-		xargs -0 -r -i@ find @ -type f -name '*.py' | \
-		while read -r i ; do \
-			chmod a-x "$$i" && \
-			sed < "$$i" > "$$i.tmp" -e '/^#!/ {1 d}' && \
-			mv -f "$$i.tmp" "$$i" ; \
-		done
-
-	mkdir -p $(PKGTMP)/usr/share/pixmaps
-	install -m 644 debian/hp-logo.xpm $(PKGTMP)/usr/share/pixmaps
-	mkdir -p $(PKGTMP)/usr/share/applications
-	install -m 644 debian/*.desktop $(PKGTMP)/usr/share/applications
-
-	mkdir -p $(PKGTMP)/etc/sane.d/dll.d
-	install -m 644 debian/$(BASEPKG).sane $(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)
-
-	# PPDs (manually install, HP's install hook is hopeless)
-	# While at it, change Manufacturer to HP (HPLIP)
-	mkdir -p $(PKGTMP)/usr/share/ppd/hplip
-	( cd prnt/hpijs/ppd && find . -type f -name '*.ppd' | while read -r i ; do \
-		sed -e 's/^*Manufacturer:.*/*Manufacturer:  "HP (HPLIP)"/' \
-			< $$i \
-			> $(PKGTMP)/usr/share/ppd/hplip/$$i ;\
-		chmod 644 $(PKGTMP)/usr/share/ppd/hplip/$$i ;\
-	done )
+	# Remove files we are not to ship from the install tree
+	@echo Removing non-shipped files, see debian/non-shipped-files.txt
+	@cat debian/non-shipped-files.txt | \
+		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
 	# Lintian and linda overrides
 	cd debian ; \
@@ -170,16 +163,74 @@ install: build
 	    } ;\
 	done
 
-	# Remove files we are not to ship from the install tree
-	@echo Removing non-shipped files, see debian/non-shipped-files.txt
-	@cat debian/non-shipped-files.txt | \
-		( cd $(PKGTMP) && xargs -t -r rm -f )
+	touch install-stamp
 
-	dh_install --sourcedir=$(PKGTMP) --fail-missing
+# install arch-dependent packages specific files
+install-arch: install-arch-stamp
+install-arch-stamp: install-stamp
+	# Remove stray #! lines on python libraries, and fix permissions
+	find "$(PKGTMP)/usr/lib/hplip" -maxdepth 1 -mindepth 1 -type d -print0 | \
+		xargs -0 -r -i@ find @ -type f -name '*.py' | \
+		while read -r i ; do \
+			chmod a-x "$$i" && \
+			sed < "$$i" > "$$i.tmp" -e '/^#!/ {1 d}' && \
+			mv -f "$$i.tmp" "$$i" ; \
+		done
 
+	mkdir -p "$(PKGTMP)/usr/share/pixmaps"
+	install -m 644 debian/*.xpm "$(PKGTMP)/usr/share/pixmaps"
+	mkdir -p "$(PKGTMP)/usr/share/applications"
+	install -m 644 debian/*.desktop "$(PKGTMP)/usr/share/applications"
+
+	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
+	install -m 644 debian/$(BASEPKG).sane "$(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)"
+
+	# Fax support: HPLIP upstream is changing their minds too fast to
+	# trust their makefiles on this.
+	[ -e "$(PKGTMP)/usr/lib/hplip/fax/hpfax" ] && \
+	  mv -f "$(PKGTMP)/usr/lib/hplip/fax/hpfax" "$(PKGTMP)/usr/lib/cups/backend/"
+
+	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
+		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
+
+# install arch-independent packages specific files
+install-indep: install-indep-stamp
+install-indep-stamp: install-stamp
+	# PPDs
+	# 1. Append hplip identifier to the long nickname
+	# 2. Install to basedir/<Manufacturer>/
+	# 3. Normalize case of PPD file names
+	# 4. Compress all PPDs
+	# 
+	# Fax support: override hpijs PPDs with fax/ppd ones.
+	( find prnt/hpijs/ppd -type f -name '*-hpijs.ppd' ; \
+	  find fax/ppd -type f -name '*.ppd' \
+	) | while read -r i ; do \
+		PPDSUITE="hpijs" ;\
+		PPDVENDOR=$$(sed -r -n \
+			-e '/^[*]Manufacturer/ { s/[^:]+:[[:blank:]]+"([^"]*)".*/\1/;s/[[:blank:]]//g;p }' \
+			< "$$i" ) ;\
+		mkdir -p "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}" ;\
+		PPDFILE=$$(echo "$$i" | sed -r -e 's#.*/([^/]+)$$#\1#' \
+			-e 's#(^|/)hp[-_]#HP-#i' \
+			-e s/series/Series/i -e s/color/Color/i \
+			-e s/office/Office/i -e s/business/Business/i \
+			-e s/jet/Jet/i -e s/ink/Ink/i -e s/desk/Desk/i \
+			-e s/smart/Smart/i -e s/photo/Photo/i -e s/psc/PSC/i \
+			-e s/laser/Laser/i -e s/design/Design/i \
+			-e s/mfp/MFP/i -e 's/[-_]hpijs/-hpijs/i' ) ;\
+		sed -e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
+			< "$$i" \
+			| gzip -9 \
+			> "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
+		chmod 644 "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
+	done
+
+	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
+		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
 
 # Build architecture-independent packages
-binary-indep: build install
+binary-indep: install-indep debian/hpijs.version
 	dh_testdir -i
 	dh_testroot
 #	dh_installdebconf -i
@@ -204,13 +255,18 @@ binary-indep: build install
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i
-	dh_gencontrol -i -- \
-		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+	dh_gencontrol -phpijs-ppds -- \
+		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+	dh_gencontrol -i -Nhpijs-ppds -- \
+		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -i
 	dh_builddeb -i
 
 # Build architecture-dependent packages
-binary-arch: build install debian/hpijs.version
+binary-arch: install-arch debian/hpijs.version
 	dh_testdir -a
 	dh_testroot
 #	dh_installdebconf -a
@@ -238,11 +294,13 @@ binary-arch: build install debian/hpijs.version
 	dh_shlibdeps -a
 	dh_gencontrol -phpijs -- \
 		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
-		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_gencontrol -a -Nhpijs -- \
-		-V"Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean clean-patched binary-indep binary-arch binary install
+.PHONY: build clean clean-patched binary-indep binary-arch binary install install-arch install-indep

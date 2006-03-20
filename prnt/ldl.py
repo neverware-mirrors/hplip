@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.10 $ 
-# $Date: 2005/02/09 23:33:47 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,7 +95,7 @@ QUERY_PRINTER_ALIGNMENT = 3 # 0.3.8
 QUERY_PEN_ALIGNMENT = 15 # 0.4.3
 
 
-def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
+def buildLIDILPacket(packet_type, command=0, operation=0, other={}):
 
     if packet_type == PACKET_TYPE_DISABLE_PACING:
         p = '$\x00\x10\x00\x01\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff$'
@@ -117,9 +113,9 @@ def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
         p = '$\x00\x10\x00\x04\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff$'
 
     elif packet_type == PACKET_TYPE_SYNC:
-        fmt = ''.join( [ CMD_HEADER_FMT, 'B'*245, 'B', 'B'*2048 ] )
-        p = struct.pack( fmt, PACKET_FRAME, 256, 0, PACKET_TYPE_SYNC, 0, 0, 2048, (0,)*245, 
-                         PACKET_FRAME, (0,)*2048 )
+        fmt = ''.join([CMD_HEADER_FMT, 'B'*245, 'B', 'B'*2048])
+        p = struct.pack(fmt, PACKET_FRAME, 256, 0, PACKET_TYPE_SYNC, 0, 0, 2048, (0,)*245, 
+                         PACKET_FRAME, (0,)*2048)
 
     elif packet_type == PACKET_TYPE_SYNC_COMPLETE:
         p = '$\x00\x10\x00\x08\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff$'
@@ -134,49 +130,49 @@ def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
 
         if command == COMMAND_HANDLE_PEN:   
             fmt = CMD_HEADER_FMT + "BBBBBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_HANDLE_PEN, 
-                             0, 0, operation, PACKET_PAD, PACKET_PAD,  PACKET_PAD, PACKET_PAD, PACKET_FRAME )
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_HANDLE_PEN, 
+                             0, 0, operation, PACKET_PAD, PACKET_PAD,  PACKET_PAD, PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_SET_PRINTER_ALIGNMENT and operation == COMMAND_SET_PRINTER_ALIGNMENT_OPERATION: # 0.3.8   
             fmt = CMD_HEADER_FMT + "BHBBBBBBBBBBBBB"
-            b = ( 0, 0, other['k_bidi'], other['c_vert'], other['c_hort'], other['c_bidi'],
+            b = (0, 0, other['k_bidi'], other['c_vert'], other['c_hort'], other['c_bidi'],
                         other['c_vert'], other['c_hort'], other['c_bidi'], other['c_vert'],
-                        other['c_hort'], other['c_bidi'], PACKET_FRAME )
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PRINTER_ALIGNMENT, 
-                             0, 0, COMMAND_SET_PRINTER_ALIGNMENT_OPERATION, 0x0f, *b )
+                        other['c_hort'], other['c_bidi'], PACKET_FRAME)
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PRINTER_ALIGNMENT, 
+                             0, 0, COMMAND_SET_PRINTER_ALIGNMENT_OPERATION, 0x0f, *b)
 
         elif command == COMMAND_SET_PEN_ALIGNMENT and operation == COMMAND_SET_PEN_ALIGNMENT_OPERATION: # 0.4.3
             fmt = CMD_HEADER_FMT + "BBBbBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT, 
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT, 
                              0, 0, COMMAND_SET_PEN_ALIGNMENT_OPERATION, other['pen'], other['item'], other['value'], 
-                             PACKET_PAD, PACKET_FRAME )
+                             PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_ZCA and operation == COMMAND_ZCA_OPERATION:    
             fmt = CMD_HEADER_FMT + "BBhBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_ZCA, 
-                             0, 0, operation, 0, other['zca'], PACKET_PAD, PACKET_FRAME )
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_ZCA, 
+                             0, 0, operation, 0, other['zca'], PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_SET_PENS_ALIGNED and operation == COMMAND_SET_PENS_ALIGNED_OPERATION:
             fmt = CMD_HEADER_FMT + "BHBBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PENS_ALIGNED, 
-                             0, 0, operation, other['colors'], PACKET_PAD, PACKET_PAD, PACKET_FRAME )
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_PENS_ALIGNED, 
+                             0, 0, operation, other['colors'], PACKET_PAD, PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_SET_HUE_COMPENSATION and operation == COMMAND_SET_HUE_COMPENSATION_OPERATION:
             fmt = CMD_HEADER_FMT + "BBbBBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION, 
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION, 
                              0, 0, operation, other['which'], other['value'], PACKET_PAD, 
-                             PACKET_PAD, PACKET_FRAME )
+                             PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_QUERY:
             fmt = CMD_HEADER_FMT + "BBHBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_QUERY, 
-                             0, 0, 0, operation, 0, PACKET_PAD, PACKET_FRAME )
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_QUERY, 
+                             0, 0, 0, operation, 0, PACKET_PAD, PACKET_FRAME)
 
         elif command == COMMAND_PRINT_INTERNAL_PAGE: 
             fmt = CMD_HEADER_FMT + "BBBBBB"
-            p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_PRINT_INTERNAL_PAGE, 
+            p = struct.pack(fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_PRINT_INTERNAL_PAGE, 
                              0, 0, COMMAND_PRINT_INTERNAL_PAGE_OPERATION, PACKET_PAD, PACKET_PAD,  
-                             PACKET_PAD, PACKET_PAD, PACKET_FRAME )
+                             PACKET_PAD, PACKET_PAD, PACKET_FRAME)
         else:
             p = ''
 
@@ -190,137 +186,137 @@ def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
 
 
 def buildSyncPacket():
-    return buildLIDILPacket( PACKET_TYPE_SYNC )
+    return buildLIDILPacket(PACKET_TYPE_SYNC)
 
 def buildSyncCompletePacket():
-    return buildLIDILPacket( PACKET_TYPE_SYNC_COMPLETE )
+    return buildLIDILPacket(PACKET_TYPE_SYNC_COMPLETE)
 
 def buildResetPacket():
-    return buildLIDILPacket( PACKET_TYPE_RESET_LIDIL )
+    return buildLIDILPacket(PACKET_TYPE_RESET_LIDIL)
 
 def buildGetAlignmentValues038Packet():
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PRINTER_ALIGNMENT )
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PRINTER_ALIGNMENT)
 
 def buildGetAlignmentValues043Packet():
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PEN_ALIGNMENT )
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PEN_ALIGNMENT)
 
-def buildEnableResponsesPacket( enable=True ):
+def buildEnableResponsesPacket(enable=True):
     if enable:
-        return buildLIDILPacket( PACKET_TYPE_ENABLE_RESPONSES )
+        return buildLIDILPacket(PACKET_TYPE_ENABLE_RESPONSES)
     else:
-        return buildLIDILPacket( PACKET_TYPE_DISABLE_RESPONSES )
+        return buildLIDILPacket(PACKET_TYPE_DISABLE_RESPONSES)
 
-def buildSetPrinterAlignmentPacket( k_bidi,
+def buildSetPrinterAlignmentPacket(k_bidi,
                                     c_vert, 
                                     c_hort, 
-                                    c_bidi ): # 0.3.8
+                                    c_bidi): # 0.3.8
 
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PRINTER_ALIGNMENT,
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PRINTER_ALIGNMENT,
                              COMMAND_SET_PRINTER_ALIGNMENT_OPERATION,
-                             other={ 'c_vert' : c_vert,
+                             other={'c_vert' : c_vert,
                                      'c_hort' : c_hort,
                                      'c_bidi' : c_bidi,
                                      'k_bidi' : k_bidi,
 
-                                    } )
+                                    })
 
 def buildPrintInternalPagePacket(): # Type 6
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, 
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, 
                              COMMAND_PRINT_INTERNAL_PAGE,
-                             COMMAND_PRINT_INTERNAL_PAGE_OPERATION )
+                             COMMAND_PRINT_INTERNAL_PAGE_OPERATION)
 
 
-def buildZCAPacket( value ):
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_ZCA, 
+def buildZCAPacket(value):
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_ZCA, 
                              COMMAND_ZCA_OPERATION,  
-                             other={ 'zca' : value } )
+                             other={'zca' : value})
 
-def buildBlackBidiPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildBlackBidiPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_BIDI,
-                                     'value' : value } )
+                                     'value' : value})
 
-def buildPhotoBidiPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildPhotoBidiPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_BIDI,
-                                     'value' : value } )
+                                     'value' : value})
 
-def buildColorBidiPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildColorBidiPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_BIDI,
-                                     'value' : value } )
+                                     'value' : value})
 
 
-def buildColorHortPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildColorHortPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_HORT,
-                                     'value' :  value } )
+                                     'value' :  value})
 
-def buildColorVertPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildColorVertPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_VERT,
-                                     'value' :  value } )
+                                     'value' :  value})
 
-def buildBlackVertPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildBlackVertPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_VERT,
-                                     'value' :  value } )
-def buildBlackHortPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+                                     'value' :  value})
+def buildBlackHortPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_HORT,
-                                     'value' :  value } )
+                                     'value' :  value})
 
-def buildPhotoHortPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+def buildPhotoHortPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_HORT,
-                                     'value' :  value } )
-def buildPhotoVertPacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
+                                     'value' :  value})
+def buildPhotoVertPacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
-                             other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
+                             other={'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_VERT,
-                                     'value' :  value } )
+                                     'value' :  value})
 
-def buildPhotoHuePacket( value ): # 0.4.3
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
+def buildPhotoHuePacket(value): # 0.4.3
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
                              COMMAND_SET_HUE_COMPENSATION_OPERATION,
-                             other={ 'which' : COMMAND_SET_HUE_COMPENSATION_PEN_PHOTO,
-                                     'value' :  value } )
+                             other={'which' : COMMAND_SET_HUE_COMPENSATION_PEN_PHOTO,
+                                     'value' :  value})
 
 
-def buildColorHuePacket( value ): # 0.4.3
-   return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
+def buildColorHuePacket(value): # 0.4.3
+   return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
                             COMMAND_SET_HUE_COMPENSATION_OPERATION,
-                            other={ 'which' : COMMAND_SET_HUE_COMPENSATION_PEN_COLOR,
-                                    'value' :  value } )
+                            other={'which' : COMMAND_SET_HUE_COMPENSATION_PEN_COLOR,
+                                    'value' :  value})
 
 
 def buildSetPensAlignedPacket():
-    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PENS_ALIGNED, 
+    return buildLIDILPacket(PACKET_TYPE_COMMAND, COMMAND_SET_PENS_ALIGNED, 
                               COMMAND_SET_PENS_ALIGNED_OPERATION,
-                              other={ 'colors' : COMMAND_SET_PENS_ALIGNED_C | 
+                              other={'colors' : COMMAND_SET_PENS_ALIGNED_C | 
                                                  COMMAND_SET_PENS_ALIGNED_M | 
                                                  COMMAND_SET_PENS_ALIGNED_Y |
                                                  COMMAND_SET_PENS_ALIGNED_c | 
                                                  COMMAND_SET_PENS_ALIGNED_m | 
                                                  COMMAND_SET_PENS_ALIGNED_k | 
-                                                 COMMAND_SET_PENS_ALIGNED_K } )
+                                                 COMMAND_SET_PENS_ALIGNED_K})
 
 
 if __name__ == "__main__":

@@ -22,10 +22,14 @@ dist_hplip_DATA = hplip.conf
 dist_hpliplibexec_SCRIPTS = hpssd.py __init__.py hplip.sh
 
 cmddir = $(hpliplibexecdir)
-dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py levels.py
+dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
+    sendfax.py setup.py
+
+cupsdir = $(CUPS_BACKEND_PATH)
+cupsppddir = $(CUPS_PPD_PATH)
+hpppddir = $(datadir)/ppd/HP
 
 # hp backend.
-cupsdir = $(CUPS_BACKEND_PATH)
 cups_PROGRAMS = hp
 hp_SOURCES = backend/hp/hp.c 
 hp_LDADD = libhplip-api.la
@@ -34,18 +38,23 @@ hp_LDADD = libhplip-api.la
 sbin_PROGRAMS = hpiod
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp \
     io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h \
-    io/hpiod/system.h io/hpiod/dot4.cpp io/hpiod/ppdot4.cpp io/hpiod/dot4.h
+    io/hpiod/system.h io/hpiod/dot4.cpp io/hpiod/ppdot4.cpp io/hpiod/dot4.h io/hpiod/list.h io/hpiod/usbext.c io/hpiod/usbext.h io/hpiod/comp.cpp
 
 # base
 basedir = $(hpliplibexecdir)/base
-dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py  \
+
+dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/pml.py base/status.py  base/async.py \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
     base/imagesize.py base/subproc.py
 
 # fax
 faxdir = $(hpliplibexecdir)/fax
-dist_fax_SCRIPTS = fax/fax.py fax/__init__.py
+dist_fax_SCRIPTS = fax/fax.py fax/__init__.py fax/coverpages.py
+hpfaxdir = $(hpliplibexecdir)/fax
+dist_hpfax_SCRIPTS = fax/backend/hpfax.py
+faxppddir = $(hpliplibexecdir)/fax
+dist_faxppd_DATA = fax/ppd/HP-Fax-hplip.ppd
 
 # ptest
 noinst_PROGRAMS = ptest
@@ -122,13 +131,15 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/paperedgealignform_base.py ui/paperedgealignform.py \
     ui/settingsdialog_base.py ui/settingsdialog.py ui/aligntype6form1.py ui/aligntype6form1_base.py ui/aligntype6form2_base.py \
     ui/aligntype6form2.py ui/nodevicesform_base.py ui/nodevicesform.py ui/unloadform.py ui/unloadform_base.py \
-    ui/imagepropertiesdlg_base.py ui/imagepropertiesdlg.py ui/choosedevicedlg.py \
+    ui/imagepropertiesdlg_base.py ui/imagepropertiesdlg.py ui/choosedevicedlg.py ui/chooseprinterdlg.py \
     ui/aboutdlg.py ui/aboutdlg_base.py ui/waitform.py ui/waitform_base.py ui/cleaningform_base.py ui/cleaningform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
     ui/colorcal4form_base.py ui/printerform.py ui/printerform_base.py \
     ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
     ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py \
-    ui/informationform_base.py ui/informationform.py ui/supportform_base.py ui/supportform.py
+    ui/informationform_base.py ui/informationform.py ui/supportform_base.py ui/supportform.py \
+    ui/faxsendjobform_base.py ui/faxsendjobform.py ui/faxsettingsform_base.py ui/faxsettingsform.py \
+    ui/coverpageform_base.py ui/coverpageform.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
@@ -137,7 +148,7 @@ dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdia
     ui/colorcal4form_base.ui ui/printerform_base.ui \
     ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
     ui/align10form_base.ui ui/informationform_base.ui ui/supportform_base.ui \
-    plugins/powersettingsdialog_base.ui
+    plugins/powersettingsdialog_base.ui ui/faxsendjobform_base.ui ui/faxsettingsform_base.ui ui/coverpageform_base.ui
 
 # ui plugins
 pluginsdir = $(hpliplibexecdir)/plugins
@@ -209,8 +220,10 @@ install-data-hook:
 #
 #       Do full install if not RPM_INSTALL.
 	if [ "$(RPM_INSTALL)" = "no" ]; then \
-	   if [ -d "$(DESTDIR)$(ICON_PATH)" ]; then \
-	      ln -sf "$(icondir)/$(ICON_FILE)" "$(DESTDIR)$(ICON_PATH)/$(ICON_FILE)"; \
+	   if [ "$(ICON_FILE)" != "" ]; then \
+	      if [ -d "$(DESTDIR)$(ICON_PATH)" ]; then \
+	         ln -sf "$(icondir)/$(ICON_FILE)" "$(DESTDIR)$(ICON_PATH)/$(ICON_FILE)"; \
+	      fi \
 	   fi \
 	fi
 #
@@ -241,7 +254,25 @@ install-data-hook:
 #
 #       Edit hpiod.conf in destdir.
 	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
-	echo -e "[dirs]\nhome=$(hpliplibexecdir)\nrun=$(rundir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+	echo -e "[dirs]\nhome=$(hpliplibexecdir)\nrun=$(rundir)\nppd=$(hpppddir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+#	echo -ne "# Following values are determined at configure time and cannot be changed.\n[configure]\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+#	if [ "$(rpm_install)" = "yes" ]; then \
+	   echo -ne "rpm-install=1\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	else \
+	   echo -ne "rpm-install=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	fi 
+#	if [ "$(network_build)" = "yes" ]; then \
+	   echo -ne "network-build=1\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	else \
+	   echo -ne "network-build=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	fi
+#	if [ "$(pp_build)" = "yes" ]; then \
+	   echo -ne "pp-build=1\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	else \
+	   echo -ne "pp-build=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	fi
+#	echo -ne "internal-tag=$(PACKAGE_BUGREPORT)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf;
+
 #
 #       Edit hpiod.sh in destdir.
 	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).sh > $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp; \
@@ -267,6 +298,30 @@ install-data-hook:
 #       For internal testing.
 	if [ "$(SHADOW)" != "" ]; then \
 	   cp -f data/xml/unreleased/*.xml $(DESTDIR)$(hplipdir)/data/xml/; \
+	fi
+#
+#       Install fax support. Let hpijs symlink hpppddir to cupsppddir.
+	mv $(DESTDIR)$(hpfaxdir)/hpfax.py $(DESTDIR)$(hpfaxdir)/hpfax 
+	if [ "$(rpm_install)" = "no" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)$(cupsdir); \
+	   $(INSTALL_SCRIPT) $(DESTDIR)$(hpfaxdir)/hpfax $(DESTDIR)$(cupsdir); \
+	   $(mkinstalldirs) $(DESTDIR)$(hpppddir); \
+	   $(INSTALL_SCRIPT) $(DESTDIR)$(faxppddir)/HP-Fax-hplip.ppd $(DESTDIR)$(hpppddir); \
+	   gzip -qf $(DESTDIR)$(hpppddir)/HP-Fax-hplip.ppd; \
+	fi
+
+#
+# Add prerequisites for testing (or building?) "make install DESTDIR=/build".
+test-destdir:
+	if [ "$(DESTDIR)" != "" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
+	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
+	   if [ ! -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
+	      touch $(DESTDIR)/etc/sane.d/dll.conf; \
+	   fi; \
+	   $(mkinstalldirs) $(DESTDIR)$(sanedir); \
+	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/bin; \
 	fi
 
 dist-hook:

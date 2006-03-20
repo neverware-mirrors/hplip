@@ -641,6 +641,7 @@
         <action name="settingsConfigure"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
+        <action name="viewSupportAction"/>
         <action name="helpContentsAction"/>
         <action name="helpIndexAction"/>
         <separator/>
@@ -689,10 +690,13 @@
             <cstring>helpAboutAction</cstring>
         </property>
         <property name="text">
-            <string>About HP Device Manager</string>
+            <string>&amp;About...</string>
         </property>
         <property name="menuText">
-            <string>&amp;About HP Device Manager</string>
+            <string>&amp;About...</string>
+        </property>
+        <property name="toolTip">
+            <string>About HP Device Manager...</string>
         </property>
     </action>
     <action>
@@ -762,7 +766,7 @@
             <cstring>settingsConfigure</cstring>
         </property>
         <property name="text">
-            <string>Configure HP Device Manager...</string>
+            <string>Settings...</string>
         </property>
         <property name="accel">
             <string>F2</string>
@@ -817,6 +821,14 @@
         </property>
         <property name="accel">
             <string>F3</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewSupportAction</cstring>
+        </property>
+        <property name="text">
+            <string>Support...</string>
         </property>
     </action>
 </actions>
@@ -953,7 +965,16 @@
         <receiver>DevMgr4_base</receiver>
         <slot>setupDevice_activated()</slot>
     </connection>
+    <connection>
+        <sender>viewSupportAction</sender>
+        <signal>activated()</signal>
+        <receiver>DevMgr4_base</receiver>
+        <slot>viewSupportAction_activated()</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">devmgr4_base.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -998,6 +1019,7 @@
     <slot>faxSetupWizardButton_clicked()</slot>
     <slot>faxSettingsButton_clicked()</slot>
     <slot>setupDevice_activated()</slot>
+    <slot>viewSupportAction_activated()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

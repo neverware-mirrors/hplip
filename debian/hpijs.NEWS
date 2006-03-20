@@ -1,3 +1,28 @@
+hpijs (2.4.9+0.9.9-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the new hpijs-ppds package.
+They're also available from linuxprinting.org.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  1 Feb 2006 00:54:49 -0200
+
+hpijs (2.4.8+0.9.8-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the hplip-ppds package
+as usual.  They're also available from linuxprinting.org.
+
+Users of the following printers should reinstall their PPDs in CUPS to
+replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+
+  * HP PSC 1300
+  * HP OfficeJet 61xx
+  * HP LaserJet 5L
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  1 Feb 2006 00:54:49 -0200
+
 hpijs (2.4.7+0.9.7-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hplip-ppds package

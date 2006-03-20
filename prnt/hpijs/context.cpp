@@ -1156,6 +1156,7 @@ Capture_SelectDevice(Model);
     if (thePrinter)     // if printer exists due to bidi or previous call
     {
         delete thePrinter;
+        thePrinter = NULL;
     }
 
     err = DR->SelectDevice(Model);
@@ -1226,6 +1227,7 @@ DRIVER_ERROR PrintContext::SelectDevice
     if (thePrinter)     // if printer exists due to bidi or previous call
     {
         delete thePrinter;
+        thePrinter = NULL;
     }
 
     FAMILY_HANDLE familyHandle = pPFI->FindDevIdMatch(szDeviceId);

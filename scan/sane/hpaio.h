@@ -29,12 +29,11 @@
 #if !defined( __HPAIO_H__ )
 #define __HPAIO_H__
 
-#include <stdio.h>
-
-#ifndef __USE_GNU
-#define __USE_GNU
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
 #endif
 
+#include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>

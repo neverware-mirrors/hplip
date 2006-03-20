@@ -3,14 +3,14 @@
 # Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
 # Distributed under the GPLv2 or newer
 #
-# $Id: hplip.init,v 1.11 2005/10/15 21:39:04 hmh Exp $
+# $Id: hplip.init,v 1.12 2006/03/18 19:01:37 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
 
 # For manual setuid/gid
-USER=hplip
-GROUP=lp
+SUID_USER=hplip
+SGID_GROUP=lp
 
 DAEMON1=/usr/sbin/hpiod
 NAME1=hpiod
@@ -79,11 +79,10 @@ start_daemon() {
 	PIDFILE="$2"
 	NAME="$3"
 	PROCNAME="$4"
-	DAEMONOPT="$5"
+	SSDOPT="$5"
+	DAEMONOPT="$6"
 
-	START="--start --quiet --pidfile ${PIDFILE} --startas ${DAEMON} --name ${PROCNAME}"
-	[ -n "${USER}" ] && START="${START} --chuid ${USER}"
-	[ -n "${GROUP}" ] && START="${START} --group ${GROUP}"
+	START="--start --quiet --pidfile ${PIDFILE} --startas ${DAEMON} --name ${PROCNAME} ${SSDOPT}"
 	[ -n "${DAEMONOPT}" ] && START="${START} -- ${DAEMONOPT}"
 	if start-stop-daemon ${START} >/dev/null 2>&1 ; then
 		#success
@@ -133,11 +132,12 @@ do_start () {
 	fixdirs
 	log_progress_msg "${NAME1}"
 	if start_daemon "${DAEMON1}" "${PIDFILE1}" "${NAME1}" \
-		"${PROCNAME1}" "${HPIODOPTIONS}" && \
+		"${PROCNAME1}" "" "${HPIODOPTIONS}" && \
 	   {
 	     log_progress_msg "${NAME2}"
 	     start_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
-	   	"${PROCNAME2}" "${HPSSDOPTIONS}"
+	   	"${PROCNAME2}" "--chuid ${SUID_USER} --group ${SGID_GROUP}" \
+		"${HPSSDOPTIONS}"
 	   } ; then
 	   log_end_msg 0
 	   reload_cups

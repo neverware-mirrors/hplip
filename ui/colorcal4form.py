@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #
 # Author: Don Welch
 #
+
 from base.g import *
 import os.path
 
@@ -29,9 +30,9 @@ class ColorCal4Form(ColorCal4Form_base):
 
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         ColorCal4Form_base.__init__(self,parent,name,modal,fl)
-        self.gray_plot_png.setPixmap( QPixmap( os.path.join( prop.image_dir, 'type4_gray_patch.png' ) ) )
-        self.color_plot_png.setPixmap( QPixmap( os.path.join( prop.image_dir, 'type4_color_patch.png' ) ) )
-        self.values = [ 0, 0, 0, 0 ]
+        self.gray_plot_png.setPixmap(QPixmap(os.path.join(prop.image_dir, 'type4_gray_patch.png')))
+        self.color_plot_png.setPixmap(QPixmap(os.path.join(prop.image_dir, 'type4_color_patch.png')))
+        self.values = [0, 0, 0, 0]
 
     def GrayLetterComboBox_highlighted(self,a0):
         self.values[0] = ord(str(a0)) - ord('A')
@@ -46,5 +47,5 @@ class ColorCal4Form(ColorCal4Form_base):
         self.values[3] = int(str(a0))-1
 
     def UseDefaultsButton_clicked(self):
-        self.values = [ -1, -1, -1, -1 ]
+        self.values = [-1, -1, -1, -1]
         self.accept()

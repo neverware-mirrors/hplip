@@ -1,12 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.27 $
-# $Date: 2005/07/21 17:32:37 $
-# $Author: dwelch $
-#
-#
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +34,6 @@ from qt import *
 
 from unloadform_base import UnloadForm_base
 from imagepropertiesdlg import ImagePropertiesDlg
-from choosedevicedlg import ChooseDeviceDlg
 
 progress_dlg = None
 
@@ -63,7 +56,6 @@ class UnloadForm(UnloadForm_base):
                  parent=None, name=None, fl=0):
 
         UnloadForm_base.__init__(self,parent,name,fl)
-        #ok = True
         self.pc = None
         self.device_uri = device_uri
         self.printer_name = printer_name
@@ -74,7 +66,6 @@ class UnloadForm(UnloadForm_base):
             self.device_uri, self.printer_name = None, None
 
         if not self.device_uri and not self.printer_name:
-            ##probed_devices = self.s.probeDevices( bus, 5, 4, 'pcard' )
             probed_devices = device.probeDevices(bus=bus, filter='pcard')
             cups_printers = cups.getPrinters()
             log.debug(probed_devices)
@@ -82,18 +73,18 @@ class UnloadForm(UnloadForm_base):
             max_deviceid_size, x, devices = 0, 0, {}
 
             for d in probed_devices:
-                printers = []
-                for p in cups_printers:
-                    if p.device_uri == d:
-                        printers.append(p.name)
-                devices[x] = (d, printers)
-                x += 1
-                max_deviceid_size = max(len(d), max_deviceid_size)
+                if d.startswith('hp:'):
+                    printers = []
+                    for p in cups_printers:
+                        if p.device_uri == d:
+                            printers.append(p.name)
+                    devices[x] = (d, printers)
+                    x += 1
+                    max_deviceid_size = max(len(d), max_deviceid_size)
 
             if x == 0:
                 from nodevicesform import NoDevicesForm
                 self.failure(self.__tr("<p><b>No devices found that support photo card access.</b><p>Please make sure your device is properly installed and try again."))
-                #self.cleanup( EVENT_ERROR_DEVICE_NOT_FOUND )
                 self.init_failed = True
 
             elif x == 1:
@@ -101,6 +92,7 @@ class UnloadForm(UnloadForm_base):
                 self.device_uri = devices[0][0]
 
             else:
+                from choosedevicedlg import ChooseDeviceDlg
                 dlg = ChooseDeviceDlg(devices)
                 if dlg.exec_loop() == QDialog.Accepted:
                     self.device_uri = dlg.device_uri
@@ -115,6 +107,8 @@ class UnloadForm(UnloadForm_base):
             self.cleanup(EVENT_PCARD_UNABLE_TO_MOUNT)
             return
 
+        QApplication.setOverrideCursor(QApplication.waitCursor)
+        
         try:
             self.pc = photocard.PhotoCard(None, self.device_uri, self.printer_name)
         except Error, e:
@@ -144,8 +138,7 @@ class UnloadForm(UnloadForm_base):
             self.cleanup(EVENT_PCARD_UNABLE_TO_MOUNT)
             return
 
-        self.pc.device.sendEvent(EVENT_START_PCARD_JOB, 'event', 0,
-            prop.username, self.pc.device.device_uri)
+        self.pc.device.sendEvent(EVENT_START_PCARD_JOB)
 
         disk_info = self.pc.info()
         self.pc.write_protect = disk_info[8]
@@ -191,13 +184,14 @@ class UnloadForm(UnloadForm_base):
         # Item map disambiguates between files of the same
         # name that are on the pcard in more than one location
         self.item_map = {}
+        
+        QApplication.restoreOverrideCursor()
 
         self.load_icon_view(first_load=True)
 
     def closeEvent(self, event):
         if self.pc is not None:
-            self.pc.device.sendEvent(EVENT_END_PCARD_JOB, 'event', 0, prop.username,
-                self.pc.device.device_uri)
+            self.pc.device.sendEvent(EVENT_END_PCARD_JOB)
 
         event.accept()
 
@@ -209,8 +203,7 @@ class UnloadForm(UnloadForm_base):
     def cleanup(self, error=0):
         if self.pc is not None:
             if error > 0:
-                self.pc.device.sendEvent(error, 'error', 0, prop.username,
-                    self.pc.device.device_uri)
+                self.pc.device.sendEvent(error, typ='error')
 
         self.close()
 
@@ -233,6 +226,7 @@ class UnloadForm(UnloadForm_base):
 
 
     def load_icon_view(self, first_load):
+        QApplication.setOverrideCursor(QApplication.waitCursor)
         self.first_load = first_load
 
         if first_load:
@@ -246,7 +240,7 @@ class UnloadForm(UnloadForm_base):
         self.pb.show()
 
         self.item_num = 0
-
+        
         self.load_timer = QTimer(self, "ScanTimer")
         self.connect(self.load_timer, SIGNAL('timeout()'), self.continue_load_icon_view)
         self.load_timer.start(0)
@@ -263,7 +257,7 @@ class UnloadForm(UnloadForm_base):
             self.statusBar().removeWidget(self.pb)
 
             self.IconView.adjustItems()
-
+            QApplication.restoreOverrideCursor()
             return
 
         f = self.unload_list[self.item_num]
@@ -440,8 +434,7 @@ class UnloadForm(UnloadForm_base):
 
         progress_dlg.close()
 
-        self.pc.device.sendEvent(EVENT_PCARD_FILES_TRANSFERED, 'event', 0, prop.username,
-            self.pc.device.device_uri)
+        self.pc.device.sendEvent(EVENT_PCARD_FILES_TRANSFERED)
 
         if was_cancelled:
             self.failure(self.__tr("<b>Unload cancelled at user request.</b>"))

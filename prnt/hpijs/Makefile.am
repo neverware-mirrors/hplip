@@ -2,7 +2,7 @@ hpijsdocdir = $(docdir)/$(PACKAGE)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_7_9
+APDKLABEL=HPLIP-0_9_9_10
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -63,25 +63,25 @@ endif
 hpijsdoc_DATA	= hpijs_readme.html gs_hpijs.png COPYING README_LIBJPG
 bin_SCRIPTS = $(rip)
 
-EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.1.patch
+EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.2-gs7.07.patch gdevijs-krgb-1.2-gs8.50.patch
 
 install-data-hook: $(foomatichook) $(cupshook)
 uninstall-hook: $(unfoomatichook) $(uncupshook)
 
 install-foomatic:
 	$(mkinstalldirs) $(DESTDIR)$(ppddir)
-	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
-	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
+#	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
+#	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 	$(INSTALL_DATA) ppd/* $(DESTDIR)$(ppddir)
-	gzip -f $(DESTDIR)$(ppddir)/*
+	gzip -qf $(DESTDIR)$(ppddir)/*
 
 uninstall-foomatic:
 	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
 	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 
 install-cups:
-	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/HP*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/HP*.ppd*
-	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/hp*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/hp*.ppd*
+#	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/HP*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/HP*.ppd*
+#	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/hp*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/hp*.ppd*
 	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/foomatic-ppds
 	$(mkinstalldirs) $(DESTDIR)$(CUPS_PPD_PATH)
 	ln -s $(datadir)/ppd $(DESTDIR)$(CUPS_PPD_PATH)/foomatic-ppds
@@ -311,4 +311,3 @@ test-ppd:
 	cp foomatic-db/db/source/PPD/HP/business_inkjet/*.ppd ppd/
 	cp foomatic-db/db/source/PPD/HP/color_laser/*.ppd ppd/
 	cp foomatic-db/db/source/PPD/HP/mono_laser/*.ppd ppd/
-

@@ -1,9 +1,322 @@
+2006-01-30 dsuffield
+    * Release 0.9.8.22 (public release 0.9.8)
+	
+2006-01-31 dsuffield
+    * Fixed scan port setting for LJ3055 and LJ3060 in xml file.
+	
+2006-01-30 dsuffield
+    * Release 0.9.8.21
+
+2006-01-30 dsuffield
+    * Moved HPLIP_02_2006.xml to release directory.
+
+2006-01-30 dsuffield
+    * Release 0.9.8.20
+
+2006-01-24 dwelch
+    * Release 0.9.8.19
+
+2006-01-24 dwelch
+    * Release 0.9.8.18
+
+2006-01-24 dsuffield
+    * New APDK label.
+
+2006-01-24 dwelch
+    * Release 0.9.8.17
+
+2006-01-23 dwelch
+    * Added new io-modes for libusb support for CLJ2500 in model_editor
+    * Added new status-types for LJ XML and S:+PML/SNMP in model_editor
+    * Fixed the PS32xx/33xx and PS8250 "r_value" issue using new status type 5
+    * Cleaned up channel opens/closes in device query for better performance
+    
+2006-01-19 dsuffield
+    * Fixed deviceid zero termination in hplip_api.c.
+    * Fixed startup script as per RH request.
+
+2006-01-19 dwelch
+    * Enhanced the status history table in hp-info
+    * Put in a temp. fix for the r-value error if using a network connection (r-values not read over network)
+    * Added an icon for the Photosmart 8250
+    * Reverted to earlier code in status.py that seems to make more LaserJet status work
+    * Added a "quick" device query that will be used to make a check to see if the device is not busy or in an error state before various operations 
+    
+2006-01-18 dwelch
+    * Re-fixed defect 750 (The other dialing members of the Groups are not received fax except the first dialing recipient while sending a fax to Groups .)[single file send to group failed]
+    * Re-added some icons that were removed by mistake (small error icon and cyan supplies icon) [defect 821(c)]
+    * Changed device list in toolbox to use small icons for status overlay
+
+2006-01-17 dwelch
+    * Fixed defect 821(b) (Missing down arrow graphic in sendfax)
+    * Fixed defect 825 (The "Configure HP Device Manager Setting" dialog can not be launched.)
+    * Fixed defect 824 (Coverpage add button not staying disabled)
+
+2006-01-13 dwelch
+    * Release 0.9.8.16
+
+2006-01-13 dwelch
+    * Reverted fax code back to version HPLIP 0.9.8.14 (removed most changes made on 2006-01-10)
+    * Added logfile capability to logger and hp-sendfax
+    * Increased error handling in sections of the fax send code
+    
+2006-01-12 dwelch
+    * Fixed defect 821(a) (The corresponding icons for "Configure Print Settings" and "Perform Color Calibration" are missing in toolbox.)
+
+2006-01-11 dwelch
+    * Fixed defect 791 (An error occurs while clicking the "Test" button in "Email Alerts" tab of Configure Settings dialog.)
+    * Resolved defect 792 as WORKSFORME ((LJ3380) The fax could not be sent while sending the file with coverpage from OpenOffice.)
+    
+2006-01-11 dwelch
+    * Release 0.9.8.15
+
+2006-01-11 syie
+    * Add foomatic and PPD for Feb 06 products.
+
+2006-01-10 syie
+    * Modified models.xml file to add pen info back to OJ5500 and disable front panel.
+    * Remove Fax support from CLJ4730 and LJ4345.
+
+2006-01-10 dwelch
+    * Fixed defect 795 (A redundant blank page and an error log report were printed out in recipients when sending a fax job (includes coverpage and two or more files).)
+    * Reworked fax send page state machine to better handle state transitions
+    * Fixed defect 811 ((DJ6540) The printer has no response when performing a "Align Cartridges" operation from toolbox.
+
+2006-01-09 dsuffield
+    * Removed probe.py from distribution.
+	
+2006-01-06 dwelch
+    * Added an icon for PS3210/PS3310/PS8250
+    * Added an icon for DJ32xx
+    * Added an icon for LJ24xx
+    * Added an icon for OJ5xx/6xx/7xx
+    * Added an icon for OJ56xx
+    * Added an icon for OJK80/K60
+    * Added an icon for PS8050
+    * Added an icon for PS8750
+    * Added an icon for OJK550/K850
+    * Removed duplicate device icons and rewroked ones that were not good looking (removed ~160 icons)
+    * Readjusted models.xml, etc. to use smaller subset of device icons
+    * Fixed the model editor so that it can handle the case where the icon file cannot be found (v6.1)
+
+2006-01-05 dwelch
+    * Fixed defect 682 ((PSC5610) Nothing will be done if we select "next" button to do the align cartridge function)
+    * Added checks to each cmdline utility and each toolbox function to make sure printer is not busy or in error state before attempting operation
+    * Fixed defect 711 (An error occurs while executing the command "hp-check -lnone" in terminal.)
+    * Fixed defect 716 (Unwanted message is displayed in the usage of "hp-check" in terminal)
+
+2006-01-05 syie
+    * Modified models.xml to remove fax from PSC 1600.
+
+2006-01-04 rcauligi
+    * Removed a duplicate ; in ljjetready.h
+    * Commented out forward declaration of jpeg APIs from ljjetready.cpp - some compilers don't compile otherwise
+
+2006-01-03 syie
+    * Modified models.xml to remove photocard and fax selection for PSC1500.
+    * Modified models.xml to remove fax from Photosmart 3200 (Tahoe based does not support fax).
+
+2006-01-03 dwelch
+    * Fixed defect 809 (A syntax error occurs while installing the photosmart 7850 through hp-setup.)
+    * Fixed defect 797 (No testpage could be printed out while executing "hp-testpage" with parameter -b according to usage in terminal.)
+    * Fixed defect 800 (An error occurs and the "hp-print" dialog can not be launched when executing the "hp-print"command with parameter "File List".)
+    * Added enhancement 802 (The Fax URI should be generated through hp-makeuri.)
+    * Fixed hp-makeuri so that it would not report URIs for non-existent functions (e.g., a scan URI on a single function printer)
+    * Fixed hp-makeuri quiet modes that they are actually quiet (no banner, etc).
+    * Fixed defect 803 (An Unnecessary message is displayed in the usage of hp-testpage.)
+    * Fixed defect 789 (Inconsistent icons on LaserJet 4730)
+    * Added low paper icons to data/images
+
+2005-12-16 dwelch
+    * Added utility 'clean_cups.py' that quickly removes all queues from CUPS
+
+2005-12-16 dwelch
+    * Release 0.9.8.14
+
+2005-12-16 dwelch
+    * Fixed network photo card access
+
+2005-12-15 dwelch
+    * Fixed an issue where extra coverpages were sent when sending to multiple recepients
+    * Fixed an issue that didn't allow you to re-add a coverpage into the list after a successful send
+    * Fixed an issue that caused reportlab to throw an exception if the coverpage text was too long
+    * Revised the wording on the "No appropriate CUPS queue..." error dialog.
+    * Added a new chooser dialog that presents a list of CUPS queues rather than device URIs (switched hp-sendfax and hp-print over to new dialog)
+    * Added new chooser dialog (chooseprinterdlg.py) to Makefile.am
+
+2005-12-14 dwelch
+    * Release 0.9.8.13
+
+2005-12-14 rcauligi
+    * Moved OfficeJet 6100 and 6150 to DJ55xx.h; margins on these devices are same as those on DJ5550
+
+2005-12-14 dwelch
+    * Fixed an issue where the file list wasn't being cleared properly after a fax send
+    * Added code to make the sendfax UI restore if minimized when a new file is faxed to it via an application print
+    * Fixed an hp-sendfax grammar issue
+    * Added some exception handling code to sendfax state machine
+    * Unable to reproduce defect 786 (same root cause as defect 785?)
+    
+2005-12-14 dwelch
+    * Release 0.9.8.12
+
+2005-12-14 dwelch
+    * Added a check to insure that the fax CUPS queue is idle (not stopped or processing) before starting a fax job
+    * Fixed an error handling issue in hpijsfax.cpp that caused it to exit before completion (defect 785?)
+    
+2005-12-13 dwelch
+    * Release 0.9.8.11
+
+2005-12-13 dwelch
+    * Fixed defect 783 (An error message appears in terminal after disconnecting the phone line during faxing.)
+    * Fixed defect 780 (The "Waiting-sending pages" dialog would hang up while the device is power off during fax send.)
+    * Updated hp-setup to handle a busy device during the fax setup phase
+    * Fixed defect 782 (The correct PPD file can not be found while setup the HP Color Laserjet 2840 through hp-setup.)
+   
+2005-12-12 dwelch
+    * Fixed defect 776 (HELP menu item missing support information)
+    * Fixed defect 772 (Only the coverpage could be received while sending a fax with mixed coverpage and file.)
+    * Fixed problem (reported by Till) where the printing application didn't send a print job title, the file would not appear in the to-be-faxed item list
+    * Fixed defect 773 (An out of sequence message error occurs while executing refresh operation.)
+    * Fixed defect 770 (The "Send Fax " button should be grayed out after removing all files from item list field in "Items" tab.)
+    * Fixed an issue found in testing where no CUPS queue was setup for a device. Sendfax will not report an error and exit.
+    * Fixed defect 769 (Invalid symbol can be entered in Fax phone number field in terminal while setup the device through hp-setup manually.)
+    * Fixed defect 777 (Fax, no answer, hp-sendfax hang.)
+    
+2005-12-09 dwelch
+    * Release 0.9.8.10
+    
+2005-12-09 dwelch
+    * Fixed defect 749 ((net) An error occurs and the Fax job can not be sent successfully while the printer is connected by network.)
+    * Fixed defect 766 (The fax sending progress bar stops at "initializing" when sending a fax job on Suse 10.0.)
+
+2005-12-08 dsuffield
+    * Release 0.9.8.9
+
+2005-12-08 dwelch
+    * Fixed defect 765 (An unwanted message appears in the terminal during sending a fax job.)
+    * Fixed problem with incorrect icons in Device Manager status tab
+    * Re-fixed defect 762 (The fax status information can not be displayed in toolbox when sending a fax job.)
+    * Changed message replies in hpssd to keep out of order messages from being sent
+    * Re-fixed defect 759 (The fax send can not be aborted while canceling the fax send during dailing in Waiting dialog.)
+    * Added -x to hp-setup - no testpage in auto mode
+    * hp-setup won't prompt if multiple PPDs are found with the same basename (1st one found will be used)
+    * Changed to hpfax: backend to try to write .g3 files to more possible directories
+    * Improved hpfax: logging 
+    * Fixed a defect that occured if only a coverpage was being sent and the print job timed out
+
+2005-12-07 dwelch
+    * Fixed dynamic counter issue with r-values
+    * R-values are now cached in hpssd for better performance
+
+2005-12-07 dsuffield
+    * Release 0.9.8.8
+
+2005-12-07 dwelch
+    * Fixed defect 762 (The fax status information can not be displayed in toolbox when sending a fax job.)
+    * Fixed defect 760 (The fax job was not sent correctly when sending a fax job form OpenOffice Writer.)
+    * Fixed defect 759 (The fax send can not be aborted while canceling the fax send during dailing in Waiting dialog.)
+    * Fixed defect 758 (An error occurs while canceling fax send during initializing in Waiting dialog.)
+    * Fixed defect 761 (The fax sending progress bar stops at "initializing" when sending a fax job during printing.)
+    * Fixed defect 718 (No printer name was found and no print job could be done while executing the command "hp-print" with parameter -d in terminal.)
+    
+2005-12-06 dwelch   
+    * Fixed defect 748 (An error occurs in terminal while Fax send completed.)
+    * Fixed defect 750 (The other dialing members of the Groups are not received fax except the first dialing recipient while sending a fax to Groups .)
+    * Fixed defect 752 (An error occurs while setup the Printer( Laserjet 3380) through hp-setup.)
+    * Fixed defect 751 (A spelling error "recepients" appears in the send fax dialog.)
+    * Fixed defect 749 ((net) An error occurs and the Fax job can not be sent successfully while the printer is connected by network.)
+    * Resolved 465 (PC Fax support)
+    * Resolved 422 to retest (Toolbox status progress bar shows double)
+    * Resolved 623 to retest (The front panel display function is invalid after a print job.)
+    
+2005-12-05 dsuffield
+    * Release 0.9.8.7
+
+2005-12-05 dsuffield
+    * Added jetdirect fax send service to hpiod.
+
+2005-12-05 dwelch
+    * Fixed LJ send fax issue with D/L state 5
+    * Fixed reportlab detection issue on Fedora
+    * Fixed cancel rendering issue
+    
+2005-12-05 dsuffield
+    * Release 0.9.8.6
+
+2005-12-05 dwelch
+    * Fixed defect 748 (An error occurs in terminal while Fax send completed.)
+    * Fixed defect 747 (The "Fax Settings" window can not be launched while clicking "Settings" button in "Send Fax" window.)
+    * Modified behavior of fax send cancel button to be more user friendly (doesn't close immediately)
+    * Added a clean-up display state for the send fax progress dialog
+    * Added the device URI to the bottom of the Device Manager 
+    * Fixed a problem with multiple threads using a single socket in fax send
+    * Removed "options" tab in send fax dialog
+    * Added send fax thread join to send fax dialog close
+    * Added send fax active check to send fax button
+    * Moved the "items" tab to come before "recipients" tab in send fax dialog
+    * Fixed a spelling error in the send fax dialog
+    * Removed the "..." after "Add to list" for adding files (they add without an intervening dialog)
+    * Changed hp-setup so that is only shows "hp:/" devices and not "hpfax:/" devices
+    * Increased the column size for the CUP printer names during terminal device selection
+    * KNOWN ISSUE: FAX SEND FROM NETWORKED DEVICE IS NON-FUNCTIONAL
+
+2005-12-02 dsuffield
+    * Release 0.9.8.5
+
+2005-12-02 dsuffield
+    * Added a hpiod fix for PS 2570 series that fixes the scanning blue-screen error with USB High Speed.
+
+2005-12-02 dwelch
+    * Added check to hp-setup so that only root can run it
+    * Fixed some hp-setup misc bugs
+    * Added a "None of the above" to the PPD file choice in hp-setup
+    * Added a PPD file check for fax (ensure that HPLIP Fax PPD used with hpfax: queues)
+    
+2005-12-02 dsuffield
+    * Release 0.9.8.4
+    
+2005-12-02 dwelch   
+    * Added code to force idle d/l state at the beginning of a fax
+    * Changed the fax cleanup behavior: .g3 files are removed at the end of the job if not in debug mode
+    * Added Rx/Tx/DL symbolic names for debug logging
+    * Added a check to make sure the device isn't already busy with a fax job
+    * Added a device busy error message
+
+2005-12-01 dwelch
+    * Added initial version of 'hp-setup'
+    
+2005-11-29 dsuffield
+    * Release 0.9.8.3
+
+2005-11-29 dsuffield
+    * Release 0.9.8.2
+	
+2005-11-29 dsuffield
+    * Added list.h to makefile.
+    * Fixed _GNU_SOURCE define in hpaio.h. (RH patch)
+
+2005-11-28 dsuffield
+    * Release 0.9.8.1
+	
+2005-11-28 dsuffield
+    * Added more checks for bogus messages in hpiod.
+    * Fixed GetDeviceStatus overwrite in hpiod. (RH patch)
+
+2005-11-23 dsuffield
+    * Release 0.9.8.0
+
+2005-11-23 dwelch
+    * Merged new hpssd architecture branch
+    * Merged fax branch
+    * Added HPLIP_DEBUG environmental variable (works with all GUIs/TUIs and hpssd)
+    
 2005-11-22 dsuffield
     * Release 0.9.7.11 (public release 0.9.7)
 
 2005-11-22 dsuffield
     * Removed 0.9.6 auto duplex margin adjustment. Auto duplex uses 1/2 inch top/bottom margin. 
-	
+
 2005-11-21 dsuffield
     * Release 0.9.7.10
 
@@ -348,7 +661,6 @@
     * Removed hardcoded "/var/run" paths from C code. Removed root groupid check from hpiod. Added "/var/run" path to hplip.conf.
       This allows HPLIP to be run from different userid and groupid other than root (debian/ubuntu request).
 
->>>>>>> 1.403
 2005-09-21 rcauligi
     * Added a new printer family, DJ55xx to take care of margin issues for DJ55xx printers
     * Fixed a bug in sending custom paper size to JetReady and FastRaster printers
@@ -486,6 +798,144 @@
     * Put a hack in place to use '*' as the printer (default) if no cups printers are returned 
       from cups for a newly installed printer
     
+2005-09-21 rcauligi
+    * Added a new printer family, DJ55xx to take care of margin issues for DJ55xx printers
+    * Fixed a bug in sending custom paper size to JetReady and FastRaster printers
+    * Fixed a bug in LJFastRaster when last band was less than 128 hight, it was incorrectly positioned
+    * Fixed margin adjustment code to allow fullbleed or .125 inch margins for those printers that support it in autoduplex mode
+
+2005-09-20 dsuffield
+    * Remove "su -root" from hplip.sh.
+    * Fixed bigendian macros in libsane-hpaio.
+    * Incorporated most non-showstopper patches from Henrique Holschuh at debian.
+
+2005-09-16 dsuffield
+    * Fixed pml scanning problem in libsane-hpaio.
+
+2005-09-16 dsuffield
+    * Release 0.9.6.0
+
+2005-09-16 dsuffield
+    * Added shadow directory support.
+
+2005-09-15 dwelch
+    * hpssd now reads all *.xml in the src/data/xml directory, followed by *.xml in the /unreleased directory
+
+2005-09-14 dwelch (merged dwelch-k550-branch)
+    * K550/K850 maintenance routines (linefeed calibrate and pq diag)
+    * DJ460 maintenance routines and battery level/power settings
+    * New Device Manager UI for supplies and maintenance tools
+    * Rearranged content  and removed 2 tabs in Device Manager
+    * Changes to how models.xml and extra files are handled
+    * <icon> field in models XML now used by Device Manager
+    * New browser launching mechanism
+    * Support resources dialog
+    * CUPS web interface access
+
+2005-09-14 dsuffield
+    * Release 0.9.5.9 (public release 0.9.5)
+
+2005-09-14 dsuffield
+    * Made a change to hpijs. If deviceid does not support vstatus or "s:" field force uni-di mode (ie: OJ600).
+    
+2005-09-09 dsuffield
+    * Release 0.9.5.8
+
+2005-09-09 dsuffield
+    * Fixed gcc4 warnings.
+
+2005-09-09 dsuffield
+    * Added PS8700 ppd file patch to hpijs makefile. The patch changes the default inputslot to upper.
+    
+2005-09-08 dsuffield
+    * Added makeuri pp support to hpiod.
+    
+2005-09-08 jpitter
+    * added HP-PhotoSmart_3100, HP-PhotoSmart_3200, HP-PhotoSmart_3300, HP-PhotoSmart_7800, HP-PhotoSmart_8000, 
+      HP-DeskJet_5440, HP-DeskJet_5940, HP-Color_LaserJet_4700 to foomatic-db-hpijs/data-generators/hpijs/hpijs-printermap.
+    * added HP-PhotoSmart_3100.xml, HP-PhotoSmart_3200.xml, HP-PhotoSmart_3300.xml, HP-PhotoSmart_7800.xml, HP-PhotoSmart_8000.xml,
+      HP-DeskJet_5440.xml, HP-DeskJet_5940.xml, HP-Color_LaserJet_4700.xml to foomatic-db/db/source/printer both tip and stable.
+    * added HP-Color_LaserJet_4700 to foomatic-db/db/source/driver/Postscript.xml both tip and stable.
+
+2005-09-08 dsuffield
+    * Added unsolicited data packet support to hpiod.
+    * Added pml done timeout count to libsane-hpaio.
+    * Changed mfpdtf read timeout in libsane-hpaio.
+    
+2005-09-08 dwelch
+    * Changed makeuri to handle parallel devnodes. Passes bus param to hpiod
+
+2005-09-06 dwelch
+    * Fixed defect 686 (An error occurs when we set the Bar graph size as zero and execute the "hp-levels" command.)
+    * Fixed issue with color calibration on the PSC 2610. May fix other align/colorcal/etc. on other printers as well.
+
+2005-09-02 dsuffield
+    * Release 0.9.5.7
+
+2005-09-02 dsuffield
+    * Fixed gcc uninitialized varable warning in udevice.cpp.
+    * Removed jdprobe code from hp.c backend.
+    * Added timeout check in hpiod.
+    * Added more pml error checking in hpiod.
+    * Fixed a miser mode MLC credit problem in hpiod.
+    * Fixed a MLC firmware problem that occured with OJ600 in hpiod.
+    * Fixed a MLC credit problem with short timeouts.
+    * Rewrote most of the pml scanning code in libsane-hpaio.
+
+2005-08-31 syie
+    * Added unidi parallel products in models.xml
+
+2005-08-29 dsuffield
+    * Fixed "condrestart" typo in hplip startup script (as per Red Hat request). 
+
+2005-08-26 syie
+    * Release 0.9.5.6
+
+2005-08-25 dwelch
+    * Fixed defect 679 (Hp-Toolbox/Information/Open in Browser...)
+
+2005-08-23 dwelch
+    * Fixed defect 668 (The command "hp-fab" leads to error.)
+    * Resolved defect 666 (Suse 9.3 / 0.9.5.2 / Toolbox not loading issue)
+    * Fixed defect 670 (Command "hp-testpage" leads to error and test-page can not be printed out.)
+    * Resolved defect 662 (The test page could not be printed and an error occurs in the terminal while performing "Print Test Page" operation with toolbox.)
+    * Added feature 466 (Add Type 10 alignment to toolbox)
+    * Added feature 467 (Add Type 10 alignment to model_editor)
+    * Fixed defect 588 ("The operation completed successfully" dialog pops up quickly before the actual alignment job completes.)
+    * Fixed defect 604 (An error occurs while running hp-testpage command to print to testpage after disconnect the usb cable.)
+    * Resolved defect 629 (The Clean Cartridges does not respond and a error occurs when clicking "Clean Cartridges" button in toolbox)
+    * Fixed defect 630 (The HP Printer test page is truncated.)
+    * Resolved defect 638 (The "Unload File from Photo Card"dialog hangs up after clicking the Access Photo Cards button.)
+    * Resolved defect 644 as INVALID (The Group name can not be edited while editing the specified group.)
+    * Resolved defect 646 as INVALID (The "New Group" button is greyed-out while adding a new fax address.)
+    * Resolved defect 540 ("Invalid color calibration type" error occurs when executing command "colorcal" in terminal.)
+    
+2005-08-22 jpitter
+    * Added Photo5x7 as a max size to foomatic-db-hpijs:hpijs-generators.in
+    * Added entries into foomatic-db-hpijs:hpijs-printermap for HP OfficeJet 5600, HP PSC 1400, HP PhotoSmart 2570, HP PhotoSmart 420, and HP PhotoSmart 470
+    * Added HP-OfficeJet_5600.xml HP-PSC_1400.xml HP-PhotoSmart_2570.xml HP-PhotoSmart_420.xml HP-PhotoSmart_470.xml to foomatic-db:printer both tip and stable.
+
+2005-08-22 dwelch
+    * Fixed problem with status on the CLJ3500 crashing hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.5
+    
+2005-08-19 dsuffield
+    * Fixed fax constants in hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.4
+
+2005-08-18 dwelch
+    * Fixed case where toolbox crashed if models.xml entry was missing
+    * Fixed problem with new fax constants appearing in hpssd
+    * Added type 10 alignment to hp-align
+    * Fixed hp-colorcal incorrect parameter passing to maint routines (reported on forum)
+    * Put a hack in place to use '*' as the printer (default) if no cups printers are returned 
+      from cups for a newly installed printer
+    
+>>>>>>> 1.368.2.2
 2005-08-16 dsuffield
     * Release 0.9.5.3
     

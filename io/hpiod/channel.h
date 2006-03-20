@@ -51,6 +51,8 @@ protected:
    int rindex;
    int rcnt;
    int CutBuf(char *sendBuf, int length);
+   int Write(int fd, void *buf, int size);
+   int Read(int fd, void *buf, int size, int sec, int usec);
 
 public:
    Channel(Device *pDev);
@@ -204,6 +206,24 @@ public:
    int Open(char *sendBuf, int *result);
    int Close(char *sendBuf, int *result);
 }; 
+
+//CompChannel
+//! Class that encapsulates composite USB channel services.
+/*!
+******************************************************************************/
+class CompChannel : public Channel
+{
+   int ChannelFD;
+
+public:
+   CompChannel(Device *pDev);
+
+   int Open(char *sendBuf, int *result);
+   int Close(char *sendBuf, int *result);
+   int WriteData(unsigned char *data, int length, char *sendBuf, int *result);
+   int ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result);   
+
+}; //CompChannel
 
 #endif // _CHANNEL_H
 

@@ -1,12 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.4 $
-# $Date: 2005/07/25 16:28:05 $
-# $Author: dwelch $
-#
-#
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,53 +34,53 @@ class PowerSettingsDialog(PowerSettingsDialog_base):
 
         log.debug("Initializing plugin dialog with power setting: %s" % value)
 
-        self.power_setting_table = { 0 : ( self.__tr("15 minutes"), '015' ),
-                                     1 : ( self.__tr("30 minutes"), '030' ),
-                                     2 : ( self.__tr("45 minutes"), '045' ),
-                                     3 : ( self.__tr("1 hour"), '060' ),
-                                     4 : ( self.__tr("2 hours"), '120' ),
-                                     5 : ( self.__tr("3 hours"), '180' ),
+        self.power_setting_table = {0 : (self.__tr("15 minutes"), '015'),
+                                     1 : (self.__tr("30 minutes"), '030'),
+                                     2 : (self.__tr("45 minutes"), '045'),
+                                     3 : (self.__tr("1 hour"), '060'),
+                                     4 : (self.__tr("2 hours"), '120'),
+                                     5 : (self.__tr("3 hours"), '180'),
                                     }
 
         for x in self.power_setting_table:
-            self.power_setting_combo.insertItem( self.power_setting_table[x][0], x )
+            self.power_setting_combo.insertItem(self.power_setting_table[x][0], x)
 
         if value == '999':
-            self.power_setting.setButton( 0 )
+            self.power_setting.setButton(0)
             #self.setting = 0
         else:
-            self.power_setting.setButton( 1 )
+            self.power_setting.setButton(1)
             self.setting = 1
 
             for x in self.power_setting_table:
                 if self.power_setting_table[x][1] == value:
-                    self.power_setting_combo.setCurrentItem( x )
+                    self.power_setting_combo.setCurrentItem(x)
 
 
     def power_setting_clicked(self,a0):
         self.setting = a0
-        log.debug("Setting (0=Always on/1=Timed off): %s" % a0 )
+        log.debug("Setting (0=Always on/1=Timed off): %s" % a0)
 
-    def getValue( self ):
-        return self.power_setting_table[ self.power_setting_combo.currentItem() ][1]
+    def getValue(self):
+        return self.power_setting_table[self.power_setting_combo.currentItem()][1]
 
     def __tr(self,s,c = None):
         return qApp.translate("PowerSettingsDialog",s,c)
 
 
-def settingsUI( d, parent=None ):
+def settingsUI(d, parent=None):
 
-    value = powersettings.getPowerSettings( d )
-    log.debug( "Battery power settings: %s" % value )
+    value = powersettings.getPowerSettings(d)
+    log.debug("Battery power settings: %s" % value)
 
-    dlg = PowerSettingsDialog( value, parent )
+    dlg = PowerSettingsDialog(value, parent)
 
     if dlg.exec_loop() == QDialog.Accepted:
         value = dlg.getValue()
         log.debug("Power setting set to %s in dialog" % value)
 
         if dlg.setting == 0:
-            powersettings.setPowerSettings( d, '999' )
+            powersettings.setPowerSettings(d, '999')
         else:
-            powersettings.setPowerSettings( d, value )
+            powersettings.setPowerSettings(d, value)
 

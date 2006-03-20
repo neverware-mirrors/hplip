@@ -6,9 +6,9 @@
 
 @DPATCH@
 diff -urNad hplip~/io/hpiod/ppdevice.cpp hplip/io/hpiod/ppdevice.cpp
---- hplip~/io/hpiod/ppdevice.cpp	2005-10-13 07:32:25.000000000 -0300
-+++ hplip/io/hpiod/ppdevice.cpp	2005-10-24 12:01:32.123870064 -0200
-@@ -825,7 +825,8 @@
+--- hplip~/io/hpiod/ppdevice.cpp	2006-03-09 16:27:14.000000000 -0300
++++ hplip/io/hpiod/ppdevice.cpp	2006-03-16 10:31:54.941198884 -0300
+@@ -834,7 +834,8 @@
        if ((OpenFD = open(dev, O_RDWR | O_NOCTTY)) < 0)            
        {
           *result = R_IO_ERROR;

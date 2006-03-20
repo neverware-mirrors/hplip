@@ -1,4 +1,4 @@
-$Id: README.Source,v 1.5 2005/05/09 14:08:34 hmh Exp $
+$Id: README.Source,v 1.6 2006/03/18 19:09:22 hmh Exp $
 
 Due to autotools (actually, to avoid running them needlessly),
 almost all patches to the build infrastructure are NOT in dpatch 
@@ -8,6 +8,5 @@ The file debian/hpijs.version must contain the version number of
 HPIJS.  It is automatically generated from prnt/hpijs/configure.in
 through autoconf --trace, by the debian/autogen.sh script.
 
-The file debian/non-shipped-files.txt is used to filter the output
-of dh_install, so that the build will be aborted if any new files show
-up upstream.  It has to be maintained manually.
+The file debian/non-shipped-files.txt is used to remove clutter
+from the installed tree.  It is maintainend manually.

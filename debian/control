@@ -3,33 +3,37 @@ Section: utils
 Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp9-dev | libsnmp5-dev, libjpeg62-dev, python, python-dev, python-qt3, pyqt-tools, debhelper (>> 4), autotools-dev, dpatch (>= 2)
+Build-Depends: libcupsys2-dev, libsnmp9-dev | libsnmp5-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python, python-dev, python-qt3, pyqt-tools, debhelper (>> 5), autotools-dev, dpatch (>= 2)
 Standards-Version: 3.6.2
 
 Package: hplip
 Architecture: any
-Conflicts: hpijs (<< 2.1), foomatic-db-hpijs (<< 1.5-20050114-1), foomatic-filters-ppds (<< 20050114-1), hplip-base
-Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${Upstream-Version}), hplip-data (<< ${Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
-Recommends: cupsys-client (>= 1.1.20), hplip-ppds, hpijs
+Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Recommends: cupsys-client (>= 1.1.20), hpijs (>= 2.1.9), python-reportlab
 Replaces: hplip-data (<< 0.9.3), hplip-base
-Suggests: kdeprint | gtklp | xpp
+Suggests: kdeprint | gtklp | xpp, linuxprinting.org-ppds, hpijs-ppds
+Conflicts: hpijs (<< 2.1), hplip-base
 Description: HP Linux Printing and Imaging System (HPLIP)
  The HP Linux Printing and Imaging System provides full support for
- printing on most HP SFP (single function peripheral) InkJets and
- many LaserJets, and for scanning and photo-card access on most HP
- MFP (multi-function peripheral) printers.
+ printing on most HP SFP (single function peripheral) inkjets and many
+ LaserJets, and for scanning, sending faxes and for photo-card access on
+ most HP MFP (multi-function peripheral) printers.
  .
  HPLIP is composed of:
-  * HP CUPS backend driver (hp:/) with bi-directional communication with
+  * System services to handle communications with the printers
+  * HP CUPS backend driver (hp:) with bi-directional communication with
     HP printers (provides printer status feedback to CUPS and enhanced
-    HPIJS functionality such as 4-side fullbleed printing support)
+    HPIJS functionality such as 4-side full-bleed printing support)
+  * HP CUPS backend driver for sending faxes (hpfax:)
   * HPIJS Ghostscript IJS driver to rasterize output from PostScript(tm)
-    files or from any other input format supported by Ghostscript
-    (shipped in package hpijs)
+    files or from any other input format supported by Ghostscript, and
+    also for PostScript(tm) to fax conversion support
+    (HPIJS is shipped in a separate package)
   * Command line utilities to perform printer maintenance, such as 
     ink-level monitoring or pen cleaning and calibration
-  * Command line utility to download data from the photo card interfaces
-    in MFP devices
+  * GUI and command line utility to download data from the photo card
+    interfaces in MFP devices
+  * GUI and command line utilities to interface with the fax functions
   * A GUI toolbox to access all these functions in a friendly way
   * HPAIO SANE backend (hpaio) for flatbed and Automatic Document Feeder 
     (ADF) scanning using MFP devices
@@ -40,38 +44,45 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 
 Package: hplip-data
 Architecture: all
-Recommends: hplip (>> ${Upstream-Version}), hplip (<< ${Upstream-Version}.1)
+Recommends: hplip (>> ${hplip:Upstream-Version}), hplip (<< ${hplip:Upstream-Version}.1)
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
 
-Package: hplip-ppds
+Package: hpijs-ppds
 Architecture: all
 Suggests: hpijs, hplip
-Description: HP Linux Printing and Imaging - PPD files
- This package contains PPD (printer definition) files for the 
- printers supported by the HP Linux Printing and Imaging System.
+Provides: hplip-ppds
+Replaces: hplip-ppds
+Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
+Description: HP Linux Printing and Imaging - HPIJS PPD files
+ This package contains PPD (printer definition) files for the
+ printers supported through the HP Linux Printing and Imaging
+ System HPIJS driver.
  .
- These PPDs should work well with this version of HPLIP and HPIJS,
- but may not be the most up-to-date PPDs available for a given
- printer.  See the foomatic-filters-ppds and foomatic-db-hpijs
- packages, or http://linuxprinting.org/ for the latest version
- of the PPDs.
+ These PPDs should work well with the matching versions of HPLIP
+ and HPIJS, but may not be the most up-to-date PPDs available for
+ a given printer.  See http://linuxprinting.org/ for the latest
+ version of the PPDs (which are not guaranteed to work well).
 
 Package: hpijs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2)
-Suggests: hplip | hpoj, hplip-ppds | foomatic-filters-ppds, foomatic-filters
-Conflicts: hplip-ppds (<< ${Upstream-Version}), hplip-ppds (>= ${Upstream-Version}.1)
+Suggests: hplip | hpoj, foomatic-filters, hpijs-ppds
+Conflicts: hplip-ppds (<< ${Source-Version}), hpijs-ppds (<< ${hpijs:Upstream-Version}), hpijs-ppds (>= ${hpijs:Upstream-Version}.1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
- This package contains the hpijs binary which provides Ghostscript
- with an IJS driver for most inkjet printers and some LaserJet printers
- manufactured by HP.
+ This package contains an IJS printer driver for Ghostscript, which
+ adds support for most inkjet printers and some LaserJet printers
+ manufactured by HP.  It is also required for HPLIP fax support.
  .
- It includes the so-called rss patch, to use pure black ink instead
- of composite black in printers that don't do color map conversion
- in firmware.  It can take advantage of Ghostscript IJS KRGB support
- to do the same on printers that do color map conversion in firmware.
+ The Debian package of hpijs includes the so-called rss patch, to use
+ pure black ink instead of composite black in printers that don't do
+ color map conversion in firmware.
+ .
+ HPIJS can take advantage of Ghostscript IJS KRGB support when
+ available, to enhance black printing on printers that do color
+ map conversion in firmware and are thus not affected by the old
+ rss patch.
  .
  Users of the CUPS printing system are advised to also install the
  hplip package, and use the hp CUPS backend to send data to the printer.
@@ -79,10 +90,9 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  extended HPIJS functionality such as border-less printing.
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
- Users of spoolers other than CUPS connected through USB or parallel
- ports are advised to install the hpoj package.  Extended HPIJS 
- functionality will not be available, however, as hpoj does not support
- bi-dir mode.
+ Users of spoolers other than CUPS with printers connected through USB or
+ parallel ports are advised to install the hpoj package.  Extended HPIJS
+ functionality will not be available.
  .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).

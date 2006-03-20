@@ -620,20 +620,19 @@ int hplip_GetID(int hd, char *buf, int bufSize)
       goto mordor;
    }  
 
-   buf[len] = 0;
-
    hplip_ParseMsg(buf, len, &ma);
    if (ma.result == R_AOK)
    {
       len = ma.length;
       memcpy(buf, ma.data, len);
+      buf[len] = 0;       /* zero terminate */
    }
    else
       len = 0;   /* error */
 
 mordor:
 
-   return len;
+   return len;         /* length does not include zero termination */
 }  
  
 int hplip_GetStatus(int hd, char *buf, int size)

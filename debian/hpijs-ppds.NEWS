@@ -1,0 +1,35 @@
+hpijs-ppds (2.1.9+0.9.9-1) unstable; urgency=low
+
+The hplip-ppds package was renamed to hpijs-ppds.  Now, it contains only PPDs
+that require hpijs to function, so /usr/share/doc/ppd/hplip-postscript was
+removed.
+
+The PPDs for native PostScript printing that were formely shipped at
+/usr/share/doc/ppd/hplip-postscript are now shipped in the
+linuxprinting.org-ppds package, which is not generated from HPLIP sources.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 16 Mar 2006 15:21:13 -0300
+
+hplip-ppds (0.9.8-1) unstable; urgency=low
+
+The Manufacturer field of the PPDs has been changed back from "HP (HPLIP)"
+to just "HP", and " - HPLIP (version)" is now appended to the PPD NickName
+field.
+
+This means that now all HP printers are grouped together under the HP
+manufacturer in the PPD list of the GUIs (and of CUPS) but that you can still
+find the HPLIP ones for your printer as they will have HPLIP after the normal
+PPD description.
+
+Also, all PPDs are now installed as per
+http://wiki.debian.org/PpdFileStructureSpecification, and the PPD file names
+have been normalized. Now, the use of upper- and lower-case is consistent, as
+well as the use of "-" and "_".  The specification is not fully implemented yet
+by hplip-ppds, as we still ship CUPS symlinks and will remain doing so until
+CUPS starts shipping a symlink to /usr/share/ppd by itself.
+
+HPIJS PPDs are at /usr/share/doc/ppd/hpijs.
+
+PPDs for PostScript printers are at /usr/share/doc/ppd/hplip-postscript.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 18 Jan 2006 10:07:11 -0200

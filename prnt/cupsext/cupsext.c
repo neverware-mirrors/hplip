@@ -905,8 +905,9 @@ PyObject *  openPPD( PyObject * self, PyObject * args )
 
     ppdMarkDefaults( ppd_file );
 
-    return Py_BuildValue( "" ); // None
+    return Py_BuildValue( "s", ppd ); 
 }
+
 
 PyObject *  closePPD( PyObject * self, PyObject * args )
 {
@@ -919,6 +920,24 @@ PyObject *  closePPD( PyObject * self, PyObject * args )
 
     return Py_BuildValue( "" ); // None
 }
+
+
+PyObject *  getPPD( PyObject * self, PyObject * args )
+{
+    char * printer;
+
+    if ( !PyArg_ParseTuple( args, "z", &printer ) )
+    {
+        return Py_BuildValue( "" ); // None
+    }
+
+    const char * ppd;
+    ppd = cupsGetPPD( (const char *)printer );
+
+    return Py_BuildValue( "s", ppd ); 
+
+}
+
 
 PyObject *  getPPDOption( PyObject * self, PyObject * args )
 {
@@ -982,12 +1001,64 @@ PyObject *  getPPDPageSize( PyObject * self, PyObject * args )
     }
 }
 
-
-
 PyObject *  getServer( PyObject * self, PyObject * args )
 {
     return Py_BuildValue( "s", cupsServer() );
 }
+
+int g_num_options = 0;
+cups_option_t * g_options;
+
+/*PyObject * newOptions(PyObject * self, PyObject * args )
+{
+    g_num_options = 0;
+    g_options = (cups_option_t *)0;
+    return Py_BuildValue( "" );
+}*/
+
+PyObject * resetOptions(PyObject * self, PyObject * args )
+{
+    if (g_num_options > 0)
+        cupsFreeOptions(g_num_options, g_options);
+        g_num_options = 0;
+        g_options = (cups_option_t *)0;
+    
+    return Py_BuildValue( "" );
+   
+}
+
+PyObject * addOption(PyObject * self, PyObject * args )
+{
+    char * option;
+    
+    if ( !PyArg_ParseTuple( args, "z", &option ) )
+        {
+            return Py_BuildValue( "i", 0 );
+        }    
+        
+    g_num_options = cupsParseOptions(option, g_num_options, &g_options);
+        
+    return  Py_BuildValue( "i", g_num_options ); // >0
+}
+
+PyObject * printFileWithOptions(PyObject * self, PyObject * args )
+{
+    char * printer;
+    char * filename;
+    char * title;
+    int job_id = -1;
+    
+    if ( !PyArg_ParseTuple( args, "zzz", &printer, &filename, &title ) )
+        {
+            return Py_BuildValue( "" ); // None
+        }    
+    
+    job_id = cupsPrintFile( printer, filename, title, g_num_options, g_options);
+        
+    return  Py_BuildValue( "i", job_id);
+}
+
+
 
 
 static PyMethodDef cupsext_methods[] =
@@ -996,6 +1067,7 @@ static PyMethodDef cupsext_methods[] =
     { "addPrinter",  (PyCFunction)addPrinter,  METH_VARARGS },
     { "delPrinter",  (PyCFunction)delPrinter,  METH_VARARGS },
     { "getDefault",  (PyCFunction)getDefault,  METH_VARARGS },
+    { "getPPD",     (PyCFunction)getPPD,     METH_VARARGS },
     { "openPPD",     (PyCFunction)openPPD,     METH_VARARGS },
     { "closePPD",    (PyCFunction)closePPD,    METH_VARARGS },
     { "getPPDOption",(PyCFunction)getPPDOption,METH_VARARGS },
@@ -1004,6 +1076,10 @@ static PyMethodDef cupsext_methods[] =
     { "cancelJob",   (PyCFunction)cancelJob,   METH_VARARGS },
     { "getJobs",     (PyCFunction)getJobs,     METH_VARARGS },
     { "getServer",   (PyCFunction)getServer,   METH_VARARGS },
+    //{ "newOptions",   (PyCFunction)newOptions,   METH_VARARGS },
+    { "addOption",   (PyCFunction)addOption,   METH_VARARGS },
+    { "resetOptions",   (PyCFunction)resetOptions,   METH_VARARGS },
+    { "printFileWithOptions",   (PyCFunction)printFileWithOptions,   METH_VARARGS },
     { "Job",         (PyCFunction)newJob,      METH_VARARGS | METH_KEYWORDS },
     { "Printer",     (PyCFunction)newPrinter,  METH_VARARGS | METH_KEYWORDS },
     { NULL, NULL }

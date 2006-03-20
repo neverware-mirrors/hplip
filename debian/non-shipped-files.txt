@@ -1,16 +1,4 @@
-usr/bin/hp-align
-usr/bin/hp-info
-usr/bin/hp-print
-usr/bin/hp-toolbox
-usr/bin/hp-clean
-usr/bin/hp-colorcal
-usr/bin/hp-photo
-usr/bin/hp-unload
-usr/bin/hp-probe
-usr/bin/hp-rpu
-usr/bin/hp-testpage
-usr/bin/hp-makeuri
-usr/bin/hp-check
+usr/lib/hplip/check
 usr/share/doc/hpijs/README_LIBJPG
 usr/share/doc/hpijs/hpijs_readme.html
 usr/share/doc/hpijs/gs_hpijs.png

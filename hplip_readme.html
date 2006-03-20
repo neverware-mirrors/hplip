@@ -79,7 +79,7 @@ scanning is supported via xsane/sane applications.
 A photo-card application allows the user to download and delete pictures from
 printers that support photo-cards.
 <p>
-Faxing will not be in the first release. Only PC fax send will be supported, no
+PC fax send is supported, no
 PC fax receive. PC fax send will look like a CUPS printer spool queue.
 <p>
 A distribution can mix and match the HPLIP package in order to support a bi-di or uni-di solution.
@@ -114,6 +114,14 @@ Generally HPOJ and HPLIP cannot co-exist on the same PC.
 The parport kernel module will conflict with HPOJ.
 Use "ptal-init setup" to remove HPOJ devices.
 <p>
+With HPLIP 0.9.9 all USB I/O takes place with libusb. Libusb allows USB drivers to be written in user mode instead of kernel mode. 
+Kernel modules "printer" and "usblp" are no longer required. Libusb allows unique low level control that was not available in the kernel modules.
+Without libusb full I/O support is not available for many HP devices.
+<p>
+In order to support device exceptions (ie: paperout), libusb extensions have been added in order to support I/O retries. 
+Without the extensions recovering from a timeout condition in not possible without losing bytes.
+Although libusb is platform independent, the current extensions are Linux specific.
+<p>
 <hr>
 <H2><a name="License"></a>2 License</H2>
 In general all applications are covered by the GNU General Public License (GPL)
@@ -125,10 +133,14 @@ tar ball for more details.
 <H2><a name="System"></a>3 System Requirements</H2>
 Linux kernel 2.4.19 and above.
 Linux is the target distribution. Other Unix platforms may work if they have
-similar kernel drivers, but have not been tested.
+similar kernel drivers and libusb support, but they have not been tested.
 <p>
 GNU software tools are required to build from source code. This includes the
 ANSI C compiler, ANSI C++ compiler and POSIX compliant environment.
+<p>
+libusb 0.1.8 or higher.
+<p>
+ppdev/parport kernel modules for parallel port support.
 <p>
 GNU Ghostscript 7.05 or higher.
 <p>
@@ -140,6 +152,8 @@ PyQt 3.11 or higher for Qt wrapper for Python.
 <p>
 Python 2.2 or higher and python-devel.
 <p>
+Reportlab (for fax cover page support)
+<p>
 CUPS 1.15 or higher and cups-devel.
 <p>
 libjpeg 6b or higher and libjpeg-devel.
@@ -149,7 +163,7 @@ net-snmp 5.0.9 or higher and net-snmp-devel for network support.
 HPLIP has been tested on most major Linux distributions, but only 32-bit and
 little-endian systems have been tested.
 <p>
-chkconfig or install_initd for HPLIP startup/shutdown script.
+chkconfig (Red Hat) or install_initd (LSB) for HPLIP startup/shutdown script.
 <hr>
 <H2><a name="Device"></a>4 Product Support</H2>
 <p>
@@ -166,593 +180,629 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP 2000c</td>
+<td height=17 style='height:12.75pt'>2000C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP 2500c</td>
+<td height=17 style='height:12.75pt'>2500C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 1000</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 1100</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 1200</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2200</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2230</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2250</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2280</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2300</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2600</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td height=17 style='height:12.75pt'>Apollo_2100</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 2800</td>
+<td height=17 style='height:12.75pt'>Apollo_2150</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_2200</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_2500</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_2600</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_2650</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_P2000-U</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Apollo_P2250</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>BUSINESS_INKJET_2200</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>BUSINESS_INKJET_2230</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>BUSINESS_INKJET_2250</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>BUSINESS_INKJET_2280</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Business_Inkjet_1000</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Business_Inkjet_1200</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Business_Inkjet_2800</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Business Inkjet 3000</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color Inkjet Printer cp1700</td>
+<td height=17 style='height:12.75pt'>COLOR_INKJET_PRINTER_CP1700</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color Inkjet cp1700</td>
+<td height=17 style='height:12.75pt'>Color_Inkjet_CP1700</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 1100</td>
+<td height=17 style='height:12.75pt'>DESKJET_1100</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 1120</td>
+<td height=17 style='height:12.75pt'>DESKJET_1120</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 1125</td>
+<td height=17 style='height:12.75pt'>DESKJET_1125</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 1220c</td>
+<td height=17 style='height:12.75pt'>DESKJET_1220C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 1280</td>
+<td height=17 style='height:12.75pt'>DESKJET_3810</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3320</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3325</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3420</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3425</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3450</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3500</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3600</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ3600</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3740</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3810</td>
+<td height=17 style='height:12.75pt'>DESKJET_3816</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3816</td>
+<td height=17 style='height:12.75pt'>DESKJET_3819</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3819</td>
+<td height=17 style='height:12.75pt'>DESKJET_3820</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3820</td>
+<td height=17 style='height:12.75pt'>DESKJET_3822</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3822</td>
+<td height=17 style='height:12.75pt'>DESKJET_3870</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3840</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3870</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3900</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3920</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 3940</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 400</td>
+<td height=17 style='height:12.75pt'>DESKJET_400</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ350</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 400l</td>
+<td height=17 style='height:12.75pt'>DESKJET_400L</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ350</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 460</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 500</td>
+<td height=17 style='height:12.75pt'>DESKJET_500</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 500c</td>
+<td height=17 style='height:12.75pt'>DESKJET_500C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 505j</td>
+<td height=17 style='height:12.75pt'>DESKJET_505J</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 510</td>
+<td height=17 style='height:12.75pt'>DESKJET_510</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5100</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 520</td>
+<td height=17 style='height:12.75pt'>DESKJET_520</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 540</td>
+<td height=17 style='height:12.75pt'>DESKJET_540</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5400 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5550</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5551</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5552</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5600</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5650</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5652</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5700</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5800</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 5900 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 600</td>
+<td height=17 style='height:12.75pt'>DESKJET_600</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 610c</td>
+<td height=17 style='height:12.75pt'>DESKJET_610C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 610cl</td>
+<td height=17 style='height:12.75pt'>DESKJET_610CL</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6120</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6122</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6127</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 612c</td>
+<td height=17 style='height:12.75pt'>DESKJET_612C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 630c</td>
+<td height=17 style='height:12.75pt'>DESKJET_630C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 632c</td>
+<td height=17 style='height:12.75pt'>DESKJET_632C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 640c</td>
+<td height=17 style='height:12.75pt'>DESKJET_640C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 648c</td>
+<td height=17 style='height:12.75pt'>DESKJET_648C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6500</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 656c</td>
+<td height=17 style='height:12.75pt'>DESKJET_656C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 660</td>
+<td height=17 style='height:12.75pt'>DESKJET_660</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6600</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 670tv</td>
+<td height=17 style='height:12.75pt'>DESKJET_670TV</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 672c</td>
+<td height=17 style='height:12.75pt'>DESKJET_672C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 680</td>
+<td height=17 style='height:12.75pt'>DESKJET_680</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 6800</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 682</td>
+<td height=17 style='height:12.75pt'>DESKJET_682</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 690</td>
+<td height=17 style='height:12.75pt'>DESKJET_690</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 692</td>
+<td height=17 style='height:12.75pt'>DESKJET_692</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 693</td>
+<td height=17 style='height:12.75pt'>DESKJET_693</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 694</td>
+<td height=17 style='height:12.75pt'>DESKJET_694</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 695</td>
+<td height=17 style='height:12.75pt'>DESKJET_695</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 697</td>
+<td height=17 style='height:12.75pt'>DESKJET_697</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 810c</td>
+<td height=17 style='height:12.75pt'>DESKJET_810C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 812c</td>
+<td height=17 style='height:12.75pt'>DESKJET_812C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 815c</td>
+<td height=17 style='height:12.75pt'>DESKJET_815C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 816c</td>
+<td height=17 style='height:12.75pt'>DESKJET_816C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 825c</td>
+<td height=17 style='height:12.75pt'>DESKJET_825C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ8x5</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 830c</td>
+<td height=17 style='height:12.75pt'>DESKJET_830C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 832c</td>
+<td height=17 style='height:12.75pt'>DESKJET_832C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 840c</td>
+<td height=17 style='height:12.75pt'>DESKJET_840C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 841c</td>
+<td height=17 style='height:12.75pt'>DESKJET_841C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 842c</td>
+<td height=17 style='height:12.75pt'>DESKJET_842C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 843c</td>
+<td height=17 style='height:12.75pt'>DESKJET_843C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 845c</td>
+<td height=17 style='height:12.75pt'>DESKJET_845C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ8x5</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 850c</td>
+<td height=17 style='height:12.75pt'>DESKJET_850C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 855c</td>
+<td height=17 style='height:12.75pt'>DESKJET_855C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 870c</td>
+<td height=17 style='height:12.75pt'>DESKJET_870C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 880c</td>
+<td height=17 style='height:12.75pt'>DESKJET_880C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 882c</td>
+<td height=17 style='height:12.75pt'>DESKJET_882C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 890c</td>
+<td height=17 style='height:12.75pt'>DESKJET_890C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 895c</td>
+<td height=17 style='height:12.75pt'>DESKJET_895C</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 916c</td>
+<td height=17 style='height:12.75pt'>DESKJET_916C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 920c</td>
+<td height=17 style='height:12.75pt'>DESKJET_920C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 9300</td>
+<td height=17 style='height:12.75pt'>DESKJET_930C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 930c</td>
+<td height=17 style='height:12.75pt'>DESKJET_932C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 932c</td>
+<td height=17 style='height:12.75pt'>DESKJET_933C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 933c</td>
+<td height=17 style='height:12.75pt'>DESKJET_934C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 934c</td>
+<td height=17 style='height:12.75pt'>DESKJET_935C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 935c</td>
+<td height=17 style='height:12.75pt'>DESKJET_940C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 940c</td>
+<td height=17 style='height:12.75pt'>DESKJET_948C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 948c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 950c</td>
+<td height=17 style='height:12.75pt'>DESKJET_950C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 952c</td>
+<td height=17 style='height:12.75pt'>DESKJET_952C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 955c</td>
+<td height=17 style='height:12.75pt'>DESKJET_955C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 957c</td>
+<td height=17 style='height:12.75pt'>DESKJET_957C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 959c</td>
+<td height=17 style='height:12.75pt'>DESKJET_959C</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 9600</td>
+<td height=17 style='height:12.75pt'>DESKJET_960C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>DESKJET_970C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>DESKJET_975C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>DESKJET_980C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>DESKJET_990C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>DESKJET_995C</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_1280</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_3740</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_3900</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_3920</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_3940</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_460</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_5400_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 960c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 970c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 975c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 9800</td>
+<td height=17 style='height:12.75pt'>Deskjet_5700</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 980c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td height=17 style='height:12.75pt'>Deskjet_5900_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 990c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td height=17 style='height:12.75pt'>Deskjet_6500</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Deskjet 995c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td height=17 style='height:12.75pt'>Deskjet_6600</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Mopier 320</td>
+<td height=17 style='height:12.75pt'>Deskjet_6800</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_6940_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_6980_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_710C</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_712C</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_720C</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_722C</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_820C</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Deskjet_9800</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1000</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1005</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1020</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3100</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3150</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Mopier_320</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet</td>
+<td height=17 style='height:12.75pt'>OfficeJet</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet lx</td>
+<td height=17 style='height:12.75pt'>OfficeJet_LX</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet pro k550</td>
+<td height=17 style='height:12.75pt'>Officejet_Pro_K550</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet pro k850</td>
+<td height=17 style='height:12.75pt'>Officejet_Pro_K850</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 300</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td height=17 style='height:12.75pt'>Photosmart</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 310</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 320</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 330</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 350</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7150</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>business_inkjet_1100</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2100</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td height=17 style='height:12.75pt'>business_inkjet_2300</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>business_inkjet_2600</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2150</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td height=17 style='height:12.75pt'>business_inkjet_3000</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2200</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
+<td height=17 style='height:12.75pt'>color_Laserjet_2600</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2500</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2600</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo 2650</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo p2000-u</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP apollo p2250</td>
-<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP cp1160</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>cp1160</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP dj450</td>
+<td height=17 style='height:12.75pt'>deskjet_3320</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3325</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3420</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3425</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3450</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3500</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3600</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ3600</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_3840</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5100</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5550</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5551</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5552</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5600</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5650</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5652</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_5800</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_6120</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_6122</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_6127</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_9300</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>deskjet_9600</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>dj450</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7150</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 width=241 style='height:12.75pt;width:181pt'><b>Inkjet Photo Printers</b></td>
 <td width=64 style='width:48pt'><b>Parallel</b></td>
@@ -765,124 +815,124 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 100</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_100</td>
 <td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 1115</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_1115</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 1215</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_1215</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 1218</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_1218</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 130</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_130</td>
 <td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 1315</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_1315</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 140 series</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_230</td>
 <td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 230</td>
-<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 240 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 320 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 330 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 370 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 380 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 420 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 470 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7200 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7350</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7400 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7550</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7600 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7700 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7800 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 7900 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 8000 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 8100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 8200 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 8400 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 8700 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>No</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart p1000</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_P1000</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart p1100</td>
+<td height=17 style='height:12.75pt'>PHOTOSMART_P1100</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_320_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_330_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_370_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_380_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_420_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_470_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_7400_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_7800_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_8000_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_8100_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_8200_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_8400_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Photosmart_8700_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_140_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_240_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7200_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7350</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7550</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7600_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7700_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>photosmart_7900_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 width=241 style='height:12.75pt;width:181pt'><b>Color LaserJet Printers</b></td>
@@ -896,107 +946,107 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2500</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2500 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2550</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2550 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3000</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_3000</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3500</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_3600</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJJetReady</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3500n</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3550</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3550n</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3600</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3700</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_3800</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3700n</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_4500</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 3800</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_4550</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4500</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_4700</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4550</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4600</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4600 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4610</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4650</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4700</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 5500</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 5550</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 5m</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_5M</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 8500</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_8500</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 8550</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_8550</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 9500</td>
+<td height=17 style='height:12.75pt'>color_LaserJet_2500</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_2500_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_2550</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_2550_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3500</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3500n</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3550</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3550n</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3700</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_3700n</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_4600</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_4600_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_4610</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_4650</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_5500</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_5550</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>color_LaserJet_9500</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -1011,23 +1061,23 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2800</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_2800</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>Postscript</td>
-<td>Yes</td><td>Yes(2)</td><td>No</td>
+<td>Yes</td><td>Yes(2)</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2820</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_2820</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>Postscript</td>
-<td>Yes</td><td>Yes(2)</td><td>No</td>
+<td>Yes</td><td>Yes(2)</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2830</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_2830</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>Postscript</td>
-<td>Yes</td><td>Yes(2)</td><td>No</td>
+<td>Yes</td><td>Yes(2)</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 2840</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_2840</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>Postscript</td>
-<td>Yes</td><td>Yes(2)</td><td>No</td>
+<td>Yes</td><td>Yes(2)</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Color LaserJet 4730mfp</td>
+<td height=17 style='height:12.75pt'>Color_LaserJet_4730mfp</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -1042,334 +1092,358 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 4100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 4105 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 4110 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 4115 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 4200 series</td>
+<td height=17 style='height:12.75pt'>Deskjet_F300_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 5100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 5105</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 5110</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 5500 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 5600 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 6100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 6150 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 6200 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 7100 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 7200 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 7300 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 7400 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet 9100 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet d series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet g55</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet g55xi</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet g85</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet g85xi</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet g95</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet k60</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet k60xi</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet k80</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet k80xi</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet pro 1150c</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_PRO_1150C</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet pro 1170c series</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_PRO_1170C_SERIES</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ890</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r40</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R40</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r40xi</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R40xi</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r45</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R45</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r60</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R60</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r65</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R65</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r80</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R80</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet r80xi</td>
+<td height=17 style='height:12.75pt'>OFFICEJET_R80xi</td>
 <td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 500</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>OfficeJet_5105</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_5110</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_6100_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_6150_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_G55</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_G55xi</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_G85</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_G85xi</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_G95</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_K60</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_K60xi</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_K80</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_K80xi</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_300</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 520</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_310</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 570</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_320</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 580</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_330</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 590</td>
-<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_350</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 600</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_500</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 610</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_520</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 630</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_570</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 700</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_580</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 710</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_590</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 720</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_600</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet series 725</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_610</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet t series</td>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_630</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_700</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_710</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_720</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_Series_725</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>OfficeJet_T_Series</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet v30</td>
+<td height=17 style='height:12.75pt'>OfficeJet_V30</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet v40</td>
+<td height=17 style='height:12.75pt'>OfficeJet_V40</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet v40xi</td>
+<td height=17 style='height:12.75pt'>OfficeJet_V40xi</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Officejet v45</td>
+<td height=17 style='height:12.75pt'>OfficeJet_V45</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1200 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1300 series</td>
+<td height=17 style='height:12.75pt'>Officejet_5600_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1310 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td height=17 style='height:12.75pt'>Officejet_6200_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1400 series</td>
+<td height=17 style='height:12.75pt'>Officejet_7200_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Officejet_7300_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Officejet_7400_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>Officejet_9100_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>PSC_1400_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>PSC_1500_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1500 series</td>
+<td height=17 style='height:12.75pt'>PSC_1600_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 1600 series</td>
+<td height=17 style='height:12.75pt'>PSC_2100_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2100 series</td>
+<td height=17 style='height:12.75pt'>PSC_2150_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2150 series</td>
+<td height=17 style='height:12.75pt'>PSC_2170_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2170 series</td>
+<td height=17 style='height:12.75pt'>PSC_2200_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2200 series</td>
+<td height=17 style='height:12.75pt'>PSC_2350_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2300 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2350 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2400 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 2500 series</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 500</td>
+<td height=17 style='height:12.75pt'>PSC_500</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 720</td>
+<td height=17 style='height:12.75pt'>PSC_720</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 750</td>
+<td height=17 style='height:12.75pt'>PSC_750</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 750xi</td>
+<td height=17 style='height:12.75pt'>PSC_750xi</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 760</td>
+<td height=17 style='height:12.75pt'>PSC_760</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP PSC 900 series</td>
+<td height=17 style='height:12.75pt'>PSC_900_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 2570 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_2570_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 2600 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_2600_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 2700 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_2700_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 3100 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_3100_series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 3200 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_3200_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Photosmart 3300 series</td>
+<td height=17 style='height:12.75pt'>Photosmart_3300_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP Printer scanner copier 300</td>
+<td height=17 style='height:12.75pt'>Printer_Scanner_Copier_300</td>
 <td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_4100_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_4105_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_4110_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_4115_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_4200_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_5100_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_5500_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_7100_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>officejet_d_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_1100_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_1200_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_1300_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_1310_series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_2300_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_2400_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>psc_2500_series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 width=241 style='height:12.75pt;width:181pt'><b>Monochrome (B&W) LaserJet Printers</b></td>
 <td width=64 style='width:48pt'><b>Parallel</b></td>
 <td width=64 style='width:48pt'><b>USB</b></td>
@@ -1381,203 +1455,203 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1010</td>
+<td height=17 style='height:12.75pt'>LaserJet_1010</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJFastRaster</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1012</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1012</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJFastRaster</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1015</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1015</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1022</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1022n</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1022</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1022nw</td>
+<td height=17 style='height:12.75pt'>LaserJet_1022n</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1150</td>
+<td height=17 style='height:12.75pt'>LaserJet_1022nw</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_1150</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1160</td>
+<td height=17 style='height:12.75pt'>LaserJet_1160</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1300</td>
+<td height=17 style='height:12.75pt'>LaserJet_1300</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1300n</td>
+<td height=17 style='height:12.75pt'>LaserJet_1300n</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1300xi</td>
+<td height=17 style='height:12.75pt'>LaserJet_1300xi</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1320</td>
+<td height=17 style='height:12.75pt'>LaserJet_1320</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1320 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_1320_series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1320n</td>
+<td height=17 style='height:12.75pt'>LaserJet_1320n</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1320nw</td>
+<td height=17 style='height:12.75pt'>LaserJet_1320nw</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1320tn</td>
+<td height=17 style='height:12.75pt'>LaserJet_1320tn</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2100</td>
+<td height=17 style='height:12.75pt'>LaserJet_2100</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2100 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_2100_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2200</td>
+<td height=17 style='height:12.75pt'>LaserJet_2200</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2200 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_2200_Series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2300</td>
+<td height=17 style='height:12.75pt'>LaserJet_2300</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2300 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_2300_Series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2410</td>
+<td height=17 style='height:12.75pt'>LaserJet_2410</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2420</td>
+<td height=17 style='height:12.75pt'>LaserJet_2420</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 2430</td>
+<td height=17 style='height:12.75pt'>LaserJet_2430</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4 plus</td>
+<td height=17 style='height:12.75pt'>LaserJet_4000_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4050_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4100_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4150_Series</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4200</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4240</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4250</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4300</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4350</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_4Si</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4000 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4050 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4100 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4150 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4200</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4240</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4250</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4300</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4350</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4si</td>
+<td height=17 style='height:12.75pt'>LaserJet_4_Plus</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5000</td>
+<td height=17 style='height:12.75pt'>LaserJet_5000</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5000 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_5000_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5100 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_5100_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5mp</td>
+<td height=17 style='height:12.75pt'>LaserJet_5MP</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5p</td>
+<td height=17 style='height:12.75pt'>LaserJet_5P</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 5si</td>
+<td height=17 style='height:12.75pt'>LaserJet_5Si</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 6mp</td>
+<td height=17 style='height:12.75pt'>LaserJet_6MP</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 6p</td>
+<td height=17 style='height:12.75pt'>LaserJet_6P</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8000</td>
+<td height=17 style='height:12.75pt'>LaserJet_8000</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8000 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_8000_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8100 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_8100_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8150 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_8150_Series</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9000 series</td>
+<td height=17 style='height:12.75pt'>LaserJet_9000_Series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9050</td>
+<td height=17 style='height:12.75pt'>LaserJet_9050</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -1592,103 +1666,123 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1100</td>
+<td height=17 style='height:12.75pt'>LaserJet_1100</td>
 <td>Yes</td><td>No</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1100a</td>
+<td height=17 style='height:12.75pt'>LaserJet_1100a</td>
 <td>Yes</td><td>No</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1100xi</td>
+<td height=17 style='height:12.75pt'>LaserJet_1100xi</td>
 <td>Yes</td><td>No</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1200</td>
+<td height=17 style='height:12.75pt'>LaserJet_1200</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1200n</td>
+<td height=17 style='height:12.75pt'>LaserJet_1200n</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1220</td>
+<td height=17 style='height:12.75pt'>LaserJet_1220</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1220se</td>
+<td height=17 style='height:12.75pt'>LaserJet_1220se</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3015</td>
+<td height=17 style='height:12.75pt'>LaserJet_3015</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3020</td>
+<td height=17 style='height:12.75pt'>LaserJet_3020</td>
 <td>Yes</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3030</td>
+<td height=17 style='height:12.75pt'>LaserJet_3030</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3050</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3052</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3055</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3200</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3200M</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3200se</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3300_3310_3320</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>Yes</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>LaserJet_3330</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3200</td>
+<td height=17 style='height:12.75pt'>LaserJet_3380</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3200m</td>
+<td height=17 style='height:12.75pt'>LaserJet_3390</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3200se</td>
+<td height=17 style='height:12.75pt'>LaserJet_3392</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
+<td>Yes</td><td>No</td><td>Yes</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3300 3310 3320</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3330</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 3380</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>Yes</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4100 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_4100_MFP</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 4345 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_4345_mfp</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8100 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_8100_MFP</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 8150 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_8150_MFP</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9000 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_9000_MFP</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9040 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_9040_MFP</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9050 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_9050_MFP</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9055 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_9055_MFP</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 9065 MFP</td>
+<td height=17 style='height:12.75pt'>LaserJet_9065_MFP</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><!--
@@ -1716,6 +1810,91 @@ your distribution's documentation for setup and usage instructions.
 <hr>
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
+<li>
+<b>HPLIP 0.9.9</b> - This release has the following changes.
+<pre>
+2006-02-01 dsuffield
+ 1. HPLIP now uses libusb for all USB I/O. Libusb replaces kernel modules printer and usblp. 
+    Libusb 0.1.8 or higher is required.
+ 2. Removed support for USB URIs based on device files. This means all LaserJets now use USB URIs based on
+    "hp:/hp_model?serial=xxxxxxxx" instead of "hp:/hp_model?device=/dev/usb/lpx". Old print queues based 
+    on the old URI must be updated to the new URI.
+ 3. Added full USB 1284.4 support for CLJ2840, LJ3050 and LJ3060.
+ 4. Added full USB 1284.4 support for LJ1010, LJ1012 and LJ1015.
+ 5. Added full USB 1284.4 support for LJ2500.
+ 6. Updated HP-Fax-hplip.ppd to be in conformance with CUPS 1.2. Also updated most LaserJets to CUPS 1.2 complaints.
+ 7. Added checks for the failed import of the fax module due to the absence of the datetime module when < Python 2.3 is installed. 
+    Affects hp-setup, hp-fab, and hp-sendfax.
+ 8. Changed the GetSnmp timeout from 5 to 2 seconds in hpiod.
+ 9. Fixed incorrect Supplies information for Color Laserjet 2840 displayed in toolbox.
+10. Fixed problem where title input was of no use while adding a file to item list in send fax dialog.
+11. Updated the krgb patch file for ghostscript. There are now two patch files one for GNU Ghostscript 7.07 and GPL
+    Ghostscript 8.50.
+12. Fixed "hp-makeuri /dev/parport0" sigfault when built with --disable-pp-build.
+13. Added build time "configure" options to hplip.conf. Used to help document how binary package (or tar ball) was built.
+14. Add models.xml parallel flag for Deskjet 5550.
+15. Moved hp-sendfax temp .g3 files to ~/hpfax/hpfax-<jobid>.g3. 
+16. Files added to hp-sendfax interface are now rendered into g3 format as they are added.
+17. Removed temporary file creation from hpfax: (temp files now created only by hp-sendfax using mkstemp).
+18. Added total page counting feature to hp-sendfax.
+19. Added a BSD license to magic.py.
+20. Changed the "cups" directory name to "ppd" and made "ppd" point to $(datadir)/HP in hplip.conf.
+21. Removed ping code from base/utils.py, device.py:Device.open() and hpssd - hpssd can now be run as non-root.
+22. HPLIP now installs HP-Fax-hplip.ppd independent of HPIJS. HPLIP installs HP-Fax-hplip.ppd into $(datadir)/HP directory, but
+    HPIJS creates the symlink from cups/model/foomatic-ppd to $(datadir)/HP.
+
+This HPLIP package includes HPIJS 2.1.9 which has the following changes.
+ 1. Fixed an array index underflow in ljfastraster.cpp.
+ 2. Save paper width and height in UXServices object after a call to SetPaperSize.
+ 3. When fullbleed printing is requested, if printer supports it, return actual paper dimensions for PrintableArea.
+ 4. Added support for the following new printer(s).
+
+    HP DeskJet F300 Series All-in-one (DJ3600)
+</pre>
+<p>
+<li>
+<b>HPLIP 0.9.8</b> - This release has the following changes.
+<pre>
+ 1. Added PC send fax support. This feature is is supported by a send fax UI (hp-sendfax), send fax setup in the hp-toolbox (HP Device Manager), 
+    and a fax address book (hp-fab). Files (and an optional coverpage) may be sent by running the send fax UI directly or by printing through 
+    the supplied HP Fax CUPS backend from any application or by using lp/lpr. A CUPS queue configured with the HP Fax CUPS backend (hpfax:) must
+    be separately set up for faxing to operate.
+ 2. Added HP Setup utility. This new utility (hp-setup) can quickly and automatically setup print and/or fax queues for HPLIP supported devices. 
+    It will automatically choose the closest matching PPD file, print a testpage, and set up a fax queue and allow the user to perform basic fax 
+    setup (TTI header setup) if appropriate. Using the -m parameter, hp-setup also replaces the functionality of 'hp-makeuri'.
+ 3. Fixed deviceid zero termination issue in hplip_api.c.
+ 4. Fixed HPLIP startup script as per RH request.
+ 5. Enhanced the status history table in hp-info.
+ 6. Changed device list in toolbox to use small icons for status overlay.
+ 7. Modified models.xml file to add pen info back to OJ5500 and disable front panel.
+ 8. Removed probe.py from distribution.
+ 9. Added Fax URI generation to hp-makeuri.
+10. Fixed hp-makeuri so that it would not report URIs for non-existent functions (e.g., a scan URI on a single function printer).
+11. Fixed hp-makeuri quiet modes that they are actually quiet (no banner, etc).
+12. Added a new chooser dialog that presents a list of CUPS queues rather than device URIs (switched hp-sendfax and hp-print over to new dialog).
+13. Fixed a hpiod problem with the PS 2570 series. This will fix the scanning blue-screen error with USB High Speed.
+14. Fixed _GNU_SOURCE define in hpaio.h. (RH patch)
+15. Fixed GetDeviceStatus overwrite in hpiod. (RH patch)
+
+This HPLIP package includes HPIJS 2.1.8 which has the following changes.
+
+ 1. Removed a duplicate ; in ljjetready.h.
+ 2. Commented out forward declaration of jpeg APIs from ljjetready.cpp - some compilers don't compile otherwise.
+ 3. Moved OfficeJet 6100 and 6150 to DJ55xx.h; margins on these devices are same as those on DJ5550.
+ 4. Added support for the following new printers.
+
+    HP LaserJet 3050 (LJMono/PS)
+    HP LaserJet 3060/3062 (LJMono/PS)
+    HP LaserJet 3390/3392 (LJMono/PS)
+    HP Deskjet 6980 series (DJGenericVIP) 
+    HP Deskjet 6940 series (DJGenericVIP)
+
+    LJ3050 and LJ3060/3062 are similar to CLJ2800. Current support for these all-in-ones are limited to the following functionality. 
+
+    1. Photo Card access is not available via hp-photo. Photo Card access is available via USB mass storage.
+    2. Network scanning is supported, but USB scanning is not. USB scanning requires libusb and should be available in the next HPLIP release.
+</pre>
+<p>
 <li>
 <b>HPLIP 0.9.7</b> - This release has the following changes.
 <pre>
@@ -2101,8 +2280,8 @@ Issues/TODO
 <pre>
 1. Add network scanning support (done HPLIP 0.9).
 2. Add status and supply information on selected LaserJet (done HPLIP 0.9).
-3. Add fax-send support.
-4. Validate 64-bit support.
+3. Add fax-send support (done HPLIP 0.9.8).
+4. Validate 64-bit support (done).
 5. Validate big-endian support.
 </pre>
 </ul>
@@ -2164,10 +2343,11 @@ Now we must restart cupsd in order to let CUPS see the new "hp" backend.
     <b>ln -s /usr/lib/libcrypto.so.0.9.7 /usr/lib/libcrypto.so</b>
  4. For distribution package managers the following ./configure options are available. This allows the package 
     manager to configure these options.
-    <b>--enable-rpm-install</b>         disables sane, icon, /etc/hp and /etc/init.d install
+    <b>--disable-rpm-install</b>        disables sane, icon, /etc/hp and /etc/init.d install
     <b>--disable-foomatic-install</b>   disables foomatic install
     <b>--disable-cups-install</b>       disables cups install
-    <b>--enable-network-build</b>       disables building network support, will not link with libsnmp
+    <b>--disable-network-build</b>      disables building network support, will not link with libsnmp
+    <b>--disable-pp-build</b>           disables building parallel port support
  5. The HPLIP startup script must be executed before the CUPS startup script at boot time.
  6. For Mandrake be sure to include the net-snmp-mibs package for network support.
  7. In order to run the HP Device Manager, PyQt needs to be installed. Also Fedora C3 requires the "sip" module, 
@@ -2175,10 +2355,12 @@ Now we must restart cupsd in order to let CUPS see the new "hp" backend.
     <b>yum install PyQt</b>
     <b>yum install sip</b>
  8. In SUSE 9.2 and above PyQt is now part of kdebindings3-python.
- 9. In order to run HPLIP with Fedora C4 you must disable SELinux protection for cupsd. Under "Security Level Configuration",
-    select SELinux tab, click "SELinux Service Protection", then check "Disable SELinux protection for cupsd daemon". This
-    solves a "hp" backend problem reading /var/run/hpiod.port.
+ 9. In order to run HPLIP with Fedora C4 you must disable SELinux protection. Under "Security Level Configuration",
+    select SELinux tab, un-click "Enforcing Current: Permissive". The default SELinux policies will conflict with HPLIP I/O.
+    If you want to run with SELinux enabled install the FC4 HPLIP rpm available at RH.
 10. HPLIP can be uninstalled with the "make uninstall" command. 
+11. With FC4 64-bit systems use must use "./configure --prefix=/usr --libdir=/usr/lib64" in order to get libsane-hpaio installed
+    correctly.
 </pre>
 <p>
 <H2><a name="Usage"></a>7 Usage and Troubleshooting</H2>
@@ -2196,31 +2378,14 @@ Solution:</b> gcc is not properly installed. Follow the instructions for your di
 
 <h3>7.2 Setup and I/O Troubleshooting</h3>
 
-
-
-<b>Issue 1: 'hp-probe' fails to find my network printer<br>
-Solution:</b><br>
-<em>Note: This is a known problem with hp-probe</em><br>
-1. Determine the IP address of your printer by printing out the network configuration page (or if you know it or can determine it in another way)<br>
-2. Run: <br>
-<pre>$ hp-makeuri &lt;ip-address&gt;</pre>
-For example:
-<pre>$ hp-makeuri 192.168.1.1</pre>
-3. This will result in a device URI printed to the console. For example: <pre>hp:/net/Officejet_9100_series?ip=192.168.1.1</pre>
-4. Copy this device URI<br>
-5. Open the CUPS UI:
-<pre>http://localhost:631</pre>
-(or YasT, etc) and install the printer by pasting the generated URI.<br>
-<p>
-
-<b>Issue 2: There is no listing in CUPS or my printer installation tool for the exact model number of my printer.<br>
+<b>Issue 1: There is no listing in CUPS or my printer installation tool for the exact model number of my printer.<br>
 Solution:</b><br>
 1. Check to see if there is another model in the list that is in the correct "series". For example, a "DeskJet 5510" will use a "DeskJet 5500 Series" driver.<br>
 In general, you "round down" the model number that appears on the case of the printer to the next lowest number that is available in the software.<br>
 2. If this doesn't work, visit this <A href="http://linuxprinting.org/">page</A> and follow the instructions to download and install a new PPD file for your printer: <A href="http://linuxprinting.org/">http://linuxprinting.org/</A><br>
 <p>
 
-<b>Issue 3: I've plugged in my USB printer, but it doesn't show up in the CUPS interface.<br>
+<b>Issue 2: I've plugged in my USB printer, but it doesn't show up in the CUPS interface.<br>
 Solution:</b><br>
 Restart CUPS. There are two basic methods: <em>(Note: You must be root to execute these commands)</em><br>
 <pre># /etc/init.d/cupsd restart</pre>
@@ -2228,23 +2393,23 @@ or:<br>
 <pre># killall -HUP cupsd</pre>
 <p>
 
-<b>Issue 4: I can 'ping' my network printer but 'hp-makeuri' won't generate a device URI for it.<br>
+<b>Issue 3: I can 'ping' my network printer but 'hp-makeuri' won't generate a device URI for it.<br>
 Solution:</b><br>
 1. Check to make sure SNMP is properly installed. Check your distribution documnetation on how to do this.<bR>
 2. Check your network firewall and make sure it is configured so that access to port 9100 is not blocked.<br>
 <p>
 
-<b>Issue 5: I am sharing a printer from another Linux machine using CUPS and I am unable to print to it.<br>
+<b>Issue 4: I am sharing a printer from another Linux machine using CUPS and I am unable to print to it.<br>
 Solution:</b><br>
 This configuration is unsupported currently in HPLIP. To print in this configuration, use HPIJS only.<br>
 <p>
 
-<b>Issue 6: I am sharing a printer from a Windows machine and I am unable to print to it.<br>
+<b>Issue 5: I am sharing a printer from a Windows machine and I am unable to print to it.<br>
 Solution:</b><br>
 This configuration is unsupported currently in HPLIP. To print in this configuration, use HPIJS only and the SAMBA backend (smb:)<br>
 <p>
 
-<b>Issue 7: I am trying to setup my printer in SUSE using CUPS and am having problems.<br>
+<b>Issue 6: I am trying to setup my printer in SUSE using CUPS and am having problems.<br>
 Solution:</b><br>
 To install on SUSE, unless you have created a <a href="http://portal.suse.com/sdb/en/2003/09/jsmeix_print-einrichten-90.html">CUPS admin</a>,
 you must use YaST. Otherwise, printer setup using CUPS will fail.
@@ -2467,10 +2632,10 @@ hpinkjet.sourceforge.net</a>.
 <hr>
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
-&#169 2004-2005 Hewlett-Packard Company<br>
+&#169 2004-2006 Hewlett-Packard Company<br>
 This document is provided "AS IS" without warranties of any kind including warranties of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
 <br>
-HPLIP 0.9.7, last updated November 15, 2005
+HPLIP 0.9.9, last updated March 7, 2006
 </font>
 </BODY>
 </HTML>

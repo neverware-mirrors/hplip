@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.17 $
-# $Date: 2005/10/13 18:08:12 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +21,9 @@
 #
 
 
-_VERSION = '1.5'
+__version__ = '1.6'
+__title__ = 'Printer Cartridge Cleaning Utility'
+__doc__ = "Cartridge cleaning utility for HPLIP supported inkjet printers."
 
 #Std Lib
 import sys
@@ -36,33 +35,41 @@ from base.g import *
 from base import device, utils, maint
 from prnt import cups
 
-
-def usage():
-    formatter = utils.usage_formatter()
-    log.info( utils.bold("""\nUsage: hp-clean [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" ))
-    log.info( utils.bold( "[PRINTER|DEVICE-URI] (**See NOTES)" ) )
-    utils.usage_device(formatter)
-    utils.usage_printer(formatter, True)
-    utils.usage_options()
-    utils.usage_bus(formatter)
-    utils.usage_logging(formatter)
-    log.info( formatter.compose( ( "Cleaning level:", "-v<level> or --level=<level>" ) ) )
-    log.info( formatter.compose( ( "", "<level>: 1*, 2, or 3 (*default)" ) ) )
-    utils.usage_help(formatter, True)
-    utils.usage_notes()
-    utils.usage_examples()
-    log.info(  """\nClean CUPS printer named "hp5550":\n\thp-clean -php5550\n\n""" \
-               """Clean printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n\t"""\
-               """hp-clean -dhp:/usb/DESKJET_990C?serial=12345\n\n""" )
-
+USAGE = [(__doc__, "", "name", True),
+         ("Usage: hp-clean [PRINTER|DEVICE-URI] [OPTIONS]", "", "summary", True),
+         utils.USAGE_ARGS,
+         utils.USAGE_DEVICE,
+         utils.USAGE_PRINTER,
+         utils.USAGE_SPACE,
+         utils.USAGE_OPTIONS,
+         ("Cleaning level:", "-v<level> or --level=<level>", "option", False),
+         ("", "<level>: 1\*, 2, or 3 (\*default)", "option", False),
+         utils.USAGE_BUS1, utils.USAGE_BUS2,
+         utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
+         utils.USAGE_HELP,
+         utils.USAGE_EXAMPLES,
+         ("""Clean CUPS printer named 'hp5550':""", """$ hp-clean -php5550""",  "example", False),
+         ("""Clean printer with URI of 'hp:/usb/DESKJET_990C?serial=12345':""", """$ hp-clean -dhp:/usb/DESKJET_990C?serial=12345""", 'example', False),
+         utils.USAGE_SPACE,
+         utils.USAGE_NOTES,
+         utils.USAGE_STD_NOTES1, utils.USAGE_STD_NOTES2, 
+         utils.USAGE_SEEALSO,
+         ("hp-align", "", "seealso", False),
+         ("hp-colorcal", "", "seealso", False),
+         ]
+         
+def usage(typ='text'):
+    if typ == 'text':
+        utils.log_title(__title__, __version__)
+        
+    utils.format_text(USAGE, typ, __title__, 'hp-clean', __version__)
     sys.exit(0)
 
 
-utils.log_title( 'Printer Cartridge Cleaning Utility', _VERSION )
-
 try:
-    opts, args = getopt.getopt( sys.argv[1:], 'p:d:hl:b:v:',
-                                [ 'printer=', 'device=', 'help', 'logging=', 'bus=', 'level=' ] )
+    opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:v:g',
+                                ['printer=', 'device=', 'help', 'help-rest', 'help-man', 
+                                 'logging=', 'bus=', 'level='])
 except getopt.GetoptError:
     usage()
 
@@ -72,99 +79,122 @@ printer_name = None
 device_uri = None
 level = 1
 
-for o, a in opts:
-    if o in ( '-h', '--help' ):
-        usage()
-        sys.exit(0)
+if os.getenv("HPLIP_DEBUG"):
+    log.set_level('debug')
 
-    elif o in ( '-p', '--printer' ):
+
+for o, a in opts:
+    if o in ('-h', '--help'):
+        usage()
+        
+    elif o == '--help-rest':
+        usage('rest')
+        
+    elif o == '--help-man':
+        usage('man')
+
+    elif o in ('-p', '--printer'):
         if a.startswith('*'):
             printer_name = cups.getDefault()
         else:
             printer_name = a
 
-    elif o in ( '-d', '--device' ):
+    elif o in ('-d', '--device'):
         device_uri = a
 
-    elif o in ( '-b', '--bus' ):
+    elif o in ('-b', '--bus'):
         bus = a.lower().strip()
 
-    elif o in ( '-l', '--logging' ):
+    elif o in ('-l', '--logging'):
         log_level = a.lower().strip()
+        
+    elif o == '-g':
+        log.set_level('debug')
 
-    elif o in ( '-v', '--level' ):
+    elif o in ('-v', '--level'):
         try:
             level = int(a)
         except ValueError:
-            log.error( "Invalid cleaning level, setting level to 1." )
+            log.error("Invalid cleaning level, setting level to 1.")
             level = 1
 
+            
 if level < 1 or level > 3:
-    log.error( "Invalid cleaning level, setting level to 1." )
+    log.error("Invalid cleaning level, setting level to 1.")
     level = 1
 
 if not device.validateBusList(bus):
     usage()
 
-if not log.set_level( log_level ):
+if not log.set_level(log_level):
     usage()
 
 if device_uri and printer_name:
-    log.error( "You may not specify both a printer (-p) and a device (-d)." )
+    log.error("You may not specify both a printer (-p) and a device (-d).")
     usage()
 
+utils.log_title(__title__, __version__)
+    
 if not device_uri and not printer_name:
     try:
-        device_uri = device.getInteractiveDeviceURI( bus )
+        device_uri = device.getInteractiveDeviceURI(bus)
         if device_uri is None:
             sys.exit(0)
     except Error:
-        log.error( "Error occured during interactive mode. Exiting." )
+        log.error("Error occured during interactive mode. Exiting.")
         sys.exit(0)
 
 try:
-    d = device.Device( device_uri, printer_name )
+    d = device.Device(device_uri, printer_name)
 except Error, e:
     log.error("Unable to open device: %s" % e.msg)
     sys.exit(0)
 
 if d.device_uri is None and printer_name:
-    log.error( "Printer '%s' not found." % printer_name )
+    log.error("Printer '%s' not found." % printer_name)
     sys.exit(0)
 
 if d.device_uri is None and device_uri:
-    log.error( "Malformed/invalid device-uri: %s" % device_uri )
+    log.error("Malformed/invalid device-uri: %s" % device_uri)
     sys.exit(0)
+
 
 try:
-    device_id = d.open()
-except Error:
-    log.error( "Unable to open device. Exiting. " )
-    sys.exit(0)
-
-clean_type = d.mq.get( 'clean-type', 0 )
-log.info( "Performing type %d, level %d cleaning..." % ( clean_type, level ) )
-
-if clean_type in (CLEAN_TYPE_PCL,CLEAN_TYPE_PCL_WITH_PRINTOUT):
-    if level == 3:
-        maint.wipeAndSpitType1( d )
-    elif level == 2:
-        maint.primeType1( d )
+    try:
+        d.open()
+    except Error:
+        log.error("Unable to print to printer. Please check device and try again.")
+        sys.exit(1)
+    
+    if d.isIdleAndNoError():
+        clean_type = d.mq.get('clean-type', 0)
+        log.info("Performing type %d, level %d cleaning..." % (clean_type, level))
+        
+        if clean_type in (CLEAN_TYPE_PCL,CLEAN_TYPE_PCL_WITH_PRINTOUT):
+            if level == 3:
+                maint.wipeAndSpitType1(d)
+            elif level == 2:
+                maint.primeType1(d)
+            else:
+                maint.cleanType1(d)
+        
+        elif clean_type == CLEAN_TYPE_LIDIL:
+            if level == 3:
+                maint.wipeAndSpitType2(d)
+            elif level == 2:
+                maint.primeType2(d)
+            else:
+                maint.cleanType2(d)
+    
+        else:
+            log.error("Cleaning not needed or supported on this device.")
+    
     else:
-        maint.cleanType1( d )
-
-elif clean_type == CLEAN_TYPE_LIDIL:
-    if level == 3:
-        maint.wipeAndSpitType2( d )
-    elif level == 2:
-        maint.primeType2( d )
-    else:
-        maint.cleanType2( d )
-
-else:
-    log.error( "Cleaning not needed or supported on this device." )
-
-log.info( "" )
-d.close()
-log.info( "Done." )
+        log.error("Device is busy or in an error state. Please check device and try again.")
+        sys.exit(1)
+finally:
+    d.close()
+    
+log.info("")
+log.info("Done.")
 

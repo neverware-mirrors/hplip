@@ -17,7 +17,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([HP Linux Imaging and Printing],
-	[0.9.7],
+	[0.9.9],
 	[hplip@packages.debian.org],
 	[hplip])
 
@@ -84,6 +84,7 @@ dnl not used by HPLIP, only needed on systems with broken ld.so or for
 dnl static linking.  If you know of any, add it inside the libsnmp=yes clause
 dnl AC_CHECK_LIB([crypto], [CRYPTO_free])
 AC_CHECK_LIB([netsnmp], [snmp_timeout], [libsnmp=yes], [libsnmp=no])
+AC_CHECK_LIB([usb], [usb_init],, [AC_MSG_ERROR([cannot find libusb support])])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -134,11 +135,12 @@ AS_IF([test "$pp_build" = "yes"],
    [AC_MSG_RESULT([no])]
 )
 
+CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
+
 AC_ARG_VAR([CUPS_BACKEND_PATH], [CUPS backend directory])
 AC_MSG_CHECKING([for cups backend path])
 AS_IF([test "x${CUPS_BACKEND_PATH}" = "x"],
 	[
-	CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
 	CUPS_BACKEND_PATH="/usr/lib/cups/backend"
 	for i in $CUPSSEARCHPATH; do
 	   if test -d "$i/cups/backend"; then
@@ -148,6 +150,20 @@ AS_IF([test "x${CUPS_BACKEND_PATH}" = "x"],
 	done
 	])
 AC_MSG_RESULT([using ${CUPS_BACKEND_PATH}])
+
+AC_ARG_VAR([CUPS_PPD_PATH], [CUPS ppd directory])
+AC_MSG_CHECKING([for cups ppd path])
+AS_IF([test "x${CUPS_PPD_PATH}" = "x"],
+	[
+	CUPS_PPD_PATH="/usr/share/cups/model/ppd"
+	for i in $CUPSSEARCHPATH; do
+	   if test -d "$i/cups/model/ppd"; then
+	      CUPS_PPD_PATH="$i/cups/model/ppd"
+	      break
+	   fi
+	done
+	])
+AC_MSG_RESULT([using ${CUPS_PPD_PATH}])
 
 ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
 ICONFILETYPES="hplip hplip.desktop"
@@ -212,8 +228,9 @@ fi
 dnl This is non-standard, and may break
 ac_configure_args="$ac_configure_args --enable-hplip-build"
 
-AC_SUBST(rpm_install)
-AC_SUBST(CUPS_BACKEND_PATH)
+AC_SUBST(RPM_INSTALL)
+AC_SUBST(network_build)
+AC_SUBST(pp_build)
 AC_SUBST(ICON_PATH)
 AC_SUBST(ICON_FILE)
 
