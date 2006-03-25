@@ -21231,10 +21231,10 @@ echo "$as_me:$LINENO: checking for cups ppd path" >&5
 echo $ECHO_N "checking for cups ppd path... $ECHO_C" >&6
 if test "x${CUPS_PPD_PATH}" = "x"; then
 
-	CUPS_PPD_PATH="/usr/share/cups/model/ppd"
+	CUPS_PPD_PATH="/usr/share/cups/model"
 	for i in $CUPSSEARCHPATH; do
-	   if test -d "$i/cups/model/ppd"; then
-	      CUPS_PPD_PATH="$i/cups/model/ppd"
+	   if test -d "$i/cups/model"; then
+	      CUPS_PPD_PATH="$i/cups/model"
 	      break
 	   fi
 	done

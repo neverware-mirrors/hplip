@@ -102,7 +102,7 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 	rm -f config.cache
 
 	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
-		CUPS_PPD_PATH=/usr/share/ppd \
+		HPLIP_PPD_PATH=/usr/share/ppd \
 		$(CONFFLAGS) \
 	 	--config-cache \
 		--disable-dependency-tracking \

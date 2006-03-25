@@ -474,7 +474,7 @@ ac_includes_default="\
 #endif"
 
 ac_subdirs_all="$ac_subdirs_all prnt/hpijs"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL subdirs PYTHON PYTHON_VERSION PYTHON_PREFIX PYTHON_EXEC_PREFIX PYTHON_PLATFORM pythondir pkgpythondir pyexecdir pkgpyexecdir PYUIC ac_ct_PYUIC CHKCONFIG ac_pt_CHKCONFIG INSTALLINITD ac_pt_INSTALLINITD CUPS_BACKEND_PATH CUPS_PPD_PATH RPM_INSTALL network_build pp_build ICON_PATH ICON_FILE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL subdirs PYTHON PYTHON_VERSION PYTHON_PREFIX PYTHON_EXEC_PREFIX PYTHON_PLATFORM pythondir pkgpythondir pyexecdir pkgpyexecdir PYUIC ac_ct_PYUIC CHKCONFIG ac_pt_CHKCONFIG INSTALLINITD ac_pt_INSTALLINITD CUPS_BACKEND_PATH HPLIP_PPD_PATH RPM_INSTALL network_build pp_build ICON_PATH ICON_FILE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -975,10 +975,10 @@ ac_env_CUPS_BACKEND_PATH_set=${CUPS_BACKEND_PATH+set}
 ac_env_CUPS_BACKEND_PATH_value=$CUPS_BACKEND_PATH
 ac_cv_env_CUPS_BACKEND_PATH_set=${CUPS_BACKEND_PATH+set}
 ac_cv_env_CUPS_BACKEND_PATH_value=$CUPS_BACKEND_PATH
-ac_env_CUPS_PPD_PATH_set=${CUPS_PPD_PATH+set}
-ac_env_CUPS_PPD_PATH_value=$CUPS_PPD_PATH
-ac_cv_env_CUPS_PPD_PATH_set=${CUPS_PPD_PATH+set}
-ac_cv_env_CUPS_PPD_PATH_value=$CUPS_PPD_PATH
+ac_env_HPLIP_PPD_PATH_set=${HPLIP_PPD_PATH+set}
+ac_env_HPLIP_PPD_PATH_value=$HPLIP_PPD_PATH
+ac_cv_env_HPLIP_PPD_PATH_set=${HPLIP_PPD_PATH+set}
+ac_cv_env_HPLIP_PPD_PATH_value=$HPLIP_PPD_PATH
 
 #
 # Report the --help message.
@@ -1107,8 +1107,8 @@ Some influential environment variables:
               LSB install_initd utility
   CUPS_BACKEND_PATH
               CUPS backend directory
-  CUPS_PPD_PATH
-              CUPS ppd directory
+  HPLIP_PPD_PATH
+              HPLIP ppd directory
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -21957,28 +21957,22 @@ if test "x${CUPS_BACKEND_PATH}" = "x"; then
 	   fi
 	done
 
+
 fi
 
 echo "$as_me:$LINENO: result: using ${CUPS_BACKEND_PATH}" >&5
 echo "${ECHO_T}using ${CUPS_BACKEND_PATH}" >&6
 
 
-echo "$as_me:$LINENO: checking for cups ppd path" >&5
-echo $ECHO_N "checking for cups ppd path... $ECHO_C" >&6
-if test "x${CUPS_PPD_PATH}" = "x"; then
-
-	CUPS_PPD_PATH="/usr/share/cups/model/ppd"
-	for i in $CUPSSEARCHPATH; do
-	   if test -d "$i/cups/model/ppd"; then
-	      CUPS_PPD_PATH="$i/cups/model/ppd"
-	      break
-	   fi
-	done
+echo "$as_me:$LINENO: checking for HPLIP ppd path" >&5
+echo $ECHO_N "checking for HPLIP ppd path... $ECHO_C" >&6
+if test "x${HPLIP_PPD_PATH}" = "x"; then
+  HPLIP_PPD_PATH="\${datadir}/ppd/HP"
 
 fi
 
-echo "$as_me:$LINENO: result: using ${CUPS_PPD_PATH}" >&5
-echo "${ECHO_T}using ${CUPS_PPD_PATH}" >&6
+echo "$as_me:$LINENO: result: using ${HPLIP_PPD_PATH}" >&5
+echo "${ECHO_T}using ${HPLIP_PPD_PATH}" >&6
 
 ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
 ICONFILETYPES="hplip hplip.desktop"
@@ -22846,7 +22840,7 @@ s,@ac_pt_CHKCONFIG@,$ac_pt_CHKCONFIG,;t t
 s,@INSTALLINITD@,$INSTALLINITD,;t t
 s,@ac_pt_INSTALLINITD@,$ac_pt_INSTALLINITD,;t t
 s,@CUPS_BACKEND_PATH@,$CUPS_BACKEND_PATH,;t t
-s,@CUPS_PPD_PATH@,$CUPS_PPD_PATH,;t t
+s,@HPLIP_PPD_PATH@,$HPLIP_PPD_PATH,;t t
 s,@RPM_INSTALL@,$RPM_INSTALL,;t t
 s,@network_build@,$network_build,;t t
 s,@pp_build@,$pp_build,;t t

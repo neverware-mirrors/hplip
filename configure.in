@@ -148,22 +148,16 @@ AS_IF([test "x${CUPS_BACKEND_PATH}" = "x"],
 	      break
 	   fi
 	done
-	])
+	]
+)
 AC_MSG_RESULT([using ${CUPS_BACKEND_PATH}])
 
-AC_ARG_VAR([CUPS_PPD_PATH], [CUPS ppd directory])
-AC_MSG_CHECKING([for cups ppd path])
-AS_IF([test "x${CUPS_PPD_PATH}" = "x"],
-	[
-	CUPS_PPD_PATH="/usr/share/cups/model/ppd"
-	for i in $CUPSSEARCHPATH; do
-	   if test -d "$i/cups/model/ppd"; then
-	      CUPS_PPD_PATH="$i/cups/model/ppd"
-	      break
-	   fi
-	done
-	])
-AC_MSG_RESULT([using ${CUPS_PPD_PATH}])
+AC_ARG_VAR([HPLIP_PPD_PATH], [HPLIP ppd directory])
+AC_MSG_CHECKING([for HPLIP ppd path])
+AS_IF([test "x${HPLIP_PPD_PATH}" = "x"],
+	[HPLIP_PPD_PATH="\${datadir}/ppd/HP"]
+)
+AC_MSG_RESULT([using ${HPLIP_PPD_PATH}])
 
 ICONSEARCHPATH="/usr/lib/menu /usr/share/applications"
 ICONFILETYPES="hplip hplip.desktop"

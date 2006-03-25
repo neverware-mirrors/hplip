@@ -1,3 +1,11 @@
+hplip (0.9.9-2) unstable; urgency=low
+
+  * configure.in, Makefile.am, debian/rules, prnt/hpijs/configure.in:
+    fix /etc/hp/hplip.conf ppd dir setting, thus unbreaking hp-setup
+    and remove useless cruft re. PPD dir setup while at it (closes: #358719)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 24 Mar 2006 21:22:17 -0300
+
 hplip (0.9.9-1) unstable; urgency=low
 
   * New upstream version

@@ -26,8 +26,7 @@ dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py pho
     sendfax.py setup.py
 
 cupsdir = $(CUPS_BACKEND_PATH)
-cupsppddir = $(CUPS_PPD_PATH)
-hpppddir = $(datadir)/ppd/HP
+hpppddir = $(HPLIP_PPD_PATH)
 
 # hp backend.
 cups_PROGRAMS = hp

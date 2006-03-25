@@ -202,7 +202,6 @@ CHKCONFIG = @CHKCONFIG@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUPS_BACKEND_PATH = @CUPS_BACKEND_PATH@
-CUPS_PPD_PATH = @CUPS_PPD_PATH@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -218,6 +217,7 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
 FFLAGS = @FFLAGS@
+HPLIP_PPD_PATH = @HPLIP_PPD_PATH@
 ICON_FILE = @ICON_FILE@
 ICON_PATH = @ICON_PATH@
 INSTALLINITD = @INSTALLINITD@
@@ -322,8 +322,7 @@ dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py pho
     sendfax.py setup.py
 
 cupsdir = $(CUPS_BACKEND_PATH)
-cupsppddir = $(CUPS_PPD_PATH)
-hpppddir = $(datadir)/ppd/HP
+hpppddir = $(HPLIP_PPD_PATH)
 hp_SOURCES = backend/hp/hp.c 
 hp_LDADD = libhplip-api.la
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp \
