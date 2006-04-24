@@ -1,3 +1,36 @@
+hplip (0.9.10-1) unstable; urgency=low
+
+  * New upstream version
+    * HPLIP 0.9.10 (patchlevel 2):
+      + Made the "hp" backend more product specific, now HP USB keyboards
+        won't be misdetected as printers....
+      + Fixed jetdirect write timeout in hpiod
+      + Added deviceID to output of "hp" backend for CUPS 1.2
+      + Fixed a problem where no fax send dialog pops up when sending
+        a fax job from OpenOffice Writer and the fax job can not be sent
+        correctly
+      + Fixed a hp-setup crash which can occur during fax setup testpage
+        printing
+      + Modified the hp-toolbox and hp-print so that they will work with
+        unsupported printer models without crashing
+      + Hp-setup now allows the user to manually enter a PPD file path
+      + The "NickName" from each located PPD file is displayed to the user
+        so that the "(recommended)" text will be shown.
+      + Fixed an error which occurs while executing hp-sendfax with
+        b parameter.
+      + Fixed a hp-toolbox problem displaying cartridge information for
+        Photosmart 8700 when device is connected via network
+  * dpatch 00_01_upstream-0.9.10-2 (new): upstream patchlevel 2
+    + Drop useless (and broken) model test comparison (closes: #360385)
+    + Fix local DoS when usb communications get stuck
+  * dpatch 14_charsign_fixes: add new hunks to fix more sign problems
+  * Replace all instances of the old upstream hopepage (hpinkjet.sf.net)
+    with the new one (hplip.sf.net)
+  * Point users to the new upstream mailinglists
+  * Add watch entries for the renamed sourceforge project
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 24 Apr 2006 12:57:59 -0300
+
 hplip (0.9.9-2) unstable; urgency=low
 
   * configure.in, Makefile.am, debian/rules, prnt/hpijs/configure.in:

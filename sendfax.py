@@ -35,7 +35,7 @@ from base.g import *
 from base.msg import *
 import base.utils as utils
 import base.async_qt as async
-from base import service
+from base import service, device
 
 app = None
 sendfax = None
@@ -234,11 +234,12 @@ def main(args):
         opts, args = getopt.getopt(sys.argv[1:],'l:hz:d:p:b:g', 
             ['device=', 'printer=', 'level=', 
              'standalone', 'job', 'help', 'help-rest', 
-             'help-man', 'logfile=', 'bus='])
+             'help-man', 'logfile=', 'bus=', 'jobsize=',
+             'title=', 'jobid=', 'user='])
 
     except getopt.GetoptError, e:
-        print e
-        #usage()
+        log.error(e)
+        sys.exit(1)
         
 
     if os.getenv("HPLIP_DEBUG"):
@@ -283,6 +284,26 @@ def main(args):
         elif o == '--job':
             standalone = False
             
+        elif o == '--title':
+            title = a
+            
+        elif o == '--jobsize':
+            try:
+                job_size = int(a)
+            except ValueError:
+                job_size = 0
+                
+        elif o == '--user':
+            username = a
+            
+        elif o == '--jobid':
+            try:
+                job_id = int(a)
+            except ValueError:
+                job_id = 0
+            
+            
+            
     utils.log_title(__title__, __version__)
     
     # Security: Do *not* create files that other users can muck around with
@@ -295,6 +316,7 @@ def main(args):
     # If hpssd is running as root, drop privledges
     # to the user that initiated the print job
     if os.getuid() == 0:
+        log.debug("Dropping to user: %s" % username)
         uid, gid = pwd.getpwnam(username)[2:4]
         os.setegid(gid)
         os.seteuid(uid)

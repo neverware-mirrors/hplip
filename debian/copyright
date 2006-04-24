@@ -1,8 +1,11 @@
 This package was debianized by Torsten Landschoff <torsten@debian.org>
 and Henrique de Moraes Holschuh <hmh@debian.org>
 
-It was downloaded from
-  http://prdownloads.sourceforge.net/hpinkjet/
+It was downloaded from:
+  http://prdownloads.sourceforge.net/hplip/
+
+Upstream website:
+  http://hplip.sourceforge.net/
 
 The Debian packaging of hplip and hpijs is:
   Copyright (c) 2003-2004 by Torsten Landschoff <torsten@debian.org>

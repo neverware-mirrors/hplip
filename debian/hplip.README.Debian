@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip.README.Debian,v 1.12 2006/03/16 19:03:27 hmh Exp $
+$Id: hplip.README.Debian,v 1.13 2006/03/29 01:04:10 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't
@@ -102,11 +102,11 @@ layers is broken:
    or "hp-setup -b par -m /dev/lp0" (or lp1, lp2...) to probe an specific
    parallel port.
 
-If these steps fail to detect and probe your printer, ask for help in one
-of the Debian user lists, or in the http://hpinkjet.sf.net forums.  Should
-you do so, always include which O.S, version of HPLIP and HPIJS, and all
-the information about your printer model and how it is connected to your
-computer) in your post.
+If these steps fail to detect and probe your printer, ask for help in one of
+the Debian user lists, or in the upstream HPLIP mailinglists, available at
+http://hplip.sourceforge.net.  Should you do so, always include which O.S,
+version of HPLIP and HPIJS, and all the information about your printer model
+and how it is connected to your computer) in your post.
 
 
 Printing:

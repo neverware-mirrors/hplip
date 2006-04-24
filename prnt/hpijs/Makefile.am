@@ -28,8 +28,8 @@ cupshook =
 uncupshook =
 endif
 
-bin_PROGRAMS = hpijs
-hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax.cpp \
+bin_PROGRAMS = hpijs hppgsz
+apdk_SOURCES = models.cpp breaks_open.cpp \
 	dj9xxvip.cpp dj9xx.cpp capture.cpp colormatch.cpp colormatcher_open.cpp \
 	compression.cpp context.cpp create_so.cpp creator.cpp \
 	dj600.cpp dj630.cpp dj660.cpp dj690.cpp dj6xx.cpp dj8xx.cpp dj600_maps.cpp \
@@ -38,23 +38,27 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax
 	dj8x5.cpp psp100.cpp phobos_cmaps.cpp dj350.cpp halftoner.cpp halftoner_open.cpp \
 	globals.cpp header.cpp htmtxhi.cpp pmselect.cpp \
 	job.cpp printer.cpp registry.cpp scaler.cpp \
-	scaler_open.cpp script.cpp systemservices.cpp services.cpp \
+	scaler_open.cpp script.cpp systemservices.cpp \
 	translator.cpp version.cpp versioncode.cpp \
 	djgenericvip.cpp dj540.cpp dj850.cpp dj850_maps.cpp dj890.cpp \
 	apollo21xx.h apollo2560.h apollo2xxx.h colormatch.h colormatcher_open.h \
 	compression.h config.h context.h dj350.h dj400.h dj540.h \
 	dj600.h dj630.h dj660.h dj690.h dj6xx.h dj8x5.h dj8xx.h dj850.h dj890.h dj9xx.h dj9xxvip.h \
 	ernieplatform.h filterhpa.h global_types.h halftoner.h font.h debug.h \
-	halftoner_open.h header.h hpijs.h hpprint_c_api.h \
-	hpprintapi.h hptypes.h htfed.h ijs.h ijs_server.h internal.h \
+	halftoner_open.h header.h hpprint_c_api.h \
+	hpprintapi.h hptypes.h htfed.h internal.h \
 	interp.h interp_data_50.h io_defs.h job.h models.h modes.h pmselect.h \
-	printer.h psp100.h psp470.h resources.h scaler_open.h scaler_prop.h script.h services.h \
-	systemservices.h unistd_.h ijs_client.h djgenericvip.h ljmono.h ljmono.cpp \
+	printer.h psp100.h psp470.h resources.h scaler_open.h scaler_prop.h script.h \
+	systemservices.h unistd_.h djgenericvip.h ljmono.h ljmono.cpp \
 	dj3320.cpp dj3320.h dj3320_cmap.cpp dj3600.cpp dj3600.h dj3600_cmap.cpp ldlencap.h \
-	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
+	ljcolor.cpp ljcolor.h pscript.h \
 	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h \
 	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c ljfastraster.cpp ljfastraster.h \
-	jinclude.h jpegint.h hplip_api.c hplip_api.h dj55xx.h hpijsfax.h ojprokx50.h
+	jinclude.h jpegint.h dj55xx.h hpijsfax.h ojprokx50.h
+hpijs_SOURCES = $(apdk_SOURCES) hpijs.cpp ijs_server.c ijs.c hpijsfax.cpp services.cpp \
+    hpijs.h ijs.h ijs_server.h services.h ijs_client.h hpiom.c hpiom.h \
+	hplip_api.c hplip_api.h
+hppgsz_SOURCES = $(apdk_SOURCES) PrinterProperties.cpp PrinterProperties.h
 
 if HPLIP_BUILD
 hpijs_LDADD = ../../libhpip.la
@@ -70,10 +74,11 @@ uninstall-hook: $(unfoomatichook) $(uncupshook)
 
 install-foomatic:
 	$(mkinstalldirs) $(DESTDIR)$(ppddir)
-#	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
-#	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 	$(INSTALL_DATA) ppd/* $(DESTDIR)$(ppddir)
-	gzip -qf $(DESTDIR)$(ppddir)/*
+	gzip -f $(DESTDIR)$(ppddir)/HP*
+	gzip -f $(DESTDIR)$(ppddir)/hp*
 
 uninstall-foomatic:
 	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*

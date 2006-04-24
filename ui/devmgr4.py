@@ -709,8 +709,13 @@ class devmgr4(DevMgr4_base):
         p.eraseRect(0, 0, icon.width(), icon.height())
         p.drawPixmap(0, 0, pix)
 
+        try:
+            tech_type = d.tech_type
+        except AttributeError:
+            tech_type = TECH_TYPE_NONE
+        
         if error_state != ERROR_STATE_CLEAR:
-            if d.tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
+            if tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
                 status_icon = self.STATUS_HISTORY_ICONS[error_state][0] # ink
             else:
                 status_icon = self.STATUS_HISTORY_ICONS[error_state][1] # laser
@@ -872,16 +877,18 @@ class devmgr4(DevMgr4_base):
     def UpdatePrintJobsTab(self):
         self.PrintJobList.clear()
         num_jobs = 0
-        jobs = cups.getJobs()
-
-        for j in jobs:
-            if j.dest in self.cur_device.cups_printers:
-
-                JobListViewItem(self.PrintJobList, j.dest, j.id,
-                                 self.JOB_STATES[j.state], j.user, j.title)
-
-                num_jobs += 1
-
+        
+        if self.cur_device.supported:
+            jobs = cups.getJobs()
+    
+            for j in jobs:
+                if j.dest in self.cur_device.cups_printers:
+    
+                    JobListViewItem(self.PrintJobList, j.dest, j.id,
+                                     self.JOB_STATES[j.state], j.user, j.title)
+    
+                    num_jobs += 1
+    
         self.CancelPrintJobButton.setEnabled(num_jobs > 0)
 
 
@@ -994,8 +1001,13 @@ class devmgr4(DevMgr4_base):
 
             error_state = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_CLEAR)
 
+            try:
+                tech_type = d.tech_type
+            except AttributeError:
+                tech_type = TECH_TYPE_NONE
+            
             if error_state != ERROR_STATE_CLEAR:
-                if d.tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
+                if tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
                     status_pix = self.STATUS_HISTORY_ICONS[error_state][0] # ink
                 else:
                     status_pix = self.STATUS_HISTORY_ICONS[error_state][1] # laser
@@ -1010,7 +1022,7 @@ class devmgr4(DevMgr4_base):
             error_state = STATUS_TO_ERROR_STATE_MAP.get(d.last_event[11], ERROR_STATE_CLEAR)
 
             if error_state != ERROR_STATE_CLEAR:
-                if d.tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
+                if tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
                     status_icon = self.STATUS_ICONS[error_state][0] # ink
                 else:
                     status_icon = self.STATUS_ICONS[error_state][1] # laser

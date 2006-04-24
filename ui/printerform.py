@@ -228,7 +228,11 @@ class PrinterForm(PrinterForm_base):
         if self.dev.device_state == DEVICE_STATE_NOT_FOUND:
             self.FailureUI(self.__tr("<b>Unable to communicate with device:</b><p>%s" % self.device_uri))
 
-        self.StateText.setText(self.dev.status_desc)
+        try:
+            self.StateText.setText(self.dev.status_desc)
+        except AttributeError:
+            pass
+        
 
 
     def EventUI(self, event_code, event_type, error_string_short,

@@ -304,10 +304,31 @@ install-data-hook:
 	if [ "$(rpm_install)" = "no" ]; then \
 	   $(mkinstalldirs) $(DESTDIR)$(cupsdir); \
 	   $(INSTALL_SCRIPT) $(DESTDIR)$(hpfaxdir)/hpfax $(DESTDIR)$(cupsdir); \
-	   $(mkinstalldirs) $(DESTDIR)$(hpppddir); \
-	   $(INSTALL_SCRIPT) $(DESTDIR)$(faxppddir)/HP-Fax-hplip.ppd $(DESTDIR)$(hpppddir); \
-	   gzip -qf $(DESTDIR)$(hpppddir)/HP-Fax-hplip.ppd; \
+	   $(mkinstalldirs) $(DESTDIR)$(hpppddir)/fax; \
+	   $(INSTALL_DATA) $(DESTDIR)$(faxppddir)/HP-Fax-hplip.ppd $(DESTDIR)$(hpppddir)/fax; \
+	   gzip -f $(DESTDIR)$(hpppddir)/fax/HP-Fax-hplip.ppd; \
 	fi
+
+uninstall-hook:
+#       Remove Icon file. 
+	rm -f $(DESTDIR)$(icondir)/$(ICON_FILE)
+	rm -f $(DESTDIR)$(ICON_PATH)/$(ICON_FILE)
+#
+#       Remove hp-xxx commands.
+	for i in $(dist_cmd_SCRIPTS); do \
+	    newname=$${i%.*}; \
+	    rm -f $(DESTDIR)$(hplipdir)/$$newname; \
+	    rm -f $(DESTDIR)$(bindir)/hp-$$newname; \
+	done
+#
+#       Remove hplip.conf and hplip start/stop script.
+	rm -f $(DESTDIR)/etc/hp/$(PACKAGE).conf
+	rm -f $(DESTDIR)/etc/init.d/$(PACKAGE)
+#
+#       Remove fax support.
+	rm -f $(DESTDIR)$(hpfaxdir)/hpfax 
+	rm -f $(DESTDIR)$(cupsdir)/hpfax
+	rm -f $(DESTDIR)$(hpppddir)/fax/HP-Fax-hplip.ppd.gz
 
 #
 # Add prerequisites for testing (or building?) "make install DESTDIR=/build".

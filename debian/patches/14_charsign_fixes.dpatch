@@ -3,12 +3,23 @@
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fixes all sort of unsigned char -> signed char bogonness
-## DP: I hate winblows C coders :-)
 
 @DPATCH@
+diff -urNad hplip~/backend/hp/hp.c hplip/backend/hp/hp.c
+--- hplip~/backend/hp/hp.c	2006-03-27 21:27:27.000000000 -0300
++++ hplip/backend/hp/hp.c	2006-03-27 21:27:53.632685681 -0300
+@@ -338,7 +338,7 @@
+       cnt = ma.ndevice;
+ 
+       /* Add deviceID for CUPS 1.2, if available. */
+-      tail = ma.data;
++      tail = (char *) ma.data;
+       for (i=0; i<cnt; i++)
+       {
+          id[0] = 0;
 diff -urNad hplip~/ip/xpnm.c hplip/ip/xpnm.c
---- hplip~/ip/xpnm.c	2005-10-13 10:04:53.000000000 -0300
-+++ hplip/ip/xpnm.c	2005-10-13 10:05:19.497307136 -0300
+--- hplip~/ip/xpnm.c	2006-03-27 21:26:20.000000000 -0300
++++ hplip/ip/xpnm.c	2006-03-27 21:27:46.850860949 -0300
 @@ -422,7 +422,7 @@
          *pdwInputNextPos  = g->dwInNextPos;
          *pdwOutputThisPos = g->dwOutNextPos;
@@ -19,8 +30,8 @@ diff -urNad hplip~/ip/xpnm.c hplip/ip/xpnm.c
                  g->traits.iComponentsPerPixel)-1))-1;
              int len;
 diff -urNad hplip~/scan/sane/pml.c hplip/scan/sane/pml.c
---- hplip~/scan/sane/pml.c	2005-10-13 10:04:53.000000000 -0300
-+++ hplip/scan/sane/pml.c	2005-10-13 10:05:19.497307136 -0300
+--- hplip~/scan/sane/pml.c	2006-03-27 21:26:20.000000000 -0300
++++ hplip/scan/sane/pml.c	2006-03-27 21:27:46.850860949 -0300
 @@ -327,7 +327,7 @@
                             int maxlen )
  {
@@ -81,8 +92,8 @@ diff -urNad hplip~/scan/sane/pml.c hplip/scan/sane/pml.c
      }
  
 diff -urNad hplip~/scan/sane/scl.c hplip/scan/sane/scl.c
---- hplip~/scan/sane/scl.c	2005-10-13 10:04:53.000000000 -0300
-+++ hplip/scan/sane/scl.c	2005-10-13 10:05:19.498307015 -0300
+--- hplip~/scan/sane/scl.c	2006-03-27 21:26:20.000000000 -0300
++++ hplip/scan/sane/scl.c	2006-03-27 21:27:46.850860949 -0300
 @@ -28,10 +28,11 @@
  
  #include "scl.h"

@@ -40,7 +40,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
  .
  USB, JetDirect (network) and parallel-port devices are supported.
  .
-  Homepage: http://hpinkjet.sourceforge.net
+  Homepage: http://hplip.sourceforge.net/
 
 Package: hplip-data
 Architecture: all
@@ -97,4 +97,4 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
  .
-  Homepage: http://hpinkjet.sourceforge.net
+  Homepage: http://hplip.sourceforge.net/
