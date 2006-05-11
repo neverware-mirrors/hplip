@@ -1,3 +1,17 @@
+hplip (0.9.11-1) unstable; urgency=low
+
+Most of the user documentation for hplip is now shipped on the hplip-doc 
+package, as per upstream changes.
+
+The fax support has been modified, and now faxes will not be sent if
+hp-sendfax is not running.  To send a fax, first you must run hp-sendfax. 
+After hp-sendfax is running, add the documents to be sent as a fax using
+the hp-sendfax UI or at your option, print them to the fax queue using any
+application.  The jobs printed to the fax queue will show up in hp-sendfax
+after a few moments.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 10 May 2006 18:09:37 -0300
+
 hplip (0.9.9-1) unstable; urgency=low
 
 Fax support is enabled, but it is still mostly untested on the Debian

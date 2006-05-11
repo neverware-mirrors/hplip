@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
 # Distributed under the GPLv2 or newer
 #
-# $Id: hplip.init,v 1.12 2006/03/18 19:01:37 hmh Exp $
+# $Id: hplip.init,v 1.13 2006/05/10 21:12:45 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
@@ -65,11 +65,7 @@ reload_cups() {
 		# be silent about it to avoid unneeded hassles duing
 		# shutdowns -- it is not like we care if this suceeds or
 		# not...
-		if [ -x /usr/sbin/invoke-rc.d ] ; then
-			invoke-rc.d cupsys reload >/dev/null 2>&1 || true
-		else
-			/etc/init.d/cupsys reload >/dev/null 2>&1 || true
-		fi
+		invoke-rc.d --quiet cupsys reload >/dev/null 2>&1 || true
 	fi
 	return 0
 }

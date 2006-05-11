@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip.README.Debian,v 1.13 2006/03/29 01:04:10 hmh Exp $
+$Id: hplip.README.Debian,v 1.14 2006/05/10 22:05:01 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't
@@ -25,6 +25,10 @@ Quick Install:
 1. Install the hplip, hpijs-ppds, hpijs and cupsys packages.  If yor
    printer is a native PostScript printer, install the 
    linuxprinting.org-ppds package as well.
+
+   Documentation is in the hplip-doc package.  Reading it is advised,
+   especially the fax how-to.  The documentation is installed in
+   the /usr/share/doc/hplip-doc/ folder.
 
 2. Setup your printer using the hp-setup utility (must be run as root).
    hp-setup is capable of detecting your printer, and it can also
@@ -55,37 +59,38 @@ If you have trouble to get HPLIP's CUPS backend to detect the printer, you
 should check if it is being found by the kernel and by the HPLIP services.
 
 First, you need the HPLIP services running (run "/etc/init.d/hplip start" as
-root to activate them).  Run "ps U hplip" to check if the HPLIP services
-are running, it should return a line with "hpiod" and a line with "python
-/usr/sbin/hpssd".  If it doesn't, check the syslog (/var/log/*) for error
-messages.
+root to activate them).  Run "ps U hplip" to check if the HPLIP services are
+running, it should return a line with "python /usr/sbin/hpssd".  It may also
+return a line with "hpiod".  If it doesn't return a line with "hpiod", please
+check whether "ps U root | grep hpiod" does.
+
+If either hpssd or hpiod cannot be found in the output of the above commands,
+check the syslog (/var/log/*) for error messages.
 
 HPLIP won't be able to talk to your printer if anything on the lower
 layers is broken:
 
 1. For USB printers:
    * The printer must be listed in the output of the "lsusb" command when
-     you run it as root (sometimes it doesn't list printers behind hubs if
-     you run it as a normal user);
-   * Make sure you have the USB subsystem in a sane state: the usblp module
-     must be active, either loaded as a module, or built into the kernel;
-   * You must have the proper /dev/usb/lp0 (or lp1, lp2...) device inodes,
-     with read and write permission for group lp.
+     you run it as root (sometimes lsusb doesn't list printers behind hubs
+     if you run it as a normal user);
+   * Make sure you have the USB subsystem in a sane state (no error messages
+     from the kernel USB drivers in /var/log/kern.log);
 
    Use "hp-setup -b usb" to search the USB bus for printers, or
-   "hp-setup -b usb -m /dev/usb/lp0" (or lp1, lp2...) to select an
-   specific printer to probe.
+   "hp-setup -b usb <usb bus ID>:<usb device id>" (as returned by lsusb) to
+   select an specific printer to probe.
 
    If that fails, remove any USB hubs between the computer and the printer,
-   change USB cabling, and try again.
-     
+   maybe change USB cabling, and try again.
+
 2. For networked printers:
    * Make sure that you can ping the printer.
 
    Use "hp-setup -b net" to attempt the (very flaky) network printer
    automatic searching and autodetection.  Warning: this may trip network
    IDS and other anti-scanning defence systems.
-   
+
    Use "hp-setup -b net -m <printer IP>" for direct printer model auto-
    detection (much better than the automatic searching, and should not
    trip any IDS).
@@ -94,8 +99,8 @@ layers is broken:
    * Make sure you have the parport module loaded (or built in the kernel)
      and that it has IEEE 1284 support active (CONFIG_PARPORT_1284=y);
    * Make sure you have the parport_pc (or whichever parport device layer
-     module is used by your architecture) and lp modules loaded (or built in
-     the kernel);
+     module is used by your architecture) and lp modules loaded (or built
+     in the kernel);
    * Check printer cables, etc.
 
    Use "hp-setup -b par" for automatic searching of an IEEE 1824 printer,

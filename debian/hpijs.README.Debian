@@ -3,8 +3,8 @@ Notes about the Debian hpijs package
 
 This package includes the rss patch from
 
-	http://www.linuxprinting.org/download/printing/hpijs/
-	
+  http://www.linuxprinting.org/download/printing/hpijs/
+
 This patch tries to make sure that black is printed with just
 the black pen, if the printer supports it.  Almost all new
 HP printers (those using the DJGenericVIP model) do colormap 
@@ -26,8 +26,8 @@ A lot of enhanced functionality is only available in bi-dir
 mode, which is supported only by HPLIP.
 
 If you are going to use PPDs, it is recommended that the ones
-from the hplip PPD package be used, as they are guaranteed to
-work well with hpijs.
+from the hpijs-ppds PPD package be used, as they are guaranteed
+to work well with this version of hpijs.
 
  -- Torsten Landschoff <torsten@debian.org>
  -- Henrique de Moraes Holschuh <hmh@debian.org>

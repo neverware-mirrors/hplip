@@ -6,29 +6,31 @@
 
 @DPATCH@
 diff -urNad hplip~/base/device.py hplip/base/device.py
---- hplip~/base/device.py	2006-03-09 16:27:12.000000000 -0300
-+++ hplip/base/device.py	2006-03-16 10:32:54.453121485 -0300
-@@ -1540,20 +1540,22 @@
+--- hplip~/base/device.py	2006-05-10 15:10:40.000000000 -0300
++++ hplip/base/device.py	2006-05-10 16:35:38.131781196 -0300
+@@ -1591,23 +1591,23 @@
                  self.writePrint(file(file_name, 'r').read())
  
-         elif len(self.cups_printers) > 0:
--            if is_gzip:
--                c = 'gunzip -c %s | lpr -P%s' % (file_name, self.cups_printers[0])
--            else:
--                c = 'lpr -P%s %s' % (self.cups_printers[0], file_name)
--
+         else:
+-            raw_str = ''
+-            rem_str = ''
+-            
++
              if raw:
--                c = ''.join([c, ' -l'])
-+                lp_opt = '-oraw'
-+            else:
-+                lp_opt = ''
- 
+-                raw_str = '-l'
+-            
 -            if remove:
--                c = ''.join([c, ' -r'])
-+            if is_gzip:
-+                c = 'gunzip -c %s | lp -c -d%s %s' % (file_name, self.cups_printers[0], lp_opt)
+-                rem_str = '-r'
++                 lp_opt = '-oraw'
 +            else:
-+                c = 'lp -c -d%s %s %s' % (self.cups_printers[0], lp_opt, file_name)
++                 lp_opt = ''
+             
+             if is_gzip:
+-                c = 'gunzip -c %s | lpr %s %s -P%s' % (file_name, raw_str, rem_str, printer_name)
++                c = 'gunzip -c %s | lp -c -d%s %s' % (file_name, printer_name, lp_opt)
+             else:
+-                c = 'lpr -P%s %s %s %s' % (printer_name, raw_str, rem_str, file_name)
++                c = 'lp -c -d%s %s %s' % (printer_name, lp_opt, file_name)
  
              log.debug(c)
              os.system(c)
@@ -36,50 +38,25 @@ diff -urNad hplip~/base/device.py hplip/base/device.py
 +            if remove:
 +                os.remove(file_name)
 +
-         else:
-             raise Error(ERROR_NO_CUPS_QUEUE_FOUND_FOR_DEVICE)
  
-diff -urNad hplip~/hplip_readme.html hplip/hplip_readme.html
---- hplip~/hplip_readme.html	2006-03-09 16:27:12.000000000 -0300
-+++ hplip/hplip_readme.html	2006-03-16 10:32:54.455121247 -0300
-@@ -2431,7 +2431,7 @@
- <b>Issue 2: I tried printing a document with 'hp-print' but it didn't work.<br>
- Solution:</b><br>
- 'hp-print' is only designed to print raw printer ready data to the printer. 'hp-print' by-passes the CUPS backend and is not intended for general use.
--To print raw printer ready data use the "lpr -oraw" command line.<br>
-+To print raw printer ready data use the "lp -oraw" command line.<br>
- <p>
- 
- <b>Issue 3: I'd like to view the CUPS error log for debugging and troubleshooting purposes.<br>
-@@ -2464,7 +2464,7 @@
- <p>
- 1. Setup a default printer queue for your printer. Use the following command to print a postscript file from the spooler. See your distribution for spooler setup if you have questions.
- <pre>
--$ lpr /usr/share/printconf/tests/testpage.ps
-+$ lp /usr/share/printconf/tests/testpage.ps
- </pre>
- If this command fails goto the next step. If this command passes, but fails to print from your application you have an application issue, see your distribution for help.
- <p>
-diff -urNad hplip~/prnt/hpijs/hpijs_readme.html hplip/prnt/hpijs/hpijs_readme.html
---- hplip~/prnt/hpijs/hpijs_readme.html	2006-03-09 16:27:32.000000000 -0300
-+++ hplip/prnt/hpijs/hpijs_readme.html	2006-03-16 10:32:54.458120890 -0300
-@@ -4106,10 +4106,10 @@
-   will print a postscript file to the lp0 spooler.
-   <p>
- <pre>
--$ lpr -Plp0 tiger.ps
-+$ lp -dlp0 tiger.ps
- </pre>
-   <p>
--  Most applications use the lpr command to print documents. 
-+  Most applications use the lp or lpr commands to print documents. 
- <p>
- <H4><a name="Command"></a>7.2 Ghostscript Example</H4>
- Here is a Ghostscript example using our driver on a 990C deskjet from the command line.
+     def printTestPage(self, printer_name=None):
+         return self.printParsedGzipPostscript(os.path.join( prop.home_dir, 'data',
+diff -urNad hplip~/doc/troubleshooting/printing.html hplip/doc/troubleshooting/printing.html
+--- hplip~/doc/troubleshooting/printing.html	2006-05-09 15:19:25.000000000 -0300
++++ hplip/doc/troubleshooting/printing.html	2006-05-10 16:35:59.685265023 -0300
+@@ -78,7 +78,7 @@
+ <p>For printers that only support 4x6 page sizes, make sure the page size setting is correct in the CUPS queue. The default page setting may not be correct and print jobs will fail.</p>
+ <p><strong>Issue 2: I tried printing a document with 'hp-print' but it didn't work.</strong></p>
+ <p>Solution:</p>
+-<p>'hp-print' is only designed to print raw printer ready data to the printer. 'hp-print' by-passes the CUPS backend and is not intended for general use. To print raw printer ready data use the &quot;lpr -oraw&quot; command line.</p>
++<p>'hp-print' is only designed to print raw printer ready data to the printer. 'hp-print' by-passes the CUPS backend and is not intended for general use. To print raw printer ready data use the &quot;lp -oraw&quot; command line.</p>
+ <p><strong>Issue 3: I'd like to view the CUPS error log for debugging and troubleshooting purposes.</strong></p>
+ <p>Solution:</p>
+ <p>Edit the /etc/cups/cupsd.conf file, find the section &quot;loglevel&quot; change &quot;info&quot; to &quot;debug&quot; save and exit then restart cups</p>
 diff -urNad hplip~/ui/printerform.py hplip/ui/printerform.py
---- hplip~/ui/printerform.py	2006-03-09 16:27:37.000000000 -0300
-+++ hplip/ui/printerform.py	2006-03-16 10:32:54.459120771 -0300
-@@ -380,12 +380,12 @@
+--- hplip~/ui/printerform.py	2006-05-10 15:10:40.000000000 -0300
++++ hplip/ui/printerform.py	2006-05-10 16:35:38.131781196 -0300
+@@ -384,12 +384,12 @@
              alt_nup = (nup > 1 and t == 'application/postscript' and utils.which('psnup'))
                  
              if alt_nup:

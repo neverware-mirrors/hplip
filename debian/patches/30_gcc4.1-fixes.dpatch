@@ -1,0 +1,110 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 30_gcc4.1-fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes problems detected by gcc 4.1 on -Wall mode
+## DP: without this patch, --no-strict-aliasing is required
+
+@DPATCH@
+diff -urNad hplip~/prnt/hpijs/hpijs.cpp hplip/prnt/hpijs/hpijs.cpp
+--- hplip~/prnt/hpijs/hpijs.cpp	2006-05-11 10:16:19.000000000 -0300
++++ hplip/prnt/hpijs/hpijs.cpp	2006-05-11 10:17:17.295530602 -0300
+@@ -272,19 +272,19 @@
+    }
+    else if (!strcmp (key, "Quality:Quality"))
+    {
+-      pSS->Quality = strtol(svalue, &tail, 10);
++      pSS->Quality = (QUALITY_MODE) strtol(svalue, &tail, 10);
+    }
+    else if (!strcmp (key, "Quality:MediaType"))
+    {
+-      pSS->MediaType = strtol(svalue, &tail, 10);
++      pSS->MediaType = (MEDIATYPE) strtol(svalue, &tail, 10);
+    }
+    else if (!strcmp (key, "Quality:ColorMode"))
+    {
+-      pSS->ColorMode = strtol(svalue, &tail, 10);
++      pSS->ColorMode = (COLORMODE) strtol(svalue, &tail, 10);
+    }
+    else if (!strcmp (key, "Quality:PenSet"))
+    {
+-      pSS->PenSet = strtol(svalue, &tail, 10);
++      pSS->PenSet = (PEN_TYPE) strtol(svalue, &tail, 10);
+    }
+    else if (!strcmp (key, "Quality:FullBleed"))
+    {
+diff -urNad hplip~/prnt/hpijs/ljfastraster.cpp hplip/prnt/hpijs/ljfastraster.cpp
+--- hplip~/prnt/hpijs/ljfastraster.cpp	2006-05-11 10:16:19.000000000 -0300
++++ hplip/prnt/hpijs/ljfastraster.cpp	2006-05-11 10:17:17.295530602 -0300
+@@ -1215,7 +1215,7 @@
+ 
+ 			m_compressedsize = 2 * inputsize * INDY_STRIP_HEIGHT;
+             BOOL bRet = Compress (compressBuf, 
+-                                  (uint32_t *) &m_compressedsize,
++                                  &m_compressedsize,
+                                   pbyInputImageBuffer,
+                                   inputsize,
+                                   m_lCurrCDRasterRow,
+diff -urNad hplip~/prnt/hpijs/ljfastraster.h hplip/prnt/hpijs/ljfastraster.h
+--- hplip~/prnt/hpijs/ljfastraster.h	2006-05-11 10:16:19.000000000 -0300
++++ hplip/prnt/hpijs/ljfastraster.h	2006-05-11 10:17:17.296530482 -0300
+@@ -32,6 +32,7 @@
+ #ifndef APDK_LJFASTRASTER_H
+ #define APDK_LJFASTRASTER_H
+ 
++#include "global_types.h"
+ 
+ APDK_BEGIN_NAMESPACE
+ /*!
+@@ -136,7 +137,7 @@
+ 	long                m_lCurrBlockHeight;
+     long                m_lPrinterRasterRow;		// Current printer raster row.
+ 
+-	unsigned long       m_compressedsize;
++	uint32_t            m_compressedsize;
+ 	BOOL                m_bCompressed;
+ 	float               m_fRatio;
+     HPUInt8             *pbySeedRow;
+diff -urNad hplip~/prnt/hpijs/services.cpp hplip/prnt/hpijs/services.cpp
+--- hplip~/prnt/hpijs/services.cpp	2006-05-11 10:16:19.000000000 -0300
++++ hplip/prnt/hpijs/services.cpp	2006-05-11 10:17:17.296530482 -0300
+@@ -270,9 +270,9 @@
+        }
+    }
+ 
+-   Quality = 0;     /* normal */
+-   MediaType = 0;   /* plain */
+-   ColorMode = 2;   /* color */
++   Quality = QUALITY_NORMAL;
++   MediaType = MEDIA_PLAIN;
++   ColorMode = COLOR;
+    PenSet = DUMMY_PEN;
+    
+    RastersOnPage = 0;
+diff -urNad hplip~/prnt/hpijs/services.h hplip/prnt/hpijs/services.h
+--- hplip~/prnt/hpijs/services.h	2006-05-11 10:16:19.000000000 -0300
++++ hplip/prnt/hpijs/services.h	2006-05-11 10:17:17.297530363 -0300
+@@ -35,6 +35,8 @@
+ #include <stdio.h>
+ #include <math.h>
+ 
++#include "global_types.h"
++
+ APDK_USING_NAMESPACE
+ 
+ class UXServices:public SystemServices
+@@ -123,10 +125,10 @@
+   const float *Margin;
+   int Model;      /* selected device: -1=no, 1=yes */
+   int OutputPath;   /* open file descriptor */
+-  int Quality;       /* 0=normal, 1=draft, 2=best */
+-  int MediaType;     /* 0=plain, 1=premium, 2=photo */
+-  int ColorMode;     /* 0=grey_k, 1=grey_cmy, 2=color */
+-  int PenSet;        /* 0=black_pen, 1=color_pen, 2=both_pens, 3=mdl_pen, 4=mdl_both */
++  QUALITY_MODE Quality;
++  MEDIATYPE MediaType;
++  COLORMODE ColorMode;
++  PEN_TYPE PenSet;
+   int MediaPosition;
+   float PaperWidth;    /* physical width in inches */
+   float PaperHeight;   /* physical height in inches */

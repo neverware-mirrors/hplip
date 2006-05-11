@@ -15,8 +15,10 @@ include /usr/share/dpatch/dpatch.make
 export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
 #export DH_VERBOSE=1
 
+DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
+CHANGELOG:=doc/release_notes.html
 
 # Version information
 # We cannot get the hpijs version like this because we could be generating
@@ -219,8 +221,7 @@ install-indep-stamp: install-stamp
 			-e s/smart/Smart/i -e s/photo/Photo/i -e s/psc/PSC/i \
 			-e s/laser/Laser/i -e s/design/Design/i \
 			-e s/mfp/MFP/i -e 's/[-_]hpijs/-hpijs/i' ) ;\
-		sed -e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
-			< "$$i" \
+		sed < "$$i" -e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
 			| gzip -9 \
 			> "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
 		chmod 644 "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
@@ -245,9 +246,9 @@ binary-indep: install-indep debian/hpijs.version
 #	dh_installcron -i
 	dh_installman -i
 #	dh_installinfo -i
-	dh_installchangelogs -i ChangeLog
+	dh_installchangelogs -i $(CHANGELOG)
 	dh_link -i
-	dh_strip -i
+	dh_strip -i --dbg-package=$(DBGPKG)
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
@@ -258,9 +259,11 @@ binary-indep: install-indep debian/hpijs.version
 	dh_gencontrol -phpijs-ppds -- \
 		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_gencontrol -i -Nhpijs-ppds -- \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -i
 	dh_builddeb -i
@@ -282,11 +285,11 @@ binary-arch: install-arch debian/hpijs.version
 #	dh_installcron -a
 	dh_installman -a
 #	dh_installinfo -a
-	dh_installchangelogs -a ChangeLog
+	dh_installchangelogs -a $(CHANGELOG)
 	dh_python -a /usr/lib/hplip
 #	dh_perl -a
 	dh_link -a
-	dh_strip -a
+	dh_strip -a --dbg-package=$(DBGPKG)
 	dh_compress -a
 	dh_fixperms -a
 #	dh_makeshlibs -a
@@ -295,9 +298,11 @@ binary-arch: install-arch debian/hpijs.version
 	dh_gencontrol -phpijs -- \
 		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_gencontrol -a -Nhpijs -- \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
+		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
 		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
 	dh_md5sums -a
 	dh_builddeb -a
