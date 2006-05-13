@@ -1,9 +1,8 @@
-00_01_upstream-0.9.11-1
+00_01_upstream-0.9.11-2
 01_rss
 10_shebang_fixes
 14_charsign_fixes
-20_fix-asserts
-30_gcc4.1-fixes
 40_quiet-hpiod
-50_doc-location
+50_ui-supportform-cleanups
+55_ui-supportform-debian
 60_lp_instead_of_lpr

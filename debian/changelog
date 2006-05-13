@@ -1,3 +1,23 @@
+hplip (0.9.11-2) unstable; urgency=low
+
+  * dpatch 00_01_upstream-0.9.11-2 (new): HPLIP 0.9.11-2
+    + Fixed an intermittent auto duplex problem with HPIJS 
+      (closes: #360017)
+    + Add some missing PSC 950 model entries in models.xml
+    + Fixed some NDEBUG compiler issues (Debian)
+    + Fixed some gcc 4.1 compiler issues (Debian)
+  * dpatch 20_fix-asserts (remove): accepted upstream
+  * dpatch 30_gcc4.1-fixes (remove): accepted upstream
+  * dpatch 50_doc-location (remove): superseeded by dpatch
+    50_ui-supportform-cleanups
+  * dpatch 50_ui-supportform-cleanups (new): Remove useless README pane
+    in hp-toolbox support form, fix the URIs to have ending slashes, and
+    some other cosmetic fixes
+  * dpatch 55_ui-supportform-debian (new): Add Debian pane to hp-toolbox
+    support form
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 12 May 2006 23:40:38 -0300
+
 hplip (0.9.11-1) unstable; urgency=low
 
   * The "Eating hedgehogs ain't smart" release

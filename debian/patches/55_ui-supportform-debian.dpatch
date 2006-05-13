@@ -1,0 +1,373 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 55_ui-supportform-debian.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Add a Debian pane to the support form of hp-toolbox
+
+@DPATCH@
+diff -urNad hplip~/ui/supportform.py hplip/ui/supportform.py
+--- hplip~/ui/supportform.py	2006-05-13 08:24:12.798551086 -0300
++++ hplip/ui/supportform.py	2006-05-13 08:24:42.096041700 -0300
+@@ -19,3 +19,19 @@
+ 
+     def cupsButton_clicked(self):
+         utils.openURL("http://cups.org/")
++
++    def deb_hplip_docButton_clicked(self):
++        utils.openURL("file:///usr/share/doc/hplip/")
++
++    def deb_hplipdoc_docButton_clicked(self):
++        utils.openURL("file:///usr/share/doc/hplip-doc/HTML/index.html")
++
++    def deb_hpijs_docButton_clicked(self):
++        utils.openURL("file:///usr/share/doc/hpijs/")
++
++    def deb_hpijsppds_docButton_clicked(self):
++        utils.openURL("file:///usr/share/doc/hpijs-ppds/")
++
++    def deb_lpoppds_docButton_clicked(self):
++        utils.openURL("file:///usr/share/doc/linuxprinting.org-ppds/")
++
+diff -urNad hplip~/ui/supportform_base.ui hplip/ui/supportform_base.ui
+--- hplip~/ui/supportform_base.ui	2006-05-13 08:24:12.799550966 -0300
++++ hplip/ui/supportform_base.ui	2006-05-13 08:24:12.988528329 -0300
+@@ -151,6 +151,277 @@
+                     <cstring>TabPage</cstring>
+                 </property>
+                 <attribute name="title">
++                    <string>Debian</string>
++                </attribute>
++                <grid>
++                    <property name="name">
++                        <cstring>unnamed</cstring>
++                    </property>
++                    <widget class="Line" row="1" column="0">
++                        <property name="name">
++                            <cstring>line_debian_1</cstring>
++                        </property>
++                        <property name="frameShape">
++                            <enum>HLine</enum>
++                        </property>
++                        <property name="frameShadow">
++                            <enum>Sunken</enum>
++                        </property>
++                        <property name="orientation">
++                            <enum>Horizontal</enum>
++                        </property>
++                    </widget>
++                    <widget class="QLabel" row="0" column="0">
++                        <property name="name">
++                            <cstring>textLabel_debian_title</cstring>
++                        </property>
++                        <property name="text">
++                            <string>&lt;b&gt;Specific Support for Debian HPLIP&lt;/b&gt;</string>
++                        </property>
++                    </widget>
++                    <widget class="QLabel" row="6" column="0">
++                        <property name="name">
++                            <cstring>textLabel_debian_disclaimer</cstring>
++                        </property>
++                        <property name="text">
++                            <string>NOTE: Debian is an independent, free software distribution, and is not affiliated with HP.</string>
++                        </property>
++                        <property name="alignment">
++                            <set>WordBreak|AlignVCenter</set>
++                        </property>
++                    </widget>
++                    <widget class="QLabel" row="2" column="0">
++                        <property name="name">
++                            <cstring>textLabel_debian_text</cstring>
++                        </property>
++                        <property name="text">
++                            <string>&lt;p&gt;The Debian packages that compose the HPLIP system contain Debian-specific documentation to help you setup and use your HP printer in a Debian system. This documentation is available when each package is installed, and can be accessed either by the buttons below, or by reading it directly at the /usr/share/doc/&lt;i&gt;package-name&lt;/i&gt;/ folders.&lt;/p&gt;
++&lt;p&gt;For help with issues, subscribe to one of the various &lt;a href="http://lists.debian.org/users.html"&gt;debian-user mailing-lists&lt;/a&gt; or to the &lt;a href="http://hplip.sourceforge.net/mailing_lists.html"&gt;hplip-help mailing-list&lt;/a&gt;. Do try to find your own answers in the documentation first, though!&lt;/p&gt;</string>
++                        </property>
++                        <property name="alignment">
++                            <set>WordBreak|AlignVCenter</set>
++                        </property>
++                    </widget>
++                    <spacer row="5" column="0">
++                        <property name="name">
++                            <cstring>spacer12</cstring>
++                        </property>
++                        <property name="orientation">
++                            <enum>Vertical</enum>
++                        </property>
++                        <property name="sizeType">
++                            <enum>Expanding</enum>
++                        </property>
++                        <property name="sizeHint">
++                            <size>
++                                <width>20</width>
++                                <height>30</height>
++                            </size>
++                        </property>
++                    </spacer>
++                    <widget class="QLayoutWidget" row="4" column="0">
++                        <property name="name">
++                            <cstring>layout2</cstring>
++                        </property>
++                        <grid>
++                            <property name="name">
++                                <cstring>unnamed</cstring>
++                            </property>
++                            <widget class="QPushButton" row="1" column="5">
++                                <property name="name">
++                                    <cstring>debianButton_doc_lpoppds</cstring>
++                                </property>
++                                <property name="paletteForegroundColor">
++                                    <color>
++                                        <red>0</red>
++                                        <green>0</green>
++                                        <blue>255</blue>
++                                    </color>
++                                </property>
++                                <property name="font">
++                                    <font>
++                                        <family>Courier 10 Pitch</family>
++                                        <underline>1</underline>
++                                    </font>
++                                </property>
++                                <property name="cursor">
++                                    <cursor>13</cursor>
++                                </property>
++                                <property name="text">
++                                    <string>linuxprinting.org-ppds</string>
++                                </property>
++                            </widget>
++                            <widget class="QLabel" row="1" column="0" rowspan="1" colspan="2">
++                                <property name="name">
++                                    <cstring>hpijs_docButtonLabel</cstring>
++                                </property>
++                                <property name="text">
++                                    <string>Non-PostScript driver:</string>
++                                </property>
++                            </widget>
++                            <widget class="QLabel" row="1" column="4">
++                                <property name="name">
++                                    <cstring>lpoppds_docButtonLabel</cstring>
++                                </property>
++                                <property name="text">
++                                    <string>PostScript printers:</string>
++                                </property>
++                            </widget>
++                            <spacer row="0" column="3" rowspan="2" colspan="1">
++                                <property name="name">
++                                    <cstring>spacer13</cstring>
++                                </property>
++                                <property name="orientation">
++                                    <enum>Horizontal</enum>
++                                </property>
++                                <property name="sizeType">
++                                    <enum>Expanding</enum>
++                                </property>
++                                <property name="sizeHint">
++                                    <size>
++                                        <width>16</width>
++                                        <height>20</height>
++                                    </size>
++                                </property>
++                            </spacer>
++                            <widget class="QPushButton" row="0" column="5">
++                                <property name="name">
++                                    <cstring>debianButton_doc_hpijsppds</cstring>
++                                </property>
++                                <property name="paletteForegroundColor">
++                                    <color>
++                                        <red>0</red>
++                                        <green>0</green>
++                                        <blue>255</blue>
++                                    </color>
++                                </property>
++                                <property name="font">
++                                    <font>
++                                        <family>Courier 10 Pitch</family>
++                                        <underline>1</underline>
++                                    </font>
++                                </property>
++                                <property name="cursor">
++                                    <cursor>13</cursor>
++                                </property>
++                                <property name="text">
++                                    <string>hpijs-ppds</string>
++                                </property>
++                            </widget>
++                            <widget class="QPushButton" row="1" column="2">
++                                <property name="name">
++                                    <cstring>debianButton_doc_hpijs</cstring>
++                                </property>
++                                <property name="paletteForegroundColor">
++                                    <color>
++                                        <red>0</red>
++                                        <green>0</green>
++                                        <blue>255</blue>
++                                    </color>
++                                </property>
++                                <property name="font">
++                                    <font>
++                                        <family>Courier 10 Pitch</family>
++                                        <underline>1</underline>
++                                    </font>
++                                </property>
++                                <property name="cursor">
++                                    <cursor>13</cursor>
++                                </property>
++                                <property name="text">
++                                    <string>hpijs</string>
++                                </property>
++                            </widget>
++                            <widget class="QPushButton" row="0" column="1">
++                                <property name="name">
++                                    <cstring>debianButton_doc_hplip</cstring>
++                                </property>
++                                <property name="paletteForegroundColor">
++                                    <color>
++                                        <red>0</red>
++                                        <green>0</green>
++                                        <blue>255</blue>
++                                    </color>
++                                </property>
++                                <property name="font">
++                                    <font>
++                                        <family>Courier 10 Pitch</family>
++                                        <underline>1</underline>
++                                    </font>
++                                </property>
++                                <property name="cursor">
++                                    <cursor>13</cursor>
++                                </property>
++                                <property name="text">
++                                    <string>hplip</string>
++                                </property>
++                            </widget>
++                            <widget class="QLabel" row="0" column="0">
++                                <property name="name">
++                                    <cstring>hplip_docButtonLabel</cstring>
++                                </property>
++                                <property name="text">
++                                    <string>Main package:</string>
++                                </property>
++                            </widget>
++                            <widget class="QLabel" row="0" column="4">
++                                <property name="name">
++                                    <cstring>hpijsppds_docButtonLabel</cstring>
++                                </property>
++                                <property name="text">
++                                    <string>Non-PostScript printers:</string>
++                                </property>
++                            </widget>
++                            <widget class="QPushButton" row="0" column="2">
++                                <property name="name">
++                                    <cstring>debianButton_doc_hplipdoc</cstring>
++                                </property>
++                                <property name="paletteForegroundColor">
++                                    <color>
++                                        <red>0</red>
++                                        <green>0</green>
++                                        <blue>255</blue>
++                                    </color>
++                                </property>
++                                <property name="font">
++                                    <font>
++                                        <family>Courier 10 Pitch</family>
++                                        <underline>1</underline>
++                                    </font>
++                                </property>
++                                <property name="cursor">
++                                    <cursor>13</cursor>
++                                </property>
++                                <property name="text">
++                                    <string>hplip-doc</string>
++                                </property>
++                            </widget>
++                        </grid>
++                    </widget>
++                    <spacer row="3" column="0">
++                        <property name="name">
++                            <cstring>spacer14</cstring>
++                        </property>
++                        <property name="orientation">
++                            <enum>Vertical</enum>
++                        </property>
++                        <property name="sizeType">
++                            <enum>Expanding</enum>
++                        </property>
++                        <property name="sizeHint">
++                            <size>
++                                <width>20</width>
++                                <height>16</height>
++                            </size>
++                        </property>
++                    </spacer>
++                </grid>
++            </widget>
++            <widget class="QWidget">
++                <property name="name">
++                    <cstring>TabPage</cstring>
++                </property>
++                <attribute name="title">
+                     <string>linuxprinting.org</string>
+                 </attribute>
+                 <grid>
+@@ -370,14 +641,61 @@
+         <receiver>SupportForm_base</receiver>
+         <slot>cupsButton_clicked()</slot>
+     </connection>
++    <connection>
++        <sender>debianButton_doc_hplip</sender>
++        <signal>clicked()</signal>
++        <receiver>SupportForm_base</receiver>
++        <slot>deb_hplip_docButton_clicked()</slot>
++    </connection>
++    <connection>
++        <sender>debianButton_doc_hplipdoc</sender>
++        <signal>clicked()</signal>
++        <receiver>SupportForm_base</receiver>
++        <slot>deb_hplipdoc_docButton_clicked()</slot>
++    </connection>
++    <connection>
++        <sender>debianButton_doc_hpijs</sender>
++        <signal>clicked()</signal>
++        <receiver>SupportForm_base</receiver>
++        <slot>deb_hpijs_docButton_clicked()</slot>
++    </connection>
++    <connection>
++        <sender>debianButton_doc_hpijsppds</sender>
++        <signal>clicked()</signal>
++        <receiver>SupportForm_base</receiver>
++        <slot>deb_hpijsppds_docButton_clicked()</slot>
++    </connection>
++    <connection>
++        <sender>debianButton_doc_lpoppds</sender>
++        <signal>clicked()</signal>
++        <receiver>SupportForm_base</receiver>
++        <slot>deb_lpoppds_docButton_clicked()</slot>
++    </connection>
+ </connections>
+ <includes>
+     <include location="local" impldecl="in implementation">supportform_base.ui.h</include>
+ </includes>
++<tabstops>
++    <tabstop>pushButton4</tabstop>
++    <tabstop>tabWidget2</tabstop>
++    <tabstop>hpinktjetButton</tabstop>
++    <tabstop>debianButton_doc_hplip</tabstop>
++    <tabstop>debianButton_doc_hplipdoc</tabstop>
++    <tabstop>debianButton_doc_hpijs</tabstop>
++    <tabstop>debianButton_doc_hpijsppds</tabstop>
++    <tabstop>debianButton_doc_lpoppds</tabstop>
++    <tabstop>linuxprintingButton</tabstop>
++    <tabstop>cupsButton</tabstop>
++</tabstops>
+ <slots>
+     <slot>hpinktjetButton_clicked()</slot>
+     <slot>linuxprintingButton_clicked()</slot>
+     <slot>cupsButton_clicked()</slot>
++    <slot>deb_hplip_docButton_clicked()</slot>
++    <slot>deb_hplipdoc_docButton_clicked()</slot>
++    <slot>deb_hpijs_docButton_clicked()</slot>
++    <slot>deb_hpijsppds_docButton_clicked()</slot>
++    <slot>deb_lpoppds_docButton_clicked()</slot>
+ </slots>
+ <layoutdefaults spacing="6" margin="11"/>
+ </UI>
