@@ -29,7 +29,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([HP IJS printer driver],
-	[2.1.10],
+	[2.6.7],
 	[hpijs@packages.debian.org],
 	[hpijs])
 

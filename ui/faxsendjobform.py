@@ -42,15 +42,18 @@ from waitform import WaitForm
 from faxsettingsform import FaxSettingsForm
 from faxallowabletypesdlg import FaxAllowableTypesDlg
 
-coverpages_enabled = False
 try:
     import reportlab
 except ImportError:
-    log.error("Coverpages disabled. Reportlab not installed.")
+    coverpages_enabled = False
 else:
     from fax import coverpages
     from coverpageform import CoverpageForm
     coverpages_enabled = True
+
+# Used to store MIME types for files
+# added directly in interface.
+job_types = {} # { job_id : "mime_type", ...}
 
 
 class FileListViewItem(QListViewItem):
@@ -145,7 +148,7 @@ class FaxSendJobForm(FaxSendJobForm_base):
             "image/x-sgi-rgb" : (self.__tr("SGI RGB"), '.rgb'),
             "image/x-xbitmap" : (self.__tr("X11 Bitmap (XBM)"), '.xbm'),
             "image/x-xpixmap" : (self.__tr("X11 Pixmap (XPM)"), '.xpm'),
-            "image/x-sun-raster" : (self.__tr("Sun Raster Format"), '.ras'),
+            "image/x-sun-raster" : (self.__tr("Sucoverpages_enabledn Raster Format"), '.ras'),
             "application/hplip-fax" : (self.__tr("HP Fax"), '.g3'),
             "application/hplip-fax-coverpage" : (self.__tr("HP Fax Coverpage"), 'n/a'),
         }
@@ -202,6 +205,9 @@ class FaxSendJobForm(FaxSendJobForm_base):
 
         self.cmd_fab = user_cfg.commands.fab or cmd_fab
         log.debug("FAB command: %s" % self.cmd_fab)
+        
+        if not coverpages_enabled:
+            log.warn("Coverpages disabled. Reportlab not installed.")
 
         QTimer.singleShot(0, self.InitialUpdate)
 
@@ -429,7 +435,7 @@ class FaxSendJobForm(FaxSendJobForm_base):
         ppd_file = cups.getPPD(self.current_printer)
 
         if ppd_file is not None and os.path.exists(ppd_file):
-            if file(ppd_file, 'r').read().find('HPLIP Fax') == -1:
+            if file(ppd_file, 'r').read().find('HP Fax') == -1:
                 self.FailureUI(self.__tr("<b>Fax configuration error.</b><p>The CUPS fax queue for '%1' is incorrectly configured.<p>Please make sure that the CUPS fax queue is configured with the 'HPLIP Fax' Model/Driver.").arg(self.current_printer))
                 return
 
@@ -690,7 +696,7 @@ class FaxSendJobForm(FaxSendJobForm_base):
             self.UpdateSelectionEdit()
 
         else: # Printer status...
-            if device_uri == self.dev.device_uri:
+            if self.dev is not None and device_uri == self.dev.device_uri:
                 log.debug("Device status update event received for %s." % device_uri)
                 self.StateText.setText(error_string_short) 
 
@@ -738,7 +744,8 @@ class FaxSendJobForm(FaxSendJobForm_base):
                                       "job-id": job_id,
                                      })
 
-            if data and result_code == ERROR_SUCCESS:
+            log.debug(repr(data)), len(data)
+            if len(data) and result_code == ERROR_SUCCESS:
                 fd.write(data)
                 bytes_read += len(data)
 
@@ -766,7 +773,11 @@ class FaxSendJobForm(FaxSendJobForm_base):
 
         log.debug("Transfered %d bytes" % bytes_read)
 
-        self.file_list.append((fax_file, "application/hplip-fax", "HP Fax", title, total_pages))
+        #self.file_list.append((fax_file, "application/hplip-fax", "HP Fax", title, total_pages))
+        mime_type = job_types.get(job_id, "application/hplip-fax")
+        mime_type_desc = self.MIME_TYPES_DESC.get(mime_type, ('Unknown', 'n/a'))[0]
+        log.debug("%s (%s)" % (mime_type, mime_type_desc))
+        self.file_list.append((fax_file, mime_type, mime_type_desc, title, total_pages))
 
         self.UpdateFileList()
         self.document_num += 1
@@ -838,6 +849,7 @@ class FaxSendJobForm(FaxSendJobForm_base):
                 
                 if printer_state == cups.IPP_PRINTER_STATE_IDLE:
                     sent_job_id = cups.printFile(self.current_printer, path, os.path.basename(path))
+                    job_types[sent_job_id] = mime_type # save for later
                     log.debug("Job ID=%d" % sent_job_id)  
 
                     QApplication.setOverrideCursor(QApplication.waitCursor)

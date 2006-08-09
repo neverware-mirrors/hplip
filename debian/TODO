@@ -1,5 +1,8 @@
-0.9.11-1:
-   - use html release notes as changelog
+1.6.6/1.6.7:
+   - syslogging from hppsc has this crap "python" tag, that needs to become hpssd[pid]
+   - hp-toolbox busyloops if hpssd is restarted
+
+   - check to make sure we are shipping everything. copier/ was missing
 
 hpiod:
     1. Fix pidfile locking so that main thread waits for the others to die

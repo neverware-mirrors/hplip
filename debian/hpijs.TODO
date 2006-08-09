@@ -1,5 +1,0 @@
-*  Watch bug #249168 to update dependencies accordingly
-   when the KRGB patch goes in
-
-*  Make sure we purge the broken KRGB patch from sarge r1,
-   and from sid

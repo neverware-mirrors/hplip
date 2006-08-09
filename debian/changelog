@@ -1,3 +1,144 @@
+hplip (1.6.7-1) unstable; urgency=low
+
+  * The "I could easily start hating python because of them" release
+  * New upstream source (closes: #378401, #377265)
+    * HPLIP 1.6.7:
+      + Changed from dynamic IP ports to static IANA IP ports for hpiod
+        (2208) and hpssd (2207)
+      + Fixed defect: the valid letter and number for gray plot could not be
+        entered while executing hp-colorcal in terminal
+      + Fixed defect: the fax job could not be sent in non-interactive mode
+      + Move test page to last function with hp-setup
+      + Fixed defect: hp-setup would not select correct ppd file for some
+        models
+      + Removed Uni-di check code from device.Device.__openChannel()
+      + Fixed a problem that caused the fax wrong configuration error to
+        appear in error
+      + Fixed defect: the interactive and GUI mode for hp-fab can be entered
+        while executing hp-fab with parameter -i and -u
+      + Fixed defect with DeskJet 5540: traceback during align click from
+        toolbox
+      + Added non-interactive mode (-n) to hp-sendfax
+      + Added interactive mode (-i) to hp-fab.
+      + Fixed defect: the reduction was set to 25% automatically while
+        setting the Reduction/enlargement override 25-400%.)
+      + Added hp-makecopies
+      + Fixed defect: CUPS 1.2 does not auto-associate the PPD file to the
+        fax URI
+    * HPIJS 1.6.7:
+      + Added support for the following new printers:
+        + Photosmart D6100 series (DJGenericVIP)
+        + Photosmart D7100 series (DJGenericVIP)
+  * dpatch 00_01_upstream-1.6.6-1.dpatch (remove): applied upstream
+  * dpatch 20_fix_warnings (remove): accepted upstream
+  * dpatch 60_lp_instead_of_lpr (remove): accepted upstream
+  * Python policy changes (closes: #380845):
+    + Build-depend on debhelper (>= 5.0.37.2), python-support (>= 0.3)
+    + Add debian/pycompat with a content of "2"
+    + Call dh_pysupport in debian/rules, and move dh_installinit after
+      it for postinst scriptlet sanity
+  * hplip.init: Make sure to set permission of hpssd files in case the user
+    changed the suid/sgid information (closes: #372537)
+  * debian/control: remove redundant python build-dependency, as we have
+    python-dev already
+  * hplip.links: remove link for hp-photo, as that utility does not exist
+    anymore; add new hp-makecopies utility
+  * Makefile.am: ship copier/ stuff in libexecdir
+  * debian/rules: make sure we point to the hplip-doc package in hplip.conf
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  9 Aug 2006 14:26:00 -0300
+
+hplip (1.6.6-1) UNRELEASED; urgency=low
+
+  * The "it is just a number, after all... or is it?" non-release
+  * New upstream source
+    + HPLIP has reached maturity, with an 1.x release
+    + Switch versioning scheme for hplip and hpijs
+    + CUPS 1.2 compatibility
+    * HPLIP 1.6.6 (patchlevel 1):
+      + Fixed broken links in HTML documentation
+      + Added DOT4Init retry in hpiod. This fixed a intermittent scanning
+        problem with the HP PSC 3100
+      + Changed libsane-hpaio to display any received scan data after I/O
+        timeout instead of aborting
+      + Fixed the File Types that can be directly added to the fax job could
+        not be displayed accurately on Send Fax dialog
+      + Added 30sec retry and timeout to hpfax
+      + Added CUPS 1.2 compatible output to hpfax
+      + Removed DeviceOpen from hp backend. This fixes two problems 1) usblp
+        will no longer be removed for device discovery 2) device discovery
+        will no longer cause Inkjets to power-up (closes: #369286)
+      + Changed hp backend device discovery verbage in order to work better
+        with CUPS 1.2
+      + Fixed status-types for 2006-09 devices (5 --> 2)
+      + Fixed panel display for older OfficeJets that have VSTATUS
+      + Fixed "no printers installed, run toolbox, install printer, toolbox
+        produces error" bug
+      + Updated hpfax to "No devices found" text and behavior
+      + Removed extraneous syslog message during parallel port ProbeDevice
+      + Rewrite of toolbox refresh code. Should fix long running issue
+      + Fixed HP-Toolbox no activity after an hour causes toolbox to
+        disconnect from all printers
+      + Fixed the Job ID for fax job should be displayed in Status tab of
+        toolbox while starting fax send
+      + Modified XML schema (and all XML files to comply with it) -
+        status-type broken out into status-type, status-battery-check, and
+        status-dynamic-counters
+      + Made hplip_GetID more bullet proof in hplip_api.c
+      + Fixed invalid memory free in libsane-hpaio. Only occurred in the
+        sane_hpaio_open abort path
+      + Changed 1284.4/MLC credit reply timeout from 2 to 4 seconds in
+        hpiod. This fixed a problem with 1200dpi uncompressed scanning (ie:
+        PhotoSmart 2575)
+      + Removed support dialog (should have been removed in 0.9.11, was
+        missed)
+      + Changed Tools and Support pane to include "View Documentation"
+        rather than "View Support" - opens online docs in browser like
+        Help | Contents...
+      + Added sane hpaio.desc file to documentation
+    * HPIJS 2.6.6:
+      + Fixed an auto duplex problem in HPIJS
+      + Fixed gcc 4.1 compiler issues with HPIJS glue code
+      + Added support for the following new printers:
+        + Deskjet D4100 series (DJ4100)
+        + Deskjet D2300 series (DJ3600)
+        + Deskjet D1360 series (DJ3320)
+        + Photosmart A430 series (DJGenericVIP)
+        + Photosmart A510 series (DJGenericVIP)
+        + Photosmart A710 series (PSP470)
+        + Photosmart A610 series (PSP470)
+        + Photosmart C4100 series (DJGenericVIP)
+        + Photosmart C3100 series (DJGenericVIP)
+        + Photosmart D7300 series (DJGenericVIP)
+      + Updated the Ghostscript KRGB patch: Revisited the KRGB buffer
+        overflow issue with out-of-band data in fill_rectangle and
+        copy_mono.  Changed the fill_rectangle and copy_mono to an inner
+        loop buffer check instead of a outer loop x/y extent check.
+        As requested by Ralph Giles, added K 1-bit (KRGB) and 8-bit (KxRGB)
+        support for KRGB, but only 1-bit is implemented for now
+  * hpijs-ppds: depend on foomatic-filters as the PPDs require foomatic-rip
+    to work.  Version dependency to a new enough foomatic-rip (available in
+    stable as well, so this is not strictly needed, but still...)
+    (closes: #369833)
+  * hpijs: drop suggestion on foomatic-filters, hpijs doesn't use it for
+    anything anyway, and the PPDs (who do) now depend on it
+  * hplip: recommend one of hpijs-ppds or linuxprinting.org-ppds instead of
+    suggesting both.  HPLIP really needs a PPD to do anything useful
+  * Improve description of the hplip-dbg package a little
+  * debian/watch: remove outdated URIs, update to version 3
+  * dpatch 00_01_upstream-0.9.11-2 (remove): applied upstream
+  * dpatch 00_01_upstream-1.6.6-1 (new): upstream HPLIP 1.6.6-1
+  * dpatch 40_quiet-hpiod (remove): accepted upstream
+  * dpatch 60_lp_instead_of_lpr: rediff
+  * dpatches 50_ui-supportform-cleanups, 55_ui-supportform-debian (disable):
+    upstream removed the supportform, but we may want to add those panes
+    somewhere else so just disable the patches for now
+  * dpatch 20_fix_warnings (new): fix broken code in hpijs that caused
+    warnings
+  * Remove old KRGB 1.2 patches
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 16 Jun 2006 18:44:55 -0300
+
 hplip (0.9.11-2) unstable; urgency=low
 
   * dpatch 00_01_upstream-0.9.11-2 (new): HPLIP 0.9.11-2

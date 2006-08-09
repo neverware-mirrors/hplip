@@ -1,3 +1,28 @@
+hpijs (2.6.7+1.6.7-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the hpijs-ppds package.
+They're also available from linuxprinting.org.
+
+Users of the following printers (or of any printers that use the same PPDs)
+should reinstall their PPDs in CUPS to replace them with up-to-date ones
+from linuxprinting.org or hpijs-ppds:
+
+  * HP Business Inkjet (all models)
+  * HP Color Inkjet CP1160, CP1700
+  * HP Color LaserJet (all models)
+  * HP Deskjet (all models)
+  * HP LaserJet (all models)
+  * HP OfficeJet and OfficeJet Pro (all models)
+  * HP PhotoSmart (all models)
+  * HP PSC (all models)
+  * HP Mopier 240 and 320
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  9 Aug 2006 13:03:38 -0300
+
 hpijs (2.4.10+0.9.11-1) unstable; urgency=low
 
 Most of the user documentation for hpijs is now shipped on the hplip-doc

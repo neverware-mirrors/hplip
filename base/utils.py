@@ -534,7 +534,7 @@ except AttributeError:
 def log_title(program_name, version):
     log.info("")
     log.info(bold("HP Linux Imaging and Printing System (ver. %s)" % prop.version))
-    log.info(bold("%s ver. %s" % (program_name,version)))
+    log.info(bold("%s ver. %s" % (program_name, version)))
     log.info("")
     log.info("Copyright (c) 2003-6 Hewlett-Packard Development Company, LP")
     log.info("This software comes with ABSOLUTELY NO WARRANTY.")
@@ -543,8 +543,14 @@ def log_title(program_name, version):
     log.info("")
 
 
-def which(command):
+def which(command, return_full_path=False):
     path = os.getenv('PATH').split(':')
+
+    # Add these paths for Fedora
+    path.append('/sbin')
+    path.append('/usr/sbin')
+    path.append('/usr/local/sbin')
+
     found_path = ''
     for p in path:
         try:
@@ -556,7 +562,13 @@ def which(command):
                 found_path = p
                 break
 
-    return found_path
+    if return_full_path:
+        if found_path:
+            return os.path.join(found_path, command)
+        else:
+            return ''
+    else:
+        return found_path
 
 
 def deviceDefaultFunctions():
@@ -615,6 +627,13 @@ def deviceDefaultFunctions():
         cmd_pcard = 'python %HOME%/unload.py -d %DEVICE_URI%'
 
     # Copy
+    path = which('hp-makecopies')
+
+    if len(path):
+        cmd_copy = 'hp-makecopies -d %DEVICE_URI%'
+
+    else:
+        cmd_copy = 'python %HOME%/makecopies.py -d %DEVICE_URI%'
 
     # Fax
     path = which('hp-sendfax')
@@ -913,7 +932,7 @@ class ModelParser:
                 log.error("Duplicate model in XML: %s" % self.cur_model)
                 raise Error(ERROR_INTERNAL)
 
-            print self.cur_model
+            #print self.cur_model
             self.models[self.cur_model] = self.model
 
             self.model = None
@@ -960,10 +979,13 @@ def all(S,f=lambda x:x):
     return True
 
 def openURL(url):
-    browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone']
+    browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone'] # in preferred order
+    browser_opt = {'firefox': '-new-window', 'mozilla' : '', 'konqueror': '', 'galeon': '-w', 'skipstone': ''}
+    
     for b in browsers:
+        print b
         if which(b):
-            cmd = "%s %s &" % (b, url)
+            cmd = "%s %s %s &" % (b, browser_opt[b], url)
             log.debug(cmd)
             os.system(cmd)
             break
@@ -1086,7 +1108,7 @@ USAGE_ARGS = ("[PRINTER|DEVICE-URI] (See Notes)", "", "heading", False)
 USAGE_DEVICE = ("To specify a device-URI:", "-d<device-uri> or --device=<device-uri>", "option", False)
 USAGE_PRINTER = ("To specify a CUPS printer:", "-p<printer> or --printer=<printer>", "option", False)
 USAGE_BUS1 = ("Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>", "option", False)
-USAGE_BUS2 = ("", "<bus>: cups\*, usb*, net, bt, fw, par\* (\*default) (Note: bt and fw not supported in this release", 'option', False)
+USAGE_BUS2 = ("", "<bus>: cups\*, usb*, net, bt, fw, par\* (\*defaults) (Note: bt and fw not supported in this release.)", 'option', False)
 USAGE_HELP = ("This help information:", "-h or --help", "option", True)
 USAGE_SPACE = ("", "", "space", False)
 USAGE_EXAMPLES = ("Examples:", "", "heading", False)
@@ -1170,7 +1192,7 @@ def format_text(text_list, typ='text', title='', crumb='', version=''):
         for line in text_list:
             text1, text2, format, trailing_space = line
 
-            if format in ('option', 'example'):
+            if format in ('option', 'example', 'note'):
                 colwidth1 = max(len(text1), colwidth1)
                 colwidth2 = max(len(text2), colwidth2)
             
@@ -1272,3 +1294,51 @@ encoding: utf8
                 log.info(text1)
                 
         log.info("")
+        
+        
+def dquote(s):
+    return ''.join(['"', s, '"'])
+    
+# Python 2.2 compatibility functions (strip() family with char argument)
+def xlstrip(s, chars=' '):
+    i = 0
+    for c, i in zip(s, range(len(s))):
+        if c not in chars:
+            break
+    
+    return s[i:]
+            
+def xrstrip(s, chars=' '):
+    return xreverse(xlstrip(xreverse(s), chars))
+
+def xreverse(s):
+    l = list(s)
+    l.reverse()
+    return ''.join(l)
+
+def xstrip(s, chars=' '):
+    return xreverse(xlstrip(xreverse(xlstrip(s, chars)), chars))
+
+    
+
+def getBitness():
+    try:
+        import platform
+    except ImportError:
+        return struct.calcsize("P") << 3
+    else:
+        return int(platform.architecture()[0][:-3])
+
+        
+BIG_ENDIAN = 0
+LITTLE_ENDIAN = 1
+
+def getEndian():
+    if struct.pack("@I", 0x01020304)[0] == '\x01':
+        return BIG_ENDIAN
+    else:
+        return LITTLE_ENDIAN
+        
+        
+
+

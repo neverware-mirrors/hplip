@@ -90,7 +90,7 @@ clean-patched: configure debian/hpijs.version
 	# We prefer to regenerate these using pyuic
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-	dh_clean $(PKGITMP)
+	dh_clean
 
 ##
 ##  Package build
@@ -149,6 +149,12 @@ install-stamp: build-stamp
 	@echo Removing non-shipped files, see debian/non-shipped-files.txt
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
+
+	# Edit the generated hp.conf
+	( cd "$(PKGTMP)/etc/hp" && \
+	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' \
+	    < hplip.conf > hplip.conf.1 && \
+	    mv -f hplip.conf.1 hplip.conf )
 
 	# Lintian and linda overrides
 	cd debian ; \
@@ -252,6 +258,7 @@ binary-indep: install-indep debian/hpijs.version
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
+#	dh_pysupport -i
 #	dh_python -i /usr/lib/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
@@ -281,12 +288,15 @@ binary-arch: install-arch debian/hpijs.version
 #	dh_installemacsen -a
 #	dh_installpam -a
 #	dh_installmime -a
-	dh_installinit -phplip --init-script=hplip -- defaults 19
 #	dh_installcron -a
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
+	dh_pysupport -a /usr/lib/hplip
 	dh_python -a /usr/lib/hplip
+	# must come after dh_pysupport and dh_python, or the postinst
+	# ordering will be screwed up and break.
+	dh_installinit -phplip --init-script=hplip -- defaults 19
 #	dh_perl -a
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)

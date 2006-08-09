@@ -1,3 +1,14 @@
+hplip (1.6.7-1) unstable; urgency=low
+
+hp-photo is gone, its functionality has been folded into hp-unload.  There is
+also a new utility, hp-makecopies, which controls the copier function of some
+of the multifunctional devices.
+
+Support documentation is in the hplip-doc package, you must install it for the
+"View Documentation" functionality of hp-toolbox to work.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  9 Aug 2006 13:03:38 -0300
+
 hplip (0.9.11-1) unstable; urgency=low
 
 Most of the user documentation for hplip is now shipped on the hplip-doc 

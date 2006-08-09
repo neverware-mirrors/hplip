@@ -46,6 +46,8 @@ client = None
 toolbox  = None
 hpiod_sock = None
 
+log.set_module('hp-toolbox')
+
 # PyQt
 if not utils.checkPyQtImport():
     log.error("PyQt/Qt initialization error. Please check install of PyQt/Qt and try again.")
@@ -238,7 +240,7 @@ def main(args):
     prop.prog = sys.argv[0]
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'l:hg', 
+        opts, args = getopt.getopt(args, 'l:hg', 
             ['level=', 'help', 'help-rest', 'help-man'])
 
     except getopt.GetoptError:
@@ -282,13 +284,12 @@ def main(args):
         return 1
         
     log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
-    log.set_module('toolbox')
-    log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
 
     # create the main application object
     global app
     app = QApplication(sys.argv)
 
+    global hpiod_sock
     hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))

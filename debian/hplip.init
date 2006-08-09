@@ -1,9 +1,9 @@
 #! /bin/sh
 # hplip	initscript for the HP Linux Printing and Imaging System
-# Copyright (c) 2004 by Henrique de Moraes Holschuh <hmh@debian.org>
+# Copyright (c) 2004-2006 by Henrique de Moraes Holschuh <hmh@debian.org>
 # Distributed under the GPLv2 or newer
 #
-# $Id: hplip.init,v 1.13 2006/05/10 21:12:45 hmh Exp $
+# $Id: hplip.init,v 1.15 2006/08/07 20:47:11 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
@@ -21,6 +21,7 @@ DAEMON2=/usr/sbin/hpssd
 NAME2=hpssd
 PROCNAME2=python
 PIDFILE2=/var/run/hplip/hpssd.pid
+FILES2="/var/run/hplip/hpssd.pid /var/run/hplip/hpssd.port"
 
 HPIODOPTIONS=
 HPSSDOPTIONS=
@@ -131,6 +132,10 @@ do_start () {
 		"${PROCNAME1}" "" "${HPIODOPTIONS}" && \
 	   {
 	     log_progress_msg "${NAME2}"
+	     for i in ${FILES2} ; do
+	     	[ -f "$i" ] && chown "${SUID_USER}:${SGID_GROUP}" "$i"
+		:
+	     done
 	     start_daemon "${DAEMON2}" "${PIDFILE2}" "${NAME2}" \
 	   	"${PROCNAME2}" "--chuid ${SUID_USER} --group ${SGID_GROUP}" \
 		"${HPSSDOPTIONS}"

@@ -38,7 +38,7 @@ log = logger.Logger('', logger.Logger.LOG_LEVEL_INFO, logger.Logger.LOG_TO_CONSO
 log.set_level('info')
 
 MINIMUM_PYQT_MAJOR_VER = 3
-MINIMUM_PYQT_MINOR_VER = 8
+MINIMUM_PYQT_MINOR_VER = 14
 MINIMUM_QT_MAJOR_VER = 3
 MINIMUM_QT_MINOR_VER = 0
 
@@ -271,3 +271,10 @@ except NameError:
     True = (1==1)
     False = not True
     
+# GUI/Console modes
+INTERACTIVE_MODE = 0
+GUI_MODE = 1
+NON_INTERACTIVE_MODE = 2
+
+
+

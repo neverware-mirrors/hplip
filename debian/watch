@@ -1,5 +1,2 @@
-version=2
-http://prdownloads.sourceforge.net/hplip/ (?:.*/)?hplip-?_?([\w+\d+\.]+|\d+)(\.tar|\.tgz)(\.gz|\.bz2|) debian false
-ftp://ftp2.sf.net/pub/sourceforge/h/hp/hplip/hplip-?_?([\w+\d+\.]+|\d+)(\.tar|\.tgz)(\.gz|\.bz2|)
-http://prdownloads.sourceforge.net/hpinkjet/ (?:.*/)?hplip-?_?([\w+\d+\.]+|\d+)(\.tar|\.tgz)(\.gz|\.bz2|) debian false
-ftp://ftp2.sf.net/pub/sourceforge/h/hp/hpinkjet/hplip-?_?([\w+\d+\.]+|\d+)(\.tar|\.tgz)(\.gz|\.bz2|)
+version=3
+http://prdownloads.sourceforge.net/hplip/ (?:.*/)?hplip-?_?([\w+\d+\.]+|\d+)(?:\.tar(?:\.gz|\.bz2)|\.tgz) debian false
