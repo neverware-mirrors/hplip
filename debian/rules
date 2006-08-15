@@ -296,7 +296,7 @@ binary-arch: install-arch debian/hpijs.version
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
-#	dh_pysupport -a /usr/lib/hplip
+	dh_pysupport -a /usr/lib/hplip
 	dh_python -a /usr/lib/hplip
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
