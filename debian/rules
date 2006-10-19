@@ -198,6 +198,10 @@ install-arch-stamp: install-stamp
 	[ -e "$(PKGTMP)/usr/lib/hplip/fax/hpfax" ] && \
 	  mv -f "$(PKGTMP)/usr/lib/hplip/fax/hpfax" "$(PKGTMP)/usr/lib/cups/backend/"
 
+	# Python update helper
+	mkdir -p "$(PKGTMP)/usr/share/python/runtime.d/"
+	install -m 755 debian/hplip.rtupdate "$(PKGTMP)/usr/share/python/runtime.d/"
+
 	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
 
@@ -292,7 +296,7 @@ binary-arch: install-arch debian/hpijs.version
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
-	dh_pysupport -a /usr/lib/hplip
+#	dh_pysupport -a /usr/lib/hplip
 	dh_python -a /usr/lib/hplip
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.

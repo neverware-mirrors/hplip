@@ -7,3 +7,4 @@ usr/lib/sane/libsane*.so.*
 etc/sane.d/dll.d
 usr/share/applications
 usr/share/pixmaps
+usr/share/python/runtime.d

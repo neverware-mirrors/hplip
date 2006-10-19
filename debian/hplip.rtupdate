@@ -1,0 +1,21 @@
+#! /bin/sh
+# Python rtupdate script for hplip
+# $Id: hplip.rtupdate,v 1.1 2006/08/15 02:51:38 hmh Exp $
+#
+# see: Python Policy
+
+set -e
+
+# summary of how this script can be called:
+#	* pre-rtupdate <old runtime> <new runtime>
+#	* rtupdate <old runtime> <new runtime>
+#	* post-rtupdate <old runtime> <new runtime>
+
+[ -x /usr/sbin/hpssd ] || exit 0
+
+case "$1" in
+    post-rtupdate)
+    	invoke-rc.d hplip restart || true
+	;;
+esac
+:
