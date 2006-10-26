@@ -1,3 +1,145 @@
+hplip (1.6.10-1) unstable; urgency=medium
+
+  * New upstream source (closes: #393940, #395165)
+    * HPLIP 1.6.10:
+      + Fixed defect: hp-print and hp-sendfax: an error occurs while
+        executing hp-print with invalid device URI or the printer name
+        in CLI
+      + Removed batch scanning sane_cancel dependency.  This fixes a
+        problem with scanimage version 1.0.18 or higher
+        (closes: #382648, #382652)
+      + Fixed defect: GUI Install - hp-setup - Does Not Finish
+      + Added icons to toolbox function page buttons
+      + Added make copies support for some inkjet AiO devices
+      + Added hp-timedate utility
+      + Simplified some text in hp-setup -u
+      + Fixed defect: the Timeout value for searching printer shouldn't
+        be able to set as value larger than 45 secs in HP Device Manager
+      + Made GUI mode the default for hp-setup
+      + Fixed defect: error occurs while manually finding the network
+        printers in HP Device Manager
+      + Made the "Find" button on the Manual Find dialog the default
+        button
+      + Added "Setup New Device..." in Toolbox
+      + Added "Remove Device..." in Toolbox
+      + Reworked "No Devices Found" dialog
+      + Fixed defect: Multi PPD files were found while installing the
+        Photosmart D5160 through hp-setup
+      + Fixed defect: hp-setup -u default window size needs to be a tad
+        larger
+      + Fixed defect: hp-setup -u par device detection problem
+      + Fixed defect: the "Location" and "Description" for Fax Information
+        also should be available while setup the device over hp-setup in
+        GUI mode
+      + Added additional fax name and printer name checking
+      + Fixed defect: hp-setup -u manually find usb device not manually
+        working
+      + Fixed defect: hp-setup -u Location/Desscription text field limits
+      + Fixed defect: hp-setup -u help button does not function
+    * HPIJS 2.6.10:
+      + Added support for the following new printer(s)
+        + LaserJet P2015 series (LJMono/PS)
+        + LaserJet M3035 MFP (LJMono/PS)
+        + LaserJet M5035 MFP (LJMono/PS)
+        + LaserJet M4345 mfp (LJMono/PS)
+        + LaserJet P3005 (LJMono/PS)
+        + LaserJet P3004 (LJMono/PS)
+        + Color LaserJet 2700 (PS)
+        + Color LaserJet CM1015 (PS) (no scanning yet)
+        + Color LaserJet CM1017 (PS) (no scanning yet)
+  * dpatches 50_ui-supportform-cleanups, 55_ui-supportform-debian (remove):
+    these patches were already disabled, and we are not going to enable them
+    back anytime soon anyway
+  * hplip.links: ship link for hp-timedate
+  * Makefile.am: fix borked install-exec-hook that broke libsane-hpaio
+    install (borkage added by upstream on 1.6.9), thanks to Matthias Klose
+    for forwading the bug report from Ubuntu
+  * debian/rules: correct paths to platform.h and auto-include.h, thanks
+    to Matthias Klose from Ubuntu
+  * debian/rules, debian/control: do the proper thing for binNMU safety,
+    and also simplify the various package relationships as much as we can:
+    hpijs-ppds: now depend on hpijs (versioned >=).  hpijs: remove conflicts
+    with non-compatible ppd packages, and version suggests on hpijs-ppds
+    strictly.  hplip-dbg: depend strictly on the version of hplip and hpijs
+    the debug symbols came from.  hplip: suggest hpijs and hpijs-ppds with
+    >= version.  This does allow the user to do stupid things if he really
+    wants, but given the ammount of arch any/all mixes in this set of
+    packages, attempting to get it perfect only causes headaches while
+    upgrading (and it is also nearly impossible)
+  * hplip.init: tell user to reinstall hplip if the statoverrides are
+    missing (closes: #393271)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 26 Oct 2006 13:22:56 -0300
+
+hplip (1.6.9-1) UNRELEASED; urgency=low
+
+  * New upstream source
+    * HPLIP 1.6.9:
+      + Fixed defect: Printer supplies listed in "random" order
+      + Fixed defect: Don't report hpfax:/no_devices_found in CUPS 1.2
+      + Fixed network printer detection (SLP)
+      + Added hp-probe back
+      + Fixed defect: The HP Fax URI could not be showed if executing
+        hp-makeuri with parameter "--fax" in the terminal
+      + Fixed defect: The "Add to List" button for Coverpage would be
+        grayed out after sent a fax job including Coverpage
+      + Fixed defect: An unexpected error occurred when add a FAB entry
+        using the space as the fist character of the entry name
+      + Made some misc. input validation improvements to hp-fab -i
+      + Changed print code so that it can use lpr or lp depending on
+        what is installed (lpr=default)
+      + Fixed defect: hp-unload only works with ASCII char's
+      + Fixed defect: hp-unload gives incorrect permissions bits.
+        hp-unload will save files with permissions of 0600.
+      + Fixed a laserjet scanning problem in hpiod
+      + Changed the 1284.4/MLC setup command for CLJ2840/LJ3050/LJ3055
+      + Cleaned up PML errors occuring on DJ 4xx when doing dynamic
+        counters
+      + Fixed status-dynamic-counters value for DJ 460
+      + Fixed defect: Toolbox cannot be launched successfully after setup
+      + Added code to cleanup spinner from text UIs
+      + Fixed defect: The fax job could not be sent while sending fax in
+        non-interactive mode
+      + Fixed defect: The value of Notes for an FAB entry cannot be
+        displayed correctly while the entry was added completely in
+        interactive mode
+      + Fixed defect: An error occurs while executing hp-sendfax in
+        non-interactive mode with the device disconnected
+      + Fixed defect: The .g3 file could not be added to the Items List
+        and could not be sent
+      + Fixed defect: The fax job could not be sent in non-interactive mode
+      + Added scan-style and fit-to-page fix to hp-makecopies
+      + Added scaling=100 to hp-sendfax.
+      + Moved Qt import in hp-toolbox and hp-print to after command line
+        processing
+    * HPIJS 2.6.9:
+      + Added support CD/DVD label printing (ie: PS D5100)
+      + Added support for the following new printer(s)
+        + PhotoSmart A310 series (DJGenericVIP)
+        + PhotoSmart C5100 series (DJGenericVIP)
+        + PhotoSmart C6100 series (DJGenericVIP)
+        + PhotoSmart C7100 series (DJGenericVIP)
+        + PhotoSmart D5100 series (DJGenericVIP)
+        + PhotoSmart D5060 series (DJGenericVIP)
+        + PhotoSmart Pro B8300 series (DJGenericVIP)
+  * debian/control: change -dbg package to priority extra, and place
+    hplip-ppds on section utils (to match ftp-master override file)
+  * Disable new libhpprop dynamic loading in hpijs ljjetready driver,
+    until we know for sure what it is and the code is fixed not to break
+    strict aliasing rules (and to use libtool)
+  * Fix some real and some cosmetic issues with the new Makefile.am and
+    configure.in files from upstream
+  * hplip.links: add hp-probe
+  * control: recommend both hpijs and linuxprinting.org PPD packages,
+    not just one or the other for package hplip
+  * hpijs: ship fax PPD in the hpijs binary package, and not in the
+    catch-all hpijs-ppds package.  The reason for this is that many printers
+    need hpijs only for the fax functionality
+  * hplip.README.Debian: mention faxing, hpijs and python-reportlab for
+    covers
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon,  2 Oct 2006 16:25:00 -0300
+
 hplip (1.6.7-2) unstable; urgency=low
 
   * Transition to python 2.4, just rebuild (closes: #380845)

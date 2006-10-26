@@ -21,7 +21,7 @@
 #
 
 
-__version__ = '2.1'
+__version__ = '2.2'
 __title__ = 'Photo Card Access Utility'
 __doc__ = "Access inserted photo cards on supported HPLIP printers. This provides an alternative for older devices that do not support USB mass storage or for access to photo cards over a network."
 
@@ -614,7 +614,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], 'p:d:hb:l:giuno:',
                                ['printer=', 'device=', 'help', 'help-rest', 'help-man',
                                 'bus=', 'logging=', 'interactive', 'gui', 'non-interactive',
-                                'output='])
+                                'output=', 'help-desc'])
 except getopt.GetoptError:
     usage()
 
@@ -639,6 +639,10 @@ for o, a in opts:
     elif o == '--help-man':
         usage('man')
 
+    elif o == '--help-desc':
+        print __doc__,
+        sys.exit(0)
+    
     elif o in ('-p', '--printer'):
         printer_name = a
 
@@ -687,6 +691,9 @@ for o, a in opts:
 
 
 utils.log_title(__title__, __version__)
+
+# Security: Do *not* create files that other users can muck around with
+os.umask (0077)
 
 if mode == GUI_MODE:
     if not os.getenv('DISPLAY'):

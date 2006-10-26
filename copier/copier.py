@@ -55,11 +55,12 @@ class PMLCopyDevice(device.Device):
     def copy(self, num_copies=1, contrast=0, reduction=100,
              quality=pml.COPIER_QUALITY_NORMAL, 
              fit_to_page=pml.COPIER_FIT_TO_PAGE_ENABLED,
+             scan_style=SCAN_STYLE_FLATBED,
              update_queue=None, event_queue=None): 
         
         if not self.isCopyActive():
             self.copy_thread = PMLCopyThread(self, num_copies, contrast, reduction, quality, 
-                                             fit_to_page, update_queue, event_queue)
+                                             fit_to_page, scan_style, update_queue, event_queue)
             self.copy_thread.start()
             return True
         else:
@@ -81,7 +82,8 @@ class PMLCopyDevice(device.Device):
         
 class PMLCopyThread(threading.Thread):
     def __init__(self, dev, num_copies, contrast, reduction, quality, 
-                 fit_to_page, update_queue=None, event_queue=None):
+                 fit_to_page, scan_style, 
+                 update_queue=None, event_queue=None):
 
         threading.Thread.__init__(self)
         self.dev = dev
@@ -90,9 +92,12 @@ class PMLCopyThread(threading.Thread):
         self.reduction = reduction
         self.quality = quality
         self.fit_to_page = fit_to_page
+        self.scan_style = scan_style
         self.event_queue = event_queue
         self.update_queue = update_queue
         self.prev_update = ''
+        self.copy_type = self.dev.copy_type
+        log.debug("Copy-type = %d" % self.copy_type)
         
     def run(self):
         STATE_DONE = 0
@@ -142,7 +147,7 @@ class PMLCopyThread(threading.Thread):
                     result_code, token = self.dev.getPML(pml.OID_COPIER_TOKEN)
                 except Error:
                     log.debug("Unable to acquire copy token (1).")
-                    state = STATE_SETUP
+                    state = STATE_SETUP_STATE
                 else:
                     if result_code > pml.ERROR_MAX_OK:
                         state = STATE_SETUP_STATE
@@ -167,84 +172,154 @@ class PMLCopyThread(threading.Thread):
             elif state == STATE_SETUP_STATE:
                 log.debug("%s State: Setup state" % ("*"*20))
                 
-                result_code, copy_state = self.dev.getPML(pml.OID_COPIER_JOB)
-                
-                if copy_state == pml.COPIER_JOB_IDLE:
-                    self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_SETUP)
-                    state = STATE_SETUP_PARAMS
+                if self.copy_type == COPY_TYPE_DEVICE:
+                    result_code, copy_state = self.dev.getPML(pml.OID_COPIER_JOB)
                     
-                else:
-                    state = STATE_BUSY
+                    if copy_state == pml.COPIER_JOB_IDLE:
+                        self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_SETUP)
+                        state = STATE_SETUP_PARAMS
+                        
+                    else:
+                        state = STATE_BUSY
+                
+                elif self.copy_type == COPY_TYPE_AIO_DEVICE:
+                    result_code, copy_state = self.dev.getPML(pml.OID_SCAN_TO_PRINTER)
+                    
+                    if copy_state == pml.SCAN_TO_PRINTER_IDLE:
+                        state = STATE_SETUP_PARAMS
+                        
+                    else:
+                        state = STATE_BUSY
+                
                     
                 
             elif state == STATE_SETUP_PARAMS:
                 log.debug("%s State: Setup Params" % ("*"*20))
                 
-                # num_copies
                 if self.num_copies < 0: self.num_copies = 1
                 if self.num_copies > 99: self.num_copies = 99
-                
-                self.dev.setPML(pml.OID_COPIER_JOB_NUM_COPIES, self.num_copies)
-                
-                # contrast
-                self.dev.setPML(pml.OID_COPIER_JOB_CONTRAST, self.contrast)
-                
-                # reduction
-                self.dev.setPML(pml.OID_COPIER_JOB_REDUCTION, self.reduction)
-                
-                # quality
-                self.dev.setPML(pml.OID_COPIER_JOB_QUALITY, self.quality)
-                
-                # fit_to_page
-                self.dev.setPML(pml.OID_COPIER_JOB_FIT_TO_PAGE, self.fit_to_page)
+
+                if self.copy_type == COPY_TYPE_DEVICE: # MFP
+                    
+                    # num_copies
+                    self.dev.setPML(pml.OID_COPIER_JOB_NUM_COPIES, self.num_copies)
+                    
+                    # contrast
+                    self.dev.setPML(pml.OID_COPIER_JOB_CONTRAST, self.contrast)
+                    
+                    # reduction
+                    self.dev.setPML(pml.OID_COPIER_JOB_REDUCTION, self.reduction)
+                    
+                    # quality
+                    self.dev.setPML(pml.OID_COPIER_JOB_QUALITY, self.quality)
+                    
+                    # fit_to_page
+                    if self.scan_style == SCAN_STYLE_FLATBED:
+                        self.dev.setPML(pml.OID_COPIER_JOB_FIT_TO_PAGE, self.fit_to_page)
+                    
+                else: # AiO
+                    # num_copies
+                    self.dev.setPML(pml.OID_COPIER_NUM_COPIES_AIO, self.num_copies)
+                    
+                    # contrast
+                    self.contrast = (self.contrast * 10 / 25) + 50 
+                    self.dev.setPML(pml.OID_COPIER_CONTRAST_AIO, self.contrast)
+                    
+                    if self.fit_to_page == pml.COPIER_FIT_TO_PAGE_ENABLED:
+                        self.reduction = 0
+                    
+                    # reduction
+                    self.dev.setPML(pml.OID_COPIER_REDUCTION_AIO, self.reduction)
+                    
+                    # quality
+                    self.dev.setPML(pml.OID_COPIER_QUALITY_AIO, self.quality)
+
+                    self.dev.setPML(pml.OID_PIXEL_DATA_TYPE, pml.PIXEL_DATA_TYPE_COLOR_24_BIT)
+                    self.dev.setPML(pml.OID_COPIER_SPECIAL_FEATURES, pml.COPY_FEATURE_NONE)
+                    self.dev.setPML(pml.OID_COPIER_PHOTO_MODE, pml.ENHANCE_LIGHT_COLORS | pml.ENHANCE_TEXT)
                 
                 log.debug("num_copies = %d" % self.num_copies)
                 log.debug("contrast= %d" % self.contrast)
                 log.debug("reduction = %d" % self.reduction)
                 log.debug("quality = %d" % self.quality)
                 log.debug("fit_to_page = %d" % self.fit_to_page)
-                #log.debug("max_reduction = %d" % self.max_reduction)
-                #log.debug("max_enlargement = %d" % self.max_enlargement)
                 
                 state = STATE_START
                 
             elif state == STATE_START:
                 log.debug("%s State: Start" % ("*"*20))
                 
-                self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_START)
+                if self.copy_type == COPY_TYPE_DEVICE:
+                    self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_START)
+                
+                elif self.copy_type == COPY_TYPE_AIO_DEVICE:
+                    self.dev.setPML(pml.OID_SCAN_TO_PRINTER, pml.SCAN_TO_PRINTER_START)
+                    
                 state = STATE_ACTIVE
                 
             elif state == STATE_ACTIVE:
                 log.debug("%s State: Active" % ("*"*20))
                 
-                while True:
-                    result_code, copy_state = self.dev.getPML(pml.OID_COPIER_JOB)
-                    
-                    if self.check_for_cancel():
-                        self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_IDLE) # cancel
-                        state = STATE_ABORTED
-                        break
-                    
-                    if copy_state == pml.COPIER_JOB_START:
-                        log.debug("state = start")
-                        time.sleep(1)
-                        continue
-                    
-                    if copy_state == pml.COPIER_JOB_ACTIVE:
-                        self.write_queue(STATUS_ACTIVE)
-                        log.debug("state = active")
-                        time.sleep(2)
-                        continue
+                if self.copy_type == COPY_TYPE_DEVICE:
+                    while True:
+                        result_code, copy_state = self.dev.getPML(pml.OID_COPIER_JOB)
                         
-                    elif copy_state == pml.COPIER_JOB_ABORTING:
-                        log.debug("state = aborting")
-                        state = STATE_ABORTED
-                        break
+                        if self.check_for_cancel():
+                            self.dev.setPML(pml.OID_COPIER_JOB, pml.COPIER_JOB_IDLE) # cancel
+                            state = STATE_ABORTED
+                            break
+                        
+                        if copy_state == pml.COPIER_JOB_START:
+                            log.debug("state = start")
+                            time.sleep(1)
+                            continue
+                        
+                        if copy_state == pml.COPIER_JOB_ACTIVE:
+                            self.write_queue(STATUS_ACTIVE)
+                            log.debug("state = active")
+                            time.sleep(2)
+                            continue
+                            
+                        elif copy_state == pml.COPIER_JOB_ABORTING:
+                            log.debug("state = aborting")
+                            state = STATE_ABORTED
+                            break
+                        
+                        elif copy_state == pml.COPIER_JOB_IDLE:
+                            log.debug("state = idle")
+                            state = STATE_SUCCESS
+                            break
+                
+                elif self.copy_type == COPY_TYPE_AIO_DEVICE:
+                    while True:
+                        result_code, copy_state = self.dev.getPML(pml.OID_SCAN_TO_PRINTER)
+                        
+                        if self.check_for_cancel():
+                            self.dev.setPML(pml.OID_SCAN_TO_PRINTER, pml.SCAN_TO_PRINTER_IDLE) # cancel
+                            state = STATE_ABORTED
+                            break
+                        
+                        if copy_state == pml.SCAN_TO_PRINTER_START:
+                            log.debug("state = start")
+                            time.sleep(1)
+                            continue
+                        
+                        if copy_state == pml.SCAN_TO_PRINTER_ACTIVE:
+                            self.write_queue(STATUS_ACTIVE)
+                            log.debug("state = active")
+                            time.sleep(2)
+                            continue
+                            
+                        elif copy_state == pml.SCAN_TO_PRINTER_ABORTED:
+                            log.debug("state = aborting")
+                            state = STATE_ABORTED
+                            break
+                        
+                        elif copy_state == pml.SCAN_TO_PRINTER_IDLE:
+                            log.debug("state = idle")
+                            state = STATE_SUCCESS
+                            break
                     
-                    elif copy_state == pml.COPIER_JOB_IDLE:
-                        log.debug("state = idle")
-                        state = STATE_SUCCESS
-                        break
                 
             elif state == STATE_RESET_TOKEN:
                 log.debug("%s State: Release copy token" % ("*"*20))

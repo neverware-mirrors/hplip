@@ -3,7 +3,7 @@
 # Copyright (c) 2004-2006 by Henrique de Moraes Holschuh <hmh@debian.org>
 # Distributed under the GPLv2 or newer
 #
-# $Id: hplip.init,v 1.15 2006/08/07 20:47:11 hmh Exp $
+# $Id: hplip.init,v 1.16 2006/10/26 15:39:43 hmh Exp $
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="HP Linux Printing and Imaging System"
@@ -49,7 +49,7 @@ createdir() {
 
 fixdirs() {
         dir=$(dpkg-statoverride --list /var/run/hplip) || {
-		echo "You are missing a dpkg-statoverride on /var/run/hplip.  Fix it, otherwise you risk silent breakage on upgrades." >&2
+		echo "You are missing a dpkg-statoverride on /var/run/hplip.  Fix it, otherwise you risk silent breakage on upgrades.  If you have no idea what to do, just reinstall hplip and it will fix itself." >&2
 		exit 1
 	}
 	[ -z "$dir" ] || createdir $dir

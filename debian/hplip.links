@@ -13,3 +13,5 @@
 /usr/lib/hplip/sendfax		/usr/bin/hp-sendfax
 /usr/lib/hplip/setup		/usr/bin/hp-setup
 /usr/lib/hplip/makecopies	/usr/bin/hp-makecopies
+/usr/lib/hplip/probe		/usr/bin/hp-probe
+/usr/lib/hplip/timedate		/usr/bin/hp-timedate

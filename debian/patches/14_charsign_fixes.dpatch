@@ -1,5 +1,5 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
-## 14_charsign_fixes.dpatch by  <hmh@debian.org>
+## 14_charsign_fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fixes all sort of unsigned char -> signed char bogonness

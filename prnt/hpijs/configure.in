@@ -26,10 +26,18 @@
 #  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 #  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
+#
+# exit status:
+#   0 = ok
+#   1 = error
+#   102 = no libjpeg
+#   103 = no jpeg-devel
+#   104 = no libdl
+#
 
 AC_PREREQ([2.59])
 AC_INIT([HP IJS printer driver],
-	[2.6.7],
+	[2.6.10],
 	[hpijs@packages.debian.org],
 	[hpijs])
 
@@ -58,7 +66,6 @@ it provided that the following conditions are met:
   STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
-
 ])
 
 AC_CONFIG_SRCDIR([hpijs.cpp])
@@ -75,15 +82,20 @@ AC_PROG_INSTALL
 
 dnl Checks for libraries
 AC_CHECK_LIB([jpeg], [jpeg_set_defaults],,
-	[AC_MSG_ERROR(["cannot find libjpeg support"])]
+	[AC_MSG_ERROR(["cannot find libjpeg support"], 102)]
 )
+dnl FIXME: should use libtool
+dnl NOTE: Used to link binary-only blob, disabled in Debian
+dnl AC_CHECK_LIB([dl], [dlopen],,
+dnl	[AC_MSG_ERROR(["cannot find libdl support"], 104)]
+dnl)
 
 # Check for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS([fcntl.h malloc.h syslog.h machine/types.h])
-AC_CHECK_HEADERS(jpeglib.h,,
-	[AC_MSG_ERROR([cannot find libjpeg-devel support])]
+AC_CHECK_HEADERS([fcntl.h malloc.h syslog.h unistd.h machine/types.h])
+AC_CHECK_HEADERS(jpeglib.h, [],
+	[AC_MSG_ERROR([cannot find libjpeg-devel support], 103)]
 )
 
 # Check for typedefs, structures, and compiler characteristics.

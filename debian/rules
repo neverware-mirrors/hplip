@@ -23,12 +23,14 @@ CHANGELOG:=doc/release_notes.html
 # Version information
 # We cannot get the hpijs version like this because we could be generating
 # it at runtime when we run autogen.sh
-HPLIP_VERSION?=$(shell dpkg-parsechangelog | grep -E "^Version:" | \
+HPLIP_BINARY_VERSION?=$(shell dpkg-parsechangelog | grep -E "^Version:" | \
 	tr -d ' \t' | cut -d ':' -f 2-)
-ifeq	(,$(HPLIP_VERSION))
+ifeq	(,$(HPLIP_BINARY_VERSION))
 	$(error Could not get debian package version from debian/changelog)
 endif
 
+HPLIP_VERSION:=$(shell echo "$(HPLIP_BINARY_VERSION)" | \
+			sed -e 's/+b[0-9]\+$$//')
 HPLIP_UPSTREAM_VERSION:=$(shell echo "$(HPLIP_VERSION)" | \
 			  sed -e 's/-[^-]\+$$//')
 
@@ -81,7 +83,7 @@ clean-patched: configure debian/hpijs.version
 	-$(MAKE) clean
 	-$(MAKE) distclean
 	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
-	-rm -f platform.h auto-include.h
+	-rm -f prnt/hpijs/platform.h prnt/hpijs/auto-include.h
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	find \( -name config.sub -o -name config.guess \
 			-o -name config.cache -o -name config.log \) -print0 \
@@ -116,11 +118,14 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 		--localstatedir=/var \
 		--sysconfdir=/etc \
 		--enable-debug \
-		--enable-rpm-install \
 		--without-icon \
 		--disable-foomatic-install \
 		--disable-cups-install \
-		--enable-network-install
+		--enable-network-build \
+		--enable-pp-build \
+		--enable-scan-build \
+		--enable-gui-build \
+		--enable-fax-build
 
 	touch configure-stamp
 
@@ -198,6 +203,13 @@ install-arch-stamp: install-stamp
 	[ -e "$(PKGTMP)/usr/lib/hplip/fax/hpfax" ] && \
 	  mv -f "$(PKGTMP)/usr/lib/hplip/fax/hpfax" "$(PKGTMP)/usr/lib/cups/backend/"
 
+	# Fax PPD, install to destdir directly
+	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP"
+	sed < "fax/ppd/HP-Fax-hplip.ppd" \
+		-e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
+		| gzip -9 \
+		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
+
 	# Python update helper
 	mkdir -p "$(PKGTMP)/usr/share/python/runtime.d/"
 	install -m 755 debian/hplip.rtupdate "$(PKGTMP)/usr/share/python/runtime.d/"
@@ -214,10 +226,9 @@ install-indep-stamp: install-stamp
 	# 3. Normalize case of PPD file names
 	# 4. Compress all PPDs
 	# 
-	# Fax support: override hpijs PPDs with fax/ppd ones.
-	( find prnt/hpijs/ppd -type f -name '*-hpijs.ppd' ; \
-	  find fax/ppd -type f -name '*.ppd' \
-	) | while read -r i ; do \
+	# Fax PPD: shipped by arch-dep hpijs package
+	find prnt/hpijs/ppd -type f -name '*-hpijs.ppd' | \
+	while read -r i ; do \
 		PPDSUITE="hpijs" ;\
 		PPDVENDOR=$$(sed -r -n \
 			-e '/^[*]Manufacturer/ { s/[^:]+:[[:blank:]]+"([^"]*)".*/\1/;s/[[:blank:]]//g;p }' \
@@ -268,14 +279,20 @@ binary-indep: install-indep debian/hpijs.version
 	dh_installdeb -i
 	dh_shlibdeps -i
 	dh_gencontrol -phpijs-ppds -- \
-		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-v"$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)" \
+		-V"hplip:source:Version=$(HPLIP_VERSION)" \
+		-V"hpijs:source:Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
-		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
-		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hplip:binary:Version=$(HPLIP_BINARY_VERSION)" \
+		-V"hpijs:binary:Version=$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)"
 	dh_gencontrol -i -Nhpijs-ppds -- \
+		-V"hplip:source:Version=$(HPLIP_VERSION)" \
+		-V"hpijs:source:Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
-		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
-		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hplip:binary:Version=$(HPLIP_BINARY_VERSION)" \
+		-V"hpijs:binary:Version=$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)"
 	dh_md5sums -i
 	dh_builddeb -i
 
@@ -310,14 +327,20 @@ binary-arch: install-arch debian/hpijs.version
 	dh_installdeb -a
 	dh_shlibdeps -a
 	dh_gencontrol -phpijs -- \
-		-v"$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-v"$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)" \
+		-V"hplip:source:Version=$(HPLIP_VERSION)" \
+		-V"hpijs:source:Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
-		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
-		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hplip:binary:Version=$(HPLIP_BINARY_VERSION)" \
+		-V"hpijs:binary:Version=$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)"
 	dh_gencontrol -a -Nhpijs -- \
+		-V"hplip:source:Version=$(HPLIP_VERSION)" \
+		-V"hpijs:source:Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
+		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
 		-V"hpijs:Upstream-Version=$$(cat debian/hpijs.version)" \
-		-V"hpijs:Source-Version=$$(cat debian/hpijs.version)+$(HPLIP_VERSION)" \
-		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)"
+		-V"hplip:binary:Version=$(HPLIP_BINARY_VERSION)" \
+		-V"hpijs:binary:Version=$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)"
 	dh_md5sums -a
 	dh_builddeb -a
 

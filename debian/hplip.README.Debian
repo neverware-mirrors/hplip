@@ -1,5 +1,5 @@
 Notes about the Debian hplip packages
-$Id: hplip.README.Debian,v 1.14 2006/05/10 22:05:01 hmh Exp $
+$Id: hplip.README.Debian,v 1.15 2006/10/02 19:26:58 hmh Exp $
 ==========================================================================
 
 HPLIP is supposed to make things very easy for the end user.  That isn't
@@ -166,5 +166,16 @@ running to work, and it should "just work" out of the box.
 To access the scanning functions, make sure you have xsane properly
 installed, and either use the hp-toolbox, or run xsane to access the
 scanner.
+
+
+Sending fax:
+------------
+
+It might work, and it might not.  You need hpijs, even if the printer is a
+pure-postscript one, as hpijs is used by HPLIP to render the fax job.  If you
+want cover pages, make sure you have installed the python-reportbug package.
+
+Receiving faxes is not supported, and HP says it is not on their roadmap to
+implement this, either.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>

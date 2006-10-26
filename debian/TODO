@@ -1,6 +1,20 @@
+When running hpiod as non-root:
+	- add it to group scanner (see Ubuntu)
+   
+   - hp-toolbox busyloops if hpssd is restarted
+   - hp-toolbox busyloops in other ocasions
+   - hp-sendfax busyloops
+
+   Looks like all the pyqt code that talks to hpssd likes to busyloop
+
+   - faxing does not work since 1.6.7.
+
+1.6.9:
+	Talk to upstream:
+		- Use libtool for dlopen()
+
 1.6.6/1.6.7:
    - syslogging from hppsc has this crap "python" tag, that needs to become hpssd[pid]
-   - hp-toolbox busyloops if hpssd is restarted
 
    - check to make sure we are shipping everything. copier/ was missing
 

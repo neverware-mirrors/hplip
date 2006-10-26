@@ -1,3 +1,62 @@
+hpijs (2.6.10+1.6.10-1) unstable; urgency=low
+
+Appropriate PPDs for this release are available on the hpijs-ppds package.
+They're also available from linuxprinting.org.
+
+Users of the following printers (or of any printers that use the same PPDs)
+should reinstall their PPDs in CUPS to replace them with up-to-date ones
+from linuxprinting.org or hpijs-ppds:
+
+  * ALL HPIJS-SUPPORTED PRINTERS!
+
+New printers supported in this release:
+
+  * LaserJet P2015 series (LJMono/PS)
+  * LaserJet M3035 MFP (LJMono/PS)
+  * LaserJet M5035 MFP (LJMono/PS)
+  * LaserJet M4345 mfp (LJMono/PS)
+  * LaserJet P3005 (LJMono/PS)
+  * LaserJet P3004 (LJMono/PS)
+  * Color LaserJet 2700 (PS)
+  * Color LaserJet CM1015 (PS) (no scanning yet)
+  * Color LaserJet CM1017 (PS) (no scanning yet)
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 25 Oct 2006 11:21:17 -0300
+
+hpijs (2.6.9+1.6.9-1) UNRELEASED; urgency=low
+
+Appropriate PPDs for this release are available on the hpijs-ppds package.
+They're also available from linuxprinting.org.
+
+The PPD needed for faxing is shipped in the hpijs package itself starting
+with this release.
+
+Users of the following printers (or of any printers that use the same PPDs)
+should reinstall their PPDs in CUPS to replace them with up-to-date ones
+from linuxprinting.org or hpijs-ppds:
+
+  * ALL HPIJS-SUPPORTED PRINTERS!
+
+New printers supported in this release:
+
+  * PhotoSmart A310 series (DJGenericVIP)
+  * PhotoSmart C5100 series (DJGenericVIP)
+  * PhotoSmart C6100 series (DJGenericVIP)
+  * PhotoSmart C7100 series (DJGenericVIP)
+  * PhotoSmart D5100 series (DJGenericVIP)
+  * PhotoSmart D5060 series (DJGenericVIP)
+  * PhotoSmart Pro B8300 series (DJGenericVIP)
+
+Note: to update a PPD, you have to reinstall the printer or use the
+"modify printer" command in a CUPS administrative interface.  See
+Debian bug report #333746 for more information.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon,  2 Oct 2006 16:25:00 -0300
+
 hpijs (2.6.7+1.6.7-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hpijs-ppds package.

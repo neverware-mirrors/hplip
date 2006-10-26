@@ -67,11 +67,11 @@ www7dir = $(www0dir)/troubleshooting
 dist_www7_DATA = $(wwwsrc)/troubleshooting/*
 
 dist_hplip_DATA = hplip.conf
-dist_hpliplibexec_SCRIPTS = hpssd.py __init__.py hplip.sh
+dist_hpliplibexec_SCRIPTS = hpssd.py __init__.py hplip.sh install.py hplip-install
 
 cmddir = $(hpliplibexecdir)
 dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
-    sendfax.py setup.py makecopies.py
+    sendfax.py setup.py makecopies.py probe.py timedate.py
 
 cupsdir = $(CUPS_BACKEND_PATH)
 hpppddir = $(HPLIP_PPD_PATH)
@@ -89,11 +89,10 @@ hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/h
 
 # base
 basedir = $(hpliplibexecdir)/base
-
 dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/pml.py base/status.py  base/async.py \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
-    base/imagesize.py
+    base/imagesize.py base/distros.py base/dcheck.py
 
 # makecopies
 copierdir = $(hpliplibexecdir)/copier
@@ -120,7 +119,6 @@ ldldir = $(hplipdir)/data/ldl
 psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
-#dist_xml_DATA = data/xml/models.xml
 dist_xml_DATA = data/xml/*.xml
 dist_images_DATA = data/images/*
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
@@ -142,8 +140,6 @@ noinst_DATA = build-pcardext build-cupsext
 prntdir = $(hpliplibexecdir)/prnt
 cupsextdir = $(prntdir)/cupsext
 dist_prnt_SCRIPTS = prnt/cups.py prnt/__init__.py prnt/ldl.py prnt/pcl.py prnt/colorcal.py prnt/printable_areas.py
-#noinst_SCRIPTS = prnt/cupsext/setup.py prnt/cupsext/cupsext.c build-cupsext
-#noinst_DATA = build-cupsext
 
 # scan
 scandir = $(hpliplibexecdir)/scan
@@ -157,6 +153,7 @@ libhpip_la_SOURCES = ip/xconvolve.c ip/xfax.c ip/xgrayout.c ip/xjpg_dct.c ip/xjp
     ip/hpip.h ip/ipdefs.h ip/xform.h ip/xjpg_dct.h ip/xjpg_huf.h ip/xjpg_mrk.h
 
 # sane backend
+if SCAN_BUILD
 BASENAME=sane-hpaio
 MAJORVER=1
 MINORVER=0
@@ -171,6 +168,7 @@ libsane_hpaio_la_SOURCES = scan/sane/hpaio.c scan/sane/mfpdtf.c scan/sane/pml.c 
 libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) -module
 # The following is a interlibrary dependency that must be compiled first.
 libsane_hpaio_la_LIBADD = libhpip.la libhplip-api.la
+endif
 
 # api library
 
@@ -191,7 +189,8 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/informationform_base.py ui/informationform.py  \
     ui/faxsendjobform_base.py ui/faxsendjobform.py ui/faxsettingsform_base.py ui/faxsettingsform.py \
     ui/coverpageform_base.py ui/coverpageform.py ui/faxallowabletypesdlg_base.py ui/faxallowabletypesdlg.py \
-    ui/makecopiesform_base.py ui/makecopiesform.py
+    ui/makecopiesform_base.py ui/makecopiesform.py ui/setupform_base.py ui/setupform.py ui/setupmanualfind_base.py \
+    ui/setupmanualfind.py ui/setupsettings_base.py ui/setupsettings.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
@@ -201,7 +200,8 @@ dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdia
     ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
     ui/align10form_base.ui ui/informationform_base.ui  \
     plugins/powersettingsdialog_base.ui ui/faxsendjobform_base.ui ui/faxsettingsform_base.ui ui/coverpageform_base.ui \
-    ui/faxallowabletypesdlg_base.ui ui/makecopiesform_base.ui
+    ui/faxallowabletypesdlg_base.ui ui/makecopiesform_base.ui ui/setupform_base.ui ui/setupmanualfind_base.ui \
+    ui/setupsettings_base.ui
 
 # ui plugins
 pluginsdir = $(hpliplibexecdir)/plugins
@@ -235,14 +235,11 @@ install-cupsext:
 	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 
-install-exec-hook: test-destdir
+install-exec-hook: 
 #
-#       Do full install if not RPM_INSTALL.
-	if [ "$(RPM_INSTALL)" = "no" ]; then \
-	   $(mkinstalldirs) "$(DESTDIR)$(sanedir)"; \
-	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SONOVER); \
-	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOSHORT); \
-	   ln -sf ../$(SOLONG) $(DESTDIR)$(sanedir)/$(SOLONG); \
+#       If scanner build, install sane backend.
+	if [ "$(scan_build)" = "yes" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
 	   if [ -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
 	      if ! grep ^hpaio $(DESTDIR)/etc/sane.d/dll.conf >/dev/null 2>/dev/null ; then \
 	         echo "Adding hpaio entry to /etc/sane.d/dll.conf..." ; \
@@ -255,7 +252,9 @@ install-exec-hook: test-destdir
 	   fi \
 	fi
 
-install-data-hook: test-destdir install-pcardext install-cupsext
+install-data-hook: install-pcardext install-cupsext
+#
+#       Create ICON file in srcdir.
 	if [ "$(ICON_FILE)" = "hplip.desktop" ]; then \
 	   echo -e "[Desktop Entry]" > $(srcdir)/$(ICON_FILE); \
 	   echo -e "Version=0.6" >> $(srcdir)/$(ICON_FILE); \
@@ -281,36 +280,18 @@ install-data-hook: test-destdir install-pcardext install-cupsext
 		rm -f "$(srcdir)/$(ICON_FILE)"; \
 	fi
 #
-#       Do full install if not RPM_INSTALL.
-	if [ "$(RPM_INSTALL)" = "no" ]; then \
-	   if [ "$(ICON_FILE)" != "" ]; then \
-	      if [ -d "$(DESTDIR)$(ICON_PATH)" ]; then \
-	         ln -sf "$(icondir)/$(ICON_FILE)" "$(DESTDIR)$(ICON_PATH)/$(ICON_FILE)"; \
-	      fi \
-	   fi \
-	fi
+#       Install ICON file in destdir.
+	if [ "$(ICON_FILE)" != "" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)$(ICON_PATH); \
+	   ln -sf $(icondir)/$(ICON_FILE) $(DESTDIR)$(ICON_PATH)/$(ICON_FILE); \
+	fi 
 #
-#       Install pcard extension.
-	cd pcard/pcardext; \
-	if [ "$(DESTDIR)" = "" ]; then \
-	   $(PYTHON) setup.py install "--prefix=$(prefix)"; \
-	else \
-	   $(PYTHON) setup.py install "--root=$(DESTDIR)" "--prefix=$(prefix)"; \
-	fi
-#
-#       Install cups extension.
-	cd prnt/cupsext; \
-	if [ "$(DESTDIR)" = "" ]; then \
-	   $(PYTHON) setup.py install "--prefix=$(prefix)"; \
-	else \
-	   $(PYTHON) setup.py install "--root=$(DESTDIR)" "--prefix=$(prefix)"; \
-	fi
-##
-#       Remove .py extensions in destdir and if not RPM_INSTALL create hp-xxx commands in bindir.
+#       Remove .py extensions in destdir and create hp-xxx commands in bindir.
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	for i in $(dist_cmd_SCRIPTS); do \
 	    newname=$${i%.*}; \
 	    mv $(DESTDIR)$(hpliplibexecdir)/$$i $(DESTDIR)$(hpliplibexecdir)/$$newname; \
-	    if [ "$(RPM_INSTALL)" = "no" ]; then \
+	    if [ ! \( "$$newname" = "toolbox" -a "$(gui_build)" = "no" \) ]; then \
 	      ln -sf ../share/$(PACKAGE)/$$newname $(DESTDIR)$(bindir)/hp-$$newname; \
 	    fi \
 	done
@@ -318,23 +299,28 @@ install-data-hook: test-destdir install-pcardext install-cupsext
 #       Edit hpiod.conf in destdir.
 	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
 	echo -e "[dirs]\nhome=$(hpliplibexecdir)\nrun=$(rundir)\nppd=$(hpppddir)\ndoc=$(hplipdocdir)\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
-#	echo -ne "# Following values are determined at configure time and cannot be changed.\n[configure]\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
-#	if [ "$(rpm_install)" = "yes" ]; then \
-	   echo -ne "rpm-install=1\n" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
-	else \
-	   echo -e "rpm-install=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
-	fi 
-#	if [ "$(network_build)" = "yes" ]; then \
+	echo -e "# Following values are determined at configure time and cannot be changed.\n[configure]" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf
+	if [ "$(network_build)" = "yes" ]; then \
 	   echo -e "network-build=1" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
 	else \
 	   echo -e "network-build=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
 	fi
-#	if [ "$(pp_build)" = "yes" ]; then \
+	if [ "$(pp_build)" = "yes" ]; then \
 	   echo -e "pp-build=1" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
 	else \
 	   echo -e "pp-build=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
 	fi
-#	if [ "$(fax_build)" = "yes" ]; then \
+	if [ "$(gui_build)" = "yes" ]; then \
+	   echo -e "gui-build=1" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	else \
+	   echo -e "gui-build=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	fi
+	if [ "$(scan_build)" = "yes" ]; then \
+	   echo -e "scanner-build=1" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	else \
+	   echo -e "scanner-build=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
+	fi
+	if [ "$(fax_build)" = "yes" ]; then \
 	   echo -e "fax-build=1" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
 	else \
 	   echo -e "fax-build=0" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf; \
@@ -342,42 +328,40 @@ install-data-hook: test-destdir install-pcardext install-cupsext
 #	echo -e "internal-tag=$(PACKAGE_BUGREPORT)" >> $(DESTDIR)$(hplipdir)/$(PACKAGE).conf;
 
 #
-#       Edit hpiod.sh in destdir.
-	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).sh > $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp; \
-	sed 's:HPSSDDIR=:HPSSDDIR=$(sbindir):' < $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp > $(DESTDIR)$(hplipdir)/$(PACKAGE); \
-	rm -f $(DESTDIR)$(hplipdir)/$(PACKAGE).tmp
+#       Install hpiod.conf. 
+	$(mkinstalldirs) $(DESTDIR)/etc/hp
+	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp
 #
-#       Do full install if not RPM_INSTALL. Also only run chkconfig/install_initd if DESTDIR="". 
-	$(mkinstalldirs) $(DESTDIR)/etc/hp; \
-	$(INSTALL_DATA) $(DESTDIR)$(hplipdir)/$(PACKAGE).conf $(DESTDIR)/etc/hp; \
-	if [ "$(RPM_INSTALL)" = "no" ]; then \
-	   if [ -d $(DESTDIR)/etc/init.d ]; then \
-	      $(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d; \
-	      if [ "$(DESTDIR)" = "" ]; then \
-	         if [ -x $(INSTALLINITD) ]; then \
-	            $(INSTALLINITD) $(PACKAGE); \
-	         else \
-	            $(CHKCONFIG) $(PACKAGE) reset; \
-	         fi \
-	      fi \
+#       Create hpiod start/stop script from hpiod.sh in destdir.
+	sed -e 's:HPIODDIR=:HPIODDIR=$(sbindir):' -e 's:HPSSDDIR=:HPSSDDIR=$(sbindir):' \
+		< $(PACKAGE).sh > $(DESTDIR)$(hplipdir)/$(PACKAGE)
+#
+#       Install hpiod start/stop script.
+	$(mkinstalldirs) $(DESTDIR)/etc/init.d
+	$(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d
+#
+#       Run chkconfig/install_initd if DESTDIR="". 
+	if [ "$(DESTDIR)" = "" ]; then \
+	   if [ "$(INSTALLINITD)" != "" ]; then \
+	      $(INSTALLINITD) $(PACKAGE); \
+	   else \
+	      $(CHKCONFIG) $(PACKAGE) reset; \
 	   fi \
-	fi
-#
-#       For internal testing.
-	if [ "$(SHADOW)" != "" ]; then \
-	   cp -f data/xml/unreleased/*.xml $(DESTDIR)$(hplipdir)/data/xml/; \
 	fi
 #
 #       Install fax support. Let hpijs symlink hpppddir to cupsppddir.
 	if [ "$(fax_build)" = "yes" ]; then \
 	   mv $(DESTDIR)$(hpfaxdir)/hpfax.py $(DESTDIR)$(hpfaxdir)/hpfax; \
-	   if [ "$(rpm_install)" = "no" ]; then \
-	      $(mkinstalldirs) $(DESTDIR)$(cupsdir); \
-	      $(INSTALL_SCRIPT) $(DESTDIR)$(hpfaxdir)/hpfax $(DESTDIR)$(cupsdir); \
-	      $(mkinstalldirs) $(DESTDIR)$(hpppddir)/fax; \
-	      $(INSTALL_DATA) $(DESTDIR)$(faxppddir)/HP-Fax-hplip.ppd $(DESTDIR)$(hpppddir)/fax; \
-	      gzip -f $(DESTDIR)$(hpppddir)/fax/HP-Fax-hplip.ppd; \
-	   fi \
+	   $(mkinstalldirs) $(DESTDIR)$(cupsdir); \
+	   $(INSTALL_SCRIPT) $(DESTDIR)$(hpfaxdir)/hpfax $(DESTDIR)$(cupsdir); \
+	   $(mkinstalldirs) $(DESTDIR)$(hpppddir)/fax; \
+	   $(INSTALL_DATA) $(DESTDIR)$(faxppddir)/HP-Fax-hplip.ppd $(DESTDIR)$(hpppddir)/fax; \
+	   gzip -f $(DESTDIR)$(hpppddir)/fax/HP-Fax-hplip.ppd; \
+	fi
+#
+#       For internal testing.
+	if [ "$(SHADOW)" != "" ]; then \
+	   cp -f data/xml/unreleased/*.xml $(DESTDIR)$(hplipdir)/data/xml/; \
 	fi
 
 uninstall-hook:
@@ -401,24 +385,10 @@ uninstall-hook:
 	rm -f $(DESTDIR)$(cupsdir)/hpfax
 	rm -f $(DESTDIR)$(hpppddir)/fax/HP-Fax-hplip.ppd.gz
 
-#
-# Add prerequisites for testing (or building?) "make install DESTDIR=/build".
-test-destdir:
-	if [ "$(DESTDIR)" != "" ]; then \
-	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
-	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
-	   if [ ! -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
-	      touch $(DESTDIR)/etc/sane.d/dll.conf; \
-	   fi; \
-	   $(mkinstalldirs) $(DESTDIR)$(sanedir); \
-	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
-	   $(mkinstalldirs) $(DESTDIR)/usr/bin; \
-	fi
-
 dist-hook:
 	if [ "$(SHADOW)" != "" ]; then \
 	   cp -f data/xml/unreleased/*.xml $(distdir)/data/xml/; \
 	fi
 
-.PHONY: build-pcardext build-cupsext install-pcardext install-cupsext test-destdir
+.PHONY: build-pcardext build-cupsext install-pcardext install-cupsext
 

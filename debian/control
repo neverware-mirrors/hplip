@@ -8,8 +8,8 @@ Standards-Version: 3.7.2
 
 Package: hplip
 Architecture: any
-Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
-Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds | linuxprinting.org-ppds, python-reportlab
+Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (= ${hplip:source:Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds (>= ${hpijs:Upstream-Version}), linuxprinting.org-ppds, python-reportlab
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, hplip-doc
 Conflicts: hpijs (<< 2.1), hplip-base
@@ -44,15 +44,15 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 
 Package: hplip-data
 Architecture: all
-Recommends: hplip (>> ${hplip:Upstream-Version}), hplip (<< ${hplip:Upstream-Version}.1)
+Recommends: hplip
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
 
 Package: hplip-dbg
 Architecture: any
-Depends: hplip | hpijs
-Conflicts: hplip (<< ${Source-Version}), hplip (>> ${Source-Version}), hpijs (<< ${hpijs:Source-Version}), hpijs (>> ${hpijs:Source-Version})
+Priority: extra
+Depends: hplip (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the
  binaries and libraries in the hplip and hpijs packages.
@@ -73,12 +73,12 @@ Description: HP Linux Printing and Imaging - documentation
 
 Package: hpijs-ppds
 Architecture: all
-Section: text
-Suggests: hpijs, hplip
+Section: utils
+Suggests: hplip
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
-Depends: foomatic-filters (>= 3.0.2)
+Depends: foomatic-filters (>= 3.0.2), hpijs (>= ${hpijs:source:Version})
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -93,8 +93,7 @@ Package: hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2)
-Suggests: hplip | hpoj, hpijs-ppds, hplip-doc
-Conflicts: hplip-ppds (<< ${Source-Version}), hpijs-ppds (<< ${hpijs:Upstream-Version}), hpijs-ppds (>= ${hpijs:Upstream-Version}.1)
+Suggests: hplip | hpoj, hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains an IJS printer driver for Ghostscript, which
  adds support for most inkjet printers and some LaserJet printers

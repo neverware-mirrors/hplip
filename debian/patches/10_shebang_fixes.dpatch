@@ -2,7 +2,7 @@
 ## 10_hashbang_fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Fix missing, weird or otheriwse broken shebang lines
+## DP: Fix missing, weird or otherwise broken shebang lines
 
 @DPATCH@
 diff -urNad hplip~/__init__.py hplip/__init__.py

@@ -13,11 +13,22 @@
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
+# 
+# exit status:
+#   0 = ok
+#   1 = error
+#   2 = no libusb
+#   3 = no cups-devel
+#   4 = no libnetsnmp
+#   5 = no netsnmp-devel
+#   6 = no python-devel
+#   7 = no pthread-devel
+#   8 = no ppdev-devel
 #
 
 AC_PREREQ([2.59])
 AC_INIT([HP Linux Imaging and Printing],
-	[1.6.7],
+	[1.6.10],
 	[hplip@packages.debian.org],
 	[hplip])
 
@@ -76,7 +87,7 @@ AC_CHECK_FUNC([setsockopt],,
 
 # Pthread
 AC_CHECK_LIB([pthread], [pthread_create],,
-	[AC_MSG_ERROR([pthread libraries not found])]
+	[AC_MSG_ERROR([pthread libraries not found], 7)]
 )
 
 # Netsnmp
@@ -84,35 +95,28 @@ dnl not used by HPLIP, only needed on systems with broken ld.so or for
 dnl static linking.  If you know of any, add it inside the libsnmp=yes clause
 dnl AC_CHECK_LIB([crypto], [CRYPTO_free])
 AC_CHECK_LIB([netsnmp], [snmp_timeout], [libsnmp=yes], [libsnmp=no])
-AC_CHECK_LIB([usb], [usb_init],, [AC_MSG_ERROR([cannot find libusb support])])
+AC_CHECK_LIB([usb], [usb_init],, [AC_MSG_ERROR([cannot find libusb support], 2)])
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADER([cups/cups.h],
    [],
-   [AC_MSG_ERROR([cannot find cups-devel support])]
+   [AC_MSG_ERROR([cannot find cups-devel support], 3)]
 )
 AC_CHECK_HEADER([net-snmp/net-snmp-config.h], [snmpdevel=yes], [snmpdevel=no])
 AC_CHECK_HEADER([python${PYTHON_VERSION}/Python.h],
    [],
-   [AC_MSG_ERROR([cannot find python-devel support for python ${PYVERSION}])]
+   [AC_MSG_ERROR([cannot find python-devel support for python ${PYVERSION}], 6)]
 )
+AC_CHECK_HEADER([pthread.h], 
+   [],
+   [AC_MSG_ERROR([cannot find pthread-devel support], 7)]
+)
+AC_CHECK_HEADERS([linux/compiler.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_BIGENDIAN
-
-# Options
-AC_MSG_CHECKING([for rpm install])
-AC_ARG_ENABLE([rpm-install],
-	AS_HELP_STRING([--enable-rpm-install],
-		[enable rpm install (default=no)]),
-	[RPM_INSTALL="$enableval"], [RPM_INSTALL=no]
-)
-AS_IF([test "$RPM_INSTALL" != "no"],
-	[AC_MSG_RESULT([yes])],
-	[AC_MSG_RESULT([no])]
-)
 
 AC_MSG_CHECKING([for network build])
 AC_ARG_ENABLE([network-build],
@@ -131,7 +135,29 @@ AC_ARG_ENABLE([pp_build],
 	[pp_build="$enableval"], [pp_build=yes])
 AS_IF([test "$pp_build" = "yes"],
    [AC_MSG_RESULT([yes])
+    AC_CHECK_HEADERS(linux/ppdev.h, ,[AC_MSG_ERROR([cannot find ppdev-devel support (or --disable-pp-build)], 8)])
     AC_DEFINE(HAVE_PPORT)],
+   [AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([whether to support scanning])
+AC_ARG_ENABLE([scan_build],
+	AS_HELP_STRING([--enable-scan-build],
+		[support scanning (default=yes)]),
+  	[scan_build="$enableval"], [scan_build=yes])
+AS_IF([test "$scan_build" = "yes"],
+   [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])]
+)
+AM_CONDITIONAL([SCAN_BUILD], [test "$scan_build" = "yes"])
+
+AC_MSG_CHECKING([whether to build GUI support])
+AC_ARG_ENABLE([gui_build],
+	AS_HELP_STRING([--enable-gui-build],
+		[build GUI support (default=yes)]),
+	[gui_build="$enableval"], [gui_build=yes])
+AS_IF([test "$gui_build" = "yes"],
+   [AC_MSG_RESULT([yes])],
    [AC_MSG_RESULT([no])]
 )
 
@@ -218,12 +244,12 @@ AS_IF([test "x${ICON_PATH}${ICON_FILE}" != "x"],
    [AC_MSG_RESULT([none])]
 )
 
-if test "x$network_build" = "xyes"; then
-   if test "x$libsnmp" = "xno"; then
-      AC_MSG_ERROR([cannot find net-snmp support (or --disable-network-build)])
+if test "$network_build" = "yes"; then
+   if test "$libsnmp" = "no"; then
+      AC_MSG_ERROR([cannot find net-snmp support (or --disable-network-build)], 4)
    fi
-   if test "x$snmpdevel" = "xno"; then
-      AC_MSG_ERROR([cannot find net-snmp-devel support (or --disable-network-build)])
+   if test "$snmpdevel" = "no"; then
+      AC_MSG_ERROR([cannot find net-snmp-devel support (or --disable-network-build)], 5)
    fi
    AC_DEFINE(HAVE_LIBSNMP)
    LIBS="-lnetsnmp $LIBS"
@@ -234,9 +260,10 @@ if test "$fax_build" = "yes"; then
    ac_configure_args="$ac_configure_args --enable-hplip-build"
 fi
 
-AC_SUBST(RPM_INSTALL)
 AC_SUBST(network_build)
 AC_SUBST(pp_build)
+AC_SUBST(gui_build)
+AC_SUBST(scan_build)
 AC_SUBST(fax_build)
 AC_SUBST(ICON_PATH)
 AC_SUBST(ICON_FILE)
