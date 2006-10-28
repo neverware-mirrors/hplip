@@ -1,3 +1,16 @@
+hplip (1.6.10-2) unstable; urgency=low
+
+  * debian/control: hpijs: Add versioned replaces on hpijs-ppds, hplip-ppds
+    for Fax PPD file move into hpijs package, that happened on 1.6.10-1
+    (closes: #395862, #395847)
+  * debian/control: build-depend on patch >= 2.5.9-3bpo1 due to our use
+    of the Debian-specific -U flag for dpatch, introduced by
+    2.5.9-4/2.5.9-3pbo1; build-depend on findutils >= 4.2.25 due to our use
+    of xargs -d.  Thanks to Sylvain Beucler <beuc@beuc.net> for noticing and
+    reporting these problems
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 28 Oct 2006 09:14:09 -0300
+
 hplip (1.6.10-1) unstable; urgency=medium
 
   * New upstream source (closes: #393940, #395165)

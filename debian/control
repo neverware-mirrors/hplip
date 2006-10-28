@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp9-dev | libsnmp5-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3)
+Build-Depends: libcupsys2-dev, libsnmp9-dev | libsnmp5-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28)
 Standards-Version: 3.7.2
 
 Package: hplip
@@ -94,6 +94,7 @@ Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2)
 Suggests: hplip | hpoj, hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
+Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains an IJS printer driver for Ghostscript, which
  adds support for most inkjet printers and some LaserJet printers
