@@ -1,3 +1,13 @@
+hplip (1.6.10-3) unstable; urgency=high
+
+  * dpatch 00_01_upstream-fix-libusb-bigendian (new): Do not hto* libusb
+    stuff, it does so by itself (at least on the non-ancient versions),
+    backport from upstream 1.6.12-rc3 (closes: #401530)
+  * dpatch 00_02_upstream-fix-pragma-pack (new): Do not use pragma pack, use
+    attribute packed instead, backport from upstream 1.6.12-rc3
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 18 Dec 2006 10:27:31 -0200
+
 hplip (1.6.10-2) unstable; urgency=low
 
   * debian/control: hpijs: Add versioned replaces on hpijs-ppds, hplip-ppds

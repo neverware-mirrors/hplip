@@ -1,3 +1,5 @@
+00_01_upstream-fix-libusb-bigendian
+00_02_upstream-fix-pragma-pack
 01_rss
 10_shebang_fixes
 14_charsign_fixes
