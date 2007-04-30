@@ -1,11 +1,8 @@
-hplip (1.6.10-3etch1) stable-security; urgency=high
+hplip (1.6.10-4) unstable; urgency=low
 
-  * Non-maintainer upload by the security team
-  * Included CVE-2007-5208.dpatch to fix
-    arbitrary command execution in hpssd via crafted from address
-    because of missing sanitization (CVE-2007-5208)
+  * Build-depend on new net-snmp (closes: #421607)
 
- -- Steffen Joeris <white@debian.org>  Mon, 24 Dec 2007 13:23:12 +0000
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 30 Apr 2007 12:07:52 -0300
 
 hplip (1.6.10-3) unstable; urgency=high
 
