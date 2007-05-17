@@ -55,9 +55,13 @@ case "$1" in
 		done
 
 		getent passwd hplip >/dev/null && \
+		    if [ -x /usr/sbin/deluser ]; then
 			deluser --quiet --system hplip
+		    fi
 		getent group hplip >/dev/null && \
+		    if [ -x /usr/sbin/delgroup ]; then
 			delgroup hplip
+		    fi
 
     		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
 	;;
