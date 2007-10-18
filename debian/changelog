@@ -1,3 +1,11 @@
+hplip (1.6.10-4.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Build-depends on libsnmp-dev instead of libsnmp10-dev.
+    Closes: #444557, #444572. 
+
+ -- Lucas Nussbaum <lucas@lucas-nussbaum.net>  Thu, 18 Oct 2007 09:04:13 +0200
+
 hplip (1.6.10-4.1) unstable; urgency=low
 
   * Non-maintainer upload during BSP

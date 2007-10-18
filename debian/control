@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
 Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp10-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28)
+Build-Depends: libcupsys2-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28)
 Standards-Version: 3.7.2
 
 Package: hplip
