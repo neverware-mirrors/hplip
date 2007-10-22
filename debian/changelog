@@ -1,4 +1,4 @@
-hplip (1.6.10-4.2+lenny1) testing-security; urgency=high
+hplip (1.6.10-4.3) unstable; urgency=high
 
   * Non-maintainer upload by testing security team.
   * Included CVE-2007-5208.dpatch to fix
