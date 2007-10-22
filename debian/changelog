@@ -1,3 +1,12 @@
+hplip (1.6.10-4.2+lenny1) testing-security; urgency=high
+
+  * Non-maintainer upload by testing security team.
+  * Included CVE-2007-5208.dpatch to fix
+    arbitrary command execution in hpssd via crafted from address
+    because of missing sanitization (CVE-2007-5208) (Closes: #447341).
+
+ -- Nico Golde <nion@debian.org>  Mon, 22 Oct 2007 10:31:55 +0200
+
 hplip (1.6.10-4.2) unstable; urgency=low
 
   * Non-maintainer upload.
