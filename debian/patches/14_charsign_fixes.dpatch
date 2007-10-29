@@ -1,90 +1,16 @@
-#!/bin/sh /usr/share/dpatch/dpatch-run
-## 14_charsign_fixes.dpatch by Henrique de Moraes Holschuh <hmh@debian.org>
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 14_charsign_fixes.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Fixes all sort of unsigned char -> signed char bogonness
+## DP: No description.
 
 @DPATCH@
-diff -urNad hplip~/ip/xpnm.c hplip/ip/xpnm.c
---- hplip~/ip/xpnm.c	2006-05-10 15:06:02.000000000 -0300
-+++ hplip/ip/xpnm.c	2006-05-10 16:07:33.160410394 -0300
-@@ -422,7 +422,7 @@
-         *pdwInputNextPos  = g->dwInNextPos;
-         *pdwOutputThisPos = g->dwOutNextPos;
-         if (g->fIsEncode && !g->fDidHeader) {
--            BYTE buffer[MAX_ENCODE_HEADER_SIZE];
-+            char buffer[MAX_ENCODE_HEADER_SIZE];
-             DWORD maxval=(2<<((g->traits.iBitsPerPixel/
-                 g->traits.iComponentsPerPixel)-1))-1;
-             int len;
-diff -urNad hplip~/scan/sane/pml.c hplip/scan/sane/pml.c
---- hplip~/scan/sane/pml.c	2006-05-10 15:06:02.000000000 -0300
-+++ hplip/scan/sane/pml.c	2006-05-10 16:07:33.160410394 -0300
-@@ -327,7 +327,7 @@
-                            int maxlen )
- {
-     int type, len;
--    unsigned char prefix[2];
-+    char prefix[2];
- 
-     if( PmlGetPrefixValue( obj, &type, 0, 0, 0, 0 ) == ERROR )
-     {
-@@ -341,7 +341,8 @@
-     }
-     if( pSymbolSet )
-     {
--        *pSymbolSet = ( ( prefix[0] << 8 ) | prefix[1] );
-+        *pSymbolSet = ( ( (unsigned char)prefix[0] << 8 ) | 
-+                          (unsigned char)prefix[1] );
-     }
- 
-     return len;
-@@ -350,7 +351,7 @@
- int PmlGetIntegerValue( PmlObject_t obj, int * pType, int * pValue )
- {
-     int type;
--    unsigned char svalue[sizeof( int )];
-+    char svalue[sizeof( int )];
-     int accum = 0, i, len;
- 
-     if( !pType )
-@@ -366,7 +367,7 @@
- 
-     for( i = 0; i < len; i++ )
-     {
--        accum = ( ( accum << 8 ) | ( svalue[i] & 0xFF ) );
-+        accum = ( ( accum << 8 ) | ( (unsigned char)svalue[i] ) );
-     }
-     if( pValue )
-     {
-@@ -475,18 +476,18 @@
- 
- int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj ) 
- {
--    unsigned char data[PML_MAX_DATALEN];
-+    char data[PML_MAX_DATALEN];
-     int datalen=0, stat=ERROR, result, type, pml_result;
- 
-     DBG( 0,  "PmlRequestGet(obj=0x%8.8X)\n", obj );
-     
--    datalen = GetPml(deviceid, channelid, obj->oid, (char *)data, sizeof(data), &result, &type, &pml_result); 
-+    datalen = GetPml(deviceid, channelid, obj->oid, data, sizeof(data), &result, &type, &pml_result); 
- 
-     PmlSetStatus(obj, pml_result);
- 
-     if (result == OK)
-     {
--      PmlSetValue(obj, type, (char *)data, datalen);
-+      PmlSetValue(obj, type, data, datalen);
-        stat = OK;
-     }
- 
-diff -urNad hplip~/scan/sane/scl.c hplip/scan/sane/scl.c
---- hplip~/scan/sane/scl.c	2006-05-10 15:06:02.000000000 -0300
-+++ hplip/scan/sane/scl.c	2006-05-10 16:07:33.160410394 -0300
-@@ -28,10 +28,11 @@
- 
- #include "scl.h"
+diff -urNad hplip-1.7.3~/scan/sane/scl.c hplip-1.7.3/scan/sane/scl.c
+--- hplip-1.7.3~/scan/sane/scl.c	2007-03-19 16:26:48.000000000 +0000
++++ hplip-1.7.3/scan/sane/scl.c	2007-03-26 22:48:39.000000000 +0100
+@@ -36,10 +36,11 @@
+ #define DEBUG_DECLARE_ONLY
+ #include "sanei_debug.h"
  
 -static int SclBufferIsPartialReply( unsigned char * data, int datalen )
 +static int SclBufferIsPartialReply( void * dataptr, int datalen )

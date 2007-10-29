@@ -2,7 +2,7 @@
 
   scl.h - HP SANE backend for multi-function peripherals (libsane-hpaio)
 
-  (c) 2001-2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2001-2006 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -21,18 +21,15 @@
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  Current Author: Don Welch
-  Original Author: David Paschal 
+  Contributing Authors: David Paschal, Don Welch, David Suffield 
 
 \************************************************************************************/
 
 #if !defined( __SCL_H__ )
 #define __SCL_H__ 
 
-#include "hpaio.h"
+#include "sane.h"
 
-
-#define INFINITE_TIMEOUT        ((struct timeval *)0)
 #define SCL_SEND_COMMAND_START_TIMEOUT      0
 #define SCL_SEND_COMMAND_CONTINUE_TIMEOUT   2
 #define SCL_INQUIRE_START_TIMEOUT     30
@@ -179,24 +176,27 @@
 //#define LEN_SCL_BUFFER 1024
 #define LEN_SCL_BUFFER    256 /* Increase if reading binary data. */
 
- 
-SANE_Status SclSendCommand( int deviceid,
-                            int channelid,
-                            int cmd,
-                            int param );
-                            
-SANE_Status SclInquire( int deviceid,
-                        int channelid,
-                        int cmd,
-                        int param,
-                        int * pValue,
-                        char * buffer,
-                        int maxlen );
+SANE_Status  __attribute__ ((visibility ("hidden"))) SclSendCommand(int deviceid, int channelid, int cmd, int param);
+SANE_Status __attribute__ ((visibility ("hidden"))) SclInquire(int deviceid, int channelid, int cmd, int param, int *pValue, char *buffer, int maxlen);
 
-/*SANE_Status SclSendCommandCheckError( int deviceid,
-                              int channelid,
-                              int cmd,
-                              int param );
-*/
+/*
+ * Phase 2 partial rewrite. des 9/26/07
+ */
+
+/* Note ESC = 0x1b = '\e' . */
+#define SCL_QUERY_DUPLEX_SUPPORTED "\e*s13500E"            /* 1 = device can support duplex */
+#define SCL_QUERY_DUPLEX_VERT_FLIP_SUPPORTED "\e*s13501E"  /* duplex can flip vertical (they all should) */
+#define SCL_QUERY_DUPLEX_HORZ_FLIP_SUPPORTED "\e*s13502E"  /* duplex can flip horizontal (they all should) */
+
+#define SCL_SET_DUPLEX "\e*d%dD13505R"                  /* 1 = duplex is requested, 0 otherwise */
+#define SCL_SET_DUPLEX_VERT_FLIP "\e*d%dV13506R"        /* 1 = vertical flip is requested, 0 otherwise */
+#define SCL_SET_DUPLEX_HORZ_FLIP "\e*d%dH13507R"        /* 1 = horizontal flip is requested, 0 otherwise */
+#define SCL_SET_DUPLEX_ORIENTATION "\e*a%d13507R"       /* 0 = no change, 1 = needs vert flip, 2 = vert and horz flip */
+
+struct hpaioScanner_s;
+
+SANE_Status __attribute__ ((visibility ("hidden"))) scl_send_cmd(struct hpaioScanner_s *hpaio, const char *buf, int size);
+SANE_Status __attribute__ ((visibility ("hidden"))) scl_query_int(struct hpaioScanner_s *hpaio, const char *buf, int size, int *result);
+
 #endif
 

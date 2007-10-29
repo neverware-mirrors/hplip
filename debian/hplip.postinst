@@ -41,6 +41,12 @@ case "$1" in
 	  # unknown adduser error, simply exit
 	  exit 1
 	}
+	if getent group scanner >/dev/null; then
+	    adduser --quiet hplip scanner
+	else
+	    addgroup --quiet --system scanner
+	    adduser --quiet hplip scanner
+	fi
 
 	for i in /var/run/hplip
 	do
@@ -48,6 +54,23 @@ case "$1" in
 		then
 			dpkg-statoverride --update --add hplip root 755 $i
 		fi
+	done
+
+
+	# Remove shutdown and reboot links; this init script does not need them.
+	if dpkg --compare-versions "$2" lt "1.7.3-0ubuntu4"; then
+		rm -f /etc/rc0.d/K19hplip /etc/rc6.d/K19hplip
+	fi
+
+	# Correct ownership of personal HPLIP config files of the users
+	# (in older HPLIP versions hp-setup created these files with root
+	#  permissions and made hp-toolbox crashing)
+	for line in `cat /etc/passwd | sed -e 's/ //g'`; do 
+		user=`echo $line | cut -d : -f 1`;
+		homedir=`echo $line | cut -d : -f 6`;
+		[ -d $homedir ] && \
+		    find $homedir -maxdepth 1 -not -user $user -name .hplip* \
+		    -exec chown $user '{}' \; 2>/dev/null || :
 	done
     ;;
 

@@ -48,13 +48,20 @@
 #include <dlfcn.h>
 #endif
 
+extern "C"
+{
 int (*HPLJJRCompress) (BYTE       *pbOutBuffer, 
                        uint32_t   *outlen, 
                        BYTE       *inmem, 
                        const uint32_t iLogicalImageWidth,
                        const uint32_t iLogicalImageHeight);
+}
 
 APDK_BEGIN_NAMESPACE
+
+#ifdef HAVE_LIBDL
+extern void *LoadPlugin (char *szPluginName);
+#endif
 
 extern MediaSize PaperToMediaSize(PAPER_SIZE psize);
 
@@ -141,7 +148,7 @@ LJJetReady::LJJetReady (SystemServices* pSS, int numfonts, BOOL proto)
     HPLJJRCompress = NULL;
 
 #ifdef HAVE_LIBDL
-    m_hHPLibHandle = dlopen ("libhpprop.so", RTLD_LAZY);
+    m_hHPLibHandle = LoadPlugin ("lj.so");
     if (m_hHPLibHandle)
     {
         dlerror ();

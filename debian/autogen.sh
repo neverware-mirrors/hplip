@@ -25,7 +25,7 @@ test -d debian && {
 	ln -s /usr/share/misc/config.guess .
 
 	# trace version number of HPIJS
-	(cd prnt/hpijs && autoconf --trace=AC_INIT) | \
+	(autoconf --trace=AC_INIT) | \
 		cut -d ':' -f 5 >debian/hpijs.version
 }
 exit 0

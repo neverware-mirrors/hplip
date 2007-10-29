@@ -1,8 +1,7 @@
-usr/lib/hplip/check
-usr/share/doc/hpijs/README_LIBJPG
-usr/share/doc/hpijs/hpijs_readme.html
-usr/share/doc/hpijs/gs_hpijs.png
-usr/share/doc/hpijs/COPYING
+usr/share/hplip/check
+usr/share/doc/hplip/README_LIBJPG
+usr/share/doc/hplip/hpijs_readme.html
+usr/share/doc/hplip/gs_hpijs.png
 usr/share/doc/hplip/hplip_readme.html
 usr/share/doc/hplip/hplip_overview.png
 usr/share/doc/hplip/COPYING

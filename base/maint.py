@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,15 +27,24 @@ from prnt import pcl, ldl, colorcal
 
 # ********************** Align **********************
 
-def AlignType1(dev, loadpaper_ui): # Auto VIP
+def AlignType1(dev, loadpaper_ui): # Auto VIP (using embedded PML)
     ok = loadpaper_ui()
     if ok:
         dev.writeEmbeddedPML(pml.OID_AUTO_ALIGNMENT,
                              pml.AUTO_ALIGNMENT, style=0, 
-                             direct=False)
+                             direct=True)
         dev.closePrint()
 
     return ok
+    
+def AlignType1PML(dev, loadpaper_ui): # Auto VIP (using PML)
+    ok = loadpaper_ui()
+    if ok:
+        dev.setPML(pml.OID_AUTO_ALIGNMENT, pml.AUTO_ALIGNMENT)
+        dev.closePML()
+
+    return ok
+
 
 
 def AlignType2(dev, loadpaper_ui, align_ui, bothpens_ui): # 8xx
@@ -289,16 +298,10 @@ def AlignType6(dev, ui1, ui2, loadpaper_ui):
     while state != -1:
         if state == 0:
             state = 2
-            #okay, print_page = ui1()
             accept = ui1()
-            #print okay, print_page
             if not accept:
                 # Need to printout alignment page
                 state = 1
-            #elif okay:
-            #else:
-                # Next >
-            #    state = 2
 
         elif state == 1: # Load and print
             state = -1
@@ -399,9 +402,9 @@ def AlignType10(dev, loadpaper_ui, align_ui):
 def alignType10Phase1(dev):
     dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
                          pml.PRINT_INTERNAL_PAGE_ALIGNMENT_PAGE)
-    
+
     dev.closePrint()
-    
+
 
 def alignType10Phase2(dev, values, pattern):
     i, p = 0, ''.join([pcl.UEL, '\n'])
@@ -420,7 +423,7 @@ def alignType10Phase2(dev, values, pattern):
 def alignType10Phase3(dev):
     dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
                          pml.PRINT_INTERNAL_PAGE_ALIGNMENT_PAGE_VERIFICATION)
-                         
+
     dev.closePrint()
 
 
@@ -444,7 +447,7 @@ def align10and11Controls(pattern, align_type):
                          'F' : (True, 9),
                          'G' : (True, 9),
                          'H' : (True, 9),}
-    
+
         elif pattern == 3: # color + photo (iii)
             controls = { 'A' : (True, 9),
                          'B' : (True, 23),
@@ -474,7 +477,7 @@ def align10and11Controls(pattern, align_type):
                          'F' : (True, 9),
                          'G' : (True, 9),
                          'H' : (True, 9),}
-        
+
         elif pattern == 3:
             controls = {'A' : (True, 23),
                          'B' : (True, 9),
@@ -484,10 +487,10 @@ def align10and11Controls(pattern, align_type):
                          'F' : (True, 9),
                          'G' : (True, 9),
                          'H' : (True, 9),}
-    
+
     return controls
 
-                    
+
 def AlignType11(dev, loadpaper_ui, align_ui, invalidpen_ui):
     pen_config = status.getPenConfiguration(dev.getStatusFromDeviceID())
     log.debug("Pen config=%d" % pen_config)
@@ -500,7 +503,7 @@ def AlignType11(dev, loadpaper_ui, align_ui, invalidpen_ui):
 
     elif pen_config == AGENT_CONFIG_COLOR_AND_PHOTO: # (iii)
         pattern = 3
-        
+
     elif pen_config == AGENT_CONFIG_PHOTO_ONLY:
         invalidpen_ui()
         return
@@ -534,7 +537,7 @@ def alignType11Phase1(dev):
     dev.printData(ldl.buildResetPacket())
     dev.printData(ldl.buildReportPagePacket(ldl.COMMAND_REPORT_PAGE_PEN_CALIBRATION))
     dev.closePrint()
-    
+
 
 def alignType11Phase2(dev, values, pattern, pen_config):
     active_colors = 0
@@ -562,7 +565,7 @@ def alignType11Phase2(dev, values, pattern, pen_config):
 def alignType11Phase3(dev):
     dev.printData(ldl.buildReportPagePacket(ldl.COMMAND_REPORT_PAGE_PEN_CALIBRATION_VERIFY))
     dev.closePrint()
-    
+
 def alignType2Phase1(dev): # Type 2 (8xx)
     dev.writeEmbeddedPML(pml.OID_AGENT2_VERTICAL_ALIGNMENT, 0)
     dev.writeEmbeddedPML(pml.OID_AGENT2_HORIZONTAL_ALIGNMENT, 0)
@@ -696,7 +699,7 @@ def alignType5Phase1(dev): # Type 5 (xBow+/LIDIL 0.4.3)
     dev.printData(ldl.buildPhotoHuePacket(0))
     dev.printData(ldl.buildColorHuePacket(0))
     dev.closePrint()
-    
+
     dev.printGzipFile(os.path.join(prop.home_dir, 'data', 'ldl', ldl_file))
 
 
@@ -856,7 +859,7 @@ def alignType7Phase2(dev, a, b, c, d, e, f, g): # Type 7 (xBow VIP)
         dev.writeEmbeddedPML(pml.OID_AGENT3_VERTICAL_ALIGNMENT, vert)
 
     dev.closePrint()
-    
+
 def alignType7Phase3(dev): # Type 7 (xBow VIP)
     dev.closePrint()
     dev.printGzipFile(os.path.join(prop.home_dir, 'data', 'pcl', "crcaldone.pcl.gz"))
@@ -939,6 +942,12 @@ def alignType8Phase2(dev, num_inks, a, b, c, d): # 450
 
     dev.printData(s)
     dev.closePrint()
+    
+    
+def AlignType12(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.setPML(pml.OID_PRINT_INTERNAL_PAGE, pml.PRINT_INTERNAL_PAGE_ALIGNMENT_PAGE)
+        dev.closePML()
 
 # ********************** Clean **********************
 
@@ -946,13 +955,12 @@ def alignType8Phase2(dev, num_inks, a, b, c, d): # 450
 def cleaning(dev, clean_type, level1, level2, level3,
               loadpaper_ui, dlg1, dlg2, dlg3, wait_ui):
 
-    CLEAN_SLEEP_TIMER = 60
     state = 0
 
     while state != -1:
         if state == 0: # Initial level1 print
             state = 1
-            if clean_type == 3:
+            if clean_type == CLEAN_TYPE_PCL_WITH_PRINTOUT:
                 ok = loadpaper_ui()
                 if not ok:
                     state = -1
@@ -1022,7 +1030,6 @@ def print_clean_test_page(dev):
     dev.closePrint()
     dev.printGzipFile(os.path.join(prop.home_dir, 'data',
                       'ps', 'clean_page.pdf.gz'), raw=False)
-
 
 def cleanType1(dev): # PCL, Level 1
     dev.writeEmbeddedPML(pml.OID_CLEAN, pml.CLEAN_CLEAN)
@@ -1188,7 +1195,7 @@ def colorCalType2PenCheck(dev):
 def colorCalType2Phase1(dev):
     dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
                          pml.PRINT_INTERNAL_PAGE_COLOR_CAL)
-    
+
     dev.closePrint()
 
 
@@ -1309,10 +1316,10 @@ def colorCalType4(dev, loadpaper_ui, colorcal_ui, wait_ui):
 
 
 def colorCalType4Phase1(dev):
-    dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
-                         pml.PRINT_INTERNAL_PAGE_COLOR_CAL, style=0, 
-                         direct=False)
-    dev.closePrint()
+    dev.setPML(pml.OID_PRINT_INTERNAL_PAGE,
+              pml.PRINT_INTERNAL_PAGE_COLOR_CAL)
+              
+    dev.closePML()
 
 
 def colorCalType4AdjValue(value):
@@ -1343,32 +1350,32 @@ def colorCalType4Phase2(dev, values):
 
     log.debug("C=%d, M=%d, Y=%d, c=%d, m=%d, k=%d\n" % (Cadj, Madj, Yadj, cadj, madj, kadj))
 
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_1,
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_1,
                             kadj)
-
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_2,
+                            
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_2,
                             Cadj)
-
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_3,
+                            
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_3,
                             Madj)
-
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_4,
-                            Yadj)
-
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_5,
-                            cadj)
-
-    dev.writeEmbeddedPML(pml.OID_COLOR_CALIBRATION_ARRAY_6,
-                            madj)
-
-    dev.closePrint()
-
     
-def colorCalType4Phase3(dev):
-    dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
-                         pml.PRINT_INTERNAL_PAGE_COLOR_PALETTE_CMYK_PAGE)
-    dev.closePrint()
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_4,
+                            Yadj)
+                            
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_5,
+                            cadj)
+    
+    dev.setPML(pml.OID_COLOR_CALIBRATION_ARRAY_6,
+                            madj)
+                            
+    dev.closePML()
 
+
+def colorCalType4Phase3(dev):
+    dev.setPML(pml.OID_PRINT_INTERNAL_PAGE,
+                         pml.PRINT_INTERNAL_PAGE_COLOR_PALETTE_CMYK_PAGE)
+                         
+    dev.closePML()
 
 
 def colorCalType5(dev, loadpaper_ui):
@@ -1376,14 +1383,33 @@ def colorCalType5(dev, loadpaper_ui):
         dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 20;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")
         dev.closePrint()
 
+        
+def colorCalType6(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.setPML(pml.OID_PRINT_INTERNAL_PAGE, pml.PRINT_INTERNAL_PAGE_COLOR_CAL)
+        dev.closePML()
+
+# ********************** LF Cal **********************        
+        
 def linefeedCalType1(dev, loadpaper_ui):
     if loadpaper_ui():
         dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 3;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")
         dev.closePrint()
+        
+def linefeedCalType2(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.setPML(pml.OID_PRINT_INTERNAL_PAGE, pml.PRINT_INTERNAL_PAGE_LINEFEED_CALIBRATION)
+        dev.closePML()
 
+
+# ********************** PQ Diag **********************        
+        
 def printQualityDiagType1(dev, loadpaper_ui):
     if loadpaper_ui():
         dev.printData("""\x1b%-12345X@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b%Puifp.multi_button_push 14;\nudw.quit;\x1b*rC\x1bE\x1b%-12345X""")
         dev.closePrint()
 
-        
+def printQualityDiagType2(dev, loadpaper_ui):
+    if loadpaper_ui():
+        dev.setPML(pml.OID_PRINT_INTERNAL_PAGE, pml.PRINT_INTERNAL_PAGE_PRINT_QUALITY_DIAGNOSTIC)
+        dev.closePML()

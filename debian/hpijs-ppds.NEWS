@@ -6,7 +6,7 @@ removed.
 
 The PPDs for native PostScript printing that were formely shipped at
 /usr/share/doc/ppd/hplip-postscript are now shipped in the
-linuxprinting.org-ppds package, which is not generated from HPLIP sources.
+openprinting-ppds package, which is not generated from HPLIP sources.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 16 Mar 2006 15:21:13 -0300
 

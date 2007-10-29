@@ -58,10 +58,13 @@ CXXFLAGS:=$(CFLAGS)
 ##  Build-tree preparation
 ##
 
-configure:
+configure: Makefile.am configure.in
 	dh_testdir
+	tar -czf foomatic-db-hpijs-backup.tar.gz foomatic-db-hpijs
 	chmod +x debian/autogen.sh
 	debian/autogen.sh
+	tar -xzf foomatic-db-hpijs-backup.tar.gz
+	rm -f foomatic-db-hpijs-backup.tar.gz
 
 debian/hpijs.version: configure
 	@if test -r $@ ; then \
@@ -113,14 +116,16 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 		--prefix=/usr \
 		--mandir=\$${prefix}/share/man \
 		--infodir=\$${prefix}/share/info \
+		--docdir=\$${prefix}/share/doc/hplip \
+		--with-docdir=\$${prefix}/share/doc/hplip \
 		--datadir=\$${prefix}/share \
 		--libexecdir=\$${prefix}/lib \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
 		--enable-debug \
-		--without-icon \
-		--disable-foomatic-install \
-		--disable-cups-install \
+		--without-icondir \
+		--disable-foomatic-xml-install \
+		--disable-foomatic-ppd-install \
 		--enable-network-build \
 		--enable-pp-build \
 		--enable-scan-build \
@@ -133,7 +138,7 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 
-	$(MAKE)
+	$(MAKE) docdir=\$${prefix}/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
 	touch build-stamp
 
@@ -145,10 +150,10 @@ build-stamp: configure-stamp
 install-stamp: build-stamp
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_clean
 	dh_installdirs
 
-	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc
+	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
 	# Remove files we are not to ship from the install tree
 	@echo Removing non-shipped files, see debian/non-shipped-files.txt
@@ -182,7 +187,7 @@ install-stamp: build-stamp
 install-arch: install-arch-stamp
 install-arch-stamp: install-stamp
 	# Remove stray #! lines on python libraries, and fix permissions
-	find "$(PKGTMP)/usr/lib/hplip" -maxdepth 1 -mindepth 1 -type d -print0 | \
+	find "$(PKGTMP)/usr/share/hplip" -maxdepth 1 -mindepth 1 -type d -print0 | \
 		xargs -0 -r -i@ find @ -type f -name '*.py' | \
 		while read -r i ; do \
 			chmod a-x "$$i" && \
@@ -198,11 +203,6 @@ install-arch-stamp: install-stamp
 	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
 	install -m 644 debian/$(BASEPKG).sane "$(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)"
 
-	# Fax support: HPLIP upstream is changing their minds too fast to
-	# trust their makefiles on this.
-	[ -e "$(PKGTMP)/usr/lib/hplip/fax/hpfax" ] && \
-	  mv -f "$(PKGTMP)/usr/lib/hplip/fax/hpfax" "$(PKGTMP)/usr/lib/cups/backend/"
-
 	# Fax PPD, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP"
 	sed < "fax/ppd/HP-Fax-hplip.ppd" \
@@ -210,16 +210,12 @@ install-arch-stamp: install-stamp
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
 
-	# Python update helper
-	mkdir -p "$(PKGTMP)/usr/share/python/runtime.d/"
-	install -m 755 debian/hplip.rtupdate "$(PKGTMP)/usr/share/python/runtime.d/"
-
 	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
 
 # install arch-independent packages specific files
 install-indep: install-indep-stamp
-install-indep-stamp: install-stamp
+install-indep-stamp: install-stamp install-arch-stamp
 	# PPDs
 	# 1. Append hplip identifier to the long nickname
 	# 2. Install to basedir/<Manufacturer>/
@@ -227,7 +223,7 @@ install-indep-stamp: install-stamp
 	# 4. Compress all PPDs
 	# 
 	# Fax PPD: shipped by arch-dep hpijs package
-	find prnt/hpijs/ppd -type f -name '*-hpijs.ppd' | \
+	find ppd -type f -name '*-hpijs.ppd' | \
 	while read -r i ; do \
 		PPDSUITE="hpijs" ;\
 		PPDVENDOR=$$(sed -r -n \
@@ -247,6 +243,9 @@ install-indep-stamp: install-stamp
 			> "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
 		chmod 644 "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
 	done
+
+	# Ubuntu: uncompress again, makes the package smaller for distribution
+	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip
 
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
@@ -274,7 +273,7 @@ binary-indep: install-indep debian/hpijs.version
 	dh_fixperms -i
 #	dh_perl -i
 #	dh_pysupport -i
-#	dh_python -i /usr/lib/hplip
+#	dh_python -i /usr/share/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i
@@ -300,6 +299,13 @@ binary-indep: install-indep debian/hpijs.version
 binary-arch: install-arch debian/hpijs.version
 	dh_testdir -a
 	dh_testroot
+
+	mkdir -p debian/hplip/lib/udev
+	install -m755 debian/check_mfp_printer debian/hplip/lib/udev/
+	mkdir -p debian/hplip/etc/udev/rules.d
+	install -m644 debian/45-hplip.rules debian/hplip/etc/udev/rules.d/
+	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/
+
 #	dh_installdebconf -a
 	dh_installdocs -a
 	dh_installexamples -a
@@ -313,11 +319,11 @@ binary-arch: install-arch debian/hpijs.version
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
-	dh_pysupport -a /usr/lib/hplip
-	dh_python -a /usr/lib/hplip
+	dh_pysupport -a /usr/share/hplip
+	dh_python -a /usr/share/hplip
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
-	dh_installinit -phplip --init-script=hplip -- defaults 19
+	#dh_installinit -phplip --init-script=hplip -- multiuser 19
 #	dh_perl -a
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)

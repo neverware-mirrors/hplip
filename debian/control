@@ -1,18 +1,20 @@
 Source: hplip
 Section: utils
 Priority: optional
-Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
-Uploaders: Torsten Landschoff <torsten@debian.org>
-Build-Depends: libcupsys2-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28)
+Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
+Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>
+Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), autoconf, automake, libtool
 Standards-Version: 3.7.2
 
 Package: hplip
 Architecture: any
-Depends: coreutils (>= 5.1.0), python-qt3, lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (= ${hplip:source:Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
-Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds (>= ${hpijs:Upstream-Version}), linuxprinting.org-ppds, python-reportlab
+Pre-Depends: python (>= 2.4.4~c1)
+Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, sysv-rc (>= 2.86.ds1-14.1ubuntu2)
+Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, openprinting-ppds, python-reportlab, hplip-gui
 Replaces: hplip-data (<< 0.9.3), hplip-base
-Suggests: kdeprint | gtklp | xpp, hplip-doc
+Suggests: kdeprint | gtklp | xpp, openprinting-ppds, hpijs-ppds, hplip-doc, gksu | kdebase-bin, hplip-gui
 Conflicts: hpijs (<< 2.1), hplip-base
+XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)
  The HP Linux Printing and Imaging System provides full support for
  printing on most HP SFP (single function peripheral) inkjets and many
@@ -40,7 +42,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
  .
  USB, JetDirect (network) and parallel-port devices are supported.
  .
-  Homepage: http://hplip.sourceforge.net/
+ Homepage: http://hplip.sourceforge.net/
 
 Package: hplip-data
 Architecture: all
@@ -48,6 +50,14 @@ Recommends: hplip
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
+
+Package: hplip-gui
+Architecture: all
+Depends: hplip, python-qt3
+Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
+Description: HP Linux Printing and Imaging - GUI utilities
+ This package contains utilites with graphical user interface (GUI) for
+ HPLIP: HP Toolbox, HP Fax, ...
 
 Package: hplip-dbg
 Architecture: any
@@ -86,14 +96,14 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
  .
  These PPDs should work well with the matching versions of HPLIP
  and HPIJS, but may not be the most up-to-date PPDs available for
- a given printer.  See http://linuxprinting.org/ for the latest
+ a given printer.  See http://www.openprinting.org/ for the latest
  version of the PPDs (which are not guaranteed to work well).
 
 Package: hpijs
 Architecture: any
 Section: text
-Depends: ${shlibs:Depends}, ${misc:Depends}, gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2)
-Suggests: hplip | hpoj, hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
+Depends: ${shlibs:Depends}, ${misc:Depends}, ghostscript (>= 8.60) | gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2), hplip (>= ${hplip:binary:Version})
+Suggests: hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains an IJS printer driver for Ghostscript, which
@@ -122,4 +132,4 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
  .
-  Homepage: http://hplip.sourceforge.net/
+ Homepage: http://hplip.sourceforge.net/

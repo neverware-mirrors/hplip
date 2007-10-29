@@ -28,6 +28,8 @@
 #if !defined(_PML_H)
 #define _PML_H
 
+#include "sane.h"
+
 #define PML_MAX_OID_VALUES 2
 #define PML_MAX_VALUE_LEN       1023
 #define PML_MAX_OID_LEN     128
@@ -67,7 +69,6 @@
 #define PML_ERROR_ACTION_CAN_NOT_BE_PERFORMED_NOW   0x87
 #define PML_ERROR_SYNTAX_ERROR          0x88
 
-
 struct PmlValue_s
 {
         int     type;
@@ -94,7 +95,7 @@ struct PmlObject_s
 
 typedef struct PmlObject_s * PmlObject_t;
 
-
+#include "hpaio.h"
 
 #define PML_REQUEST_GET        0x00
 #define PML_REQUEST_GETNEXT    0x01
@@ -156,63 +157,25 @@ struct PmlResolution
 {
         unsigned char   x[4];
         unsigned char   y[4];
-}               __attribute__(( packed) );
+} __attribute__(( packed));
 
-int PmlOpen( int deviceid );
-int PmlClose( int deviceid, int channelid );
-int PmlSetID( PmlObject_t obj, char * oid );
-int PmlSetAsciiID( PmlObject_t obj, char * s );
-int PmlGetID( PmlObject_t obj, char * buffer, int maxlen );
-PmlValue_t PmlGetLastValue( PmlObject_t obj );
-PmlValue_t PmlGetPreviousLastValue( PmlObject_t obj );
-PmlValue_t PmlPrepareNextValue( PmlObject_t obj );
-void PmlClearOldValues( PmlObject_t obj );
-int PmlSetPrefixValue( PmlObject_t obj,
-                       int type,
-                       char * prefix,
-                       int lenPrefix,
-                       char * value,
-                       int lenValue );
-int PmlSetValue( PmlObject_t obj, int type, char * value, int len );
-int PmlSetStringValue( PmlObject_t obj,
-                       int symbolSet,
-                       char * value,
-                       int len );
-int PmlSetIntegerValue( PmlObject_t obj, int type, int value );
-int PmlGetType( PmlObject_t obj );
-int PmlGetPrefixValue( PmlObject_t obj,
-                       int * pType,
-                       char * prefix,
-                       int lenPrefix,
-                       char * buffer,
-                       int maxlen );
-int PmlGetValue( PmlObject_t obj,
-                 int * pType,
-                 char * buffer,
-                 int maxlen );
-int PmlGetStringValue( PmlObject_t obj,
-                       int * pSymbolSet,
-                       char * buffer,
-                       int maxlen );
-int PmlGetIntegerValue( PmlObject_t obj, int * pType, int * pValue );
-int PmlDoLastValuesDiffer( PmlObject_t obj );
-int PmlSetStatus( PmlObject_t obj, int status );
-int PmlGetStatus( PmlObject_t obj );
-int PmlReadReply( int deviceid,
-                  int channelid,
-                  unsigned char * data,
-                  int maxDatalen,
-                  int request );
-int PmlRequestSet( int deviceid, int channelid, PmlObject_t obj );
-int PmlRequestSetRetry( int deviceid, int channelid, PmlObject_t obj, int count, int delay );
-int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj );
+int __attribute__ ((visibility ("hidden"))) PmlSetID(PmlObject_t obj, char * oid);
+int __attribute__ ((visibility ("hidden"))) PmlSetValue(PmlObject_t obj, int type, char * value, int len);
+int __attribute__ ((visibility ("hidden"))) PmlSetIntegerValue(PmlObject_t obj, int type, int value);
+int __attribute__ ((visibility ("hidden"))) PmlGetValue(PmlObject_t obj, int * pType, char * buffer, int maxlen);
+int __attribute__ ((visibility ("hidden"))) PmlGetStringValue(PmlObject_t obj, int * pSymbolSet, char * buffer, int maxlen);
+int __attribute__ ((visibility ("hidden"))) PmlGetIntegerValue(PmlObject_t obj, int * pType, int * pValue);
+int __attribute__ ((visibility ("hidden"))) PmlRequestSet(int deviceid, int channelid, PmlObject_t obj);
+int __attribute__ ((visibility ("hidden"))) PmlRequestSetRetry(int deviceid, int channelid, PmlObject_t obj, int count, int delay);
+int __attribute__ ((visibility ("hidden"))) PmlRequestGet(int deviceid, int channelid, PmlObject_t obj);
 
 /*
  * Phase 2 rewrite. des
  */
+struct hpaioScanner_s;
 
-int pml_start(HPAIO_RECORD *hpaio);
-int pml_read(HPAIO_RECORD *hpaio, SANE_Byte *data, SANE_Int maxLength, SANE_Int *pLength);
-int pml_cancel(HPAIO_RECORD *hpaio);
+int __attribute__ ((visibility ("hidden"))) pml_start(struct hpaioScanner_s *hpaio);
+int __attribute__ ((visibility ("hidden"))) pml_read(struct hpaioScanner_s *hpaio, SANE_Byte *data, SANE_Int maxLength, SANE_Int *pLength);
+int __attribute__ ((visibility ("hidden"))) pml_cancel(struct hpaioScanner_s *hpaio);
 
 #endif // _PML_H

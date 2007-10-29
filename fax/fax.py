@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@ from __future__ import generators
 # Std Lib
 import sys, os, os.path, mmap, struct, time, threading, Queue, socket
 from cStringIO import StringIO
+import cPickle
 
 # Local
 from base.g import *
 from base.codes import *
-from base import device, utils, status, pml, msg
+from base import device, utils, status, pml, msg, service
 from base.kirbybase import KirbyBase
 from prnt import cups
 
@@ -197,26 +198,161 @@ PAGE_HEADER_SIZE = 24
 
 # **************************************************************************** #
 
-class FaxAddressBook(KirbyBase):
+class FaxAddressBook2(object): # Pickle based address book
+    def __init__(self):
+        self._data = {}
+        #
+        # { 'name' : {'name': 'name',
+        #             'firstname' : u'', 
+        #             'lastname': u',
+        #             'title' : u'', 
+        #             'fax': u'',
+        #             'groups' : [u'', u'', ...],
+        #             'notes' : u'', } ...
+        # }
+        #
+        self.load()
+
+    def load(self):
+        self._fab = os.path.join(prop.user_dir, "fab.pickle")
+        old_fab = os.path.join(prop.user_dir, "fab.db")
+
+        # Load the existing pickle if present
+        if os.path.exists(self._fab):
+            pickle_file = open(self._fab, "r")
+            self._data = cPickle.load(pickle_file)
+            pickle_file.close()
+
+        elif os.path.exists(old_fab): # convert old KirbyBase file
+            db = FaxAddressBook()
+            all_entries = db.AllRecordEntries()
+
+            for e in all_entries:
+                try:
+                    self.set(e.name, e.title, e.firstname, e.lastname,
+                             e.fax, e.group_list, e.notes)
+                except UnicodeDecodeError:
+                    self.set(e.name.decode('utf-8'), 
+                             e.title.decode('utf-8'),
+                             e.firstname.decode('utf-8'),
+                             e.lastname.decode('utf-8'),
+                             e.fax.decode('utf-8'),
+                             e.group_list, 
+                             e.notes.decode('utf-8'))
+            self.save()
+            
+        else:
+            self.save() # save the empty file to create the file
+            
+
+    def set(self, name, title, firstname, lastname, fax, groups, notes):
+        try:
+            grps = [unicode(s) for s in groups]
+        except UnicodeDecodeError:
+            grps = [unicode(s.decode('utf-8')) for s in groups]
+
+        self._data[unicode(name)] = {'name' : unicode(name),
+                                    'title': unicode(title), 
+                                    'firstname': unicode(firstname),
+                                    'lastname': unicode(lastname),
+                                    'fax': unicode(fax), 
+                                    'notes': unicode(notes),
+                                    'groups': grps}
+
+        self.save()
+
+    insert = set
+
+    def get(self, name):
+        return self._data.get(name, None)
+
+    select = get
+
+    def get_all_groups(self):
+        all_groups = []
+        for e, v in self._data.items():
+            for g in v['groups']:
+                if g not in all_groups:
+                    all_groups.append(g)
+        return all_groups
+
+    def get_all_records(self):
+        return self._data
+
+    def get_all_names(self):
+        return self._data.keys()
+
+    def save(self):
+        try:
+            pickle_file = open(self._fab, "w")
+            cPickle.dump(self._data, pickle_file, cPickle.HIGHEST_PROTOCOL)
+            pickle_file.close()
+        except IOError:
+            log.error("I/O error saving fab file.")
+
+    def clear(self):
+        self._data = {}
+
+    def delete(self, name):
+        if name in self._data: #self.current
+            del self._data[name]
+            return True
+
+        return False
+
+    def last_modification_time(self):
+        try:
+            return os.stat(self._fab).st_mtime
+        except OSError:
+            return 0
+
+    def update_groups(self, group, members):
+        for e, v in self._data.items():
+            if v['name'] in members: # membership indicated
+                if not group in v['groups']:
+                    v['groups'].append(unicode(group))
+            else:
+                if group in v['groups']:
+                    v['groups'].remove(unicode(group))
+
+    def delete_group(self, group):
+        for e, v in self._data.items():
+            if group in v['groups']:
+                v['groups'].remove(unicode(group))
+
+    def group_members(self, group):
+        members = []
+        for e, v in self._data.items():
+            if group in v['groups']:
+                members.append(e)
+        return members
+
+
+# **************************************************************************** #
+
+# DEPRECATED: TO BE REMOVED
+class FaxAddressBook(KirbyBase): # KirbyBase based address book
     def __init__(self):
         KirbyBase.__init__(self)
-        
         # Transitional code to handle moving of db file
-        t = os.path.expanduser('~/.hplip.fab') # old location
-        self._fab = os.path.expanduser('~/hpfax/fab.db') # new location
-        
-        fax_dir = os.path.expanduser("~/hpfax")
-        if not os.path.exists(fax_dir):
-            os.mkdir(fax_dir)
-        
-        if os.path.exists(t) and not os.path.exists(self._fab):
+        t1 = os.path.expanduser('~/.hplip.fab') # old location #1
+        t2 = os.path.expanduser('~/hpfax/hplip.fab') # old location #2
+        self._fab = os.path.join(prop.user_dir, 'fab.db') # new location
+        log.debug("fab.db: %s" % self._fab)
+
+        if os.path.exists(t1) and not os.path.exists(self._fab):
             import shutil
-            shutil.move(t, self._fab)
+            log.debug("Copying %s to %s..." % (t1, self._fab))
+            shutil.move(t1, self._fab)
+
+        elif os.path.exists(t2) and not os.path.exists(self._fab):
+            import shutil
+            log.debug("Copying %s to %s..." % (t2, self._fab))
+            shutil.move(t2, self._fab)
 
         if not os.path.exists(self._fab):
             log.debug("Creating new fax address book: %s" % self._fab)
             self.create()
-
 
     def create(self):
         return KirbyBase.create(self, self._fab,
@@ -228,9 +364,11 @@ class FaxAddressBook(KirbyBase):
              'groups:str', # comma sep list of group names
              'notes:str'])
 
-
     def filename(self):
         return self._fab
+
+    def last_modification_time(self):
+        return os.stat(self._fab).st_mtime
 
     def close(self):
         return KirbyBase.close(self)
@@ -238,64 +376,49 @@ class FaxAddressBook(KirbyBase):
     def insert(self, values):
         return KirbyBase.insert(self, self._fab, values)
 
-
     def insertBatch(self, batchRecords):
         return KirbyBase.insertBatch(self, self._fab, batchRecords)
-
 
     def update(self, fields, searchData, updates, filter=None, useRegExp=False):
         return KirbyBase.update(self, self._fab, fields, searchData, updates, filter, useRegExp)
 
-
     def delete(self, fields, searchData, useRegExp=False):
         return KirbyBase.delete(self, self._fab, fields, searchData, useRegExp)
-
 
     def select(self, fields, searchData, filter=None, useRegExp=False, sortFields=[],
         sortDesc=[], returnType='list', rptSettings=[0,False]):
         return KirbyBase.select(self, self._fab, fields, searchData, filter,
             useRegExp, sortFields, sortDesc, returnType, rptSettings)
 
-
     def pack(self):
         return KirbyBase.pack(self, self._fab)
-
 
     def validate(self):
         return KirbyBase.validate(self, self._fab)
 
-
     def drop(self):
         return KirbyBase.drop(self, self._fab)
-
 
     def getFieldNames(self):
         return KirbyBase.getFieldNames(self, self._fab)
 
-
     def getFieldTypes(self):
         return KirbyBase.getFieldTypes(self, self._fab)
-
 
     def len(self):
         return KirbyBase.len(self, self._fab)
 
-
     def GetEntryByRecno(self, recno):
         return AddressBookEntry(self.select(['recno'], [recno])[0])
-
 
     def AllRecords(self):
         return self.select(['recno'], ['*'])
 
-
     def AllRecordEntries(self):
         return [AddressBookEntry(rec) for rec in self.select(['recno'], ['*'])]
 
-
     def GroupEntries(self, group):
         return [abe.name for abe in self.AllRecordEntries() if group in abe.group_list]
-
 
     def AllGroups(self):
         temp = {}
@@ -304,7 +427,6 @@ class FaxAddressBook(KirbyBase):
                 temp.setdefault(g)
 
         return temp.keys()
-
 
     def UpdateGroupEntries(self, group_name, member_entries):
         for entry in self.AllRecordEntries():
@@ -321,16 +443,14 @@ class FaxAddressBook(KirbyBase):
                     entry.group_list.remove(group_name)
                     self.update(['recno'], [entry.recno], [','.join(entry.group_list)], ['groups'])
 
-
     def DeleteGroup(self, group_name):
         for entry in self.AllRecordEntries():
             if group_name in entry.group_list:
                 entry.group_list.remove(group_name)
                 self.update(['recno'], [entry.recno], [','.join(entry.group_list)], ['groups'])
 
-
 # **************************************************************************** #
-
+# DEPRECATED: TO BE REMOVED
 class AddressBookEntry(object):
     def __init__(self, rec=None):
         if rec is not None:
@@ -357,10 +477,10 @@ class AddressBookEntry(object):
 class FaxDevice(device.Device):
 
     def __init__(self, device_uri=None, printer_name=None,
-                 hpssd_sock=None, hpiod_sock=None, callback=None):
+                 hpssd_sock=None, callback=None):
 
         device.Device.__init__(self, device_uri, printer_name,
-                               hpssd_sock, hpiod_sock, callback)
+                               hpssd_sock, callback)
 
         self.send_fax_thread = None
         self.upload_log_thread = None
@@ -387,7 +507,7 @@ class FaxDevice(device.Device):
         p = struct.pack("BBBBBBB", t[0]-2000, t[1], t[2], t[6]+1, t[3], t[4], t[5])
         log.debug(repr(p))
         return self.setPML(pml.OID_DATE_AND_TIME, p)
-    
+
     def uploadLog(self):
         if not self.isUloadLogActive():
             self.upload_log_thread = UploadLogThread(self)
@@ -410,11 +530,12 @@ class FaxDevice(device.Device):
 
 
     def sendFaxes(self, phone_num_list, fax_file_list, cover_message='', cover_re='', 
-                  cover_func=None, printer_name='', update_queue=None, event_queue=None):
+                  cover_func=None, preserve_formatting=False, printer_name='', 
+                  update_queue=None, event_queue=None):
 
         if not self.isSendFaxActive():
             self.send_fax_thread = FaxSendThread(self, phone_num_list, fax_file_list, 
-                                                 cover_message, cover_re, cover_func, 
+                                                 cover_message, cover_re, cover_func, preserve_formatting, 
                                                  printer_name, update_queue, event_queue)
             self.send_fax_thread.start()
             return True
@@ -432,7 +553,10 @@ class FaxDevice(device.Device):
         if self.send_fax_thread is not None and \
             self.send_fax_thread.isAlive():
 
-            self.send_fax_thread.join()
+            try:
+                self.send_fax_thread.join()
+            except KeyboardInterrupt:
+                pass
 
 
 class UploadLogThread(threading.Thread):
@@ -523,7 +647,7 @@ class UploadLogThread(threading.Thread):
 
 class FaxSendThread(threading.Thread):
     def __init__(self, dev, phone_num_list, fax_file_list, 
-                 cover_message='', cover_re='', cover_func=None, 
+                 cover_message='', cover_re='', cover_func=None, preserve_formatting=False,
                  printer_name='', update_queue=None, event_queue=None):
 
         threading.Thread.__init__(self)
@@ -539,6 +663,7 @@ class FaxSendThread(threading.Thread):
         self.stream = StringIO()  
         self.prev_update = ''
         self.remove_temp_file = False
+        self.preserve_formatting = preserve_formatting
 
 
     def run(self):
@@ -657,7 +782,7 @@ class FaxSendThread(threading.Thread):
                     fax_file_name = fax_file[0]
                     log.debug("Processing file (counting pages): %s..." % fax_file_name)
 
-                    self.write_queue((STATUS_PROCESSING_FILES, self.job_total_pages, ''))
+                    #self.write_queue((STATUS_PROCESSING_FILES, self.job_total_pages, ''))
 
                     if os.path.exists(fax_file_name):
                         results[fax_file_name] = ERROR_SUCCESS
@@ -719,7 +844,8 @@ class FaxSendThread(threading.Thread):
 
                 try:
                     recipient = next_recipient.next()
-                    log.debug("Processing for recipient %s" % recipient.name)
+                    #print recipient
+                    log.debug("Processing for recipient %s" % recipient['name'])
                 except StopIteration:
                     state = STATE_SUCCESS
                     log.debug("Last recipient.")
@@ -737,7 +863,7 @@ class FaxSendThread(threading.Thread):
                     state = STATE_SINGLE_FILE
 
                 if cover_page_present:
-                    log.debug("Creating cover page for recipient: %s" % recipient.name)
+                    log.debug("Creating cover page for recipient: %s" % recipient['name'])
                     fax_file, canceled = self.render_cover_page(recipient)
 
                     if canceled:
@@ -745,7 +871,9 @@ class FaxSendThread(threading.Thread):
                     elif not fax_file:
                         state = STATE_ERROR # timeout
                     else:
-                        recipient_file_list.insert(0, (fax_file, "application/hplip-fax", "HP Fax", 'Cover Page'))
+                        recipient_file_list.insert(0, (fax_file, "application/hplip-fax", 
+                            "HP Fax", 'Cover Page'))
+                            
                         log.debug("Cover page G3 file: %s" % fax_file)
 
                         results[fax_file] = ERROR_SUCCESS
@@ -789,7 +917,7 @@ class FaxSendThread(threading.Thread):
                 log.debug("Merging g3 files...")
                 state = STATE_SEND_FAX
                 self.remove_temp_file = True
-                
+
                 if self.job_total_pages:
                     f_fd, f = utils.make_temp_file()
                     log.debug("Temp file=%s" % f)
@@ -908,8 +1036,13 @@ class FaxSendThread(threading.Thread):
                     elif fax_send_state == FAX_SEND_STATE_ERROR: # -------------- Error (110, 20, 0)
                         log.error("Fax send error.")
                         monitor_state = False
+
                         fax_send_state = FAX_SEND_STATE_RESET_TOKEN
                         state = STATE_ERROR
+
+                        #fax_send_state = FAX_SEND_STATE_DONE
+                        #state = STATE_NEXT_RECIPIENT
+
 
                     elif fax_send_state == FAX_SEND_STATE_BUSY: # -------------- Busy (110, 25, 0)
                         log.error("Fax device busy.")
@@ -1076,11 +1209,13 @@ class FaxSendThread(threading.Thread):
                         log.debug("%s State: Send dial strings" % ("*"*20))
                         fax_send_state = FAX_SEND_STATE_SEND_FAX_HEADER
 
+                        log.debug("Dialing: %s" % recipient['fax'])
+
                         log.debug("Sending dial strings...")
                         self.create_mfpdtf_fixed_header(DT_DIAL_STRINGS, True, 
                             PAGE_FLAG_NEW_DOC | PAGE_FLAG_END_DOC | PAGE_FLAG_END_STREAM) # 0x1c on Windows, we were sending 0x0c
-
-                        self.create_mfpdtf_dial_strings(recipient.fax)
+                        #print recipient
+                        self.create_mfpdtf_dial_strings(recipient['fax'].encode('ascii'))
 
                         try:
                             self.write_stream()
@@ -1173,7 +1308,7 @@ class FaxSendThread(threading.Thread):
                                 log.error("No data!")
                                 fax_send_state = FAX_SEND_STATE_ERROR
                                 continue
-                            
+
                             self.create_raster_data_record(data)
                             total_read = RASTER_DATA_SIZE
 
@@ -1185,7 +1320,7 @@ class FaxSendThread(threading.Thread):
 
                                 if data == '':
                                     self.create_eop_record(rpp)
-                                    
+
                                     try:
                                         self.write_stream()
                                     except Error:
@@ -1203,9 +1338,9 @@ class FaxSendThread(threading.Thread):
 
                                 status = self.getFaxJobTxStatus()
                                 while status  == pml.FAXJOB_TX_STATUS_DIALING:
-                                    self.write_queue((STATUS_DIALING, 0, recipient.fax))
+                                    self.write_queue((STATUS_DIALING, 0, recipient['fax']))
                                     time.sleep(1.0)
-    
+
                                     if self.check_for_cancel():
                                         fax_send_state = FAX_SEND_STATE_ABORT
                                         break
@@ -1218,11 +1353,11 @@ class FaxSendThread(threading.Thread):
                                     status = self.getFaxJobTxStatus()
 
                                 if fax_send_state not in (FAX_SEND_STATE_ABORT, FAX_SEND_STATE_ERROR):
-                                    
+
                                     while status  == pml.FAXJOB_TX_STATUS_CONNECTING: 
-                                        self.write_queue((STATUS_CONNECTING, 0, recipient.fax))
+                                        self.write_queue((STATUS_CONNECTING, 0, recipient['fax']))
                                         time.sleep(1.0)
-        
+
                                         if self.check_for_cancel():
                                             fax_send_state = FAX_SEND_STATE_ABORT
                                             break
@@ -1235,7 +1370,7 @@ class FaxSendThread(threading.Thread):
                                         status = self.getFaxJobTxStatus()
 
                                 if status == pml.FAXJOB_TX_STATUS_TRANSMITTING:    
-                                    self.write_queue((STATUS_SENDING, page_num, recipient.fax))
+                                    self.write_queue((STATUS_SENDING, page_num, recipient['fax']))
 
                                 self.create_mfpdtf_fixed_header(DT_FAX_IMAGES, page_flags=0)
                                 self.create_raster_data_record(data)
@@ -1264,30 +1399,30 @@ class FaxSendThread(threading.Thread):
 
                     elif fax_send_state == FAX_SEND_STATE_WAIT_FOR_COMPLETE: # -------------- Wait for complete (110, 150, 0)
                         log.debug("%s State: Wait for completion" % ("*"*20))
-                        
+
                         fax_send_state = FAX_SEND_STATE_WAIT_FOR_COMPLETE
-                        
+
                         time.sleep(1.0)
                         status = self.getFaxJobTxStatus()
-                        
+
                         if status == pml.FAXJOB_TX_STATUS_DIALING:
-                                self.write_queue((STATUS_DIALING, 0, recipient.fax))
-    
+                                self.write_queue((STATUS_DIALING, 0, recipient['fax']))
+
                         elif status == pml.FAXJOB_TX_STATUS_TRANSMITTING:    
-                            self.write_queue((STATUS_SENDING, page_num, recipient.fax))
+                            self.write_queue((STATUS_SENDING, page_num, recipient['fax']))
 
                         elif status in (pml.FAXJOB_TX_STATUS_DONE, pml.FAXJOB_RX_STATUS_IDLE):
                             fax_send_state = FAX_SEND_STATE_RESET_TOKEN
                             state = STATE_NEXT_RECIPIENT
-                        
+
                         else:
-                            self.write_queue((STATUS_SENDING, page_num, recipient.fax))
-                                
+                            self.write_queue((STATUS_SENDING, page_num, recipient['fax']))
+
 
                     elif fax_send_state == FAX_SEND_STATE_RESET_TOKEN: # -------------- Release fax token (110, 160, 0)
                         self.write_queue((STATUS_CLEANUP, 0, ''))
                         log.debug("%s State: Release fax token" % ("*"*20))
-                        
+
                         try:
                             self.dev.setPML(pml.OID_FAX_TOKEN, '\x00'*16)
                         except Error:
@@ -1328,7 +1463,7 @@ class FaxSendThread(threading.Thread):
 
             elif state == STATE_CLEANUP: # --------------------------------- Cleanup (120, 0, 0)
                 log.debug("%s State: Cleanup" % ("*"*20))
-                
+
                 if self.remove_temp_file:
                     log.debug("Removing merged file: %s" % f)
                     try:
@@ -1336,7 +1471,7 @@ class FaxSendThread(threading.Thread):
                         log.debug("Removed")
                     except OSError:
                         log.debug("Not found")
-                    
+
                 state = STATE_DONE
 
 
@@ -1376,61 +1511,35 @@ class FaxSendThread(threading.Thread):
         log.debug("Job ID=%d" % sent_job_id)    
         job_id = 0
 
+        time.sleep(1)
+
         fax_file = ''
         complete = False
-        end_time = time.time() + 90.0 # 90 second timeout
-        
+
+        try:
+            sock = service.startup()
+        except Error:
+            return '', True   
+
+        end_time = time.time() + 120.0 
         while time.time() < end_time:
-            while self.event_queue.qsize():
-                try:
-                    event = self.event_queue.get(0)
-                    code = event[0]
+            log.debug("Waiting for fax...")
+            fields, data, result_code = \
+                msg.xmitMessage(sock, "FaxCheck", None,
+                                     {"username": prop.username,
+                                     })
 
-                    log.debug("Received event '%s'" % repr(event))
-                    
-                    if code == EVENT_FAX_RENDER_COMPLETE:
-                        title, username, job_id, job_size = event[1:5]
-                        
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        try:
-                            sock.connect((prop.hpssd_host, prop.hpssd_port))
-                        except socket.error:
-                            log.error("Unable to contact HPLIP I/O (hpssd).")
-                            return '', True   
-        
-                        fd, fax_file = utils.make_temp_file()
-                        
-                        log.debug("Transfering job %d (%d bytes)" % (job_id, job_size))
-                        
-                        while True:
-                            fields, data, result_code = \
-                                msg.xmitMessage(sock, "FaxGetData", None,
-                                                     {"username": username,
-                                                      "job-id": job_id,
-                                                     })
-                                                     
-                            if data and result_code == ERROR_SUCCESS:
-                                os.write(fd, data)
-                            else:
-                                complete = True
-                                break
-                            
-                        os.close(fd)
-                        sock.close()
-                        
-                    elif code == EVENT_FAX_SEND_CANCELED:
-                        log.debug("Cancel pressed!")
-                        log.error("Render canceled. Canceling job #%d..." % sent_job_id)
-                        cups.cancelJob(sent_job_id)
-                        return '', True
+            if result_code == ERROR_FAX_PROCESSING:
+                log.debug("Fax is being rendered...")
 
-                except Queue.Empty:
-                    break
-
-            if complete and \
-                sent_job_id == job_id:
-                
+            elif result_code == ERROR_FAX_READY:
                 break
+
+            if self.check_for_cancel():
+                log.error("Render canceled. Canceling job #%d..." % sent_job_id)
+                cups.cancelJob(sent_job_id)
+                sock.close()
+                return '', True
 
             time.sleep(1)
 
@@ -1438,6 +1547,34 @@ class FaxSendThread(threading.Thread):
             log.error("Timeout waiting for rendering. Canceling job #%d..." % sent_job_id)
             cups.cancelJob(sent_job_id)
             return '', False
+
+        fd, fax_file = utils.make_temp_file()
+
+        while True:
+            log.debug("Transfering fax data...")
+            fields, data, result_code = \
+                msg.xmitMessage(sock, "FaxGetData", None,
+                                     {"username": prop.username,
+                                      "job-id": sent_job_id,
+                                     })
+
+            if data and result_code == ERROR_SUCCESS:
+                os.write(fd, data)
+
+            else:
+                complete = True
+                break
+
+            if self.check_for_cancel():
+                log.error("Render canceled. Canceling job #%d..." % sent_job_id)
+                cups.cancelJob(sent_job_id)
+                os.close(fd)
+                sock.close()
+                return '', True
+
+
+        os.close(fd)
+        sock.close()
 
         return fax_file, False
 
@@ -1461,9 +1598,9 @@ class FaxSendThread(threading.Thread):
         pdf = self.cover_func(page_size=coverpages.PAGE_SIZE_LETTER,
                               total_pages=self.job_total_pages, 
 
-                              recipient_name=a.name, 
+                              recipient_name=a['name'], 
                               recipient_phone='', # ???
-                              recipient_fax=a.fax, 
+                              recipient_fax=a['fax'], 
 
                               sender_name=self.sender_name, 
                               sender_phone=user_cfg.fax.voice_phone, 
@@ -1471,10 +1608,12 @@ class FaxSendThread(threading.Thread):
                               sender_email=user_cfg.fax.email_address, 
 
                               regarding=self.cover_re, 
-                              message=self.cover_message)
+                              message=self.cover_message,
+                              preserve_formatting=self.preserve_formatting)
 
         log.debug("PDF File=%s" % pdf)
-        fax_file, canceled = self.render_file(pdf, 'Cover Page', "application/pdf", force_single_page=True) 
+        fax_file, canceled = self.render_file(pdf, 'Cover Page', "application/pdf", 
+            force_single_page=True) 
 
         try:
             os.remove(pdf)
@@ -1492,23 +1631,35 @@ class FaxSendThread(threading.Thread):
 
     def getFaxDownloadState(self):
         result_code, state = self.dev.getPML(pml.OID_FAX_DOWNLOAD)
-        log.debug("D/L State=%d (%s)" % (state, pml.UPDN_STATE_STR.get(state, 'Unknown')))
-        return state
+        if state:
+            log.debug("D/L State=%d (%s)" % (state, pml.UPDN_STATE_STR.get(state, 'Unknown')))
+            return state
+        else:
+            return pml.UPDN_STATE_ERRORABORT
 
     def getFaxJobTxStatus(self):
         result_code, status = self.dev.getPML(pml.OID_FAXJOB_TX_STATUS)
-        log.debug("Tx Status=%d (%s)" % (status, pml.FAXJOB_TX_STATUS_STR.get(status, 'Unknown')))
-        return status
+        if status:
+            log.debug("Tx Status=%d (%s)" % (status, pml.FAXJOB_TX_STATUS_STR.get(status, 'Unknown')))
+            return status
+        else:
+            return pml.FAXJOB_TX_STATUS_IDLE
 
     def getFaxJobRxStatus(self):
         result_code, status = self.dev.getPML(pml.OID_FAXJOB_RX_STATUS)
-        log.debug("Rx Status=%d (%s)" % (status, pml.FAXJOB_RX_STATUS_STR.get(status, 'Unknown')))
-        return status
+        if status:
+            log.debug("Rx Status=%d (%s)" % (status, pml.FAXJOB_RX_STATUS_STR.get(status, 'Unknown')))
+            return status
+        else:
+            return pml.FAXJOB_RX_STATUS_IDLE
 
     def getCfgUploadState(self):
         result_code, state = self.dev.getPML(pml.OID_DEVICE_CFG_UPLOAD)
-        log.debug("Cfg Upload State = %d (%s)" % (state, pml.UPDN_STATE_STR.get(state, 'Unknown')))
-        return state
+        if state:
+            log.debug("Cfg Upload State = %d (%s)" % (state, pml.UPDN_STATE_STR.get(state, 'Unknown')))
+            return state
+        else:
+            return pml.UPDN_STATE_ERRORABORT
 
     def create_mfpdtf_fixed_header(self, data_type, send_variant=False, page_flags=0):
         header_len = FIXED_HEADER_SIZE

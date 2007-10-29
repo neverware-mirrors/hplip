@@ -24,7 +24,7 @@ Quick Install:
 
 1. Install the hplip, hpijs-ppds, hpijs and cupsys packages.  If yor
    printer is a native PostScript printer, install the 
-   linuxprinting.org-ppds package as well.
+   openprinting-ppds package as well.
 
    Documentation is in the hplip-doc package.  Reading it is advised,
    especially the fax how-to.  The documentation is installed in
@@ -141,7 +141,7 @@ Chances are you will need the hpijs (required by most printers supported by
 HPLIP) and hpijs-ppds packages installed to be able to set the printer up
 correctly in CUPS, as CUPS needs to find the PPD for your printer somewhere
 to sucessfully install it.  True native PostScript printer PPD files are
-shipped by the linuxprinting.org-ppds package, so install that too if your
+shipped by the openprinting-ppds package, so install that too if your
 printer speaks PostScript natively.
 
 CUPS is most braindamaged in that it will NOT automatically use an updated

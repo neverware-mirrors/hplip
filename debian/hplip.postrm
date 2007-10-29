@@ -19,8 +19,8 @@ set -e
 
 # Kill any pre-compiled python crap
 kill_python_crappage() {
-	[ -d /usr/lib/hplip ] && \
-		find /usr/lib/hplip \
+	[ -d /usr/share/hplip ] && \
+		find /usr/share/hplip \
 			\( -name '*.pyc' -o -name '*.pyo' \) \
 			-exec rm -f {} \;
 	:
@@ -54,14 +54,14 @@ case "$1" in
 			dpkg-statoverride --remove $i || true
 		done
 
+		if getent group scanner | fgrep -q hplip; then
+		    deluser --quiet hplip scanner
+		    delgroup --quiet --only-if-empty scanner || true
+		fi
 		getent passwd hplip >/dev/null && \
-		    if [ -x /usr/sbin/deluser ]; then
 			deluser --quiet --system hplip
-		    fi
 		getent group hplip >/dev/null && \
-		    if [ -x /usr/sbin/delgroup ]; then
 			delgroup hplip
-		    fi
 
     		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
 	;;

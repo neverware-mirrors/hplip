@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 61_noqt_message.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-1.7.3~/base/utils.py hplip-1.7.3/base/utils.py
+--- hplip-1.7.3~/base/utils.py	2007-03-19 16:26:30.000000000 +0000
++++ hplip-1.7.3/base/utils.py	2007-03-26 18:26:17.000000000 +0100
+@@ -626,7 +626,7 @@
+         w = gtk.Window()
+         dialog = gtk.MessageDialog(w, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, 
+-                                   "PyQt not installed. GUI not available. Please check that the PyQt package is installed. Exiting.")
++                                   "PyQt not installed. GUI not available. Install \"python-qt3\" with the Synaptic Package Manager (Menu: System -> Administration -> Synaptic Package Manager) or run the command \"sudo apt-get install python-qt3\" in a terminal window.")
+         dialog.run()
+         dialog.destroy()
+ 

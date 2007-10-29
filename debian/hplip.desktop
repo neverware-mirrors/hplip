@@ -3,9 +3,11 @@ Encoding=UTF-8
 Name=HPLIP Toolbox
 GenericName=Printer Toolbox
 Comment=HP Printing System Control Center
-Exec=/usr/bin/hp-toolbox
+Exec=sh -c 'STARTED_FROM_MENU=yes /usr/bin/hp-toolbox'
 Icon=/usr/share/pixmaps/hp-logo.xpm
 Categories=Application;Settings;
 Terminal=false
 Type=Application
 StartupNotify=false
+NotShowIn=KDE;
+NoDisplay=false

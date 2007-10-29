@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # Author: Don Welch
 #
 
-__version__ = '4.1'
+__version__ = '5.0'
 __title__ = 'Testpage Print Utility'
 __doc__ = "Print a tespage to a printer. Prints a summary of device information and shows the printer's margins."
 
@@ -33,7 +33,7 @@ import time
 
 # Local
 from base.g import *
-from base import device, utils
+from base import device, utils, tui
 from prnt import cups
 
 USAGE = [(__doc__, "", "name", True),
@@ -55,18 +55,19 @@ USAGE = [(__doc__, "", "name", True),
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-testpage', __version__)
     sys.exit(0)
-    
-    
+
+
 log.set_module('hp-testpage')
- 
+
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:gx',
                                ['printer=', 'device=', 'help', 'help-rest', 
                                 'help-man', 'logging=', 'bus=', 'help-desc'])
-except getopt.GetoptError:
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 printer_name = None
@@ -81,17 +82,17 @@ if os.getenv("HPLIP_DEBUG"):
 for o, a in opts:
     if o in ('-h', '--help'):
         usage()
-        
+
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
-    
+
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
-        
+
     elif o in ('-p', '--printer'):
         printer_name = a
 
@@ -107,17 +108,13 @@ for o, a in opts:
         log_level = a.lower().strip()
         if not log.set_level(log_level):
             usage()
-            
+
     elif o == '-g':
         log.set_level('debug')
-        
+
     elif o == '-x':
         wait_for_printout = False
-        
 
-if device_uri and printer_name:
-    log.error("You may not specify both a printer (-p) and a device (-d).")
-    usage()
 
 if device_uri and printer_name:
     log.error("You may not specify both a printer (-p) and a device (-d).")
@@ -148,6 +145,7 @@ if d.device_uri is None and device_uri:
     log.error("Malformed/invalid device-uri: %s" % device_uri)
     sys.exit(1)
 
+user_cfg.last_used.device_uri = d.device_uri
 
 try:
     try:
@@ -155,62 +153,52 @@ try:
     except Error:
         log.error("Unable to print to printer. Please check device and try again.")
         sys.exit(1)
+
+    if not printer_name:
+        if len(d.cups_printers) == 0:
+            log.error("No printer queues found for device.")
+            sys.exit(1)
     
-    if len(d.cups_printers) == 0:
-        log.error("No printer queues found for device.")
-        sys.exit(1)
-        
-    elif len(d.cups_printers) > 1:
-        log.info("\nMultiple printers (queues) found in CUPS for device.")
-        log.info(utils.bold("\nPlease choose the printer (queue) to use for the test page:\n"))
-        
-        max_name = 24
-        for q in d.cups_printers:
-            max_name = max(max_name, len(q))
-            
-        formatter = utils.TextFormatter(
-            (
-                {'width': 4, 'margin': 2},
-                {'width': max_name, 'margin': 2},
+        elif len(d.cups_printers) > 1:
+            log.info("\nMultiple printers (queues) found in CUPS for device.")
+            log.info(log.bold("\nPlease choose the printer (queue) to use for the test page:\n"))
+    
+            max_name = 24
+            for q in d.cups_printers:
+                max_name = max(max_name, len(q))
+    
+            formatter = utils.TextFormatter(
+                (
+                    {'width': 4, 'margin': 2},
+                    {'width': max_name, 'margin': 2},
+                )
             )
-        )
+    
+            log.info(formatter.compose(("Num.", "CUPS printer (queue)")))
+            log.info(formatter.compose(('-'*4, '-'*(max_name))))
+    
+            x = 0
+            for q in d.cups_printers:
+                log.info(formatter.compose((str(x), d.cups_printers[x])))
+                x += 1
+    
+            ok, i = tui.enter_range("\nEnter number 0...%d for printer (q=quit) ?" % (x-1), 0, (x-1))
+            if not ok: sys.exit(0)
+            printer_name = d.cups_printers[i]
+    
+        else:
+            printer_name = d.cups_printers[0]
         
-        log.info(formatter.compose(("Num.", "CUPS printer (queue)")))
-        log.info(formatter.compose(('-'*4, '-'*(max_name))))
-        
-        x = 0
-        for q in d.cups_printers:
-            log.info(formatter.compose((str(x), d.cups_printers[x])))
-            x += 1
-            
-        while 1:
-            user_input = raw_input(utils.bold("\nEnter number 0...%d for printer (q=quit) ?" % (x-1)))
-
-            if user_input == '':
-                log.warn("Invalid input - enter a numeric value or 'q' to quit.")
-                continue
-
-            if user_input.strip()[0] in ('q', 'Q'):
-                sys.exit(0)
-
-            try:
-                i = int(user_input)
-            except ValueError:
-                log.warn("Invalid input - enter a numeric value or 'q' to quit.")
-                continue
-
-            if i < 0 or i > (x-1):
-                log.warn("Invalid input - enter a value between 0 and %d or 'q' to quit." % (x-1))
-                continue
-
-            break
-            
-        printer_name = d.cups_printers[i]
-            
     else:
-        printer_name = d.cups_printers[0]
-        
+        if printer_name not in d.cups_printers:
+            log.error("Invalid printer name: %s" % printer_name)
+            sys.exit(1)
+
     log.info("")
+    
+    # TODO: Fix the wait for printout stuff... can't get device ID
+    # while hp: backend has device open in printing mode...
+    wait_for_printout = False
     
     if d.isIdleAndNoError():
         d.close()
@@ -225,51 +213,51 @@ try:
         else:
             if wait_for_printout:
                 log.info("Test page has been sent to printer. Waiting for printout to complete...")
-                
+
                 time.sleep(5)
                 i = 0
-    
+
                 while True:
                     time.sleep(5)
-                    
+
                     try:
                         d.queryDevice(quick=True)
                     except Error, e:
                         log.error("An error has occured.")
-                    
+
                     if d.error_state == ERROR_STATE_CLEAR:
                         break
-                    
+
                     elif d.error_state == ERROR_STATE_ERROR:
                         cleanup_spinner()
                         log.error("An error has occured (code=%d). Please check the printer and try again." % d.status_code)
                         break
-                        
+
                     elif d.error_state == ERROR_STATE_WARNING:
                         cleanup_spinner()
                         log.warning("There is a problem with the printer (code=%d). Please check the printer." % d.status_code)
-                    
+
                     else: # ERROR_STATE_BUSY
                         update_spinner()
-                        
+
                     i += 1
-                    
+
                     if i > 24:  # 2min
                         break
-                        
+
                 cleanup_spinner()
-                
+
             else:
                 log.info("Test page has been sent to printer.")
 
     else:
         log.error("Device is busy or in an error state. Please check device and try again.")
         sys.exit(1)
-        
-        
+
+
 finally:
     d.close()
-    
+
     log.info("")
     log.notice("If an error occured, or the test page failed to print, refer to the HPLIP website")
     log.notice("at: http://hplip.sourceforge.net for troubleshooting and support.")

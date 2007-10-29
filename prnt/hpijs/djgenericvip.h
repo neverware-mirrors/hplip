@@ -1,7 +1,7 @@
 /*****************************************************************************\
   djgenericvip.h : Interface for the generic VIP printer class
 
-  Copyright (c) 2001 - 2002, Hewlett-Packard Co.
+  Copyright (c) 2001 - 2006, Hewlett-Packard Co.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ class DJGenericVIP : public DJ9xxVIP
 {
 public:
     DJGenericVIP (SystemServices* pSS, BOOL proto = FALSE);
-
+    Header *SelectHeader (PrintContext *pc);
     DRIVER_ERROR VerifyPenInfo ();
     virtual BOOL FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, float *xOverSpray, float *yOverSpray,
                                    float *fLeftOverSpray, float *fTopOverSpray);
@@ -52,6 +52,7 @@ public:
     virtual PHOTOTRAY_STATE PhotoTrayEngaged (BOOL bQueryPrinter);
     //! Returns TRUE if a hagaki feed is present in printer.
     virtual BOOL HagakiFeedPresent(BOOL bQueryPrinter);
+	virtual DATA_FORMAT GetDataFormat () { return RASTER_STRIP; }
 
 #ifdef APDK_AUTODUPLEX
     //!Returns TRUE if duplexer and hagaki feed (combined) unit is present in printer.
@@ -59,6 +60,9 @@ public:
     virtual BOOL HagakiFeedDuplexerPresent(BOOL bQueryPrinter);
 #endif
     virtual BOOL GetMargins (PAPER_SIZE ps, float *fMargins);
+#ifdef APDK_LINUX
+    virtual DRIVER_ERROR    SendPerPageHeader (BOOL bLastPage);
+#endif // APDK_LINUX
 
 private:
 	virtual void AdjustModeSettings (BOOL bDoFullBleed, MEDIATYPE ReqMedia,
@@ -116,6 +120,7 @@ public:
 		"Deskjet 6800\0"
         "Deskjet 6940\0"
         "Deskjet 6980\0"
+        "Deskjet 6988\0"
 		"deskjet 9600\0"
 		"Deskjet 9800\0"
         "Business Inkjet 1000\0"
@@ -144,19 +149,24 @@ public:
         "Photosmart 420\0"
         "Photosmart A430\0"
         "Photosmart A510\0"
+        "Photosmart A520\0"
 #ifdef APDK_MLC_PRINTER
 		"PSC 1500\0"
 		"PSC 1600\0"
-        "PSC 2200\0"
         "psc 2300\0"
 		"PSC 2350\0"
         "psc 2400\0"
         "psc 2500\0"
-		"Officejet 7400\0"
-		"Officejet 7300\0"
-		"Officejet 7200\0"
-		"Officejet 6200\0"
-        "Officejet 6300\0"
+		"Officejet 74\0"
+		"Officejet 73\0"
+		"Officejet 72\0"
+		"Officejet 62\0"
+        "Officejet 63\0"
+        "Officejet J35\0"
+        "Officejet J36\0"
+        "Officejet J55\0"
+        "Officejet J57\0"
+        "Officejet K71\0"
         "Photosmart 2570\0"
 		"Photosmart 2600\0"
 		"Photosmart 2700\0"
@@ -165,17 +175,29 @@ public:
         "Photosmart 3300\0"
 #endif
         "Photosmart A310\0"
-        "Photosmart C3100\0"
-        "Photosmart C4100\0"
-        "Photosmart C5100\0"
-        "Photosmart C6100\0"
-        "Photosmart C7100\0"
+        "Photosmart A320\0"
+        "Photosmart A440\0"
         "Photosmart Pro B8300\0"
+        "Photosmart C31\0"
+        "Photosmart C41\0"
+        "Photosmart C42\0"
+        "Photosmart C43\0"
+        "Photosmart C51\0"
+        "Photosmart C52\0"
+        "Photosmart C61\0"
+        "Photosmart C62\0"
+        "Photosmart C71\0"
+        "Photosmart C72\0"
+        "Photosmart C81\0"
         "Photosmart D5060\0"
-        "Photosmart D5100\0"
-        "Photosmart D6100\0"
-        "Photosmart D7100\0"
-        "Photosmart D7300\0"
+        "Photosmart D51\0"
+        "Photosmart D53\0"
+        "Photosmart D61\0"
+        "Photosmart D71\0"
+        "Photosmart D72\0"
+        "Photosmart D73\0"
+        "Photosmart D74\0"
+        "Photosmart D73\0"
     ) {m_iPrinterType = eDJGenericVIP;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJGenericVIP(pSS); }
 	inline PRINTER_TYPE GetPrinterType() const { return eDJGenericVIP;}

@@ -1,11 +1,11 @@
 hpijs (2.6.10+1.6.10-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from linuxprinting.org.
+They're also available from www.openprinting.org.
 
 Users of the following printers (or of any printers that use the same PPDs)
 should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from linuxprinting.org or hpijs-ppds:
+from www.openprinting.org or hpijs-ppds:
 
   * ALL HPIJS-SUPPORTED PRINTERS!
 
@@ -30,14 +30,14 @@ Debian bug report #333746 for more information.
 hpijs (2.6.9+1.6.9-1) UNRELEASED; urgency=low
 
 Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from linuxprinting.org.
+They're also available from www.openprinting.org.
 
 The PPD needed for faxing is shipped in the hpijs package itself starting
 with this release.
 
 Users of the following printers (or of any printers that use the same PPDs)
 should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from linuxprinting.org or hpijs-ppds:
+from www.openprinting.org or hpijs-ppds:
 
   * ALL HPIJS-SUPPORTED PRINTERS!
 
@@ -60,11 +60,11 @@ Debian bug report #333746 for more information.
 hpijs (2.6.7+1.6.7-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from linuxprinting.org.
+They're also available from www.openprinting.org.
 
 Users of the following printers (or of any printers that use the same PPDs)
 should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from linuxprinting.org or hpijs-ppds:
+from www.openprinting.org or hpijs-ppds:
 
   * HP Business Inkjet (all models)
   * HP Color Inkjet CP1160, CP1700
@@ -88,11 +88,11 @@ Most of the user documentation for hpijs is now shipped on the hplip-doc
 package, as per upstream changes.
 
 Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from linuxprinting.org.
+They're also available from www.openprinting.org.
 
 Users of the following printers (or of any printers that use the same PPDs)
 should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from linuxprinting.org or hpijs-ppds:
+from www.openprinting.org or hpijs-ppds:
 
   * HP 2000C
   * HP Business Inkjet (all models)
@@ -113,17 +113,17 @@ Debian bug report #333746 for more information.
 hpijs (2.4.9+0.9.9-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the new hpijs-ppds package.
-They're also available from linuxprinting.org.
+They're also available from www.openprinting.org.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  1 Feb 2006 00:54:49 -0200
 
 hpijs (2.4.8+0.9.8-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from linuxprinting.org.
+as usual.  They're also available from www.openprinting.org.
 
 Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * HP PSC 1300
   * HP OfficeJet 61xx
@@ -138,11 +138,11 @@ Debian bug report #333746 for more information.
 hpijs (2.4.7+0.9.7-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from linuxprinting.org and foomatic-*
+as usual.  They're also available from www.openprinting.org and foomatic-*
 packages dated after 2005-11-22.
 
 Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * ALL DJGenericVIP devices, which include but is not restricted to:
     HP Business Inkjet 1xxx
@@ -195,11 +195,11 @@ Debian bug report #333746 for more information.
 hpijs (2.4.6+0.9.6-1) unstable; urgency=low
 
 Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from linuxprinting.org and foomatic-*
+as usual.  They're also available from www.openprinting.org and foomatic-*
 packages dated after 2005-10-10.
 
 Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from linuxprinting.org or hplip-ppds:
+replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * HP Deskjet 450 family
   * HP Deskjet 55xx family

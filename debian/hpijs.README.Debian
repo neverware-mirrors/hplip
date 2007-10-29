@@ -3,7 +3,7 @@ Notes about the Debian hpijs package
 
 This package includes the rss patch from
 
-  http://www.linuxprinting.org/download/printing/hpijs/
+  http://www.openprinting.org/download/printing/hpijs/
 
 This patch tries to make sure that black is printed with just
 the black pen, if the printer supports it.  Almost all new

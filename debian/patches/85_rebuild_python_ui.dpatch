@@ -1,0 +1,33 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 85_rebuild_python_ui.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.7.6~/Makefile.am hplip-2.7.6/Makefile.am
+--- hplip-2.7.6~/Makefile.am	2007-06-12 22:00:31.000000000 +0100
++++ hplip-2.7.6/Makefile.am	2007-08-09 13:13:01.000000000 +0100
+@@ -4,6 +4,10 @@
+ #  (c) 2004-2007 Copyright Hewlett-Packard Development Company, LP
+ #
+ 
++# Generic rules
++%.py: %.ui
++	$(PYUIC) -x -o $@ $<
++
+ INCLUDES = -Iip -Iio/hpmud -Iscan/sane
+ 
+ BZRSERVER=http://bzr.linuxprinting.org/devel
+diff -urNad hplip-2.7.6~/configure.in hplip-2.7.6/configure.in
+--- hplip-2.7.6~/configure.in	2007-06-22 23:44:06.000000000 +0100
++++ hplip-2.7.6/configure.in	2007-08-09 13:34:09.000000000 +0100
+@@ -250,6 +250,8 @@
+    AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
+    AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
+    AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
++   AC_ARG_VAR([PYUIC], [PyQT pyuic .ui to .py compiler command])
++   AC_CHECK_TOOLS([PYUIC], [pyuic])
+ fi
+ 
+ if test "$hpijs_only_build" = "no" && test "$scan_build" = "yes"; then

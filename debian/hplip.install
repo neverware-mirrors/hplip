@@ -1,10 +1,6 @@
+usr/lib/lib*.so.*
 usr/lib/python*
-usr/lib/hplip
 usr/lib/cups/backend
-usr/sbin
 etc/hp
 usr/lib/sane/libsane*.so.*
 etc/sane.d/dll.d
-usr/share/applications
-usr/share/pixmaps
-usr/share/python/runtime.d

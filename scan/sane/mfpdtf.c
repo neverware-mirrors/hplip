@@ -25,9 +25,14 @@
 
 \************************************************************************************/
 
-#include "hpaio.h"
+#include "common.h"
+#include "mfpdtf.h"
+#include "io.h"
 
-union MfpdtfVariantHeader_u * MfpdtfReadAllocateVariantHeader( Mfpdtf_t mfpdtf,
+#define DEBUG_DECLARE_ONLY
+#include "sanei_debug.h"
+
+static union MfpdtfVariantHeader_u * MfpdtfReadAllocateVariantHeader( Mfpdtf_t mfpdtf,
                                                                int datalen )
 {
     if( mfpdtf->read.pVariantHeader )
@@ -43,7 +48,15 @@ union MfpdtfVariantHeader_u * MfpdtfReadAllocateVariantHeader( Mfpdtf_t mfpdtf,
     return mfpdtf->read.pVariantHeader;
 }
 
-Mfpdtf_t MfpdtfAllocate( int deviceid, int channelid )
+static int MfpdtfReadSetTimeout( Mfpdtf_t mfpdtf, int seconds )
+{
+    mfpdtf->read.timeout.tv_sec = seconds;
+    mfpdtf->read.timeout.tv_usec = 0;
+
+    return seconds;
+}
+
+Mfpdtf_t __attribute__ ((visibility ("hidden"))) MfpdtfAllocate( int deviceid, int channelid )
 {
     int size = sizeof( struct Mfpdtf_s );
     Mfpdtf_t mfpdtf = malloc( size );
@@ -58,12 +71,10 @@ Mfpdtf_t MfpdtfAllocate( int deviceid, int channelid )
         MfpdtfReadStart( mfpdtf );
     }
     
-    DBG( 0, "MfpdtfAllocate() ______________________________ deviceid=%d, channelid=%d ______________________________\n", mfpdtf->deviceid, mfpdtf->channelid );
-
     return mfpdtf;
 }
 
-int MfpdtfDeallocate( Mfpdtf_t mfpdtf )
+int __attribute__ ((visibility ("hidden"))) MfpdtfDeallocate( Mfpdtf_t mfpdtf )
 {
     if( !mfpdtf )
     {
@@ -75,7 +86,7 @@ int MfpdtfDeallocate( Mfpdtf_t mfpdtf )
     return OK;
 }
 
-int MfpdtfSetChannel( Mfpdtf_t mfpdtf, int channelid )
+int __attribute__ ((visibility ("hidden"))) MfpdtfSetChannel( Mfpdtf_t mfpdtf, int channelid )
 {
     mfpdtf->channelid = channelid;
     /* If necessary, we can query the device ID string using the
@@ -83,7 +94,7 @@ int MfpdtfSetChannel( Mfpdtf_t mfpdtf, int channelid )
     return OK;
 }
 
-int MfpdtfLogToFile( Mfpdtf_t mfpdtf, char * filename )
+int __attribute__ ((visibility ("hidden"))) MfpdtfLogToFile( Mfpdtf_t mfpdtf, char * filename )
 {
     if( mfpdtf->fdLog != -1 )
     {
@@ -103,32 +114,19 @@ int MfpdtfLogToFile( Mfpdtf_t mfpdtf, char * filename )
     return OK;
 }
 
-int MfpdtfReadGetTimeout( Mfpdtf_t mfpdtf )
-{
-    return mfpdtf->read.timeout.tv_sec;
-}
-
-int MfpdtfReadSetTimeout( Mfpdtf_t mfpdtf, int seconds )
-{
-    mfpdtf->read.timeout.tv_sec = seconds;
-    mfpdtf->read.timeout.tv_usec = 0;
-
-    return seconds;
-}
-
-int MfpdtfReadGetSimulateImageHeaders( Mfpdtf_t mfpdtf )
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadGetSimulateImageHeaders( Mfpdtf_t mfpdtf )
 {
     return mfpdtf->read.simulateImageHeaders;
 }
 
-int MfpdtfReadSetSimulateImageHeaders( Mfpdtf_t mfpdtf,
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadSetSimulateImageHeaders( Mfpdtf_t mfpdtf,
                                        int simulateImageHeaders )
 {
     mfpdtf->read.simulateImageHeaders = simulateImageHeaders;
     return simulateImageHeaders;
 }
 
-int MfpdtfReadStart( Mfpdtf_t mfpdtf )
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadStart( Mfpdtf_t mfpdtf )
 {
     mfpdtf->read.lastServiceResult = 0;
     mfpdtf->read.dataType = ERROR;
@@ -139,6 +137,17 @@ int MfpdtfReadStart( Mfpdtf_t mfpdtf )
     MfpdtfReadAllocateVariantHeader( mfpdtf, 0 );
 
     return OK;
+}
+
+static int MfpdtfReadIsImageData( Mfpdtf_t mfpdtf )
+{
+    return ( ( MFPDTF_DT_MASK_IMAGE & ( 1 << mfpdtf->read.dataType ) ) !=
+             0 );
+}
+
+static int MfpdtfReadIsArrayData( Mfpdtf_t mfpdtf )
+{
+    return ( !MfpdtfReadIsImageData( mfpdtf ) );
 }
 
 #define READ(buffer,datalen) \
@@ -154,10 +163,51 @@ int MfpdtfReadStart( Mfpdtf_t mfpdtf )
 #define RETURN(_result) \
     return (mfpdtf->read.lastServiceResult=(_result));
 
-int MfpdtfReadService( Mfpdtf_t mfpdtf )
+static int MfpdtfReadGeneric( Mfpdtf_t mfpdtf, unsigned char * buffer, int datalen )
 {
-    DBG( 0, "MfpdtfReadService() ______________________________ deviceid=%d, channelid=%d ______________________________\n", mfpdtf->deviceid, mfpdtf->channelid );
-    
+    int r = 0;
+
+    /* Don't read past the currently-defined fixed block. */
+    if( datalen > mfpdtf->read.fixedBlockBytesRemaining )
+    {
+        datalen = mfpdtf->read.fixedBlockBytesRemaining;
+    }
+
+    /* Read the data. */
+    if( datalen > 0 )
+    {        
+        r = ReadChannelEx(mfpdtf->deviceid, 
+                           mfpdtf->channelid, 
+                           buffer, 
+                           datalen, 
+                           EXCEPTION_TIMEOUT);
+
+        if( r > 0 )
+        {
+            /* Account for and log what was read. */
+            mfpdtf->read.fixedBlockBytesRemaining -= r;
+            
+            if( !mfpdtf->read.dontDecrementInnerBlock )
+            {
+                mfpdtf->read.innerBlockBytesRemaining -= r;
+            }
+            
+            mfpdtf->read.dontDecrementInnerBlock = 0;
+        }
+        
+        if( r != datalen )
+        {
+            mfpdtf->read.lastServiceResult = r < 0 ?
+                                             MFPDTF_RESULT_READ_ERROR :
+                                             MFPDTF_RESULT_READ_TIMEOUT;
+        }
+    }
+
+    return r;
+}
+
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadService( Mfpdtf_t mfpdtf )
+{
     int result = 0;
     int datalen, blockLength, headerLength;
 
@@ -166,7 +216,7 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
         /* Read fixed header. */
         datalen = sizeof( mfpdtf->read.fixedHeader );
         mfpdtf->read.fixedBlockBytesRemaining = datalen;
-        DBG( 0, "********************************** FIXED HEADER **********************************.\n" );
+	//        DBG( 0, "********************************** FIXED HEADER **********************************.\n" );
         mfpdtf->read.dontDecrementInnerBlock = 1;
         
         //READ( &mfpdtf->read.fixedHeader, datalen );
@@ -186,6 +236,13 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
         mfpdtf->read.fixedBlockBytesRemaining = blockLength - datalen;
         headerLength = LEND_GET_SHORT( mfpdtf->read.fixedHeader.headerLength );
 
+        /* Scan data type? */
+        if(mfpdtf->read.fixedHeader.dataType != DT_SCAN)
+        {
+            bug("invalid mfpdtf fixed header datatype=%d\n", mfpdtf->read.fixedHeader.dataType);
+            return MFPDTF_RESULT_READ_ERROR;
+        }
+
         /* Is this a new data type? */
         if( mfpdtf->read.dataType != mfpdtf->read.fixedHeader.dataType )
         {
@@ -193,21 +250,20 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             result |= MFPDTF_RESULT_NEW_DATA_TYPE;
         }
 
+        DBG(6, "fixed header page_flags=%x: %s %d\n", mfpdtf->read.fixedHeader.pageFlags, __FILE__, __LINE__);
+
         /* Read variant header (if any). */
         datalen = headerLength - sizeof( mfpdtf->read.fixedHeader );
         
         if( datalen > 0 )
         {
+            DBG(6, "reading variant header size=%d: %s %d\n", datalen, __FILE__, __LINE__);
+            
             if( !MfpdtfReadAllocateVariantHeader( mfpdtf, datalen ) )
             {
                 RETURN( MFPDTF_RESULT_OTHER_ERROR );
             }
-            DBG( 0, "Reading variant header (%d bytes).\n", datalen );
-            
-            
             mfpdtf->read.dontDecrementInnerBlock = 1;
-            
-            //READ( mfpdtf->read.pVariantHeader, datalen );
             
             int r = MfpdtfReadGeneric( mfpdtf, (unsigned char *)mfpdtf->read.pVariantHeader, datalen );
     
@@ -220,7 +276,7 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             
             }
             
-            DBG( 0, "********************************** VARIANT HEADER **********************************.\n" );
+	    //            DBG( 0, "********************************** VARIANT HEADER **********************************.\n" );
             
             result |= MFPDTF_RESULT_NEW_VARIANT_HEADER;
 
@@ -275,11 +331,9 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             if( id == MFPDTF_ID_RASTER_DATA )
             {
                 datalen = sizeof( mfpdtf->read.imageRasterDataHeader );
-                DBG( 0, "Reading raster data header.\n" );
+		//                DBG( 0, "Reading raster data header.\n" );
                 
-                DBG( 0, "********************************** RASTER RECORD **********************************.\n" );
-                //READ( &mfpdtf->read.imageRasterDataHeader, datalen );
-                
+		//                DBG( 0, "********************************** RASTER RECORD **********************************.\n" );
                 int r = MfpdtfReadGeneric( mfpdtf, (unsigned char *)&mfpdtf->read.imageRasterDataHeader, datalen );
     
                 if( r!= datalen )
@@ -298,10 +352,8 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             else if( id == MFPDTF_ID_START_PAGE )
             {
                 datalen = sizeof( mfpdtf->read.imageStartPageRecord );
-                DBG( 0, "Reading start of page record.\n" );
-                DBG( 0, "********************************** SOP RECORD **********************************.\n" );
-                //READ( &mfpdtf->read.imageStartPageRecord, datalen );
-
+		//                DBG( 0, "Reading start of page record.\n" );
+		//                DBG( 0, "********************************** SOP RECORD **********************************.\n" );
                 int r = MfpdtfReadGeneric( mfpdtf, (unsigned char *)&mfpdtf->read.imageStartPageRecord, datalen );
     
                 if( r!= datalen )
@@ -318,10 +370,8 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             else if( id == MFPDTF_ID_END_PAGE )
             {
                 datalen = sizeof( mfpdtf->read.imageEndPageRecord );
-                DBG( 0, "Reading end of page record.\n" );
-                DBG( 0, "********************************** EOP RECORD **********************************.\n" );
-                //READ( &mfpdtf->read.imageEndPageRecord, datalen );
-                
+		//                DBG( 0, "Reading end of page record.\n" );
+		//                DBG( 0, "********************************** EOP RECORD **********************************.\n" );
                 int r = MfpdtfReadGeneric( mfpdtf, (unsigned char *)&mfpdtf->read.imageEndPageRecord, datalen );
     
                 if( r!= datalen )
@@ -350,8 +400,6 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
         }
     }
 
-    DBG( 0, "Fixed block bytes remaining = %d\n", mfpdtf->read.fixedBlockBytesRemaining );
-    
     if( mfpdtf->read.fixedBlockBytesRemaining > 0 )
     {
         result |= MFPDTF_RESULT_GENERIC_DATA_PENDING;
@@ -360,53 +408,12 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
     RETURN( ( result | mfpdtf->read.fixedHeader.pageFlags ) );
 }
 
-int MfpdtfReadGetDataType( Mfpdtf_t mfpdtf )
-{
-    return mfpdtf->read.dataType;
-}
-
-int MfpdtfReadIsImageData( Mfpdtf_t mfpdtf )
-{
-    return ( ( MFPDTF_DT_MASK_IMAGE & ( 1 << mfpdtf->read.dataType ) ) !=
-             0 );
-}
-
-int MfpdtfReadIsArrayData( Mfpdtf_t mfpdtf )
-{
-    return ( !MfpdtfReadIsImageData( mfpdtf ) );
-}
-
-int MfpdtfReadGetArrayRecordCountSize( Mfpdtf_t mfpdtf,
-                                       int * pCount,
-                                       int * pSize )
-{
-    if( pCount )
-    {
-        *pCount = mfpdtf->read.arrayRecordCount;
-    }
-    if( pSize )
-    {
-        *pSize = mfpdtf->read.arrayRecordSize;
-    }
-    return mfpdtf->read.innerBlockBytesRemaining;
-}
-
-int MfpdtfReadGetFixedBlockBytesRemaining( Mfpdtf_t mfpdtf )
-{
-    return mfpdtf->read.fixedBlockBytesRemaining;
-}
-
-int MfpdtfReadGetInnerBlockBytesRemaining( Mfpdtf_t mfpdtf )
-{
-    return MfpdtfReadGetArrayRecordCountSize( mfpdtf, 0, 0 );
-}
-
-int MfpdtfReadGetLastServiceResult( Mfpdtf_t mfpdtf )
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadGetLastServiceResult( Mfpdtf_t mfpdtf )
 {
     return mfpdtf->read.lastServiceResult;
 }
 
-int MfpdtfReadGetVariantHeader( Mfpdtf_t mfpdtf,
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadGetVariantHeader( Mfpdtf_t mfpdtf,
                                 union MfpdtfVariantHeader_u * buffer,
                                 int maxlen )
 {
@@ -426,7 +433,7 @@ int MfpdtfReadGetVariantHeader( Mfpdtf_t mfpdtf,
     return maxlen;
 }
 
-int MfpdtfReadGetStartPageRecord( Mfpdtf_t mfpdtf,
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadGetStartPageRecord( Mfpdtf_t mfpdtf,
                                   struct MfpdtfImageStartPageRecord_s * buffer,
                                   int maxlen )
 {
@@ -439,72 +446,7 @@ int MfpdtfReadGetStartPageRecord( Mfpdtf_t mfpdtf,
     return maxlen;
 }
 
-int MfpdtfReadGetEndPageRecord( Mfpdtf_t mfpdtf,
-                                struct MfpdtfImageEndPageRecord_s * buffer,
-                                int maxlen )
-{
-    int len = sizeof( struct MfpdtfImageEndPageRecord_s );
-    if( maxlen > len )
-    {
-        maxlen = len;
-    }
-    memcpy( buffer, &mfpdtf->read.imageEndPageRecord, maxlen );
-    return maxlen;
-}
-
-int MfpdtfReadGeneric( Mfpdtf_t mfpdtf, unsigned char * buffer, int datalen )
-{
-    int r = 0;
-
-    /* Don't read past the currently-defined fixed block. */
-    DBG( 0, "read.fixedBlockBytesRemaining=%d.\n",
-            mfpdtf->read.fixedBlockBytesRemaining );
-    
-    if( datalen > mfpdtf->read.fixedBlockBytesRemaining )
-    {
-        datalen = mfpdtf->read.fixedBlockBytesRemaining;
-    }
-
-    /* Read the data. */
-    if( datalen > 0 )
-    {
-        DBG( 0, "Reading %d bytes at offset=0x%8.8X.\n",
-                        datalen,
-                        mfpdtf->logOffset );
-        
-        r = ReadChannelEx( mfpdtf->deviceid, 
-                           mfpdtf->channelid, 
-                           buffer, 
-                           datalen, 
-                           EXCEPTION_TIMEOUT );
-
-        DBG( 0, "read len=%d\n", r );        
-
-        if( r > 0 )
-        {
-            /* Account for and log what was read. */
-            mfpdtf->read.fixedBlockBytesRemaining -= r;
-            
-            if( !mfpdtf->read.dontDecrementInnerBlock )
-            {
-                mfpdtf->read.innerBlockBytesRemaining -= r;
-            }
-            
-            mfpdtf->read.dontDecrementInnerBlock = 0;
-        }
-        
-        if( r != datalen )
-        {
-            mfpdtf->read.lastServiceResult = r < 0 ?
-                                             MFPDTF_RESULT_READ_ERROR :
-                                             MFPDTF_RESULT_READ_TIMEOUT;
-        }
-    }
-
-    return r;
-}
-
-int MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
+int __attribute__ ((visibility ("hidden"))) MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
                           unsigned char * buffer,
                           int countdown )
 {
@@ -512,9 +454,6 @@ int MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
 
     while( 1 )
     {
-        DBG( 0, "read.innerBlockBytesRemaining=%d.\n",
-                        mfpdtf->read.innerBlockBytesRemaining );
-                        
         if( countdown > mfpdtf->read.innerBlockBytesRemaining )
         {
             countdown = mfpdtf->read.innerBlockBytesRemaining;
@@ -563,7 +502,7 @@ int MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
  * Phase 2 rewrite. des
  */
 
-int read_mfpdtf_block(int device, int channel, char *buf, int bufSize, int timeout)
+int __attribute__ ((visibility ("hidden"))) read_mfpdtf_block(int device, int channel, char *buf, int bufSize, int timeout)
 {
    MFPDTF_FIXED_HEADER *phd = (MFPDTF_FIXED_HEADER *)buf;
    int size, bsize=0, len;

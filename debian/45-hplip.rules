@@ -1,0 +1,4 @@
+SUBSYSTEM!="usb_device", GOTO="hplip_rules_end"
+SYSFS{idVendor}=="03f0", SYSFS{bDeviceClass}=="07", GROUP="scanner"
+SYSFS{idVendor}=="03f0", PROGRAM="check_mfp_printer", GROUP="scanner"
+LABEL="hplip_rules_end"

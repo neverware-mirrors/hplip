@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,32 +29,52 @@ from nodevicesform_base import NoDevicesForm_base
 class NoDevicesForm(NoDevicesForm_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         NoDevicesForm_base.__init__(self,parent,name,modal,fl)
-        
+
         self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, "warning.png")))
-        
+
     def CUPSButton_clicked(self):
         self.close()
-        utils.openURL("http://localhost:631/printers")
-        
+        utils.openURL("http://localhost:631/admin?op=add-printer")
+
     def ExitButton_clicked(self):
         self.close()
-        
+
     def setupPushButton_clicked(self):
         self.close()
-        
+        su_sudo = None
+
         if utils.which('kdesu'):
             su_sudo = 'kdesu -- %s'
-        
+
         elif utils.which('gksu'):
             su_sudo = 'gksu "%s"'
-        
-        if utils.which('hp-setup'):
-            cmd = su_sudo % 'hp-setup -u'
+
+        if su_sudo is None:
+            QMessageBox.critical(self,
+                                self.caption(),
+                                self.__tr("<b>Unable to find an appropriate su/sudo utility to run hp-setup.</b>"),
+                                QMessageBox.Ok,
+                                QMessageBox.NoButton,
+                                QMessageBox.NoButton)
+
         else:
-            cmd = su_sudo % 'python ./setup.py -u'
-        
-        log.debug(cmd)
-        os.system(cmd)
-        
-        
-        
+            if utils.which('hp-setup'):
+                cmd = su_sudo % 'hp-setup -u'
+            else:
+                cmd = su_sudo % 'python ./setup.py -u'
+
+            log.debug(cmd)
+            utils.run(cmd, log_output=True, password_func=None, timeout=1)
+
+            try:
+                self.parent().RescanDevices()
+            except Error:
+                QMessageBox.critical(self,
+                                    self.caption(),
+                                    self.__tr("<b>An I/O error occurred.</b><p>Please re-start the Device Manager and try again."),
+                                    QMessageBox.Ok,
+                                    QMessageBox.NoButton,
+                                    QMessageBox.NoButton)
+
+    def __tr(self,s,c = None):
+        return qApp.translate("NoDevicesForm",s,c)
