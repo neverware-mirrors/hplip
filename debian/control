@@ -5,6 +5,9 @@ Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.deb
 Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>
 Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), autoconf, automake, libtool
 Standards-Version: 3.7.2
+Homepage: http://hplip.sourceforge.net/
+Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
+Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 
 Package: hplip
 Architecture: any
@@ -42,7 +45,6 @@ Description: HP Linux Printing and Imaging System (HPLIP)
  .
  USB, JetDirect (network) and parallel-port devices are supported.
  .
- Homepage: http://hplip.sourceforge.net/
 
 Package: hplip-data
 Architecture: all
