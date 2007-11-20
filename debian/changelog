@@ -1,6 +1,9 @@
-hplip (2.7.10-2) unstable; urgency=low
+hplip (2.7.10-2) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
 
   * Unstable upload
+  * debian/control
     - Homepage: http://hplip.sourceforge.net/
     - Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
     - Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
