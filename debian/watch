@@ -1,2 +1,2 @@
 version=3
-http://sf.net/hplip/hplip-(.+)\.tar\.gz
+http://sf.net/hplip/hplip-(.+)\.tar\.gz debian svn-upgrade
