@@ -1,6 +1,4 @@
-hplip (2.7.10-2) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+hplip (2.7.10-2) unstable; urgency=low
 
   * Unstable upload
   * debian/control
@@ -8,7 +6,7 @@ hplip (2.7.10-2) UNRELEASED; urgency=low
     - Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
     - Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 
- -- Mark Purcell <msp@debian.org>  Tue, 20 Nov 2007 21:32:58 +0000
+ -- Mark Purcell <msp@debian.org>  Wed, 21 Nov 2007 06:19:34 +0000
 
 hplip (2.7.10-1) experimental; urgency=low
 
