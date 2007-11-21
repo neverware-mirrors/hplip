@@ -1,10 +1,12 @@
-hplip (2.7.10-3) UNRELEASED; urgency=low
+hplip (2.7.10-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * Update debian/watch - thks Chris Lamb
     - debian/watch file incorrect (Closes: #415926)
+    - debian/watch fails to report upstream&#39;s version (Closes:
+    #449610)
 
- -- Mark Purcell <msp@debian.org>  Wed, 21 Nov 2007 16:32:11 +0000
+ -- Mark Purcell <msp@debian.org>  Wed, 21 Nov 2007 16:53:20 +0000
 
 hplip (2.7.10-2) unstable; urgency=low
 
