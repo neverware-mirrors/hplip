@@ -1,3 +1,9 @@
+hplip (2.7.10-4) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Thu, 22 Nov 2007 08:17:16 +0000
+
 hplip (2.7.10-3) unstable; urgency=low
 
   * Update debian/watch - thks Chris Lamb
