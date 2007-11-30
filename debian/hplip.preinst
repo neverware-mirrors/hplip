@@ -28,7 +28,8 @@ case "$1" in
 	[ -x /etc/init.d/hplip ] && \
 	    /etc/init.d/hplip stop
 	if test -n "`ps auxwww | grep hpiod | grep -v grep`"; then
-	    killall -9 hpiod
+	    echo 'Old HPLIP daemon (hpiod) should of stopped, but did not.  Please kill manually before hplip can proceed'
+	    exit 1
 	fi
 	# Remove all init scripts of older HPLIP versions
 	if dpkg --compare-versions "$2" lt "2.7.7-0ubuntu4"; then

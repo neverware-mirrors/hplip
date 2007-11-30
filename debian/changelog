@@ -1,10 +1,14 @@
 hplip (2.7.10-4) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+  * Provide debian/shlibs lintian: shlib-missing-in-control-file
+    - FTBFS on amd64/sid (Closes: #453361)
+  * Rewrite hplip.preinst to not call killall
+    - predepend on psmisc (?) (Closes: #452408)
   * Cleanup hplip.menu
     - please change default icon to /usr/share/pixmaps/HPmenu.xpm
     (Closes: #415048)
-  * provide debian/shlibs lintian: shlib-missing-in-control-file libhpmud 0
+  * Remove Depends: sysv-rc
 
  -- Mark Purcell <msp@debian.org>  Thu, 22 Nov 2007 23:58:11 +0000
 

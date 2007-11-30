@@ -12,7 +12,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
-Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, sysv-rc (>= 2.86.ds1-14.1ubuntu2)
+Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, openprinting-ppds, python-reportlab, hplip-gui
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, openprinting-ppds, hpijs-ppds, hplip-doc, gksu | kdebase-bin, hplip-gui
