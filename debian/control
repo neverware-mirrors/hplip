@@ -58,7 +58,7 @@ Architecture: all
 Depends: hplip, python-qt3
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
- This package contains utilites with graphical user interface (GUI) for
+ This package contains utilities with graphical user interface (GUI) for
  HPLIP: HP Toolbox, HP Fax, ...
 
 Package: hplip-dbg
