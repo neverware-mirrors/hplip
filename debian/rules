@@ -324,12 +324,11 @@ binary-arch: install-arch debian/hpijs.version
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
-#	dh_perl -a
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)
 	dh_compress -a
 	dh_fixperms -a
-#	dh_makeshlibs -a
+	dh_makeshlibs -a
 	dh_installdeb -a
 	dh_shlibdeps -a --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -phpijs -- \

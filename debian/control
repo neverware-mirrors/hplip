@@ -79,9 +79,6 @@ Description: HP Linux Printing and Imaging - documentation
  This package contains the full documentation for the HP Linux
  Printing and Imaging System for off-line reading.  It includes
  the documentation for the HPIJS IJS driver as well.
- .
- These docs are available online at:
- http://hplip.sourceforge.net/
 
 Package: hpijs-ppds
 Architecture: all
@@ -133,5 +130,3 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
- .
- Homepage: http://hplip.sourceforge.net/

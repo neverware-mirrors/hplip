@@ -1,4 +1,4 @@
-hplip (2.7.10-4) UNRELEASED; urgency=low
+hplip (2.7.10-4) unstable; urgency=low
 
   * Extremadura release ;-)
 
@@ -13,7 +13,7 @@ hplip (2.7.10-4) UNRELEASED; urgency=low
     (Closes: #415048)
   * Remove Depends: sysv-rc
 
- -- Mark Purcell <msp@debian.org>  Sat, 01 Dec 2007 01:00:49 +0100
+ -- Mark Purcell <msp@debian.org>  Sat, 01 Dec 2007 01:36:25 +0100
 
 hplip (2.7.10-3) unstable; urgency=low
 
