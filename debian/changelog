@@ -1,6 +1,7 @@
-hplip (2.7.10-4) UNRELEASED; urgency=low
+hplip (2.7.10-4) unstable; urgency=low
 
-  * NOT RELEASED YET
+  * Extremadura release ;-)
+
   * Provide debian/shlibs lintian: shlib-missing-in-control-file
     - FTBFS on amd64/sid (Closes: #453361)
   * Rewrite hplip.preinst to not call killall
@@ -10,7 +11,7 @@ hplip (2.7.10-4) UNRELEASED; urgency=low
     (Closes: #415048)
   * Remove Depends: sysv-rc
 
- -- Mark Purcell <msp@debian.org>  Thu, 22 Nov 2007 23:58:11 +0000
+ -- Mark Purcell <msp@debian.org>  Sat, 01 Dec 2007 01:00:49 +0100
 
 hplip (2.7.10-3) unstable; urgency=low
 
