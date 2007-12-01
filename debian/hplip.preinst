@@ -25,15 +25,14 @@ case "$1" in
 		find /usr/share/hplip \( -name '*.pyc' -o -name '*.pyo' \) \
 			-exec rm -f {} \;
 	# Stop any daemon from old HPLIP installations
-	[ -x /etc/init.d/hplip ] && \
-	    /etc/init.d/hplip stop
+	invoke-rc.d hplip stop || true
 	if test -n "`ps auxwww | grep hpiod | grep -v grep`"; then
 	    echo 'Old HPLIP daemon (hpiod) should of stopped, but did not.  Please kill manually before hplip can proceed'
 	    exit 1
 	fi
 	# Remove all init scripts of older HPLIP versions
 	if dpkg --compare-versions "$2" lt "2.7.7-0ubuntu4"; then
-            rm -f /etc/init.d/hplip /etc/rc?.d/*hplip
+	    update-rc.d hplip remove
         fi
     ;;
 
