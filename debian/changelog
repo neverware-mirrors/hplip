@@ -1,3 +1,11 @@
+hplip (2.7.10-5) unstable; urgency=low
+
+  * Check for old init scripts [ -x /etc/init.d/hplip ] and manually
+  remove them before we call update-rc.d
+    - preinst fails: update-rc.d: /etc/init.d/hplip exists (Closes: #453902)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 02 Dec 2007 23:07:48 +0100
+
 hplip (2.7.10-4) unstable; urgency=low
 
   * Extremadura release ;-)

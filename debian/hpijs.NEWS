@@ -1,15 +1,15 @@
 hpijs (2.6.10+1.6.10-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from www.openprinting.org.
+  Appropriate PPDs for this release are available on the hpijs-ppds package.
+  They're also available from www.openprinting.org.
 
-Users of the following printers (or of any printers that use the same PPDs)
-should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from www.openprinting.org or hpijs-ppds:
+  Users of the following printers (or of any printers that use the same PPDs)
+  should reinstall their PPDs in CUPS to replace them with up-to-date ones
+  from www.openprinting.org or hpijs-ppds:
 
   * ALL HPIJS-SUPPORTED PRINTERS!
 
-New printers supported in this release:
+  New printers supported in this release:
 
   * LaserJet P2015 series (LJMono/PS)
   * LaserJet M3035 MFP (LJMono/PS)
@@ -21,27 +21,27 @@ New printers supported in this release:
   * Color LaserJet CM1015 (PS) (no scanning yet)
   * Color LaserJet CM1017 (PS) (no scanning yet)
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 25 Oct 2006 11:21:17 -0300
 
 hpijs (2.6.9+1.6.9-1) UNRELEASED; urgency=low
 
-Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from www.openprinting.org.
+  Appropriate PPDs for this release are available on the hpijs-ppds package.
+  They're also available from www.openprinting.org.
 
-The PPD needed for faxing is shipped in the hpijs package itself starting
-with this release.
+  The PPD needed for faxing is shipped in the hpijs package itself starting
+  with this release.
 
-Users of the following printers (or of any printers that use the same PPDs)
-should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from www.openprinting.org or hpijs-ppds:
+  Users of the following printers (or of any printers that use the same PPDs)
+  should reinstall their PPDs in CUPS to replace them with up-to-date ones
+  from www.openprinting.org or hpijs-ppds:
 
   * ALL HPIJS-SUPPORTED PRINTERS!
 
-New printers supported in this release:
+  New printers supported in this release:
 
   * PhotoSmart A310 series (DJGenericVIP)
   * PhotoSmart C5100 series (DJGenericVIP)
@@ -51,20 +51,20 @@ New printers supported in this release:
   * PhotoSmart D5060 series (DJGenericVIP)
   * PhotoSmart Pro B8300 series (DJGenericVIP)
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon,  2 Oct 2006 16:25:00 -0300
 
 hpijs (2.6.7+1.6.7-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from www.openprinting.org.
+  Appropriate PPDs for this release are available on the hpijs-ppds package.
+  They're also available from www.openprinting.org.
 
-Users of the following printers (or of any printers that use the same PPDs)
-should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from www.openprinting.org or hpijs-ppds:
+  Users of the following printers (or of any printers that use the same PPDs)
+  should reinstall their PPDs in CUPS to replace them with up-to-date ones
+  from www.openprinting.org or hpijs-ppds:
 
   * HP Business Inkjet (all models)
   * HP Color Inkjet CP1160, CP1700
@@ -76,23 +76,23 @@ from www.openprinting.org or hpijs-ppds:
   * HP PSC (all models)
   * HP Mopier 240 and 320
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  9 Aug 2006 13:03:38 -0300
 
 hpijs (2.4.10+0.9.11-1) unstable; urgency=low
 
-Most of the user documentation for hpijs is now shipped on the hplip-doc
-package, as per upstream changes.
+  Most of the user documentation for hpijs is now shipped on the hplip-doc
+  package, as per upstream changes.
 
-Appropriate PPDs for this release are available on the hpijs-ppds package.
-They're also available from www.openprinting.org.
-
-Users of the following printers (or of any printers that use the same PPDs)
-should reinstall their PPDs in CUPS to replace them with up-to-date ones
-from www.openprinting.org or hpijs-ppds:
+  Appropriate PPDs for this release are available on the hpijs-ppds package.
+  They're also available from www.openprinting.org.
+  
+  Users of the following printers (or of any printers that use the same PPDs)
+  should reinstall their PPDs in CUPS to replace them with up-to-date ones
+  from www.openprinting.org or hpijs-ppds:
 
   * HP 2000C
   * HP Business Inkjet (all models)
@@ -104,45 +104,45 @@ from www.openprinting.org or hpijs-ppds:
   * HP PhotoSmart (all models)
   * HP PSC (all models)
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 10 May 2006 18:09:37 -0300
 
 hpijs (2.4.9+0.9.9-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the new hpijs-ppds package.
-They're also available from www.openprinting.org.
+  Appropriate PPDs for this release are available on the new hpijs-ppds package.
+  They're also available from www.openprinting.org.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  1 Feb 2006 00:54:49 -0200
 
 hpijs (2.4.8+0.9.8-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from www.openprinting.org.
+  Appropriate PPDs for this release are available on the hplip-ppds package
+  as usual.  They're also available from www.openprinting.org.
 
-Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
+  Users of the following printers should reinstall their PPDs in CUPS to
+  replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * HP PSC 1300
   * HP OfficeJet 61xx
   * HP LaserJet 5L
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed,  1 Feb 2006 00:54:49 -0200
 
 hpijs (2.4.7+0.9.7-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from www.openprinting.org and foomatic-*
-packages dated after 2005-11-22.
+  Appropriate PPDs for this release are available on the hplip-ppds package
+  as usual.  They're also available from www.openprinting.org and foomatic-*
+  packages dated after 2005-11-22.
 
-Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
+  Users of the following printers should reinstall their PPDs in CUPS to
+  replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * ALL DJGenericVIP devices, which include but is not restricted to:
     HP Business Inkjet 1xxx
@@ -186,28 +186,28 @@ replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
     HP Photosmart 7xxx series
     HP Photosmart 8xxx series
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 23 Nov 2005 09:34:06 -0200
 
 hpijs (2.4.6+0.9.6-1) unstable; urgency=low
 
-Appropriate PPDs for this release are available on the hplip-ppds package
-as usual.  They're also available from www.openprinting.org and foomatic-*
-packages dated after 2005-10-10.
+  Appropriate PPDs for this release are available on the hplip-ppds package
+  as usual.  They're also available from www.openprinting.org and foomatic-*
+  packages dated after 2005-10-10.
 
-Users of the following printers should reinstall their PPDs in CUPS to
-replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
+  Users of the following printers should reinstall their PPDs in CUPS to
+  replace them with up-to-date ones from www.openprinting.org or hplip-ppds:
 
   * HP Deskjet 450 family
   * HP Deskjet 55xx family
   * HP PhotoSmart 8700 (modified for hpijs 2.4.5)
   * HP PhotoSmart 320/330/370/380 (modified for hpijs 2.1.4)
 
-Note: to update a PPD, you have to reinstall the printer or use the
-"modify printer" command in a CUPS administrative interface.  See
-Debian bug report #333746 for more information.
+  Note: to update a PPD, you have to reinstall the printer or use the
+  "modify printer" command in a CUPS administrative interface.  See
+  Debian bug report #333746 for more information.
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 13 Oct 2005 10:08:51 -0300
