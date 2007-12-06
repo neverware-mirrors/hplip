@@ -1,3 +1,12 @@
+hplip (2.7.10-5ubuntu1) hardy; urgency=low
+
+  * Merge with Debian unstable. No remaining Ubuntu changes.
+  * debian/rules: Added "--with-hpppddir=\$${prefix}/share/ppd/hpijs/HP" to
+    "./configure" call so that "hp-setup" will find the fax PPD (Ubuntu bug
+    LP: #59409).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  6 Dec 2007 16:34:49 +0000
+
 hplip (2.7.10-5) unstable; urgency=low
 
   * Check for old init scripts [ -x /etc/init.d/hplip ] and manually

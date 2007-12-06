@@ -118,6 +118,7 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 		--infodir=\$${prefix}/share/info \
 		--docdir=\$${prefix}/share/doc/hplip \
 		--with-docdir=\$${prefix}/share/doc/hplip \
+		--with-hpppddir=\$${prefix}/share/ppd/hpijs/HP \
 		--datadir=\$${prefix}/share \
 		--libexecdir=\$${prefix}/lib \
 		--localstatedir=/var \
