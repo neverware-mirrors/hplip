@@ -1,3 +1,12 @@
+hplip (1.6.10-3etch1) stable-security; urgency=high
+
+  * Non-maintainer upload by the security team
+  * Included CVE-2007-5208.dpatch to fix
+    arbitrary command execution in hpssd via crafted from address
+    because of missing sanitization (CVE-2007-5208)
+
+ -- Steffen Joeris <white@debian.org>  Mon, 24 Dec 2007 13:23:12 +0000
+
 hplip (1.6.10-3) unstable; urgency=high
 
   * dpatch 00_01_upstream-fix-libusb-bigendian (new): Do not hto* libusb
