@@ -5,10 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.7.7~/Makefile.am hplip-2.7.7/Makefile.am
---- hplip-2.7.7~/Makefile.am	2007-08-10 16:44:21.000000000 +0100
-+++ hplip-2.7.7/Makefile.am	2007-08-10 16:46:09.000000000 +0100
-@@ -26,45 +26,45 @@
+diff -urNad hplip-2.7.12~/Makefile.am hplip-2.7.12/Makefile.am
+--- hplip-2.7.12~/Makefile.am	2008-01-12 17:29:47.000000000 +0000
++++ hplip-2.7.12/Makefile.am	2008-01-12 17:33:41.000000000 +0000
+@@ -22,45 +22,45 @@
  
  if DOC_BUILD
  wwwsrc = doc
@@ -22,7 +22,7 @@ diff -urNad hplip-2.7.7~/Makefile.am hplip-2.7.7/Makefile.am
  dist_www1_DATA = $(wwwsrc)/howtos/*
 -www2dir = $(docdir)/install
 +www2dir = $(www0dir)/install
- dist_www2_DATA = $(wwwsrc)/install/index.html
+ dist_www2_DATA = $(wwwsrc)/install/index.html $(wwwsrc)/install/installtree.html
 -www21dir = $(docdir)/install/step1
 +www21dir = $(www0dir)/install/step1
  dist_www21_DATA = $(wwwsrc)/install/step1/*

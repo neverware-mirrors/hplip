@@ -15,6 +15,8 @@ hplip (2.7.12-0ubuntu1) hardy; urgency=low
     solution from upstream now.
   * debian/55-hpmud.rules: Updated for compatibility with kernel 2.6.24 and 
     newer (Ubuntu bug LP: #181242).
+  * debian/patches/87_move_documentation.dpatch: Updated patch for new HPLIP
+    version.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 12 Jan 2008 14:34:49 +0000
 
