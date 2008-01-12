@@ -277,7 +277,7 @@ binary-indep: install-indep debian/hpijs.version
 #	dh_python -i /usr/share/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
-	dh_shlibdeps -i
+	dh_shlibdeps -i -dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -phpijs-ppds -- \
 		-v"$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)" \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \
@@ -301,10 +301,7 @@ binary-arch: install-arch debian/hpijs.version
 	dh_testdir -a
 	dh_testroot
 
-	mkdir -p debian/hplip/lib/udev
-	install -m755 debian/check_mfp_printer debian/hplip/lib/udev/
 	mkdir -p debian/hplip/etc/udev/rules.d
-	install -m644 debian/45-hplip.rules debian/hplip/etc/udev/rules.d/
 	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/
 
 #	dh_installdebconf -a
@@ -331,7 +328,7 @@ binary-arch: install-arch debian/hpijs.version
 	dh_fixperms -a
 	dh_makeshlibs -a
 	dh_installdeb -a
-	dh_shlibdeps -a
+	dh_shlibdeps -a -dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -phpijs -- \
 		-v"$$(cat debian/hpijs.version)+$(HPLIP_BINARY_VERSION)" \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \

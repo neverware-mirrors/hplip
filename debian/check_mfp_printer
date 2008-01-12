@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# check if any interface of this device is a printer interface (07)
-grep -q -F 07 /sys/$PHYSDEVPATH/*/bInterfaceClass
-exit $?
