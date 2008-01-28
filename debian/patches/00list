@@ -4,3 +4,4 @@
 61_noqt_message.dpatch
 85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
+89_hplip-alloc.dpatch
