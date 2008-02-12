@@ -60,11 +60,8 @@ CXXFLAGS:=$(CFLAGS)
 
 configure: Makefile.am configure.in
 	dh_testdir
-	tar -czf foomatic-db-hpijs-backup.tar.gz foomatic-db-hpijs
 	chmod +x debian/autogen.sh
 	debian/autogen.sh
-	tar -xzf foomatic-db-hpijs-backup.tar.gz
-	rm -f foomatic-db-hpijs-backup.tar.gz
 
 debian/hpijs.version: configure
 	@if test -r $@ ; then \
@@ -118,6 +115,9 @@ configure-stamp: patch-stamp configure debian/hpijs.version
 		--infodir=\$${prefix}/share/info \
 		--docdir=\$${prefix}/share/doc/hplip \
 		--with-docdir=\$${prefix}/share/doc/hplip \
+		--enable-foomatic-drv-install \
+		--disable-foomatic-rip-hplip-install \
+		--with-drvdir=\$${prefix}/share/cups/drv \
 		--with-hpppddir=\$${prefix}/share/ppd/hpijs/HP \
 		--datadir=\$${prefix}/share \
 		--libexecdir=\$${prefix}/lib \
@@ -206,8 +206,11 @@ install-arch-stamp: install-stamp
 
 	# Fax PPD, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP"
-	sed < "fax/ppd/HP-Fax-hplip.ppd" \
-		-e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
+	#sed < "fax/ppd/HP-Fax-hplip.ppd" \
+	#	-e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
+	#	| gzip -9 \
+	#	> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
+	cat "fax/ppd/HP-Fax-hplip.ppd" \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
 

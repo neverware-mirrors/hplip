@@ -1,3 +1,24 @@
+hplip (2.8.2-0ubuntu1) hardy; urgency=low
+
+  * New upstream release
+     o PPDs generated on-the-fly by the CUPS DDK
+     o Corrected IPP printer state messages
+     o Fixed segmentation faults in HPIJS (Upstream bug LP: #182658)
+     o Many bug fixes
+     o Battery monitoring for OfficeJet H470, fax for LaserJet M2727
+     o New models supported: HP LaserJet P1005, P1006, P1505, P1505n,
+       Officejet H470, LaserJet P2014
+  * debian/control: Added build dependency on CUPS DDK, standards version
+    3.7.3, let also HPIJS depend on CUPS DDK.
+  * debian/hpijs.install: Added PPD generator data file
+    /usr/share/cups/drv/hpijs.drv
+  * debian/patches/89_hplip-alloc.dpatch: Removed, fixed upstream
+  * debian/rules: Removed Foomatic-XML-related stuff, use configure options
+    to let PPDs get generated on-the-fly by the CUPS DDK, do not modify the
+    fax PPD.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 12 Feb 2008 11:02:42 +0100
+
 hplip (2.7.12-0ubuntu2) hardy; urgency=low
 
   * debian/patches/89_hplip-alloc.dpatch: The hpijs compression
