@@ -1,3 +1,12 @@
+hplip (2.8.2-1) UNRELEASED; urgency=low
+
+  Please note that scanning is now confined to members of the group
+  'scanner'.  Thus if you wish to access the scanner from a
+  regular user account, please ensure they are a member of the
+  'scanner' group.
+
+ -- Mark Purcell <msp@debian.org>  Fri, 22 Feb 2008 09:42:30 +0100
+
 hplip (2.7.10-1) unstable; urgency=low
 
   After some time at version 1.6 hplip has been upgraded to 2.7.10. This

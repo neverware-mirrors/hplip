@@ -1,3 +1,17 @@
+hplip (2.8.2-1) UNRELEASED; urgency=low
+
+  * Sync Debian with Upstream and Ubuntu releases
+    - new upstream version 2.8.2 (Closes: #462163)
+  * Added NEWS/ README entry about the need to use 'scanner' group
+    - Non-root users need to be in group scanner! (Closes: #454339)
+    - should use plugdev rather than scanner group (Closes: #452454)
+    - sane-utils: Scanner only accessible under root (Closes: #462563)
+  * Force (-f) removal of init.d scripts
+    - Uses update-rc.d remove while init script exists; upgrade fails
+    (Closes: #456378)
+
+ -- Mark Purcell <msp@debian.org>  Fri, 22 Feb 2008 09:08:52 +0100
+
 hplip (2.8.2-0ubuntu1) hardy; urgency=low
 
   * New upstream release

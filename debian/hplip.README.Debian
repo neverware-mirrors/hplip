@@ -167,6 +167,9 @@ To access the scanning functions, make sure you have xsane properly
 installed, and either use the hp-toolbox, or run xsane to access the
 scanner.
 
+Please note that as of version 2.7.10 non-root users must be a member of 
+the group 'scanner' to gain access.
+
 
 Sending fax:
 ------------
