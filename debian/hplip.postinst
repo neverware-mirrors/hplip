@@ -62,16 +62,11 @@ case "$1" in
 		update-rc.d -f hplip remove
 	fi
 
-	# Correct ownership of personal HPLIP config files of the users
-	# (in older HPLIP versions hp-setup created these files with root
-	#  permissions and made hp-toolbox crashing)
-	for line in `cat /etc/passwd | sed -e 's/ //g'`; do 
-		user=`echo $line | cut -d : -f 1`;
-		homedir=`echo $line | cut -d : -f 6`;
-		[ -d $homedir ] && \
-		    find $homedir -maxdepth 1 -not -user $user -name .hplip* \
-		    -exec chown $user '{}' \; 2>/dev/null || :
-	done
+	# Fix PPD file paths in /etc/hp/hplip.conf to make sure that hp-setup
+	# finds the fax PPDs
+	perl -p -i -e 's:^(\s*ppd=).*$:\1/usr/share/ppd/hpijs/HP:' /etc/hp/hplip.conf
+	perl -p -i -e 's:^(\s*ppdbase=).*$:\1/usr/share/ppd/hpijs:' /etc/hp/hplip.conf
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

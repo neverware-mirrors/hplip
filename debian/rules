@@ -204,7 +204,7 @@ install-arch-stamp: install-stamp
 	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
 	install -m 644 debian/$(BASEPKG).sane "$(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)"
 
-	# Fax PPD, install to destdir directly
+	# Fax PPDs, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP"
 	#sed < "fax/ppd/HP-Fax-hplip.ppd" \
 	#	-e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
@@ -213,6 +213,9 @@ install-arch-stamp: install-stamp
 	cat "fax/ppd/HP-Fax-hplip.ppd" \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
+	cat "fax/ppd/HP-Fax2-hplip.ppd" \
+		| gzip -9 \
+		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax2-hplip.ppd.gz"
 
 	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
@@ -226,7 +229,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 	# 3. Normalize case of PPD file names
 	# 4. Compress all PPDs
 	# 
-	# Fax PPD: shipped by arch-dep hpijs package
+	# Fax PPDs: shipped by arch-dep hpijs package
 	find ppd -type f -name '*-hpijs.ppd' | \
 	while read -r i ; do \
 		PPDSUITE="hpijs" ;\
