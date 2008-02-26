@@ -2,11 +2,11 @@ hplip (2.8.2-0ubuntu2) hardy; urgency=low
 
   [ Till Kamppeter ]
   * debian/rules: Install the new fax PPD file for color fax devices
-    (currently only HP LaserJet M2727 series, Ubuntu LP: 59409).
+    (currently only HP LaserJet M2727 series, Ubuntu LP: #59409).
   * debian/hplip.postinst: Fix PPD paths in /etc/hp/hplip.conf, so that
-    hp-setup finds the fax PPDs (Ubuntu LP: 59409).
+    hp-setup finds the fax PPDs (Ubuntu LP: #59409).
   * debian/hplip.postinst: Removed code to correct permissions of .hplip
-    personal config in user's home directories (Ubuntu LP: 191299).
+    personal config in user's home directories (Ubuntu LP: #191299).
 
   [ Mark Purcell ]
   * Added NEWS/ README entry about the need to use 'scanner' group
