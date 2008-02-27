@@ -1,6 +1,9 @@
 hplip (2.8.2-1) UNRELEASED; urgency=low
 
   [ Till Kamppeter ]
+  * debian/patches/91_dj895_powerup.dpatch: HP DeskJet 895 and similar printers
+    did not automatically get powered up when a job was sent (Ubuntu
+    LP: #155965).
   * debian/patches/90_pseudo_id_fax_2.dpatch: Fixes on pseudo device ID for
     new SOAP fax device class (Ubuntu LP: #59409).
 

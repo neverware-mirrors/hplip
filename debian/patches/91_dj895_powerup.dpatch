@@ -1,0 +1,20 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 91_dj895_powerup.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.2~/io/hpmud/musb.c hplip-2.8.2/io/hpmud/musb.c
+--- hplip-2.8.2~/io/hpmud/musb.c	2008-01-23 01:27:15.000000000 +0100
++++ hplip-2.8.2/io/hpmud/musb.c	2008-02-27 22:19:56.000000000 +0100
+@@ -809,7 +809,8 @@
+    }
+    else if ((pSf = strstr(pd->id, "VSTATUS:")) != NULL)
+    {
+-      if ((pSf = strstr(pSf+8, "OFFF")) == NULL)
++      /* DJ895C returns $XB0$XC0 (unknown pens) when powered off. */
++      if (!(strstr(pSf+8, "OFFF") || strstr(pSf+8, "PWDN") || strstr(pSf+8, "$X")))
+          return 0;   /* already powered up */
+    }
+    else
