@@ -1,5 +1,10 @@
 hplip (2.8.2-1) UNRELEASED; urgency=low
 
+  [ Till Kamppeter ]
+  * debian/patches/90_pseudo_id_fax_2.dpatch: Fixes on pseudo device ID for
+    new SOAP fax device class (Ubuntu LP: #59409).
+
+  [ Mark Purcell ]
   * Sync Debian with Upstream and Ubuntu releases
     - new upstream version 2.8.2 (Closes: #462163)
 
