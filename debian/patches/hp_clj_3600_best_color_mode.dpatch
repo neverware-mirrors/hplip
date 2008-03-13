@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp_clj_3600_best_color_mode.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.2~/prnt/hpijs/ljjetready.cpp hplip-2.8.2/prnt/hpijs/ljjetready.cpp
+--- hplip-2.8.2~/prnt/hpijs/ljjetready.cpp	2008-02-09 03:06:47.000000000 +0100
++++ hplip-2.8.2/prnt/hpijs/ljjetready.cpp	2008-03-13 12:20:15.000000000 +0100
+@@ -646,7 +646,7 @@
+ 	// For color JPEG, you need to skip the header information of 623 bytes
+ 
+     int iJpegHeaderSize = 623;
+-#ifdef HAVB_LIBDL
++#ifdef HAVE_LIBDL
+     if (HPLJJRCompress && m_eCompressMode == COMPRESS_MODE_LJ)
+     {
+         iJpegHeaderSize = 0;
