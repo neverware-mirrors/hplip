@@ -3,6 +3,9 @@ hplip (2.8.2-0ubuntu3) hardy; urgency=low
   * debian/patches/hp-setup_crash.dpatch: Fix crash of hp-setup (LP: #181242)
   * debian/patches/hp_clj_3600_best_color_mode.dpatch: Fix "Best" color mode of
     the HP LaserJet 35xx/36xx (LP: #200147).
+  * debian/patches/91_dj895_powerup.dpatch: Fix problem that HP DeskJet 895C
+    (and similar printers) did not get woken up from power saving mode when a
+    job was sent (LP: #155965).
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 13 Mar 2008 12:08:52 +0100
 
