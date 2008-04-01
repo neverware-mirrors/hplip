@@ -1,5 +1,9 @@
 hplip (2.8.2-0ubuntu5) hardy; urgency=low
 
+  * debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh,
+    debian/rules, debian/hplip.install: Generate fdi script to make
+    HP devices accessible for the desktop user currently logged in
+    (LP: #195782).
   * debian/patches/hp_oj_h470_alignment.dpatch: Fixed head alignment for
     HP OfficeJet H470 (LP: #204157).
 

@@ -4,3 +4,4 @@ usr/lib/cups/backend
 etc/hp
 usr/lib/sane/libsane*.so.*
 etc/sane.d/dll.d
+usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi

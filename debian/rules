@@ -217,6 +217,14 @@ install-arch-stamp: install-stamp
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax2-hplip.ppd.gz"
 
+	# Generate .fdi file for HAL setting "scanner" capability to all
+	# HPLIP-supported devices (also without scanner), so that permissions
+	# get automatically set so that always the user logged in on the
+	# system's desktop has full access to the device.
+	install -d -m 755 $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/
+	sh debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh \
+	> $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi
+
 	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
 
