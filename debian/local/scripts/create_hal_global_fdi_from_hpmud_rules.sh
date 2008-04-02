@@ -18,11 +18,14 @@ TMP_DATA=$(mktemp -u /tmp/$MY_NAME.XXXXXX)
 
 touch $TMP_DATA
 for CLASS in `cat data/rules/55-hpmud.rules | grep 'SYSFS{idVendor}=="03f0"' | cut -d ' ' -f 2 | cut -d '"' -f 2 | cut -d '?' -f3`; do
+    IDS=''
     for A in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do
 	for B in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do
-	    echo $A$B$CLASS >> $TMP_DATA
+	    IDS="${IDS}0x$A$B$CLASS;"
 	done
     done
+    IDS=`echo $IDS | sed -e 's/;$//'`
+    echo $IDS >> $TMP_DATA
 done
 
 # Output:
@@ -34,12 +37,12 @@ echo '  <device>'
 
 # Output model specific HP USB device entries:
 exec <$TMP_DATA
-while read PRODUCT
+while read PRODUCTS
 do echo
    echo '    <match key="info.subsystem" string="usb_device">'
    echo '      <match key="usb_device.vendor_id" int="0x03f0">'
-   echo -n '        <match key="usb_device.product_id" int="'
-   echo -n "0x$PRODUCT"
+   echo -n '        <match key="usb_device.product_id" int_outof="'
+   echo -n "$PRODUCTS"
    echo '">'
    echo '          <append key="info.capabilities" type="strlist">scanner</append>'
    echo '        </match>'
