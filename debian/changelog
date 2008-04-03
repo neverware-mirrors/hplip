@@ -1,3 +1,15 @@
+hplip (2.8.2-0ubuntu6) hardy; urgency=low
+
+  * debian/control: Let hpijs depend on foomatic-filters (LP: #187403).
+  * debian/control, debian/hplip.links: Added missing links to utilities
+    hp-check and hp-scan. Added dependency on python-imaging for hp-scan.
+  * debian/rules: Corrected filter name from "foomatic-rip-hplip" to
+    "foomatic-rip" (LP: #211382).
+  * debian/hplip.preinst: Remove obsolete /etc/default/hplip file before
+    installation of the hplip binary package (LP: #211377).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Apr 2008 22:28:52 +0200
+
 hplip (2.8.2-0ubuntu5) hardy; urgency=low
 
   * debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh,

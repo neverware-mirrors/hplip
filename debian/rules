@@ -254,6 +254,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 			-e s/laser/Laser/i -e s/design/Design/i \
 			-e s/mfp/MFP/i -e 's/[-_]hpijs/-hpijs/i' ) ;\
 		sed < "$$i" -e '/^[*]NickName:/ s/" *$$/ - HPLIP $(HPLIP_UPSTREAM_VERSION)"/' \
+			-e s/foomatic-rip-hplip/foomatic-rip/ \
 			| gzip -9 \
 			> "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\
 		chmod 644 "$(PPDDIR)/$${PPDSUITE}/$${PPDVENDOR}/$${PPDFILE}.gz" ;\

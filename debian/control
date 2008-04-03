@@ -12,7 +12,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
-Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-imaging
 Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, openprinting-ppds, python-reportlab, hplip-gui
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, openprinting-ppds, hpijs-ppds, hplip-doc, gksu | kdebase-bin, hplip-gui
@@ -101,7 +101,7 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
 Package: hpijs
 Architecture: any
 Section: text
-Depends: ${shlibs:Depends}, ${misc:Depends}, ghostscript (>= 8.60) | gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2), hplip (>= ${hplip:binary:Version}), cupsddk
+Depends: ${shlibs:Depends}, ${misc:Depends}, ghostscript (>= 8.60) | gs-gpl (>= 8.01-5) | gs-esp (>= 7.07.01-8) | gs-afpl (>= 7.04-2), hplip (>= ${hplip:binary:Version}), cupsddk, foomatic-filters
 Suggests: hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)

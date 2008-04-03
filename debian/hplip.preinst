@@ -35,6 +35,10 @@ case "$1" in
 		rm -fR /etc/init.d/hplip
 	        update-rc.d -f hplip remove
 	fi
+
+	# Remove obsolete config file for HPLIP startup script
+	rm -f /etc/default/hplip
+
     ;;
 
     *)

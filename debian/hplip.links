@@ -16,3 +16,5 @@
 /usr/share/hplip/probe.py	/usr/bin/hp-probe
 /usr/share/hplip/timedate.py	/usr/bin/hp-timedate
 /usr/share/hplip/firmware.py	/usr/bin/hp-firmware
+/usr/share/hplip/check.py	/usr/bin/hp-check
+/usr/share/hplip/scan.py	/usr/bin/hp-scan
