@@ -1,3 +1,12 @@
+hplip (2.8.2-0ubuntu7) hardy; urgency=low
+
+  * debian/control: Let hplip-gui depend on python-reportlab instead
+    of hplip recommending it. python-reportlab is used by the GUI of
+    hp-sendfax to add cover pages. In command line mode of hp-sendfax
+    cover pages are not supported (LP: #211249).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  4 Apr 2008 13:28:52 +0200
+
 hplip (2.8.2-0ubuntu6) hardy; urgency=low
 
   * debian/control: Let hpijs depend on foomatic-filters (LP: #187403).
