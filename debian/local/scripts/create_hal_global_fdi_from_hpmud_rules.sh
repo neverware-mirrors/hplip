@@ -39,9 +39,9 @@ echo '  <device>'
 exec <$TMP_DATA
 while read PRODUCTS
 do echo
-   echo '    <match key="info.subsystem" string="usb_device">'
-   echo '      <match key="usb_device.vendor_id" int="0x03f0">'
-   echo -n '        <match key="usb_device.product_id" int_outof="'
+   echo '    <match key="info.subsystem" string="usb">'
+   echo '      <match key="usb.vendor_id" int="0x03f0">'
+   echo -n '        <match key="usb.product_id" int_outof="'
    echo -n "$PRODUCTS"
    echo '">'
    echo '          <append key="info.capabilities" type="strlist">scanner</append>'

@@ -1,3 +1,10 @@
+hplip (2.8.2-0ubuntu8) hardy; urgency=low
+
+  * debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh: Corrected
+    fdi script so that it actually works (LP: #195782).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 15 Apr 2008 13:28:52 +0200
+
 hplip (2.8.2-0ubuntu7) hardy; urgency=low
 
   * debian/control: Let hplip-gui depend on python-reportlab instead
