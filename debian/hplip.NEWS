@@ -1,4 +1,4 @@
-hplip (2.8.2-1) UNRELEASED; urgency=low
+hplip (2.8.2-1) unstable; urgency=low
 
   Please note that scanning is now confined to members of the group
   'scanner'.  Thus if you wish to access the scanner from a

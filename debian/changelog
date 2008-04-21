@@ -1,3 +1,18 @@
+hplip (2.8.2-1) unstable; urgency=low
+
+  * Sync Debian release with Ubuntu
+    - Non-root users need to be in group scanner! (Closes: #454339)
+    - Uses update-rc.d remove while init script exists; upgrade fails
+    (Closes: #456378)
+    - should use plugdev rather than scanner group (Closes: #452454)
+    - sane-utils: Scanner only accessible under root (Closes: #462563)
+    - cupsys: HPLIP drivers listed twice (Closes: #463786)
+    - hpijs-ppds' symlink in /usr/share/cups/model causes dups (Closes:
+    #452455)
+    - hp-setup fails to find PPD file (Closes: #457771)
+
+ -- Mark Purcell <msp@debian.org>  Mon, 21 Apr 2008 19:58:16 +1000
+
 hplip (2.8.2-0ubuntu8) hardy; urgency=low
 
   * debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh: Corrected
