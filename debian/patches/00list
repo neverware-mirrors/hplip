@@ -4,8 +4,6 @@
 61_noqt_message.dpatch
 85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
-90_pseudo_id_fax_2.dpatch
-91_dj895_powerup.dpatch
-hp-setup_crash.dpatch
-hp_clj_3600_best_color_mode.dpatch
-hp_oj_h470_alignment.dpatch
+systray_applet_really_in_tray.dpatch
+hp_photosmart_pro_b9100_support.dpatch
+hp-sendfax_crash_on_cancel.dpatch

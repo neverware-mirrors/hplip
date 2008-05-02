@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
 Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>
-Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt3, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), autoconf, automake, libtool, cupsddk
+Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), python-dev, python-qt4, pyqt-tools, debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), python-support (>= 0.3), patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), autoconf, automake, libtool, cupsddk, python-dbus (>= 0.80), libdbus-1-dev
 Standards-Version: 3.7.3
 Homepage: http://hplip.sourceforge.net/
 Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
@@ -12,7 +12,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
-Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-imaging
+Depends: coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging
 Recommends: cupsys-client (>= 1.1.20), hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, openprinting-ppds, hplip-gui
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, openprinting-ppds, hpijs-ppds, hplip-doc, gksu | kdebase-bin, hplip-gui
@@ -55,7 +55,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: hplip, python-qt3, python-reportlab
+Depends: hplip, python-qt4, python-reportlab
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for

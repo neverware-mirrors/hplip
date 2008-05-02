@@ -1,11 +1,45 @@
-hplip (2.8.4-2) UNRELEASED; urgency=low
+hplip (2.8.4-0ubuntu1) intrepid; urgency=low
 
-  * NOT RELEASED YET
-  * New Upstream Release 2.8.4 (Closes: #462163)
-   
-  * TODO: Validate which of debian/patches incorporated upstream
+  * New upstream release
+     o Closes: #462163
+     o dbus communication support. All interprocess communication now occurs
+       using the dbus message bus. python-dbus version 0.80 or greater is
+       required.
+     o Elimination of all persistent startup daemons. hpssd has been
+       replaced with hp-systray that loads as a user startup item in the
+       system tray in each user's desktop environment. When no HPLIP
+       tools are running (e.g., hp-toolbox), and the user closes or
+       disables hp-systray, there will be no HPLIP processes running
+       whatsoever. Consequently, there is no longer an /etc/init.d/hplip
+       startup script, and no processes need be run at system startup
+       time.
+     o PC send fax requires dbus support and a running hp-systray to
+       operate. Only Linux distributions that have python-dbus 0.80 or
+       greater support PC send fax as of this release.
+     o Added support for the following new printers: HP LaserJet M1120 MFP,
+       M1120n MFP, OfficeJet J6400, Photosmart C4340, Photosmart Pro B8800.
+  * debian/hplip.links: Added /usr/bin/hp-systray link.
+  * debian/hplip-gui.install: Added /etc/xdg/autostart/hplip-systray.desktop.
+  * debian/patches/systray_applet_really_in_tray.dpatch: The systray applet
+    needs to be started in QT4 mode so that it really gets into the tray.
+  * debian/patches/hp_photosmart_pro_b9100_support.dpatch: Corrections
+    on the models.dat entry for the HP PhotoSmart Pro B9100, especially
+    for the correct color calibration mode.
+  * debian/patches/hp-sendfax_crash_on_cancel.dpatch: hp-sendfax crashed
+    when a fax job fails or gets canceled via the cancel button on the
+    printer.
+  * debian/patches/90_pseudo_id_fax_2.dpatch, 
+    debian/patches/91_dj895_powerup.dpatch,
+    debian/patches/hp_clj_3600_best_color_mode.dpatch,
+    debian/patches/hp_oj_h470_alignment.dpatch,
+    debian/patches/hp-setup_crash.dpatch: Removed, merged upstream.
+  * debian/patches/85_rebuild_python_ui.dpatch: Regenerated.
+  * debian/control: Added dependency on python-dbus 0.80 or newer and on
+    libdbus-1-dev.
+  * debian/control: Switched dependencies from python-qt3 to
+    python-qt4.
 
- -- Mark Purcell <msp@debian.org>  Mon, 21 Apr 2008 21:23:01 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  2 May 2008 10:37:02 +0200
 
 hplip (2.8.2-1) unstable; urgency=low
 

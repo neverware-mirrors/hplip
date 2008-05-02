@@ -233,9 +233,10 @@ install-indep: install-indep-stamp
 install-indep-stamp: install-stamp install-arch-stamp
 	# PPDs
 	# 1. Append hplip identifier to the long nickname
-	# 2. Install to basedir/<Manufacturer>/
-	# 3. Normalize case of PPD file names
-	# 4. Compress all PPDs
+	# 2. Correct filter name from "foomatic-rip-hplip" to "foomatic-rip"
+	# 3. Install to basedir/<Manufacturer>/
+	# 4. Normalize case of PPD file names
+	# 5. Compress all PPDs
 	# 
 	# Fax PPDs: shipped by arch-dep hpijs package
 	find ppd -type f -name '*-hpijs.ppd' | \

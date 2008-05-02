@@ -1,0 +1,30 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp_photosmart_pro_b9100_support.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.4~/data/models/models.dat hplip-2.8.4/data/models/models.dat
+--- hplip-2.8.4~/data/models/models.dat	2008-04-03 00:18:14.000000000 +0200
++++ hplip-2.8.4/data/models/models.dat	2008-04-03 18:45:15.000000000 +0200
+@@ -26536,7 +26536,7 @@
+ [photosmart_pro_b9100_series]
+ align-type=1
+ clean-type=1
+-color-cal-type=3
++color-cal-type=7
+ copy-type=0
+ embedded-server-type=1
+ fax-type=0
+@@ -26596,8 +26596,8 @@
+ status-dynamic-counters=0
+ status-type=2
+ support-released=1
+-support-type=0
+-support-ver=0.0.0
++support-type=2
++support-ver=2.8.4
+ tech-class=PSB9100
+ tech-type=2
+ usb-pid=bd02
