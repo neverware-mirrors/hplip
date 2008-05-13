@@ -1,3 +1,9 @@
+hplip (2.8.4-2) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 21:41:13 +1000
+
 hplip (2.8.4-1) unstable; urgency=low
 
   * Sync Debian with Ubuntu
