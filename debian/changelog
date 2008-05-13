@@ -1,3 +1,10 @@
+hplip (2.8.4-1) intrepid; urgency=low
+
+  * Sync Debian with Ubuntu
+    - new upstream version 2.8.4 (Closes: #462163)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 18:40:43 +1000
+
 hplip (2.8.4-0ubuntu1) intrepid; urgency=low
 
   * New upstream release
