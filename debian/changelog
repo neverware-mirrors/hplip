@@ -1,8 +1,11 @@
-hplip (2.8.4-2) UNRELEASED; urgency=low
+hplip (2.8.5-1) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  * (NOT RELEASED YET) New upstream release
+  * TODO: fixup 87_move_documentation.dpatch hp-
+    sendfax_crash_on_cancel.dpatch
+  * Various lintian cleanups
 
- -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 21:41:13 +1000
+ -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 21:53:46 +1000
 
 hplip (2.8.4-1) unstable; urgency=low
 
