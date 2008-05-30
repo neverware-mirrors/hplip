@@ -5,10 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.7.12~/Makefile.am hplip-2.7.12/Makefile.am
---- hplip-2.7.12~/Makefile.am	2008-01-12 17:29:47.000000000 +0000
-+++ hplip-2.7.12/Makefile.am	2008-01-12 17:33:41.000000000 +0000
-@@ -22,45 +22,45 @@
+diff -urNad hplip-2.8.5~/Makefile.am hplip-2.8.5/Makefile.am
+--- hplip-2.8.5~/Makefile.am	2008-05-30 17:47:07.000000000 +1000
++++ hplip-2.8.5/Makefile.am	2008-05-30 17:51:19.000000000 +1000
+@@ -26,69 +26,69 @@
  
  if DOC_BUILD
  wwwsrc = doc
@@ -71,5 +71,41 @@ diff -urNad hplip-2.7.12~/Makefile.am hplip-2.7.12/Makefile.am
 -www7dir = $(docdir)/troubleshooting
 +www7dir = $(www0dir)/troubleshooting
  dist_www7_DATA = $(wwwsrc)/troubleshooting/*
+-www8dir = $(docdir)/models
++www8dir = $(www0dir)/models
+ dist_www8_DATA = $(wwwsrc)/models/index.html
+-www82dir = $(docdir)/models/deskjet
++www82dir = $(www0dir)/models/deskjet
+ dist_www82_DATA = $(wwwsrc)/models/deskjet/*
+-www83dir = $(docdir)/models/deskjet_aio
++www83dir = $(www0dir)/models/deskjet_aio
+ dist_www83_DATA = $(wwwsrc)/models/deskjet_aio/*
+-www84dir = $(docdir)/models/photosmart
++www84dir = $(www0dir)/models/photosmart
+ dist_www84_DATA = $(wwwsrc)/models/photosmart/*
+-www85dir = $(docdir)/models/officejet
++www85dir = $(www0dir)/models/officejet
+ dist_www85_DATA = $(wwwsrc)/models/officejet/*
+-www86dir = $(docdir)/models/psc
++www86dir = $(www0dir)/models/psc
+ dist_www86_DATA = $(wwwsrc)/models/psc/*
+-www87dir = $(docdir)/models/laserjet
++www87dir = $(www0dir)/models/laserjet
+ dist_www87_DATA = $(wwwsrc)/models/laserjet/*
+-www88dir = $(docdir)/models/color_laserjet
++www88dir = $(www0dir)/models/color_laserjet
+ dist_www88_DATA = $(wwwsrc)/models/color_laserjet/*
+-www89dir = $(docdir)/models/bij
++www89dir = $(www0dir)/models/bij
+ dist_www89_DATA = $(wwwsrc)/models/bij/*
+-www810dir = $(docdir)/models/edgeline
++www810dir = $(www0dir)/models/edgeline
+ dist_www810_DATA = $(wwwsrc)/models/edgeline/*
+-www811dir = $(docdir)/models/apollo
++www811dir = $(www0dir)/models/apollo
+ dist_www811_DATA = $(wwwsrc)/models/apollo/*
+-www812dir = $(docdir)/models/other
++www812dir = $(www0dir)/models/other
+ dist_www812_DATA = $(wwwsrc)/models/other/*
  endif
  
