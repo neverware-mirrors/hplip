@@ -1,13 +1,17 @@
 hplip (2.8.5-1) UNRELEASED; urgency=low
 
-  * (NOT RELEASED YET) New upstream release
+  * New upstream release
   * Various lintian cleanups
   * Fixup debian/patches/87_move_documentation.dpatch
   * Remove: hp-sendfax_crash_on_cancel.dpatch - included upstream
-  * Add Build-Depends: python-qt4-dev, python-qt4-dbus
+  * Add Depends: python-qt3, python-qt4 - shouldn't be necessary ;-(
     - broken systray icon (Closes: #482095)
+  * Remove obsolete hplip.README.Debian
+    - README.Debian.gz is not accurate (Closes: #454086)
+    - Scanners don't work because hplip service is no more available.
+    (Closes: #482690)
 
- -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 21:53:46 +1000
+ -- Mark Purcell <msp@debian.org>  Fri, 30 May 2008 18:28:52 +1000
 
 hplip (2.8.4-1) unstable; urgency=low
 

@@ -7,7 +7,6 @@ Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-d
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
  python-dev, pyqt-tools, python-support (>= 0.3), 
- python-qt4-dev, python-qt4-dbus, python-qt4, 
  python-dbus (>= 0.80), libdbus-1-dev
 Standards-Version: 3.7.3
 Homepage: http://hplip.sourceforge.net/
@@ -60,7 +59,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: hplip, python-qt4, python-reportlab
+Depends: hplip, python-qt4, python-qt3, python-reportlab
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for
