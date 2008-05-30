@@ -4,6 +4,8 @@ hplip (2.8.5-1) UNRELEASED; urgency=low
   * Various lintian cleanups
   * Fixup debian/patches/87_move_documentation.dpatch
   * Remove: hp-sendfax_crash_on_cancel.dpatch - included upstream
+  * Add Build-Depends: python-reportlab (provides fax cover page
+    support)
 
  -- Mark Purcell <msp@debian.org>  Tue, 13 May 2008 21:53:46 +1000
 
