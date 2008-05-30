@@ -6,8 +6,8 @@ Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <tor
 Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
- python-dev, python-qt4, pyqt-tools, python-support (>= 0.3), 
- python-reportlab,
+ python-dev, pyqt-tools, python-support (>= 0.3), 
+ python-qt4-dev, python-qt4-dbus, python-qt4, 
  python-dbus (>= 0.80), libdbus-1-dev
 Standards-Version: 3.7.3
 Homepage: http://hplip.sourceforge.net/
