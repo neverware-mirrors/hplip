@@ -1,4 +1,4 @@
-hplip (2.8.5-1) UNRELEASED; urgency=low
+hplip (2.8.5-1) unstable; urgency=low
 
   * New upstream release
   * Various lintian cleanups
@@ -11,7 +11,7 @@ hplip (2.8.5-1) UNRELEASED; urgency=low
     - Scanners don't work because hplip service is no more available.
     (Closes: #482690)
 
- -- Mark Purcell <msp@debian.org>  Fri, 30 May 2008 18:28:52 +1000
+ -- Mark Purcell <msp@debian.org>  Fri, 30 May 2008 19:01:07 +1000
 
 hplip (2.8.4-1) unstable; urgency=low
 
