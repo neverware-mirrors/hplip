@@ -12,6 +12,7 @@ hplip (2.8.5-2) UNRELEASED; urgency=low
     - debian-rules-ignores-make-clean-error
     - stronger-dependency-implies-weaker hplip recommends -> suggests
     - dpatch-missing-description 61_noqt_message.dpatch
+    - dpatch-missing-description systray_applet_really_in_tray.dpatch
 
  -- Mark Purcell <msp@debian.org>  Sat, 31 May 2008 11:19:58 +1000
 

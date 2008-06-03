@@ -2,7 +2,8 @@
 ## systray_applet_really_in_tray.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Force upstream uses of system tray icon class in Qt4
+## DP: http://bugs.debian.org/482735
 
 @DPATCH@
 diff -urNad hplip-2.8.4~/base/device.py hplip-2.8.4/base/device.py
