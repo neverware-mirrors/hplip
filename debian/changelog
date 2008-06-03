@@ -1,17 +1,21 @@
 hplip (2.8.5-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
-  * TODO: Resolve why python-qt3 is still necessary
   * Stop hplip.post{rm,inst} playing with scanner group - libsane does
-    Also do not delete hplip user on purge:
+    and do not delete hplip user on purge:
     - postrm attempts to remove group scanner unconditionally (Closes:
     #476126)
     - unconditional use of deluser in postrm (Closes: #454084)
   * Build-Depends: python-qt3, python-qt4
+    - HPLIP is still essentially a Qt3 application (Closes: #482095)
   * lintian fixes:
     - debian-rules-ignores-make-clean-error
     - stronger-dependency-implies-weaker hplip recommends -> suggests
     - dpatch-missing-description 61_noqt_message.dpatch
+    - dpatch-missing-description 85_rebuild_python_ui.dpatch
+    - dpatch-missing-description 87_move_documentation.dpatch
+    - dpatch-missing-description systray_applet_really_in_tray.dpatch
+    - dpatch-missing-description hp_photosmart_pro_b9100_support.dpatch
     - dpatch-missing-description systray_applet_really_in_tray.dpatch
 
  -- Mark Purcell <msp@debian.org>  Sat, 31 May 2008 11:19:58 +1000

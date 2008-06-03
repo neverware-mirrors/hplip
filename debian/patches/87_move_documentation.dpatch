@@ -2,7 +2,7 @@
 ## 87_move_documentation.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: place html documentation under hplip-doc/HTML/
 
 @DPATCH@
 diff -urNad hplip-2.8.5~/Makefile.am hplip-2.8.5/Makefile.am
