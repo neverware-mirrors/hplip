@@ -7,7 +7,9 @@ hplip (2.8.5-2) UNRELEASED; urgency=low
     - postrm attempts to remove group scanner unconditionally (Closes:
     #476126)
     - unconditional use of deluser in postrm (Closes: #454084)
-  * lintian fix debian-rules-ignores-make-clean-error
+  * lintian fixes:
+    - debian-rules-ignores-make-clean-error
+    - stronger-dependency-implies-weaker hplip recommends -> suggests
 
  -- Mark Purcell <msp@debian.org>  Sat, 31 May 2008 11:19:58 +1000
 
