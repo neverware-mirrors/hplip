@@ -54,15 +54,6 @@ case "$1" in
 			dpkg-statoverride --remove $i || true
 		done
 
-		if getent group scanner | fgrep -q hplip; then
-		    deluser --quiet hplip scanner
-		    delgroup --quiet --only-if-empty scanner || true
-		fi
-		getent passwd hplip >/dev/null && \
-			deluser --quiet --system hplip
-		getent group hplip >/dev/null && \
-			delgroup hplip
-
     		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
 	;;
     *)

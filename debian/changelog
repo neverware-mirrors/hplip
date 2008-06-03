@@ -2,6 +2,11 @@ hplip (2.8.5-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * TODO: Resolve why python-qt3 is still necessary
+  * Stop hplip.post{rm,inst} playing with scanner group - libsane does
+    Also do not delete hplip user on purge:
+    - postrm attempts to remove group scanner unconditionally (Closes:
+    #476126)
+    - unconditional use of deluser in postrm (Closes: #454084)
 
  -- Mark Purcell <msp@debian.org>  Sat, 31 May 2008 11:19:58 +1000
 

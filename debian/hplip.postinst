@@ -41,12 +41,6 @@ case "$1" in
 	  # unknown adduser error, simply exit
 	  exit 1
 	}
-	if getent group scanner >/dev/null; then
-	    adduser --quiet hplip scanner
-	else
-	    addgroup --quiet --system scanner
-	    adduser --quiet hplip scanner
-	fi
 
 	for i in /var/run/hplip
 	do
