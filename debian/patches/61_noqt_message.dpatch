@@ -2,7 +2,7 @@
 ## 61_noqt_message.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: https://bugs.launchpad.net/ubuntu/+source/hplip/+bug/86893
 
 @DPATCH@
 diff -urNad hplip-1.7.3~/base/utils.py hplip-1.7.3/base/utils.py

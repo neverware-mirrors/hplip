@@ -11,6 +11,7 @@ hplip (2.8.5-2) UNRELEASED; urgency=low
   * lintian fixes:
     - debian-rules-ignores-make-clean-error
     - stronger-dependency-implies-weaker hplip recommends -> suggests
+    - dpatch-missing-description 61_noqt_message.dpatch
 
  -- Mark Purcell <msp@debian.org>  Sat, 31 May 2008 11:19:58 +1000
 
