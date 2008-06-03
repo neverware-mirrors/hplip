@@ -80,8 +80,8 @@ clean-patched: configure debian/hpijs.version
 	rm -f build-stamp configure-stamp
 	rm -f install-stamp install-arch-stamp install-indep-stamp
 
-	-$(MAKE) clean
-	-$(MAKE) distclean
+	[ ! -f Makefile ] || $(MAKE) clean
+	[ ! -f Makefile ] || $(MAKE) distclean
 	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
 	-rm -f prnt/hpijs/platform.h prnt/hpijs/auto-include.h
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
