@@ -3,6 +3,7 @@
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Corrections: models.dat entry for the HP PhotoSmart Pro B9100
+## DP: https://bugs.launchpad.net/hplip/+bug/213984
 
 @DPATCH@
 diff -urNad hplip-2.8.4~/data/models/models.dat hplip-2.8.4/data/models/models.dat
