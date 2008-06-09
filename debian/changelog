@@ -1,6 +1,12 @@
 hplip (2.8.5-2ubuntu1) intrepid; urgency=low
 
   * Sync new upstream release from Debian.
+    WARNING: There were major changes applied to the hp-toolbox which
+    introduced new bugs. Please test the toolbox and report any problem
+    as soon as possible to the upstream bug tracker
+    http://launchpad.net/hplip/ to get the problems fixed in the next
+    upstream release (there will be one or two before Intrepid Feature
+    Freeze).
 
   [ Mark Purcell ]
   * Stop hplip.post{rm,inst} playing with scanner group - libsane does
