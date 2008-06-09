@@ -1,6 +1,8 @@
-hplip (2.8.5-2.1) UNRELEASED; urgency=low
+hplip (2.8.5-2ubuntu1) intrepid; urgency=low
 
-  * NOT RELEASED YET
+  * Sync new upstream release from Debian.
+
+  [ Mark Purcell ]
   * Stop hplip.post{rm,inst} playing with scanner group - libsane does
     and do not delete hplip user on purge:
     - postrm attempts to remove group scanner unconditionally (Closes:
@@ -20,7 +22,7 @@ hplip (2.8.5-2.1) UNRELEASED; urgency=low
     - syntax-error-in-debian-news-file  
       - NEWS not displayed (Closes: #479118)
 
- -- Mark Purcell <msp@debian.org>  Tue, 03 Jun 2008 22:38:24 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  9 Jun 2008 10:37:02 +0200
 
 hplip (2.8.5-1) unstable; urgency=low
 
