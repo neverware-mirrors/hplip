@@ -1,3 +1,9 @@
+hplip (2.8.5-3) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Mon, 16 Jun 2008 22:26:10 +1000
+
 hplip (2.8.5-2ubuntu1) intrepid; urgency=low
 
   * Sync new upstream release from Debian.
