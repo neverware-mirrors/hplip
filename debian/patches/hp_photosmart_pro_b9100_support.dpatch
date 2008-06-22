@@ -6,10 +6,10 @@
 ## DP: https://bugs.launchpad.net/hplip/+bug/213984
 
 @DPATCH@
-diff -urNad hplip-2.8.4~/data/models/models.dat hplip-2.8.4/data/models/models.dat
---- hplip-2.8.4~/data/models/models.dat	2008-04-03 00:18:14.000000000 +0200
-+++ hplip-2.8.4/data/models/models.dat	2008-04-03 18:45:15.000000000 +0200
-@@ -26536,7 +26536,7 @@
+diff -urNad hplip-2.8.6~/data/models/models.dat hplip-2.8.6/data/models/models.dat
+--- hplip-2.8.6~/data/models/models.dat	2008-06-21 09:40:13.000000000 +1000
++++ hplip-2.8.6/data/models/models.dat	2008-06-22 17:46:39.000000000 +1000
+@@ -27946,7 +27946,7 @@
  [photosmart_pro_b9100_series]
  align-type=1
  clean-type=1
@@ -18,7 +18,7 @@ diff -urNad hplip-2.8.4~/data/models/models.dat hplip-2.8.4/data/models/models.d
  copy-type=0
  embedded-server-type=1
  fax-type=0
-@@ -26596,8 +26596,8 @@
+@@ -28007,8 +28007,8 @@
  status-dynamic-counters=0
  status-type=2
  support-released=1
@@ -27,5 +27,5 @@ diff -urNad hplip-2.8.4~/data/models/models.dat hplip-2.8.4/data/models/models.d
 +support-type=2
 +support-ver=2.8.4
  tech-class=PSB9100
+ tech-subclass=Normal
  tech-type=2
- usb-pid=bd02
