@@ -1,14 +1,13 @@
-hplip (2.8.6-1) UNRELEASED; urgency=low
+hplip (2.8.6-1) unstable; urgency=low
 
-  * NOT RELEASED YET
   * New upstream release
   * /usr/share/bug: run hp-check & refer inital reports to upstream LP
   * Refresh: debian/patches/87_move_documentation.dpatch
            - hp_photosmart_pro_b9100_support.dpatch
   * Fixed upstream: systray_applet_really_in_tray.dpatch
-  * Relax superseded versioned Depends: for gs and friends
+  * Remove obsolete Depends: for gs and friends
 
- -- Mark Purcell <msp@debian.org>  Sun, 22 Jun 2008 17:27:41 +1000
+ -- Mark Purcell <msp@debian.org>  Sun, 22 Jun 2008 18:50:45 +1000
 
 hplip (2.8.5-2ubuntu1) intrepid; urgency=low
 
