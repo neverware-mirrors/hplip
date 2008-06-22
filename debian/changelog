@@ -1,8 +1,9 @@
-hplip (2.8.6-1) UNSTABLE; urgency=low
+hplip (2.8.6-1) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * New upstream release
   * /usr/share/bug: run hp-check & refer inital reports to upstream LP
+  * Refresh debian/patches/87_move_documentation.dpatch
 
  -- Mark Purcell <msp@debian.org>  Sun, 22 Jun 2008 17:27:41 +1000
 
