@@ -109,8 +109,7 @@ Package: hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript | gs-gpl | gs-esp | gs-afpl,
- cupsddk, foomatic-filters
+ ghostscript, cupsddk, foomatic-filters
 Suggests: hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
