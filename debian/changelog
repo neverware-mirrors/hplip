@@ -1,6 +1,7 @@
 hplip (2.8.5-3) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+  * /usr/share/bug: run hp-check & refer inital reports to upstream LP
 
  -- Mark Purcell <msp@debian.org>  Mon, 16 Jun 2008 22:26:10 +1000
 

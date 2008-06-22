@@ -320,6 +320,9 @@ binary-arch: install-arch debian/hpijs.version
 	mkdir -p debian/hplip/etc/udev/rules.d
 	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/
 
+	install debian/bug/* debian/hplip/usr/share/bug/hplip
+	install debian/bug/* debian/hpisj/usr/share/bug/hpijs
+
 #	dh_installdebconf -a
 	dh_installdocs -a
 	dh_installexamples -a
