@@ -1,8 +1,8 @@
-hplip (2.8.6-1.1) UNRELEASED; urgency=low
+hplip (2.8.6-1ubuntu1) intrepid; urgency=low
 
-  * NOT RELEASED YET
+  * Merge with Debian unstable. No remaining Ubuntu changes.
 
- -- Mark Purcell <msp@debian.org>  Sun, 22 Jun 2008 21:27:55 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 23 Jun 2008 16:37:02 +0200
 
 hplip (2.8.6-1) unstable; urgency=low
 
