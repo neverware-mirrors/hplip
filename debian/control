@@ -22,7 +22,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 
 Recommends: hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, , hplip-gui,
  cupsys-client (>= 1.1.20), openprinting-ppds
 Replaces: hplip-data (<< 0.9.3), hplip-base
-Suggests: kdeprint | gtklp | xpp, hplip-doc, gksu | kdebase-bin
+Suggests: kdeprint | gtklp | xpp, hplip-doc, gksu | kdebase-bin (<< 4:4.4.0-1)
 Conflicts: hpijs (<< 2.1), hplip-base
 XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)
