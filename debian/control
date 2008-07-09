@@ -61,7 +61,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: hplip, python-qt4, python-qt3, python-reportlab
+Depends: hplip, python-qt4, python-qt3, python-reportlab, dbus-x11
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for
