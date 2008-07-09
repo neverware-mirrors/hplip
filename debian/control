@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
 Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>
-Build-Depends: libcupsys2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
+Build-Depends: libcups2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
  python-dev, python-qt3, python-qt4, pyqt-tools, python-support (>= 0.3), 
@@ -17,10 +17,10 @@ Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
- coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cupsys (>= 1.1.20), 
+ coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
 Recommends: hpijs (>= ${hpijs:Upstream-Version}), hpijs-ppds, , hplip-gui,
- cupsys-client (>= 1.1.20), openprinting-ppds
+ cups-client (>= 1.1.20), openprinting-ppds
 Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, hplip-doc, gksu | kdebase-bin (<< 4:4.4.0-1)
 Conflicts: hpijs (<< 2.1), hplip-base
