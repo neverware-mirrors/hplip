@@ -1,6 +1,7 @@
 usr/lib/lib*.so.*
 usr/lib/python*
 usr/lib/cups/backend
+usr/lib/cups/filter
 etc/hp
 usr/lib/sane/libsane*.so.*
 etc/sane.d/dll.d
