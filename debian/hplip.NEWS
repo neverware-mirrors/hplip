@@ -1,25 +1,37 @@
+hplip (2.8.6-2) unstable; urgency=low
+
+ To access the full functionality of hplip; ink check, toolbox, etc 
+ the user must be a member of the 'scanner' group, even if your
+ device doesn't support scanning.  This is a consequence of the
+ way the udev rules are setup.
+
+ This does not effect (k)Ubuntu users as they use HAL to provide access
+ to the user logged at the console.
+
+ -- Mark Purcell <msp@debian.org>  Tue, 15 Jul 2008 20:36:13 +1000
+
 hplip (2.8.2-1) unstable; urgency=low
 
-  Please note that scanning is now confined to members of the group
-  'scanner'.  Thus if you wish to access the scanner from a
-  regular user account, please ensure they are a member of the
-  'scanner' group.
+ Please note that scanning is now confined to members of the group
+ 'scanner'.  Thus if you wish to access the scanner from a
+ regular user account, please ensure they are a member of the
+ 'scanner' group.
 
  -- Mark Purcell <msp@debian.org>  Fri, 22 Feb 2008 09:42:30 +0100
 
 hplip (2.7.10-1) unstable; urgency=low
 
-  After some time at version 1.6 hplip has been upgraded to 2.7.10. This
-  was accomplished by taking the current state of the ubuntu packages
-  for hplip and porting the package to Debian GNU/Linux.  Users should
-  be aware that there are a number of issues that are being worked though
-  and I urge people to report all and every issue though the Debian Bug 
-  Tracking System (BTS), or providing comment against an existing report 
-  if it too is effecting you in a way allready reported or with slight 
-  subtle changes.
+ After some time at version 1.6 hplip has been upgraded to 2.7.10. This
+ was accomplished by taking the current state of the ubuntu packages
+ for hplip and porting the package to Debian GNU/Linux.  Users should
+ be aware that there are a number of issues that are being worked though
+ and I urge people to report all and every issue though the Debian Bug 
+ Tracking System (BTS), or providing comment against an existing report 
+ if it too is effecting you in a way allready reported or with slight 
+ subtle changes.
 
-  I would also like to publically thank Henrique de Moraes Holschuh who has
-  done a great job with the hplip/hpijs packages for a number of years.
+ I would also like to publically thank Henrique de Moraes Holschuh who has
+ done a great job with the hplip/hpijs packages for a number of years.
 
  -- Mark Purcell <msp@debian.org>  Sun, 02 Dec 2007 22:56:55 +0100
 
