@@ -320,7 +320,10 @@ binary-arch: install-arch debian/hpijs.version
 	dh_testroot
 
 	mkdir -p debian/hplip/etc/udev/rules.d
-	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/
+	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/024_hpmud.rules
+# Remove obsolete udev rules in a clean fashion
+	install -m644 debian/udev-dummy.rules debian/hplip/etc/udev/rules.d/55-hpmud.rules
+	install -m644 debian/udev-dummy.rules debian/hplip/etc/udev/rules.d/45-hplip.rules
 
 	mkdir -p debian/hplip/usr/share/bug/hplip
 	install debian/bug/* debian/hplip/usr/share/bug/hplip

@@ -8,6 +8,12 @@ hplip (2.8.6-2) UNRELEASED; urgency=low
   * Replace [Build-Depends:,Depends:] s/cupsys/cups/
     - hplip depends on defunct cupsys (Closes: #487726)
   * Do not set MODE in 55-hpmud.rules
+  * Re-promote hplip-gui to Recommends: See LP:248656
+  * Demote openprinting-ppds to Suggests:
+  * udev 024-hpmud.rules to set before 025-libgphoto2.rules
+    - workaround hpmud clashes with wildcards See LP:248093
+  * Install udev-dummy.rules to smooth upgrade from obsolete conffiles:
+    45-hplip.rules & 55-hpmud.rules
 
  -- Mark Purcell <msp@debian.org>  Wed, 09 Jul 2008 13:28:59 +1000
 
