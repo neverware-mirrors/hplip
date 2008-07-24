@@ -1,6 +1,9 @@
-hplip (2.8.6b-0ubuntu1) intrepid; urgency=low
+hplip (2.8.6.b-0ubuntu1) intrepid; urgency=low
 
   * New upstream release
+     o HPLIP 2.8.6b, used 2.8.6.b as upstream version number so that this
+       is considered newer than 2.8.6 and older than 2.8.7 for all binary
+       packages.
      o Removal of prematurely introduced code (exact problems
        caused by that were not specifiedb HPLIP developers at HP).
   * debian/control: Put hplip-gui into Suggests: (Ubuntu requirement
