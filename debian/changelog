@@ -11,6 +11,9 @@ hplip (2.8.6.b-0ubuntu1) intrepid; urgency=low
   * debian/patches/hp-makeuri-uri-only-output.dpatch: Fix URI-only output
     of hp-makeuri. This is required for system-config-printer to assign
     HPLIP CUPS backends to print queues (Fixes LP: #245199).
+  * debian/rules, debian/hpijs.version, debian/autogen.sh: Drop extra version
+    number from HPIJS, now HPIJS and HPLIP have always the same version
+    number.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 24 Jul 2008 11:00:02 +0200
 
