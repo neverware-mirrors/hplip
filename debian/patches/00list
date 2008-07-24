@@ -5,3 +5,4 @@
 85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
 hp_photosmart_pro_b9100_support.dpatch
+hp-makeuri-uri-only-output.dpatch

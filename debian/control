@@ -19,9 +19,9 @@ Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
-Recommends: hpijs (>= ${hpijs:Upstream-Version}), hplip-gui, cups-client (>= 1.1.20)
+Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20)
 Replaces: hplip-data (<< 0.9.3), hplip-base
-Suggests: kdeprint | gtklp | xpp, hplip-doc, gksu | kdebase-bin (<< 4:4.4.0-1), openprinting-ppds
+Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, gksu | kdebase-bin (<< 4:4.4.0-1), openprinting-ppds
 Conflicts: hpijs (<< 2.1), hplip-base
 XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)

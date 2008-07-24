@@ -1,8 +1,15 @@
-hplip (2.8.6-3) UNRELEASED; urgency=low
+hplip (2.8.6b-0ubuntu1) intrepid; urgency=low
 
-  * NOT RELEASED YET
+  * New upstream release
+     o Removal of prematurely introduced code (exact problems
+       caused by that were not specifiedb HPLIP developers at HP).
+  * debian/control: Put hplip-gui into Suggests: (Ubuntu requirement
+    for GNOME/GTK-based desktop live CDs).
+  * debian/patches/hp-makeuri-uri-only-output.dpatch: Fix URI-only output
+    of hp-makeuri. This is required for system-config-printer to assign
+    HPLIP CUPS backends to print queues (Fixes LP: #245199).
 
- -- Mark Purcell <msp@debian.org>  Tue, 15 Jul 2008 21:24:43 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 24 Jul 2008 11:00:02 +0200
 
 hplip (2.8.6-2) unstable; urgency=low
 
