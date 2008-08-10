@@ -2,14 +2,13 @@
 ## hp_photosmart_pro_b9100_support.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Corrections: models.dat entry for the HP PhotoSmart Pro B9100
-## DP: https://bugs.launchpad.net/hplip/+bug/213984
+## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.8.6~/data/models/models.dat hplip-2.8.6/data/models/models.dat
---- hplip-2.8.6~/data/models/models.dat	2008-06-21 09:40:13.000000000 +1000
-+++ hplip-2.8.6/data/models/models.dat	2008-06-22 17:46:39.000000000 +1000
-@@ -27946,7 +27946,7 @@
+diff -urNad hplip-2.8.7~/data/models/models.dat hplip-2.8.7/data/models/models.dat
+--- hplip-2.8.7~/data/models/models.dat	2008-07-30 18:41:38.000000000 +0200
++++ hplip-2.8.7/data/models/models.dat	2008-08-10 14:17:49.000000000 +0200
+@@ -28199,7 +28199,7 @@
  [photosmart_pro_b9100_series]
  align-type=1
  clean-type=1
@@ -18,14 +17,16 @@ diff -urNad hplip-2.8.6~/data/models/models.dat hplip-2.8.6/data/models/models.d
  copy-type=0
  embedded-server-type=1
  fax-type=0
-@@ -28007,8 +28007,8 @@
+@@ -28260,9 +28260,9 @@
  status-dynamic-counters=0
  status-type=2
  support-released=1
 -support-type=0
 -support-ver=0.0.0
+-tech-class=Undefined
 +support-type=2
 +support-ver=2.8.4
- tech-class=PSB9100
++tech-class=PSB9100
  tech-subclass=Normal
  tech-type=2
+ usb-pid=bd02

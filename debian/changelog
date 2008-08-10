@@ -1,3 +1,15 @@
+hplip (2.8.7-0ubuntu1) intrepid; urgency=low
+
+  * New upstream release
+     o HPLIP 2.8.7: Support for new printers and bug fixes.
+     o New models supported: HP DeskJet f735 AIO, d730, PhotoSmart
+       a532, a536, a538, c5500 AIO.
+  * debian/patches/hp-makeuri-uri-only-output.dpatch: Removed, applied
+    upstream.
+  * debian/patches/hp_photosmart_pro_b9100_support.dpatch: Regenerated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 10 Aug 2008 14:00:02 +0200
+
 hplip (2.8.6.b-0ubuntu1) intrepid; urgency=low
 
   * New upstream release
