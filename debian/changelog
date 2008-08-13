@@ -1,3 +1,13 @@
+hplip (2.8.7-0ubuntu2) intrepid; urgency=low
+
+  * debian/patches/pdf_printing_support.dpatch: Let an additional
+    "*cupsFilter" line for PDF as input format be added to the PPD files,
+    to enable PDF-based printing.
+  * debian/rules: Add *cupsFilter lines for PDF input to all the ready-made
+    PPD files.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 13 Aug 2008 12:40:02 +0200
+
 hplip (2.8.7-0ubuntu1) intrepid; urgency=low
 
   * New upstream release
