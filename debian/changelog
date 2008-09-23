@@ -1,5 +1,9 @@
 hplip (2.8.7-0ubuntu3) intrepid; urgency=low
 
+  * debian/patches/bugs-in-generated-ppds.dpatch: Fixed several bugs in the
+    CUPS-DDK-generated PPD files: No A3 paper size for many inkjets (LP:
+    #258881), incorrect PPD entries for custom page size (LP: #264727), no
+    resolution hints for applications in the PPD file (LP: #267669).
   * debian/patches/pjl-duplex-binding.dpatch: Fixed short-edge duplex for
     non-PostScript laser printers (LP: #244295),
 
