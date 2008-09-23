@@ -1,3 +1,10 @@
+hplip (2.8.7-0ubuntu3) intrepid; urgency=low
+
+  * debian/patches/pjl-duplex-binding.dpatch: Fixed short-edge duplex for
+    non-PostScript laser printers (LP: #244295),
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 23 Sep 2008 13:20:02 +0200
+
 hplip (2.8.7-0ubuntu2) intrepid; urgency=low
 
   * debian/patches/pdf_printing_support.dpatch: Let an additional
