@@ -1,0 +1,30 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## text-only-without-systray-applet-traceback.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.7~/base/device.py hplip-2.8.7/base/device.py
+--- hplip-2.8.7~/base/device.py	2008-07-30 18:42:04.000000000 +0200
++++ hplip-2.8.7/base/device.py	2008-10-08 20:54:29.000000000 +0200
+@@ -179,7 +179,6 @@
+                     t += 1
+ 
+                     if t > 5:
+-                        log.warn("Unable to connect to dbus. Is hp-systray running?")
+                         return False, None
+ 
+                     time.sleep(1)
+diff -urNad hplip-2.8.7~/systray.py hplip-2.8.7/systray.py
+--- hplip-2.8.7~/systray.py	2008-07-30 18:42:09.000000000 +0200
++++ hplip-2.8.7/systray.py	2008-10-08 20:54:29.000000000 +0200
+@@ -142,6 +142,8 @@
+             elif force_qt4:
+                 from ui import systemtray_qt4
+                 systemtray_qt4.run(r, child_pid)
++
++        except: pass
+         
+         finally:
+             if child_pid:

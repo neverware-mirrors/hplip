@@ -1,3 +1,14 @@
+hplip (2.8.7-0ubuntu4) intrepid; urgency=low
+
+  * debian/patches/text-only-without-systray-applet-traceback.dpatch: Let
+    hp-systray fail silently, without traceback if we are on a standard desktop
+    installation without python-qt3 and hplip-gui (LP: #277005).
+  * debian/patches/systray-applet-with-qt4.dpatch: Start hp-systray (system
+    tray applet) with the "--qt4" option. Without the option it does not
+    integrate in the tray but floats around on the desktop.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  8 Oct 2008 23:37:02 +0200
+
 hplip (2.8.7-0ubuntu3) intrepid; urgency=low
 
   * debian/patches/bugs-in-generated-ppds.dpatch: Fixed several bugs in the
