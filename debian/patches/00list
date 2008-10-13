@@ -10,3 +10,4 @@ pjl-duplex-binding.dpatch
 bugs-in-generated-ppds.dpatch
 text-only-without-systray-applet-traceback.dpatch
 systray-applet-with-qt4.dpatch
+kde4-kdesudo-support.dpatch

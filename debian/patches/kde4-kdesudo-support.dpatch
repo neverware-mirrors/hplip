@@ -1,0 +1,43 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## kde4-kdesudo-support.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.7~/ui/devmgr4.py hplip-2.8.7/ui/devmgr4.py
+--- hplip-2.8.7~/ui/devmgr4.py	2008-07-30 18:42:09.000000000 +0200
++++ hplip-2.8.7/ui/devmgr4.py	2008-10-13 11:29:26.000000000 +0200
+@@ -1381,6 +1381,9 @@
+         if utils.which('kdesu'):
+             su_sudo = 'kdesu -- %s'
+ 
++        elif utils.which('kdesudo'):
++            su_sudo = 'kdesudo -- %s'
++
+         elif utils.which('gnomesu'):
+             su_sudo = 'gnomesu -c "%s"'
+         
+@@ -2745,6 +2748,9 @@
+         if utils.which('kdesu'):
+             su_sudo = 'kdesu -- %s'
+ 
++        elif utils.which('kdesudo'):
++            su_sudo = 'kdesudo -- %s'
++
+         elif utils.which('gnomesu'):
+             su_sudo = 'gnomesu -c "%s"'
+         
+diff -urNad hplip-2.8.7~/ui/nodevicesform.py hplip-2.8.7/ui/nodevicesform.py
+--- hplip-2.8.7~/ui/nodevicesform.py	2008-07-30 18:42:09.000000000 +0200
++++ hplip-2.8.7/ui/nodevicesform.py	2008-10-13 11:30:09.000000000 +0200
+@@ -57,6 +57,9 @@
+         if utils.which('kdesu'):
+             su_sudo = 'kdesu -- %s'
+             
++        elif utils.which('kdesudo'):
++            su_sudo = 'kdesudo -- %s'
++
+         elif utils.which('gnomesu'):
+             su_sudo = 'gnomesu -c "%s"'
+             
