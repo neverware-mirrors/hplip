@@ -4,6 +4,10 @@ hplip (2.8.7-0ubuntu6) intrepid; urgency=low
     any more for running applications as root. It uses "kdesudo" now. Added
     support for this change (LP: #281880).
 
+  * debian/control: hplip-gui requires now one of the three packages which
+    provide the tools "gksu", "kdesu", and "kdesudo" (LP: #281880). Unneeded
+    suggest for these packages in the hplip package removed.
+
  -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 13 Oct 2008 11:48:02 +0200
 
 hplip (2.8.7-0ubuntu5) intrepid; urgency=low
