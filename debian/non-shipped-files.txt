@@ -1,4 +1,5 @@
 usr/share/hplip/check
+usr/share/hplip/install.py
 usr/share/doc/hplip/README_LIBJPG
 usr/share/doc/hplip/hpijs_readme.html
 usr/share/doc/hplip/gs_hpijs.png

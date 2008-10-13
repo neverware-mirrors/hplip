@@ -1,10 +1,20 @@
-hplip (2.8.7-0ubuntu5) intrepid; urgency=low
+hplip (2.8.7-0ubuntu6) intrepid; urgency=low
 
   * debian/patches/kde4-kdesudo-support.dpatch: KDE 4 does not use "kdesu"
     any more for running applications as root. It uses "kdesudo" now. Added
     support for this change (LP: #281880).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  8 Oct 2008 23:37:02 +0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 13 Oct 2008 11:48:02 +0200
+
+hplip (2.8.7-0ubuntu5) intrepid; urgency=low
+
+  * debian/patches/text-only-without-systray-applet-traceback.dpatch: Suppressed
+    another error message which appears when working without python-qt[34]
+    packages installed.
+  * debian/non-shipped-files.txt: Exclude /usr/share/hplip/install.py from
+    installation. In a from-package-installed HPLIP it does not make sense,
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  9 Oct 2008  9:37:02 +0200
 
 hplip (2.8.7-0ubuntu4) intrepid; urgency=low
 
