@@ -22,7 +22,7 @@ case "$1" in
     	# Restart CUPS if it is running
 	[ -r /var/run/cups/cupsd.pid ] && {
 		echo "Forcing CUPS to reload available PPD list..." >&2
-		invoke-rc.d --quiet cupsys restart || true
+		invoke-rc.d --quiet cups restart || true
 	}
     ;;
 

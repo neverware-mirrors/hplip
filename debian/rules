@@ -36,11 +36,19 @@ HPLIP_UPSTREAM_VERSION:=$(shell echo "$(HPLIP_VERSION)" | \
 # Autoconf
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+export DEB_HOST_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+
 CONFFLAGS =
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
   CONFFLAGS += --build $(DEB_HOST_GNU_TYPE)
 else
   CONFFLAGS += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+ifeq ($(DEB_HOST_ARCH_OS), linux)
+  CONFFLAGS += --enable-pp-build
+else
+  CONFFLAGS += --disable-pp-build
 endif
 
 DEBUGFLAGS=-g
@@ -119,7 +127,6 @@ configure-stamp: patch-stamp configure
 		--disable-foomatic-xml-install \
 		--disable-foomatic-ppd-install \
 		--enable-network-build \
-		--enable-pp-build \
 		--enable-scan-build \
 		--enable-gui-build \
 		--enable-fax-build
@@ -186,6 +193,8 @@ install-arch-stamp: install-stamp
 			sed < "$$i" > "$$i.tmp" -e '/^#!/ {1 d}' && \
 			mv -f "$$i.tmp" "$$i" ; \
 		done
+	# executable-not-elf-or-script
+	chmod -x $(PKGTMP)/usr/share/hplip/ui/colorcal4form_base.ui $(PKGTMP)/usr/share/hplip/installer/distros.dat
 
 	mkdir -p "$(PKGTMP)/usr/share/pixmaps"
 	install -m 644 debian/*.xpm "$(PKGTMP)/usr/share/pixmaps"
@@ -295,7 +304,7 @@ binary-indep: install-indep
 #	dh_python -i /usr/share/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
-	dh_shlibdeps -i -dpkg-shlibdeps-params=--ignore-missing-info
+	dh_shlibdeps -i --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -i -- \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \
 		-V"hpijs:source:Version=$(HPLIP_VERSION)" \
@@ -318,9 +327,7 @@ binary-arch: install-arch
 	install -m644 debian/udev-dummy.rules debian/hplip/etc/udev/rules.d/45-hplip.rules
 
 	mkdir -p debian/hplip/usr/share/bug/hplip
-	install debian/bug/* debian/hplip/usr/share/bug/hplip
-	mkdir -p debian/hpijs/usr/share/bug/hpijs
-	install debian/bug/* debian/hpijs/usr/share/bug/hpijs
+	cp debian/bug/* debian/hplip/usr/share/bug/hplip
 
 #	dh_installdebconf -a
 	dh_installdocs -a
@@ -346,7 +353,7 @@ binary-arch: install-arch
 	dh_fixperms -a
 	dh_makeshlibs -a
 	dh_installdeb -a
-	dh_shlibdeps -a -dpkg-shlibdeps-params=--ignore-missing-info
+	dh_shlibdeps -a --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -a -- \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \
 		-V"hpijs:source:Version=$(HPLIP_VERSION)" \

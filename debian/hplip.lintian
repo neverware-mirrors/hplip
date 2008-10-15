@@ -1,1 +1,2 @@
-hplip: description-synopsis-starts-with-a-capital-letter
+hplip: package-name-doesnt-match-sonames libhpip0 libhpmud0
+hplip: no-symbols-control-file

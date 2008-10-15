@@ -20,9 +20,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
 Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20)
-Replaces: hplip-data (<< 0.9.3), hplip-base
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
 Conflicts: hpijs (<< 2.1), hplip-base
+Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.6.b-2)
 XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)
  The HP Linux Printing and Imaging System provides full support for
@@ -54,6 +54,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 Package: hplip-data
 Architecture: all
 Recommends: hplip
+Depends: python
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
@@ -88,7 +89,6 @@ Description: HP Linux Printing and Imaging - documentation
 Package: hpijs-ppds
 Architecture: all
 Section: utils
-Recommends: hpijs
 Suggests: hplip
 Provides: hplip-ppds
 Replaces: hplip-ppds

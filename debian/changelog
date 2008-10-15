@@ -1,8 +1,51 @@
 hplip (2.8.7-0ubuntu7) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+  * Merge my branches/lenny changes r184:212 into trunk
 
- -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 20:31:01 +1100
+ -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 20:43:37 +1100
+
+hplip (2.8.6.b-3) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  * hplip Replaces hplip-gui (<< 2.8.6.b-2)
+    - File conflict with hplip-gui (Closes: #502055)
+
+ -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 08:47:33 +1100
+
+hplip (2.8.6.b-2) unstable; urgency=low
+
+  * Lintian cleanup:
+  * hpijs-ppds Depends: hpijs - lintian:stronger-dependency-implies-weaker
+  * Update 14_charsign_fixes.dpatch 
+    - lintian:dpatch-missing-description
+  * hplip.NEWS & hpijs-ppds.NEWS - lintian:syntax-error-in-debian-news-file
+  * hplip-data Depends: python - perhaps should be called hplip-common?
+    - lintian:python-script-but-no-python-dep 
+  * -x colorcal4form_base.ui distros.dat executable-not-elf-or-script
+  * Ship small .xpm with hplip not -gui package 
+    - lintian:menu-icon-missing
+  * hplip.lintian libhpip0 & libhpmud0 - not shared libs internal only
+    - lintian:package-name-doesnt-match-sonames
+  * Update debian/hplip-doc.doc-base 
+    - lintian:doc-base-abstract-might-contain-extra-leading-whitespaces
+  * hplip-doc.doc-base Section: System/Administration 
+    - lintian:doc-base-unknown-section
+  * Cleanup hplip.lintian - linitan:unused-override
+  * Cleanup *.desktop - lintian:desktop-entry-contains-encoding-key
+  * Fixup hplip/presubj lintian:executable-not-elf-or-script
+  * Add URL to hp-makeuri-uri-only-output.dpatch Description ##DP
+
+  * Other issues:
+  * Enable GNU/kFreeBSD builds - thanks Petr Salinger
+    - FTBFS on GNU/kFreeBSD (fixup of debian/rules needed) (Closes:
+    #497625)
+  * Fixup hpojs-ppds.postinst s/cupsys/cups/ - thanks Michael Wagner
+    - postinst invokes cupsys instead of cups (Closes: #498156)
+  * Really apply hp-makeuri-uri-only-output.dpatch - thanks Avi Rozen
+    - hp-makeuri -c does not print cups uri (Closes: #500183)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 12 Oct 2008 22:45:42 +1100
 
 hplip (2.8.7-0ubuntu6) intrepid; urgency=low
 
@@ -69,6 +112,30 @@ hplip (2.8.7-0ubuntu1) intrepid; urgency=low
   * debian/patches/hp_photosmart_pro_b9100_support.dpatch: Regenerated.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 10 Aug 2008 14:00:02 +0200
+
+hplip (2.8.6.b-1) unstable; urgency=low
+
+  [ Till Kamppeter ]
+  * New upstream release
+     o HPLIP 2.8.6b, used 2.8.6.b as upstream version number so that this
+       is considered newer than 2.8.6 and older than 2.8.7 for all binary
+       packages.
+     o Removal of prematurely introduced code (exact problems
+       caused by that were not specified by HPLIP developers at HP).
+  * debian/patches/hp-makeuri-uri-only-output.dpatch: Fix URI-only output
+    of hp-makeuri. This is required for system-config-printer to assign
+    HPLIP CUPS backends to print queues (Fixes LP: #245199).
+  * debian/rules, debian/hpijs.version, debian/autogen.sh: Drop extra version
+    number from HPIJS, now HPIJS and HPLIP have always the same version
+    number.
+
+  [ Mark Purcell ]
+  * Upstream version 2.8.6 not to be distributed (use 2.8.6b or 2.8.7
+    instead) (Closes: #494659)
+    - Discussed on debian-release
+  * spurious version numbering for hpijs packages (Closes: #452574)
+
+ -- Mark Purcell <msp@debian.org>  Mon, 01 Sep 2008 19:59:40 +1000
 
 hplip (2.8.6.b-0ubuntu1) intrepid; urgency=low
 

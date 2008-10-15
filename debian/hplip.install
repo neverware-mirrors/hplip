@@ -1,8 +1,9 @@
-usr/lib/lib*.so.*
-usr/lib/python*
+etc/hp
+etc/sane.d/dll.d
 usr/lib/cups/backend
 usr/lib/cups/filter
-etc/hp
+usr/lib/lib*.so.*
+usr/lib/python*
 usr/lib/sane/libsane*.so.*
-etc/sane.d/dll.d
 usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi
+usr/share/pixmaps
