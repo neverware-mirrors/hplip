@@ -1,19 +1,31 @@
-hplip (2.8.7-0ubuntu7) UNRELEASED; urgency=low
+hplip (2.8.7-1) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  * Distribution experimental while lenny is unreleased
+    - hplip/2.8.6.b is target for lenny
   * Merge my branches/lenny changes r184:212 into trunk
   * Update dpatch descriptions DP:
   * unused-override debian/{hpijs,hplip-data}.lintian
 
- -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 23:42:45 +1100
+ -- Mark Purcell <msp@debian.org>  Thu, 16 Oct 2008 00:15:55 +1100
 
-hplip (2.8.6.b-3) UNRELEASED; urgency=low
+hplip (2.8.6.b-3) unstable; urgency=low
 
-  * NOT RELEASED YET
   * hplip Replaces hplip-gui (<< 2.8.6.b-2)
     - File conflict with hplip-gui (Closes: #502055)
+  * Apply patch (faulty scanext.so) from dwelsh
+    - hp-scan: Aborts with a traceback when trying to scan.
+    hplip-2.8.6-hp_scan_link.dpatch (Closes: #490640)
+  * Sync Ubuntu patches & changes:
+      debian/patches/pdf_printing_support.dpatch
+      debian/patches/pjl-duplex-binding.dpatch
+      debian/patches/kde4-kdesudo-support.dpatch
+      debian/patches/bugs-in-generated-ppds.dpatch
+    - Exclude /usr/share/hplip/install.py
+    - hplip-gui requires one of "gksu", "kdesu", and "kdesudo"
+    - debian/rules: Add *cupsFilter lines for PDF input
+  * unused-override debian/{hpijs,hplip-data}.lintian
 
- -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 08:47:33 +1100
+ -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 23:44:41 +1100
 
 hplip (2.8.6.b-2) unstable; urgency=low
 
