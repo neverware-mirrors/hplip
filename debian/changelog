@@ -3,8 +3,9 @@ hplip (2.8.7-0ubuntu7) UNRELEASED; urgency=low
   * NOT RELEASED YET
   * Merge my branches/lenny changes r184:212 into trunk
   * Update dpatch descriptions DP:
+  * unused-override debian/{hpijs,hplip-data}.lintian
 
- -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 23:23:21 +1100
+ -- Mark Purcell <msp@debian.org>  Wed, 15 Oct 2008 23:42:45 +1100
 
 hplip (2.8.6.b-3) UNRELEASED; urgency=low
 
