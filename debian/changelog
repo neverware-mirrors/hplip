@@ -1,4 +1,4 @@
-hplip (2.8.7-1) UNRELEASED; urgency=low
+hplip (2.8.7-1) experimental; urgency=low
 
   * Distribution experimental while lenny is unreleased
     - hplip/2.8.6.b is target for lenny
@@ -6,7 +6,7 @@ hplip (2.8.7-1) UNRELEASED; urgency=low
   * Update dpatch descriptions DP:
   * unused-override debian/{hpijs,hplip-data}.lintian
 
- -- Mark Purcell <msp@debian.org>  Thu, 16 Oct 2008 00:15:55 +1100
+ -- Mark Purcell <msp@debian.org>  Thu, 16 Oct 2008 00:18:25 +1100
 
 hplip (2.8.6.b-3) unstable; urgency=low
 
