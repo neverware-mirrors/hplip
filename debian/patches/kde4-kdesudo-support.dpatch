@@ -2,7 +2,7 @@
 ## kde4-kdesudo-support.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: https://bugs.launchpad.net/hplip/+bug/281880
 
 @DPATCH@
 diff -urNad hplip-2.8.7~/ui/devmgr4.py hplip-2.8.7/ui/devmgr4.py

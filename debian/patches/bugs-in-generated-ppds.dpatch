@@ -2,7 +2,9 @@
 ## bugs-in-generated-ppds.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: https://bugs.launchpad.net/hplip/+bug/264727
+## DP: https://bugs.launchpad.net/hplip/+bug/258881
+## DP: https://bugs.launchpad.net/hplip/+bug/267669
 
 @DPATCH@
 diff -urNad hplip-2.8.7~/prnt/drv/hpijs.drv.in hplip-2.8.7/prnt/drv/hpijs.drv.in
