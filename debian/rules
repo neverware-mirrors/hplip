@@ -180,6 +180,8 @@ install-stamp: build-stamp
 	    } ;\
 	done
 
+	for name in hp-align hp-clean hp-fab hp-info hp-makecopies hp-print hp-scan hp-setup hp-testpage hp-toolbox hp-check hp-colorcal hp-firmware hp-levels hp-makeuri hp-plugin hp-probe hp-sendfax hp-systray hp-timedate hp-unload; do  ./debian/tmp/usr/bin/$$name --help-man > $$name.1 ; done
+
 	touch install-stamp
 
 # install arch-dependent packages specific files

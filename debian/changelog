@@ -1,5 +1,7 @@
 hplip (2.8.9-1) UNRELEASED; urgency=low
 
+  * NOT RELEASED YET
+
   * New upstream release
     - Closes: #501275: hplip: New upstream version 2.8.9 
   * Refresh 85_rebuild_python_ui.dpatch
@@ -7,8 +9,9 @@ hplip (2.8.9-1) UNRELEASED; urgency=low
     - bugs-in-generated-ppds.dpatch
     - text-only-without-systray-applet-traceback.dpatch
     - systray-applet-with-qt4.dpatch
+  * Add manpages at build using --help-man option
 
- -- Mark Purcell <msp@debian.org>  Fri, 17 Oct 2008 13:27:24 +1100
+ -- Mark Purcell <msp@debian.org>  Fri, 17 Oct 2008 15:32:53 +1100
 
 hplip (2.8.7-1) experimental; urgency=low
 
