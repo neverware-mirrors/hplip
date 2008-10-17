@@ -78,6 +78,7 @@ clean-patched: configure
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	rm -f install-stamp install-arch-stamp install-indep-stamp
+	rm -f *.1
 
 	[ ! -f Makefile ] || $(MAKE) clean
 	[ ! -f Makefile ] || $(MAKE) distclean
