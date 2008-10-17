@@ -5,9 +5,9 @@
 ## DP: compiling .ui files to .py
 
 @DPATCH@
-diff -urNad hplip-2.8.4~/Makefile.am hplip-2.8.4/Makefile.am
---- hplip-2.8.4~/Makefile.am	2008-04-03 00:18:41.000000000 +0200
-+++ hplip-2.8.4/Makefile.am	2008-04-03 12:04:36.000000000 +0200
+diff -urNad hplip-2.8.9~/Makefile.am hplip-2.8.9/Makefile.am
+--- hplip-2.8.9~/Makefile.am	2008-09-17 03:18:48.000000000 +1000
++++ hplip-2.8.9/Makefile.am	2008-10-17 13:10:30.000000000 +1100
 @@ -4,6 +4,10 @@
  #  (c) 2004-2007 Copyright Hewlett-Packard Development Company, LP
  #
@@ -18,11 +18,11 @@ diff -urNad hplip-2.8.4~/Makefile.am hplip-2.8.4/Makefile.am
 +
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane 
  
- BZRSERVER=http://bzr.linuxprinting.org/devel
-diff -urNad hplip-2.8.4~/configure.in hplip-2.8.4/configure.in
---- hplip-2.8.4~/configure.in	2008-04-03 00:19:10.000000000 +0200
-+++ hplip-2.8.4/configure.in	2008-04-03 12:06:53.000000000 +0200
-@@ -276,6 +276,8 @@
+ hplipdir = $(datadir)/hplip
+diff -urNad hplip-2.8.9~/configure.in hplip-2.8.9/configure.in
+--- hplip-2.8.9~/configure.in	2008-09-17 03:19:44.000000000 +1000
++++ hplip-2.8.9/configure.in	2008-10-17 13:09:19.000000000 +1100
+@@ -336,6 +336,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
