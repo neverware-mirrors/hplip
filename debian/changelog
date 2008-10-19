@@ -11,8 +11,9 @@ hplip (2.8.9-1) UNRELEASED; urgency=low
     - systray-applet-with-qt4.dpatch
   * Add manpages at build using --help-man option
   * Add hp_photosmart_pro_b9100_support.dpatch description
+  * Add manpage-whatis.dpatch
 
- -- Mark Purcell <msp@debian.org>  Fri, 17 Oct 2008 15:32:53 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 19 Oct 2008 19:11:48 +1100
 
 hplip (2.8.7-1) experimental; urgency=low
 
