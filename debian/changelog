@@ -10,6 +10,7 @@ hplip (2.8.9-1) UNRELEASED; urgency=low
     - text-only-without-systray-applet-traceback.dpatch
     - systray-applet-with-qt4.dpatch
   * Add manpages at build using --help-man option
+  * Add hp_photosmart_pro_b9100_support.dpatch description
 
  -- Mark Purcell <msp@debian.org>  Fri, 17 Oct 2008 15:32:53 +1100
 

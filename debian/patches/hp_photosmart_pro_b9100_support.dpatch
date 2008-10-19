@@ -2,7 +2,8 @@
 ## hp_photosmart_pro_b9100_support.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Corrections: models.dat entry for the HP PhotoSmart Pro B9100
+## DP: https://bugs.launchpad.net/hplip/+bug/213984
 
 @DPATCH@
 diff -urNad hplip-2.8.7~/data/models/models.dat hplip-2.8.7/data/models/models.dat
