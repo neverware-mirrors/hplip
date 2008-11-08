@@ -1,6 +1,4 @@
-hplip (2.8.9-1) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+hplip (2.8.10-1) UNRELEASED; urgency=low
 
   * New upstream release
     - Closes: #501275: hplip: New upstream version 2.8.9 
@@ -13,7 +11,7 @@ hplip (2.8.9-1) UNRELEASED; urgency=low
   * Add hp_photosmart_pro_b9100_support.dpatch description
   * Add manpage-whatis.dpatch
 
- -- Mark Purcell <msp@debian.org>  Sun, 19 Oct 2008 19:11:48 +1100
+ -- Mark Purcell <msp@debian.org>  Sat, 08 Nov 2008 12:24:42 +1100
 
 hplip (2.8.7-1) experimental; urgency=low
 
