@@ -4,7 +4,7 @@
 #61_noqt_message.dpatch
 85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
-hp_photosmart_pro_b9100_support.dpatch
+#hp_photosmart_pro_b9100_support.dpatch
 pdf_printing_support.dpatch
 pjl-duplex-binding.dpatch
 #bugs-in-generated-ppds.dpatch
