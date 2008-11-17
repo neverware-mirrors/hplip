@@ -217,11 +217,11 @@ install-arch-stamp: install-stamp
 	#	| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 	#	| gzip -9 \
 	#	> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
-	cat "fax/ppd/HP-Fax-hplip.ppd" \
+	zcat "fax/ppd/HP-Fax-hplip.ppd.gz" \
 		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
-	cat "fax/ppd/HP-Fax2-hplip.ppd" \
+	zcat "fax/ppd/HP-Fax2-hplip.ppd.gz" \
 		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax2-hplip.ppd.gz"

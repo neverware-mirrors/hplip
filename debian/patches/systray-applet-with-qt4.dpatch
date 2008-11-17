@@ -8,12 +8,13 @@
 diff -urNad hplip-2.8.7~/base/device.py hplip-2.8.7/base/device.py
 --- hplip-2.8.7~/base/device.py	2008-07-30 18:42:04.000000000 +0200
 +++ hplip-2.8.7/base/device.py	2008-10-08 23:33:04.000000000 +0200
-@@ -162,8 +162,9 @@
+@@ -258,9 +258,9 @@
                      log.warn("Unable to start hp-systray")
-                     return False, None
+                     return False, None,  None
  
 -            log.debug("Running hp-systray: %s --force-startup" % path)
--            os.spawnlp(os.P_NOWAIT, path, 'hp-systray', '--force-startup')
+-
+-            os.spawnlp(os.P_NOWAIT, path, 'hp-systray', '--force-startup') #,  ui_toolkit)
 +            log.debug("Running hp-systray: %s --qt4 --force-startup" % path)
 +            os.spawnlp(os.P_NOWAIT, path, 'hp-systray', '--qt4',
 +                       '--force-startup')

@@ -1,5 +1,5 @@
 #! /bin/sh
-# postinst script for hpijs-ppds
+# postinst script for hpijs
 # $Id: $
 #
 # see: dh_installdeb(1)
@@ -17,12 +17,18 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 #
+# quoting from the policy:
+#     Any necessary prompting should almost always be confined to the
+#     post-installation script, and should be protected with a conditional
+#     so that unnecessary prompting doesn't happen if a package's
+#     installation fails and the `postinst' is called with `abort-upgrade',
+#     `abort-remove' or `abort-deconfigure'.
 
 case "$1" in
     configure)
 	# Update the PPD files of all already installed print queues
-	driverregexp='lsb/usr/hpijs/HP/.*\b(Postscript|PS)\b'
-	gennicknameregexp='s/\s*(v\d+\.\d+|(Ver|-\s*RC)\s*[\d\.]+)//'
+	driverregexp='drv:///hpijs.drv/|lsb/usr/hpijs/HP/HP-Fax'
+	gennicknameregexp='s/,?\s*hpijs\s+[\d\.]+.*$//'
 	[ ! -z "$gennicknameregexp" ] && \
 	    gennicknameregexp="; $gennicknameregexp"
 	gennicknameregexp='s/\s*\(recommended\)//'"$gennicknameregexp"
@@ -50,8 +56,9 @@ case "$1" in
 	    [ "$ppdfound" = "0" ] && [ ! -z "$englishppduri" ] && lpadmin -p $queue -m $englishppduri && ppdfound="1"
 	    [ "$ppdfound" = "1" ] && echo PPD for printer $queue updated >&2
 	done
+
     ;;
-    
+
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 

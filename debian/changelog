@@ -1,19 +1,25 @@
-hplip (2.8.10-1) UNRELEASED; urgency=low
+hplip (2.8.10-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release
-    - Closes: #501275: hplip: New upstream version 2.8.9 
-  * Refresh 85_rebuild_python_ui.dpatch
+    - Closes: #501275, LP: #296399
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Let the PPD files of the
+    existing print queues get automatically updated after each installation of
+    this package.
+  * Refresh 85_rebuild_python_ui.dpatch,
+    hp_photosmart_pro_b9100_support.dpatch, systray-applet-with-qt4.dpatch
   * Add manpages at build using --help-man option
   * Add hp_photosmart_pro_b9100_support.dpatch description
   * Add manpage-whatis.dpatch
+  * bugs-in-generated-ppds.dpatch: Removed, applied upstream.
+  * debian/rules: The fax PPDs are gzipped in the source tree now, unzip
+    them before patching
 
   * TODO: Patches needing review/ refresh/ longer necessary
-    - bugs-in-generated-ppds.dpatch
     - text-only-without-systray-applet-traceback.dpatch
-    - systray-applet-with-qt4.dpatch
-    - hp_photosmart_pro_b9100_support.dpatch
+    - HPLIP 2.8.10 source code is missing the hpdio Python module needed
+      by hp-systray (LP: #299011).
 
- -- Mark Purcell <msp@debian.org>  Sat, 08 Nov 2008 12:24:42 +1100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 17 Nov 2008 11:25:02 +0100
 
 hplip (2.8.7-1) experimental; urgency=low
 

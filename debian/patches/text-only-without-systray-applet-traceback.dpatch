@@ -8,7 +8,7 @@
 diff -urNad hplip-2.8.7~/base/device.py hplip-2.8.7/base/device.py
 --- hplip-2.8.7~/base/device.py	2008-10-09 09:15:09.000000000 +0200
 +++ hplip-2.8.7/base/device.py	2008-10-09 09:15:10.000000000 +0200
-@@ -179,7 +179,6 @@
+@@ -276,7 +276,6 @@
                      t += 1
  
                      if t > 5:
