@@ -7,7 +7,6 @@
 hp_photosmart_pro_b9100_support.dpatch
 pdf_printing_support.dpatch
 pjl-duplex-binding.dpatch
-#text-only-without-systray-applet-traceback.dpatch
-systray-applet-with-qt4.dpatch
+#systray-applet-with-qt4.dpatch
 kde4-kdesudo-support.dpatch
 manpage-whatis.dpatch
