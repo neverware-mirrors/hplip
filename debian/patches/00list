@@ -12,3 +12,4 @@ kde4-kdesudo-support.dpatch
 manpage-whatis.dpatch
 qt4-systray-with-qt3-utilities.dpatch
 hpssd-correct-hp-sendfax-call.dpatch
+hp-levels-without-tty.dpatch

@@ -1,3 +1,13 @@
+hplip (2.8.10-0ubuntu2) jaunty; urgency=low
+
+  * debian/rules: Set Python module path for calls of HPLIP components
+    during package build.
+  * debian/patches/hp-levels-without-tty.dpatch: Make hp-levels working
+    also without access to a TTY, for example to generate the man page with
+    "--help-man" during package build.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 18 Nov 2008 12:09:02 +0100
+
 hplip (2.8.10-0ubuntu1) jaunty; urgency=low
 
   * New upstream release
