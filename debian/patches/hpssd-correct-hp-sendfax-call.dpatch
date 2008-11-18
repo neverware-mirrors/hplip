@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hpssd-correct-hp-sendfax-call.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.10~/hpssd.py hplip-2.8.10/hpssd.py
+--- hplip-2.8.10~/hpssd.py	2008-10-31 23:25:17.000000000 +0100
++++ hplip-2.8.10/hpssd.py	2008-11-18 10:54:11.000000000 +0100
+@@ -287,10 +287,10 @@
+ 
+             log.debug(path)
+ 
+-            log.debug("Running hp-sendfax: hp-senfax --fax=%s" % event.printer_name)
++            log.debug("Running hp-sendfax: hp-senfax --printer=%s" % event.printer_name)
+ 
+             os.spawnlp(os.P_NOWAIT, path, 'hp-sendfax',
+-                '--fax=%s' % event.printer_name)
++                '--printer=%s' % event.printer_name)
+ 
+         else:
+             # hp-sendfax running

@@ -1,4 +1,4 @@
-hplip (2.8.10-0ubuntu1) UNRELEASED; urgency=low
+hplip (2.8.10-0ubuntu1) jaunty; urgency=low
 
   * New upstream release
     - Closes: #501275, LP: #296399
@@ -15,10 +15,16 @@ hplip (2.8.10-0ubuntu1) UNRELEASED; urgency=low
   * Add manpage-whatis.dpatch
   * debian/rules: The fax PPDs are gzipped in the source tree now, unzip
     them before patching
-
-  * TODO: Patches needing review/ refresh/ longer necessary
-    - HPLIP 2.8.10 source code is missing the hpdio Python module needed
-      by hp-systray (LP: #299011).
+  * debian/hpdio.py, debian/rules: Added file which was missing in the source
+    tarball, closes LP: #299011
+  * qt4-systray-with-qt3-utilities.dpatch: Suppress warning that Qt4 support
+    is not completed and let systray applet not force the hp-toolbox into Qt4
+    mode (LP: #299011).
+  * debian/rules: Let package build with both Qt3 and Qt4 support, let Qt3
+    be used by default ("ui-toolkit=qt3" in /etc/hp/hplip.conf), closes
+    LP: #299011
+  * hpssd-correct-hp-sendfax-call.dpatch: Correct call of hp-sendfax,
+    specifying the print queue needs "--printer" now and not "--fax".
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 17 Nov 2008 11:25:02 +0100
 

@@ -79,6 +79,7 @@ clean-patched: configure
 	rm -f build-stamp configure-stamp
 	rm -f install-stamp install-arch-stamp install-indep-stamp
 	rm -f *.1
+	rm -f hpdio.py
 
 	[ ! -f Makefile ] || $(MAKE) clean
 	[ ! -f Makefile ] || $(MAKE) distclean
@@ -130,13 +131,18 @@ configure-stamp: patch-stamp configure
 		--enable-network-build \
 		--enable-scan-build \
 		--enable-gui-build \
-		--enable-fax-build
+		--enable-fax-build \
+		--enable-qt3 \
+		--enable-qt4
 
 	touch configure-stamp
 
 build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
+
+	# Add missing source file hpdio.py
+	cp debian/hpdio.py .
 
 	$(MAKE) docdir=\$${prefix}/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
@@ -155,15 +161,20 @@ install-stamp: build-stamp
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
+	# Install missing source file hpdio.py
+	install -m 644 hpdio.py "$(PKGTMP)/usr/share/hplip/"
+
 	# Remove files we are not to ship from the install tree
 	@echo Removing non-shipped files, see debian/non-shipped-files.txt
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
-	# Edit the generated hp.conf
+	# Edit the generated hplip.conf
 	( cd "$(PKGTMP)/etc/hp" && \
-	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' \
-	    < hplip.conf > hplip.conf.1 && \
+	  cat hplip.conf | \
+	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' | \
+	  sed -e 's#^ui-toolkit=.*#ui-toolkit=qt3#' \
+	    > hplip.conf.1 && \
 	    mv -f hplip.conf.1 hplip.conf )
 
 	# Lintian and linda overrides

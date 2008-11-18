@@ -7,6 +7,8 @@
 hp_photosmart_pro_b9100_support.dpatch
 pdf_printing_support.dpatch
 pjl-duplex-binding.dpatch
-#systray-applet-with-qt4.dpatch
+systray-applet-with-qt4.dpatch
 kde4-kdesudo-support.dpatch
 manpage-whatis.dpatch
+qt4-systray-with-qt3-utilities.dpatch
+hpssd-correct-hp-sendfax-call.dpatch
