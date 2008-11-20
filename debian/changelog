@@ -1,3 +1,18 @@
+hplip (2.8.10-0ubuntu4) jaunty; urgency=low
+
+  * debian/control: Really fix the updating conflict of hplip and hplip-gui
+    due to the move of /usr/share/pixmaps/HPmenu.xpm in HPLIP 2.8.6.b-2
+    (Closes: #502055, LP: #299542).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 20 Nov 2008 12:30:02 +0100
+
+hplip (2.8.10-0ubuntu3) jaunty; urgency=low
+
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Make maintainer scripts
+    silent if there are no PPDs of existing print queues (LP: #299889).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 19 Nov 2008 15:51:02 +0100
+
 hplip (2.8.10-0ubuntu2) jaunty; urgency=low
 
   * debian/rules: Set Python module path for calls of HPLIP components

@@ -38,7 +38,7 @@ case "$1" in
 	tempfiles="$tempfiles $tmpfile1"
 	lpinfo -m | grep -E $driverregexp > $tmpfile1
 	cd /etc/cups/ppd
-	for ppd in *.ppd; do
+	for ppd in `ls -1 *.ppd 2>/dev/null`; do
 	    queue=${ppd%.ppd}
 	    nickname=`grep '\*NickName:' $ppd | cut -d '"' -f 2 | perl -p -e 's/\n$//' | perl -p -e "$gennicknameregexp" | perl -p -e 's/(\W)/\\\\$1/g'`
 	    lang=`grep '\*LanguageVersion:' $ppd | cut -d ' ' -f 2 | perl -e 'print lc(<>)' | perl -p -e 's/[\r\n]//gs'`
