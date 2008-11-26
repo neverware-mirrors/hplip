@@ -1,8 +1,10 @@
-hplip (2.8.10-2) UNRELEASED; urgency=low
+hplip (2.8.10-1ubuntu1) jaunty; urgency=low
 
-  * NOT RELEASED YET
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Do not try to update
+    the PPDs of existing print queues if CUPS is not installed or not running
+    (LP: #302532).
 
- -- Mark Purcell <msp@debian.org>  Sun, 23 Nov 2008 12:38:36 +1100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 26 Nov 2008 22:26:45 +0100
 
 hplip (2.8.10-1) experimental; urgency=low
 
