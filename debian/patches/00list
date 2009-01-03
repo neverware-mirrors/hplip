@@ -1,7 +1,6 @@
 01_rss
 10_shebang_fixes
 14_charsign_fixes
-#61_noqt_message.dpatch
 85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
 hp_photosmart_pro_b9100_support.dpatch
@@ -9,7 +8,4 @@ pdf_printing_support.dpatch
 pjl-duplex-binding.dpatch
 systray-applet-with-qt4.dpatch
 kde4-kdesudo-support.dpatch
-manpage-whatis.dpatch
-qt4-systray-with-qt3-utilities.dpatch
-hpssd-correct-hp-sendfax-call.dpatch
 hp-levels-without-tty.dpatch
