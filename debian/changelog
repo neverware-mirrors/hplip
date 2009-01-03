@@ -1,11 +1,12 @@
-hplip (2.8.12-1) UNRELEASED; urgency=low
+hplip (2.8.12-1) experimental; urgency=low
 
-  * (NOT RELEASED YET) New upstream release
+  * New upstream release
+  * Distribution experimental while we await lenny
   * del debian/patches included upstream; 
     - manpage-whatis.dpatch, hpssd-correct-hp-sendfax-call.dpatch,
     61_noqt_message.dpatch, qt4-systray-with-qt3-utilities.dpatch
 
- -- Mark Purcell <msp@debian.org>  Sat, 03 Jan 2009 13:41:03 +1100
+ -- Mark Purcell <msp@debian.org>  Sat, 03 Jan 2009 13:43:19 +1100
 
 hplip (2.8.10-2) experimental; urgency=low
 
