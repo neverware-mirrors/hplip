@@ -1,3 +1,9 @@
+hplip (2.8.12-1ubuntu1) jaunty; urgency=low
+
+  * Merge from Debian
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Jan 2008 14:14:45 +0100
+	
 hplip (2.8.12-1) experimental; urgency=low
 
   * New upstream release
@@ -13,6 +19,15 @@ hplip (2.8.10-2) experimental; urgency=low
   * Sync with Ubuntu 
 
  -- Mark Purcell <msp@debian.org>  Sun, 07 Dec 2008 14:12:31 +1100
+
+hplip (2.8.10-1ubuntu2) jaunty; urgency=low
+
+  * debian/rules: Don't install udev rules anymore; all these do is try and
+    put things in the scanner group which has been removed upstream (for
+    precisely this reason - printers aren't scanners!)
+  * debian/hplip.preinst: Remove udev rules on upgrade
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 07 Jan 2009 14:27:59 +0000
 
 hplip (2.8.10-1ubuntu1) jaunty; urgency=low
 

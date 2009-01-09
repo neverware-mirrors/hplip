@@ -39,6 +39,30 @@ case "$1" in
 	# Remove obsolete config file for HPLIP startup script
 	rm -f /etc/default/hplip
 
+	# Remove obsolete udev rules
+	if [ -e "/etc/udev/rules.d/55-hpmud.rules" ]; then
+		if [ "`md5sum \"/etc/udev/rules.d/55-hpmud.rules\" | sed -e \"s/ .*//\"`" = \
+		     "`dpkg-query -W -f='${Conffiles}' hplip | sed -n -e \"\\\\' /etc/udev/rules.d/55-hpmud.rules's/.* //p\"`" ]
+		then
+			rm -f "/etc/udev/rules.d/55-hpmud.rules"
+		fi
+	fi
+
+	if [ -e "/etc/udev/rules.d/45-hplip.rules" ]; then
+		if [ "`md5sum \"/etc/udev/rules.d/45-hplip.rules\" | sed -e \"s/ .*//\"`" = \
+		     "`dpkg-query -W -f='${Conffiles}' hplip | sed -n -e \"\\\\' /etc/udev/rules.d/45-hplip.rules's/.* //p\"`" ]
+		then
+			rm -f "/etc/udev/rules.d/45-hplip.rules"
+		fi
+	fi
+
+	if [ -e "/etc/udev/rules.d/024_hpmud.rules" ]; then
+		if [ "`md5sum \"/etc/udev/rules.d/024_hpmud.rules\" | sed -e \"s/ .*//\"`" = \
+		     "`dpkg-query -W -f='${Conffiles}' hplip | sed -n -e \"\\\\' /etc/udev/rules.d/024_hpmud.rules's/.* //p\"`" ]
+		then
+			rm -f "/etc/udev/rules.d/024_hpmud.rules"
+		fi
+	fi
     ;;
 
     *)
