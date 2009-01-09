@@ -20,6 +20,12 @@ hplip (2.8.10-2) experimental; urgency=low
 
  -- Mark Purcell <msp@debian.org>  Sun, 07 Dec 2008 14:12:31 +1100
 
+hplip (2.8.10-1ubuntu3) jaunty; urgency=low
+
+  * Add Breaks to ensure the right version of udev gets used.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Fri, 09 Jan 2009 11:51:57 +0000
+
 hplip (2.8.10-1ubuntu2) jaunty; urgency=low
 
   * debian/rules: Don't install udev rules anymore; all these do is try and
