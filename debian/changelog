@@ -1,8 +1,17 @@
+hplip (2.8.12-1ubuntu2) jaunty; urgency=low
+
+  * debian/rules, debian/hplip.install, debian/hplip.links: Automatization
+    of file selection for generating symlinks to the executables and
+    generating the man pages. This avoids that new tools and man pages get
+    forgotten.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 10 Jan 2009 17:00:45 +0100
+	
 hplip (2.8.12-1ubuntu1) jaunty; urgency=low
 
   * Merge from Debian
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Jan 2008 14:14:45 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Jan 2009 14:14:45 +0100
 	
 hplip (2.8.12-1) experimental; urgency=low
 

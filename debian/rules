@@ -192,8 +192,24 @@ install-stamp: build-stamp
 	    } ;\
 	done
 
+	# Link all executables to /usr/bin and generate the corresponding
+	# man pages
 	export HPLIP_BUILD=1; \
-	for name in hp-align hp-clean hp-fab hp-info hp-makecopies hp-print hp-scan hp-setup hp-testpage hp-toolbox hp-check hp-colorcal hp-firmware hp-levels hp-makeuri hp-plugin hp-probe hp-sendfax hp-systray hp-timedate hp-unload; do  ./debian/tmp/usr/bin/$$name --help-man > $$name.1 ; done
+	( cd ./debian/tmp/usr/share/hplip/; \
+	    for file in *.py; do \
+		if [ -x $$file ] && [ $$file != install.py ] && \
+		   [ $$file != hpssd.py ] && [ $$file != dat2drv.py ] && \
+		   [ $$file != __init__.py ]; then \
+		    dest=hp-$${file%.py}; \
+		    ln -s /usr/share/hplip/$$file \
+			../../bin/$$dest 2>/dev/null || :; \
+		    ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 \
+			2>/dev/null || rm -f $(CURDIR)/$$dest.1 || :; \
+		fi; \
+	    done \
+	)
+	install -d ./debian/tmp/usr/sbin/
+	ln -s /usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
 	touch install-stamp
 
@@ -288,7 +304,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
 
 	# Ubuntu: uncompress again, makes the package smaller for distribution
-	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip
+	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
 
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
