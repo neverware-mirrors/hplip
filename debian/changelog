@@ -1,3 +1,10 @@
+hplip (2.8.12-1ubuntu3) UNRELEASED; urgency=low
+
+  * debian/patches/hp-levels-without-tty.dpatch: Removed, problem fixed
+    upstream (Upstream bug LP: #299479).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 20 Jan 2009 21:28:45 +0100
+
 hplip (2.8.12-1ubuntu2) jaunty; urgency=low
 
   * debian/rules, debian/hplip.install, debian/hplip.links: Automatization

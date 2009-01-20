@@ -8,4 +8,3 @@ pdf_printing_support.dpatch
 pjl-duplex-binding.dpatch
 systray-applet-with-qt4.dpatch
 kde4-kdesudo-support.dpatch
-hp-levels-without-tty.dpatch
