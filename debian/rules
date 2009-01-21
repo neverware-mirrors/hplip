@@ -372,6 +372,7 @@ binary-arch: install-arch
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
+	dh_installudev
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)
 	dh_compress -a

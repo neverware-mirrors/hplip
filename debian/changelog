@@ -1,9 +1,16 @@
-hplip (2.8.12-1ubuntu3) UNRELEASED; urgency=low
+hplip (2.8.12-1ubuntu4) UNRELEASED; urgency=low
 
   * debian/patches/hp-levels-without-tty.dpatch: Removed, problem fixed
     upstream (Upstream bug LP: #299479).
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 20 Jan 2009 21:28:45 +0100
+
+hplip (2.8.12-1ubuntu3) jaunty; urgency=low
+
+  * Restore udev rules that assign the lp group to /dev/bus/usb devices
+    for certain printers.  LP: #318262.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 21 Jan 2009 12:59:43 +0000
 
 hplip (2.8.12-1ubuntu2) jaunty; urgency=low
 
