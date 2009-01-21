@@ -1,4 +1,4 @@
-hplip (2.8.12-1ubuntu4) UNRELEASED; urgency=low
+hplip (2.8.12-1ubuntu4) jaunty; urgency=low
 
   * debian/hplip.udev, debian/rules: Do not ship our own UDEV rules but use
     the upstream ones. Use also the upsttream priority (55) for these rules.
