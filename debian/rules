@@ -79,7 +79,6 @@ clean-patched: configure
 	rm -f build-stamp configure-stamp
 	rm -f install-stamp install-arch-stamp install-indep-stamp
 	rm -f *.1
-	rm -f $(CURDIR)/debian/hplip.udev
 
 	[ ! -f Makefile ] || $(MAKE) clean
 	[ ! -f Makefile ] || $(MAKE) distclean
@@ -142,9 +141,6 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	$(MAKE) docdir=\$${prefix}/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
-
-	# Use upstream-supplied UDEV rules instead of shipping our own
-	ln -sf $(CURDIR)/data/rules/55-hpmud.rules $(CURDIR)/debian/hplip.udev
 
 	touch build-stamp
 
@@ -369,7 +365,7 @@ binary-arch: install-arch
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
-	dh_installudev --priority=55
+	dh_installudev
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)
 	dh_compress -a
