@@ -19,9 +19,9 @@ Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
-Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20)
+Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20), sane-utils
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
-Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10)
+Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
 Breaks: udev (<< 136-1)
 XB-Python-Version: ${python:Versions}
@@ -63,6 +63,7 @@ Description: HP Linux Printing and Imaging - data files
 Package: hplip-gui
 Architecture: all
 Depends: hplip, python-qt4, python-qt3, python-reportlab, dbus-x11, gksu | kdebase-bin (<< 4:4.4.0-1) | kdesudo
+Recommends: xsane
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for

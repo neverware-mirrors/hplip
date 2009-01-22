@@ -1,3 +1,10 @@
+hplip (2.8.12-2) UNRELEASED; urgency=low
+
+  * Add Recommends for sane-utils/ xsane
+  * Conflicts: hpoj (Closes: #508008)
+
+ -- Mark Purcell <msp@debian.org>  Thu, 22 Jan 2009 12:16:57 +1100
+
 hplip (2.8.12-1ubuntu5) jaunty; urgency=low
 
   * debian/rules: Returned UDEV rules priority to 40.
