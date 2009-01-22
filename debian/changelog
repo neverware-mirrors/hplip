@@ -12,8 +12,10 @@ hplip (2.8.12-2) UNRELEASED; urgency=low
     package configures it ok" (Closes: #494430)
     - Fix "Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets
     check there too" (Closes: #512596)
+  * Fix "dplip: please change default icon to
+    /usr/share/pixmaps/HPmenu.xpm" patch from Fabian (Closes: #415048)
 
- -- Mark Purcell <msp@debian.org>  Fri, 23 Jan 2009 06:20:24 +1100
+ -- Mark Purcell <msp@debian.org>  Fri, 23 Jan 2009 06:24:24 +1100
 
 hplip (2.8.12-1ubuntu5) jaunty; urgency=low
 
