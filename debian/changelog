@@ -1,4 +1,4 @@
-hplip (2.8.12-2) UNRELEASED; urgency=low
+hplip (2.8.12-2) unstable; urgency=low
 
   * Add Recommends for sane-utils/ xsane
   * Conflicts: hpoj (Closes: #508008)
@@ -15,7 +15,7 @@ hplip (2.8.12-2) UNRELEASED; urgency=low
   * Fix "dplip: please change default icon to
     /usr/share/pixmaps/HPmenu.xpm" patch from Fabian (Closes: #415048)
 
- -- Mark Purcell <msp@debian.org>  Fri, 23 Jan 2009 06:24:24 +1100
+ -- Mark Purcell <msp@debian.org>  Mon, 16 Feb 2009 23:47:44 +1100
 
 hplip (2.8.12-1ubuntu5) jaunty; urgency=low
 
