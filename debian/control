@@ -23,7 +23,6 @@ Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20), sane-
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
 Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
-Breaks: udev (<< 136-1)
 XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)
  The HP Linux Printing and Imaging System provides full support for
