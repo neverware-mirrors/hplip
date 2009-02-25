@@ -1,0 +1,20 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hpinfo-query-without-cups-queue.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-2.8.12~/info.py hplip-2.8.12/info.py
+--- hplip-2.8.12~/info.py	2008-12-17 21:41:18.000000000 +0100
++++ hplip-2.8.12/info.py	2009-02-18 11:27:29.000000000 +0100
+@@ -54,7 +54,8 @@
+             log.error("%s -u/--gui requires Qt4 GUI support. Entering interactive mode." % __mod__)
+             mode = INTERACTIVE_MODE        
+ 
+-    device_uri = mod.getDeviceUri(device_uri, printer_name)
++    device_uri = mod.getDeviceUri(device_uri, printer_name,
++                                  devices = (device_uri))
+ 
+     if mode == INTERACTIVE_MODE:
+         try:

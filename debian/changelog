@@ -1,8 +1,28 @@
-hplip (2.8.12-4) UNRELEASED; urgency=low
+hplip (3.9.2-1) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  * New upstream release
+     o Fully Qt4-based
+     o Added printing support for HP Color LasetJets 1600, 2600, and CP1215
+     o Added support for HP OfficeJet Pro 8xxx series
+     o Tons of bug fixes
+  * debian/control, debian/rules: Qt3 is not needed any more
+  * debian/control: hp-toolbox (package hplip-gui) needs python-qt4-dbus now.
+  * debian/patches/pdf_printing_support.dpatch: Removed, applied upstream.
+  * debian/patches/systray-applet-with-qt4.dpatch: Removed, not needed any
+    more in Qt4-only environment.
 
- -- Mark Purcell <msp@debian.org>  Wed, 18 Feb 2009 07:50:20 +1100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 25 Feb 2009 16:07:45 -0300
+	
+hplip (2.8.12-3ubuntu1) jaunty; urgency=low
+
+  [ Till Kamppeter ]
+  * debian/patches/hpinfo-query-without-cups-queue.dpatch: Allow hp-info to
+    query URIs for which there is no CUPS queue (LP: #329220).
+
+  [ Mark Purcell ]
+  * debian/patches/hp-check_debian.dpatch: Fixed hp-check for the SANE driver
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 18 Feb 2009 11:35:45 +0100
 
 hplip (2.8.12-3) unstable; urgency=low
 
