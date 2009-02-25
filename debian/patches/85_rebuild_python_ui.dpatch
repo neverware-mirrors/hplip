@@ -14,7 +14,7 @@ diff -urNad hplip-3.9.2~/Makefile.am hplip-3.9.2/Makefile.am
  
 +# Generic rules
 +%.py: %.ui
-+       $(PYUIC) -x -o $@ $<
++	$(PYUIC) -x -o $@ $<
 +
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane
  
