@@ -10,6 +10,9 @@ hplip (3.9.2-1) UNRELEASED; urgency=low
   * debian/patches/pdf_printing_support.dpatch: Removed, applied upstream.
   * debian/patches/systray-applet-with-qt4.dpatch: Removed, not needed any
     more in Qt4-only environment.
+  * debian/patches/delayed-hp-systray-start.dpatch: Delay start of HPLIP
+    system tray applet, as it sometimes got started before the system tray was
+    available.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 25 Feb 2009 16:07:45 -0300
 	

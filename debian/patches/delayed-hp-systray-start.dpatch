@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## delayed-hp-systray-start.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.9.2~/hplip-systray.desktop.in hplip-3.9.2/hplip-systray.desktop.in
+--- hplip-3.9.2~/hplip-systray.desktop.in	2009-02-19 21:36:58.000000000 -0300
++++ hplip-3.9.2/hplip-systray.desktop.in	2009-02-25 16:37:11.000000000 -0300
+@@ -4,7 +4,7 @@
+ Name=HP System Tray Service
+ GenericName=Printer Status Applet
+ Comment=HP System Tray Service
+-Exec=hp-systray
++Exec=sh -c "sleep 15; exec hp-systray"
+ Icon=@abs_datadir@/hplip/data/images/48x48/prog.png
+ Terminal=false
+ Categories=Application;Utility;
