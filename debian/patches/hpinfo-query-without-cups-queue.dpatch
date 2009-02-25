@@ -5,16 +5,15 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.8.12~/info.py hplip-2.8.12/info.py
---- hplip-2.8.12~/info.py	2008-12-17 21:41:18.000000000 +0100
-+++ hplip-2.8.12/info.py	2009-02-18 11:27:29.000000000 +0100
-@@ -54,7 +54,8 @@
-             log.error("%s -u/--gui requires Qt4 GUI support. Entering interactive mode." % __mod__)
-             mode = INTERACTIVE_MODE        
+diff -urNad hplip-3.9.2~/info.py hplip-3.9.2/info.py
+--- hplip-3.9.2~/info.py	2009-02-19 21:36:58.000000000 -0300
++++ hplip-3.9.2/info.py	2009-02-25 17:20:56.000000000 -0300
+@@ -37,7 +37,7 @@
+ from prnt import cups
  
--    device_uri = mod.getDeviceUri(device_uri, printer_name)
-+    device_uri = mod.getDeviceUri(device_uri, printer_name,
-+                                  devices = (device_uri))
+ try:
+-    restrict = True
++    restrict = False
  
-     if mode == INTERACTIVE_MODE:
-         try:
+     devid_mode = '--id' in sys.argv # hack
+     if devid_mode:

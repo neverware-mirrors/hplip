@@ -1,11 +1,11 @@
 01_rss
 10_shebang_fixes
 14_charsign_fixes
-#85_rebuild_python_ui.dpatch
+85_rebuild_python_ui.dpatch
 87_move_documentation.dpatch
-#hp_photosmart_pro_b9100_support.dpatch
+hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
-#kde4-kdesudo-support.dpatch
+kde4-kdesudo-support.dpatch
 hp-check_debian
-#hpinfo-query-without-cups-queue
+hpinfo-query-without-cups-queue
 delayed-hp-systray-start.dpatch

@@ -2,27 +2,27 @@
 ## 85_rebuild_python_ui.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: compiling .ui files to .py
+## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.8.9~/Makefile.am hplip-2.8.9/Makefile.am
---- hplip-2.8.9~/Makefile.am	2008-09-17 03:18:48.000000000 +1000
-+++ hplip-2.8.9/Makefile.am	2008-10-17 13:10:30.000000000 +1100
+diff -urNad hplip-3.9.2~/Makefile.am hplip-3.9.2/Makefile.am
+--- hplip-3.9.2~/Makefile.am	2009-02-25 17:40:45.000000000 -0300
++++ hplip-3.9.2/Makefile.am	2009-02-25 17:44:19.000000000 -0300
 @@ -4,6 +4,10 @@
  #  (c) 2004-2007 Copyright Hewlett-Packard Development Company, LP
  #
  
 +# Generic rules
 +%.py: %.ui
-+	$(PYUIC) -x -o $@ $<
++       $(PYUIC) -x -o $@ $<
 +
- INCLUDES = -Iip -Iio/hpmud -Iscan/sane 
+ INCLUDES = -Iip -Iio/hpmud -Iscan/sane
  
  hplipdir = $(datadir)/hplip
-diff -urNad hplip-2.8.9~/configure.in hplip-2.8.9/configure.in
---- hplip-2.8.9~/configure.in	2008-09-17 03:19:44.000000000 +1000
-+++ hplip-2.8.9/configure.in	2008-10-17 13:09:19.000000000 +1100
-@@ -336,6 +336,8 @@
+diff -urNad hplip-3.9.2~/configure.in hplip-3.9.2/configure.in
+--- hplip-3.9.2~/configure.in	2009-02-19 21:37:18.000000000 -0300
++++ hplip-3.9.2/configure.in	2009-02-25 17:47:49.000000000 -0300
+@@ -335,6 +335,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])

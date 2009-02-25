@@ -13,6 +13,10 @@ hplip (3.9.2-1) UNRELEASED; urgency=low
   * debian/patches/delayed-hp-systray-start.dpatch: Delay start of HPLIP
     system tray applet, as it sometimes got started before the system tray was
     available.
+  * debian/patches/kde4-kdesudo-support.dpatch,
+    debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/hpinfo-query-without-cups-queue.dpatch,
+    debian/patches/85_rebuild_python_ui.dpatch: Regenerated.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 25 Feb 2009 16:07:45 -0300
 	
