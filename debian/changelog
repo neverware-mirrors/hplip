@@ -27,6 +27,12 @@ hplip (3.9.2-1) unstable; urgency=low
 
  -- Mark Purcell <msp@debian.org>  Mon, 09 Mar 2009 12:52:14 +1100
 
+hplip (2.8.12-3ubuntu2) jaunty; urgency=low
+
+  * Rebuild with python (>= 2.6).
+
+ -- Matthias Klose <doko@ubuntu.com>  Tue, 24 Feb 2009 23:35:05 +0100
+
 hplip (2.8.12-3ubuntu1) jaunty; urgency=low
 
   [ Till Kamppeter ]
