@@ -1,8 +1,206 @@
-hplip (2.8.7-2) UNRELEASED; urgency=low
+hplip (3.9.2-1) unstable; urgency=low
 
-  * NOT RELEASED YET
+  [ Till Kamppeter ]
+  * New upstream release
+     o Fully Qt4-based
+     o Added printing support for HP Color LasetJets 1600, 2600, and CP1215
+     o Added support for HP OfficeJet Pro 8xxx series
+     o Tons of bug fixes
+  * debian/control, debian/rules: Qt3 is not needed any more
+  * debian/control: hp-toolbox (package hplip-gui) needs python-qt4-dbus now.
+  * debian/patches/pdf_printing_support.dpatch: Removed, applied upstream.
+  * debian/patches/systray-applet-with-qt4.dpatch: Removed, not needed any
+    more in Qt4-only environment.
+  * debian/patches/delayed-hp-systray-start.dpatch: Delay start of HPLIP
+    system tray applet, as it sometimes got started before the system tray was
+    available.
+  * debian/patches/kde4-kdesudo-support.dpatch,
+    debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/hpinfo-query-without-cups-queue.dpatch,
+    debian/patches/85_rebuild_python_ui.dpatch: Regenerated.
 
- -- Mark Purcell <msp@debian.org>  Thu, 16 Oct 2008 00:49:41 +1100
+ -- Mark Purcell <msp@debian.org>  Mon, 09 Mar 2009 12:52:14 +1100
+
+hplip (2.8.12-3ubuntu1) jaunty; urgency=low
+
+  [ Till Kamppeter ]
+  * debian/patches/hpinfo-query-without-cups-queue.dpatch: Allow hp-info to
+    query URIs for which there is no CUPS queue (LP: #329220).
+
+  [ Mark Purcell ]
+  * debian/patches/hp-check_debian.dpatch: Fixed hp-check for the SANE driver
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 18 Feb 2009 11:35:45 +0100
+
+hplip (2.8.12-3) unstable; urgency=low
+
+  * Fix "Breaks: udev (<< 136-1) which is only in Ubuntu; uninstallable
+    on Debian" removed from debian/control (Closes: #515750)
+
+ -- Mark Purcell <msp@debian.org>  Wed, 18 Feb 2009 07:34:36 +1100
+
+hplip (2.8.12-2) unstable; urgency=low
+
+  * Add Recommends for sane-utils/ xsane
+  * Conflicts: hpoj (Closes: #508008)
+  * debian/rules add get-orig-source target
+    - Available if gnome-pkg-tools is installed
+  * Fix hp-check to work recognise Debian install
+    -  Fix "hp-check complains about missing SIP even when sip4 installed"
+    (Closes: #483843)
+    - Fix "suggests installation of already installed sane" (Closes: #494419)
+    - Fix "hp-check complains for lacking hpaio support in sane but
+    package configures it ok" (Closes: #494430)
+    - Fix "Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets
+    check there too" (Closes: #512596)
+  * Fix "dplip: please change default icon to
+    /usr/share/pixmaps/HPmenu.xpm" patch from Fabian (Closes: #415048)
+
+ -- Mark Purcell <msp@debian.org>  Mon, 16 Feb 2009 23:47:44 +1100
+
+hplip (2.8.12-1ubuntu5) jaunty; urgency=low
+
+  * debian/rules: Returned UDEV rules priority to 40.
+  * debian/hplip.udev, debian/rules: Ship our own UDEV rules again, the
+    upstream ones have many problems (LP: #319660, LP: #319661, LP: #319662,
+    LP: #319665).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 21 Jan 2009 15:20:45 +0100
+
+hplip (2.8.12-1ubuntu4) jaunty; urgency=low
+
+  * debian/hplip.udev, debian/rules: Do not ship our own UDEV rules but use
+    the upstream ones. Use also the upsttream priority (55) for these rules.
+  * debian/hpdio.py, debian/rules: Removed, the file is provided upstream
+    now.
+  * debian/patches/hp-levels-without-tty.dpatch: Removed, problem fixed
+    upstream (Upstream bug LP: #299479).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 21 Jan 2009 15:20:45 +0100
+
+hplip (2.8.12-1ubuntu3) jaunty; urgency=low
+
+  * Restore udev rules that assign the lp group to /dev/bus/usb devices
+    for certain printers.  LP: #318262.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 21 Jan 2009 12:59:43 +0000
+
+hplip (2.8.12-1ubuntu2) jaunty; urgency=low
+
+  * debian/rules, debian/hplip.install, debian/hplip.links: Automatization
+    of file selection for generating symlinks to the executables and
+    generating the man pages. This avoids that new tools and man pages get
+    forgotten.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 10 Jan 2009 17:00:45 +0100
+	
+hplip (2.8.12-1ubuntu1) jaunty; urgency=low
+
+  * Merge from Debian
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Jan 2009 14:14:45 +0100
+	
+hplip (2.8.12-1) experimental; urgency=low
+
+  * New upstream release
+  * Distribution experimental while we await lenny
+  * del debian/patches included upstream; 
+    - manpage-whatis.dpatch, hpssd-correct-hp-sendfax-call.dpatch,
+    61_noqt_message.dpatch, qt4-systray-with-qt3-utilities.dpatch
+
+ -- Mark Purcell <msp@debian.org>  Sat, 03 Jan 2009 13:43:19 +1100
+
+hplip (2.8.10-2) experimental; urgency=low
+
+  * Sync with Ubuntu 
+
+ -- Mark Purcell <msp@debian.org>  Sun, 07 Dec 2008 14:12:31 +1100
+
+hplip (2.8.10-1ubuntu3) jaunty; urgency=low
+
+  * Add Breaks to ensure the right version of udev gets used.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Fri, 09 Jan 2009 11:51:57 +0000
+
+hplip (2.8.10-1ubuntu2) jaunty; urgency=low
+
+  * debian/rules: Don't install udev rules anymore; all these do is try and
+    put things in the scanner group which has been removed upstream (for
+    precisely this reason - printers aren't scanners!)
+  * debian/hplip.preinst: Remove udev rules on upgrade
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 07 Jan 2009 14:27:59 +0000
+
+hplip (2.8.10-1ubuntu1) jaunty; urgency=low
+
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Do not try to update
+    the PPDs of existing print queues if CUPS is not installed or not running
+    (LP: #302532).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 26 Nov 2008 22:26:45 +0100
+
+hplip (2.8.10-1) experimental; urgency=low
+
+  * Fix "New upstream version 2.8.9" sync with Ubuntu
+  (Closes: #501275)
+  * Distribution experimental while we await lenny
+
+ -- Mark Purcell <msp@debian.org>  Sun, 23 Nov 2008 11:08:26 +1100
+
+hplip (2.8.10-0ubuntu4) jaunty; urgency=low
+
+  * debian/control: Really fix the updating conflict of hplip and hplip-gui
+    due to the move of /usr/share/pixmaps/HPmenu.xpm in HPLIP 2.8.6.b-2
+    (Closes: #502055, LP: #299542).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 20 Nov 2008 12:30:02 +0100
+
+hplip (2.8.10-0ubuntu3) jaunty; urgency=low
+
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Make maintainer scripts
+    silent if there are no PPDs of existing print queues (LP: #299889).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 19 Nov 2008 15:51:02 +0100
+
+hplip (2.8.10-0ubuntu2) jaunty; urgency=low
+
+  * debian/rules: Set Python module path for calls of HPLIP components
+    during package build.
+  * debian/patches/hp-levels-without-tty.dpatch: Make hp-levels working
+    also without access to a TTY, for example to generate the man page with
+    "--help-man" during package build.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 18 Nov 2008 12:09:02 +0100
+
+hplip (2.8.10-0ubuntu1) jaunty; urgency=low
+
+  * New upstream release
+    - Closes: #501275, LP: #296399
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Let the PPD files of the
+    existing print queues get automatically updated after each installation of
+    this package.
+  * Refresh 85_rebuild_python_ui.dpatch,
+    hp_photosmart_pro_b9100_support.dpatch, systray-applet-with-qt4.dpatch
+  * bugs-in-generated-ppds.dpatch: Removed, applied upstream.
+  * text-only-without-systray-applet-traceback.dpatch: Removed, problem solved
+    upstream.
+  * Add manpages at build using --help-man option
+  * Add hp_photosmart_pro_b9100_support.dpatch description
+  * Add manpage-whatis.dpatch
+  * debian/rules: The fax PPDs are gzipped in the source tree now, unzip
+    them before patching
+  * debian/hpdio.py, debian/rules: Added file which was missing in the source
+    tarball, closes LP: #299011
+  * qt4-systray-with-qt3-utilities.dpatch: Suppress warning that Qt4 support
+    is not completed and let systray applet not force the hp-toolbox into Qt4
+    mode (LP: #299011).
+  * debian/rules: Let package build with both Qt3 and Qt4 support, let Qt3
+    be used by default ("ui-toolkit=qt3" in /etc/hp/hplip.conf), closes
+    LP: #299011
+  * hpssd-correct-hp-sendfax-call.dpatch: Correct call of hp-sendfax,
+    specifying the print queue needs "--printer" now and not "--fax".
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 17 Nov 2008 11:25:02 +0100
 
 hplip (2.8.7-1) experimental; urgency=low
 

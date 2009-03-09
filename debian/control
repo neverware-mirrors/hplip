@@ -2,13 +2,13 @@ Source: hplip
 Section: utils
 Priority: optional
 Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
-Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>
+Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>, Till Kamppeter <till.kamppeter@gmail.com>
 Build-Depends: libcups2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
- python-dev, python-qt3, python-qt4, pyqt-tools, python-support (>= 0.3), 
- python-dbus (>= 0.80), libdbus-1-dev
-Standards-Version: 3.7.3
+ python-dev, python-qt4, pyqt-tools, python-support (>= 0.3), 
+ python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev
+Standards-Version: 3.8.0
 Homepage: http://hplip.sourceforge.net/
 Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
@@ -19,10 +19,10 @@ Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
-Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20)
+Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20), sane-utils
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
-Conflicts: hpijs (<< 2.1), hplip-base
-Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.6.b-2)
+Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
+Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
 XB-Python-Version: ${python:Versions}
 Description: HP Linux Printing and Imaging System (HPLIP)
  The HP Linux Printing and Imaging System provides full support for
@@ -61,7 +61,8 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: hplip, python-qt4, python-qt3, python-reportlab, dbus-x11, gksu | kdebase-bin (<< 4:4.4.0-1) | kdesudo
+Depends: hplip, python-qt4, python-qt4-dbus, python-reportlab, dbus-x11, gksu | kdebase-bin (<< 4:4.4.0-1) | kdesudo
+Recommends: xsane
 Replaces: hplip (<< 2.7.7.dfsg.1-0ubuntu2)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for

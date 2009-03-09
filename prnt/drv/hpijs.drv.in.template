@@ -84,20 +84,25 @@ ColorDevice Yes
 Throughput 1
 
 // CUPS filters...
-Filter "application/vnd.cups-postscript 0 @foomatic_filter@"
+Filter "application/vnd.cups-postscript 100 @foomatic_filter@"
+Filter "application/vnd.cups-pdf 0 @foomatic_filter@"
 
 {
   Manufacturer "Apollo"
 
 /////////////// Apollo
 {
+  // Set an up-stream hint for applications that we suppport 300/600/1200dpi. 
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "Apollo-P-2100 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -262,13 +267,17 @@ et=4"
 
 ///////// DJ9xx
 {
+  // Set an up-stream hint for applications that we suppport 300/600/1200dpi. 
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PSC_750 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -450,19 +459,24 @@ et=2"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%DJ9xx:LargeFormatSuperB%>
   }
 }  // end DJ9xx
 
 /////////// DJ9xx but without photo modes
 {
+  // Set an up-stream hint for applications that we suppport 300/600/1200dpi. 
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PSC_750 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -638,19 +652,24 @@ et=2"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%DJ9xx:NoPhotoMode:LargeFormatSuperB%>
   }
 } // end DJ9xx but without photo modes
 
 ///////// DJ9xx but without photo/hires/best color modes
 {
+  // Set an up-stream hint for applications that we suppport 300/600/1200dpi. 
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PSC_750 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -826,18 +845,22 @@ ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=2,Quality:PenSet&&
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
   // <%DJ9xx:LargeFormatSuperB:NoPhotoBestHiresModes%>
 } // DJ9xx but without photo/hires/best color modes
 
 //////// DJ9xxVIP
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_990C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -1046,19 +1069,23 @@ et=2"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%DJ9xxVIP:LargeFormatSuperB%>
   }
 } // end DJ9xxVIP
 
 //////// DJ9xxVIP but without 1200-dpi mode and without paper type sensor
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_990C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -1234,13 +1261,16 @@ ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=2,Quality:PenSet&&
 
 ////////// DJ55xx (a VIP)
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_5550 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -1354,10 +1384,10 @@ Params=Quality:Quality=1,Quality:ColorMode=0,Quality:MediaType=0,Quali&&
 ty:PenSet=2"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftColorCMYK" " -r300 -sIjs&&
 Params=Quality:Quality=4,Quality:ColorMode=2,Quality:MediaType=0,Quali&&
-ty:PenSet=2"
+ty:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftGrayscaleK" " -r300 -&&
 sIjsParams=Quality:Quality=4,Quality:ColorMode=0,Quality:MediaType=0,Q&&
-uality:PenSet=2"
+uality:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300GrayscaleK" " -r300 -sIjsParam&&
 s=Quality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:Pe&&
 nSet=2"
@@ -1453,13 +1483,16 @@ lity:PenSet=2,Quality:FullBleed=1"
 
 /////////////// DJGenericVIP
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_5650 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -1584,10 +1617,10 @@ Params=Quality:Quality=1,Quality:ColorMode=0,Quality:MediaType=0,Quali&&
 ty:PenSet=2"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftColorCMYK" " -r300 -sIjs&&
 Params=Quality:Quality=4,Quality:ColorMode=2,Quality:MediaType=0,Quali&&
-ty:PenSet=2"
+ty:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftGrayscaleK" " -r300 -&&
 sIjsParams=Quality:Quality=4,Quality:ColorMode=0,Quality:MediaType=0,Q&&
-uality:PenSet=2"
+uality:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300GrayscaleK" " -r300 -sIjsParam&&
 s=Quality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:Pe&&
 nSet=2"
@@ -1685,26 +1718,30 @@ lity:PenSet=2,Quality:FullBleed=1"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%DJGenericVIP:LargeFormatSuperB%>
   }
 }  // end DJGenericVIP
 
 ////////////// OJProKx50 and DJGenericVIP without full bleed
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-Business_Inkjet_1000 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
 le=- -"
   Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
   Attribute "FoomaticRIPOptionSetting" "Model=HP-Business_Inkjet_1000" " -sDeviceMan&&
-ufacturer=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 5600&&
+ufacturer=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Officejet Pro K5400&&
 &quot;"
   Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
   Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300FastDraftCol&&
@@ -1811,10 +1848,10 @@ Params=Quality:Quality=1,Quality:ColorMode=0,Quality:MediaType=0,Quali&&
 ty:PenSet=2"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftColorCMYK" " -r300 -sIjs&&
 Params=Quality:Quality=4,Quality:ColorMode=2,Quality:MediaType=0,Quali&&
-ty:PenSet=2"
+ty:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300FastDraftGrayscaleK" " -r300 -&&
 sIjsParams=Quality:Quality=4,Quality:ColorMode=0,Quality:MediaType=0,Q&&
-uality:PenSet=2"
+uality:PenSet=2,Quality:SpeedMech=1"
   Attribute "FoomaticRIPOptionSetting" "Quality=300GrayscaleK" " -r300 -sIjsParam&&
 s=Quality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:Pe&&
 nSet=2"
@@ -1906,6 +1943,7 @@ et=2"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%DJGenericVIP:LargeFormatSuperB:NoFullBleed%>
     // <%OJProKx50:LargeFormatSuperB:NoFullBleed%>
   }
@@ -1913,13 +1951,16 @@ et=2"
 
 ///////////////// DJ3320
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_3320 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2092,13 +2133,16 @@ ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=2,Quality:PenSet&&
 
 //////////////////////// DJ3600
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_3650 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2284,13 +2328,16 @@ ty:PenSet=2,Quality:FullBleed=1"
 
 ////////////////// DJ4100
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_D4100 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2453,13 +2500,16 @@ ty:PenSet=2,Quality:FullBleed=1"
 
 //////////////////// PSP100 4x6, three-sided fullbleed
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to A6
+  HWMargins 0 36 0 0
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 297 420
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PhotoSmart_P100 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2535,13 +2585,16 @@ ity:PenSet=1,Quality:FullBleed=1"
 
 //////////////// DJGenericVIP 4x6, 4-sided fullbleed
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to A6
+  HWMargins 0 0 0 0
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 297 420
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PhotoSmart_320 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2617,13 +2670,16 @@ ity:PenSet=1,Quality:FullBleed=1"
 
 //////////////// PSP470 5x7, 4-sided fullbleed
 {
+  Attribute "DefaultResolution" "" "1200dpi"
+
+  // Custom page sizes from 1x4in to 5x7
+  HWMargins 0 0 0 0
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 5in 7in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PhotoSmart_470 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2705,16 +2761,19 @@ ity:PenSet=1,Quality:FullBleed=1"
 
 //////////////// QuickConnect 5x7, 4-sided fullbleed
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to 5x7
+  HWMargins 0 0 0 0
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 5in 7in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-PhotoSmart_A530 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
-USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
+USE -sDEVICE=ijs -r300 -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
 le=- -"
   Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
   Attribute "FoomaticRIPOptionSetting" "Model=HP-Photosmart_A53" " -sDeviceManufacture&&
@@ -2796,13 +2855,16 @@ Bleed=1"
 
 ///////////////// LJMono
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-LaserJet_4 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -2964,13 +3026,16 @@ t=0"
 
 ///////////////// LJMono 300 dpi only
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-LaserJet_4L hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3095,13 +3160,16 @@ PenSet=0"
 
 ////////////// LJColor
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to SuperB
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 936 1368
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-Color_LaserJet_2500 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3296,6 +3364,7 @@ nSet=2"
     CustomMedia "Ledger/Ledger" 792.00 1224.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
     CustomMedia "SuperB/Super B" 936.00 1368.00 14.40 36.00 14.40 9.00 "%% FoomaticRIPOptionSetting: PageSize=SuperB" "%% FoomaticRIPOptionSetting: PageSize=SuperB"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
+    CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
     // <%LJColor:LargeFormatSuperB%>
   }
   {
@@ -3310,13 +3379,16 @@ nSet=2"
 
 ////////////// LJColor 300 dpi max. only
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-Color_LaserJet_5 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3472,10 +3544,8 @@ nSet=2"
   CustomMedia "Photo5x7/Photo or 5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
   CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
   CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
-  CustomMedia "A3/A3" 842.00 1190.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
   CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
   CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
-  CustomMedia "B4JIS/B4 (JIS)" 729.00 1033.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B4JIS" "%% FoomaticRIPOptionSetting: PageSize=B4JIS"
   CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
   CustomMedia "CDDVD80/CD or DVD 80 mm" 237.00 237.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=CDDVD80" "%% FoomaticRIPOptionSetting: PageSize=CDDVD80"
   CustomMedia "CDDVD120/CD or DVD 120 mm" 360.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=CDDVD120" "%% FoomaticRIPOptionSetting: PageSize=CDDVD120"
@@ -3488,12 +3558,10 @@ nSet=2"
   CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
   CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
   CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
-  CustomMedia "Ledger/Ledger" 792.00 1224.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Ledger" "%% FoomaticRIPOptionSetting: PageSize=Ledger"
   CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
   CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
   CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
   CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
-  CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
   {
     // Large format A3 paper support
     CustomMedia "A3/A3" 842.00 1190.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
@@ -3502,18 +3570,20 @@ nSet=2"
     CustomMedia "w774h1116/8K" 774.00 1116.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w774h1116" "%% FoomaticRIPOptionSetting: PageSize=w774h1116"
     // <%LJColor:300dpiOnly:LargeFormatA3%>
   }
-  // <%LJColor:300dpiOnly%>
 } // end LJColor 300 dpi max. only
 
 //////////////// LJFastRaster
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-LaserJet_1010 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3653,13 +3723,16 @@ t=0"
 
 ///////////////// LJJetReady
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-Color_LaserJet_3500 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3797,13 +3870,16 @@ nSet=2"
 
 /////////////// DJ350
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_350C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -3936,13 +4012,16 @@ uality:PenSet=0"
 
 //////////// DJ540 grayscale only
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_500 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4054,13 +4133,16 @@ t=0"
 
 /////////////// DJ540
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_400 hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4186,13 +4268,16 @@ t=0"
 
 /////////////// DJ630
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_630C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4339,13 +4424,16 @@ uality:PenSet=0"
 
 /////////////// DJ600 and DJ6xx
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_660C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4485,13 +4573,16 @@ r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;DESKJET 660&quot;"
 
 ///////////// DJ6xxPhoto
 {
+  Attribute "DefaultResolution" "" "300dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 48.24 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_610C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4630,13 +4721,16 @@ et=4"
 
 ///////////////// DJ8xx
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_810C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4778,13 +4872,16 @@ ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=2,Quality:PenSet&&
 
 ////////////// DJ8x5
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_825C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -4943,13 +5040,16 @@ ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=2,Quality:PenSet&&
 
 ///////////////////// DJ850 and DJ890
 {
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Legal
+  HWMargins 18 36 18 9
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 8.5in 14in
   Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
 EVICEHEIGHTPOINTS=0"
-  Attribute "ParamCustomPageSize" "Width" "1 points 36 100000"
-  Attribute "ParamCustomPageSize" "Height" "2 points 36 100000"
-  Attribute "ParamCustomPageSize" "Orientation" "3 int 0 0"
-  Attribute "ParamCustomPageSize" "WidthOffset" "4 points 0 0"
-  Attribute "ParamCustomPageSize" "HeightOffset" "5 points 0 0"
+
   Attribute "FoomaticIDs" "" "HP-DeskJet_850C hpijs"
   Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
 USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
@@ -5088,6 +5188,662 @@ r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;DESKJET 890&quot;"
     // <%DJ890:Normal%>
   }
 }  // end DJ850 and DJ890
+
+///////////////////// LJZjsMono (for proprietary plugin)
+{
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
+EVICEHEIGHTPOINTS=0"
+
+  Attribute "FoomaticIDs" "" "HP-LaserJet_1018 hpijs"
+  Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
+USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C%D -dIjsUseOutputFD%Z -sOutputFi&&
+le=- -"
+  Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
+  Attribute "FoomaticRIPOptionSetting" "Model=HP-LaserJet_1018" " -sDeviceManufactur&&
+er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP LaserJet 1018&quot;"
+  Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftGraysca&&
+leK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Normal" "Quality=600GrayscaleK"
+  Attribute "FoomaticRIPOption" "MediaType" "enum CmdLine C"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Plain" ",Quality:MediaType=0"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Transparency" ",Quality:MediaType=3"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Photo" ",Quality:MediaType=3"
+  Attribute "FoomaticRIPOption" "InputSlot" "enum CmdLine D"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Default" ",PS:MediaPosition=7"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Manual" ",PS:MediaPosition=2"
+  Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
+dDEVICEHEIGHTPOINTS=792"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A4" " -dDEVICEWIDTHPOINTS=595 -dDEV&&
+ICEHEIGHTPOINTS=842"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo" " -dDEVICEWIDTHPOINTS=288 -d&&
+DEVICEHEIGHTPOINTS=432"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo5x7" " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=3x5" " -dDEVICEWIDTHPOINTS=216 -dDE&&
+VICEHEIGHTPOINTS=360"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=5x8" " -dDEVICEWIDTHPOINTS=360 -dDE&&
+VICEHEIGHTPOINTS=576"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A5" " -dDEVICEWIDTHPOINTS=420 -dDEV&&
+ICEHEIGHTPOINTS=595"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A6" " -dDEVICEWIDTHPOINTS=297 -dDEV&&
+ICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=B5JIS" " -dDEVICEWIDTHPOINTS=516 -d&&
+DEVICEHEIGHTPOINTS=729"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Env10" " -dDEVICEWIDTHPOINTS=297 -d&&
+DEVICEHEIGHTPOINTS=684"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC5" " -dDEVICEWIDTHPOINTS=459 -d&&
+DEVICEHEIGHTPOINTS=649"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC6" " -dDEVICEWIDTHPOINTS=323 -d&&
+DEVICEHEIGHTPOINTS=459"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvDL" " -dDEVICEWIDTHPOINTS=312 -d&&
+DEVICEHEIGHTPOINTS=624"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvISOB5" " -dDEVICEWIDTHPOINTS=499&&
+ -dDEVICEHEIGHTPOINTS=709"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvMonarch" " -dDEVICEWIDTHPOINTS=2&&
+79 -dDEVICEHEIGHTPOINTS=540"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Executive" " -dDEVICEWIDTHPOINTS=52&&
+2 -dDEVICEHEIGHTPOINTS=756"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=FLSA" " -dDEVICEWIDTHPOINTS=612 -dD&&
+EVICEHEIGHTPOINTS=936"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Hagaki" " -dDEVICEWIDTHPOINTS=283 -&&
+dDEVICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Legal" " -dDEVICEWIDTHPOINTS=612 -d&&
+DEVICEHEIGHTPOINTS=1008"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Oufuku" " -dDEVICEWIDTHPOINTS=420 -&&
+dDEVICEHEIGHTPOINTS=567"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w558h774" " -dDEVICEWIDTHPOINTS=558&&
+ -dDEVICEHEIGHTPOINTS=774"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w612h935" " -dDEVICEWIDTHPOINTS=612&&
+ -dDEVICEHEIGHTPOINTS=935"
+  Attribute "FoomaticRIPOption" "Quality" "enum CmdLine B"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600DraftGrayscaleK" " -r600 -sIjsPar&&
+ams=Quality:Quality=1,Quality:ColorMode=0,Quality:PenSet=0"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600GrayscaleK" " -r600 -sIjsParams=Q&&
+uality:Quality=0,Quality:ColorMode=0,Quality:PenSet=0"
+  Group "General/General"
+    Option "PrintoutMode/Printout Mode" PickOne AnySetup 10.0
+      Choice "Draft/Draft (Economy)" "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
+      *Choice "Normal/Normal" "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
+    Option "MediaType/Media Type" PickOne AnySetup 10.0
+      *Choice "Plain/Plain Paper" "%% FoomaticRIPOptionSetting: MediaType=Plain"
+      Choice "Transparency/Transparency" "%% FoomaticRIPOptionSetting: MediaType=&&
+Transparency"
+      Choice "Photo/Photo Paper" "%% FoomaticRIPOptionSetting: MediaType=Photo"
+    Option "InputSlot/Media Source" PickOne AnySetup 100.0
+      *Choice "Default/Automatic" "%% FoomaticRIPOptionSetting: InputSlot=Default"
+      Choice "Manual/Manual Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Manual"
+  Group "PrintoutMode/Printout Mode"
+    Option "Quality/Resolution, Quality, Toner Type, Media Type" PickOne AnySetup 100.0
+      *Choice "FromPrintoutMode/Controlled by 'Printout Mode'" "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
+      Choice "600DraftGrayscaleK/600 dpi, Draft, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600DraftGrayscaleK"
+      Choice "600GrayscaleK/600 dpi, Normal, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600GrayscaleK"
+  *CustomMedia "Letter/Letter" 612.00 792.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Letter" "%% FoomaticRIPOptionSetting: PageSize=Letter"
+  CustomMedia "A4/A4" 595.00 842.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A4" "%% FoomaticRIPOptionSetting: PageSize=A4"
+  CustomMedia "Photo/Photo/4x6 inch index card" 288.00 432.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo" "%% FoomaticRIPOptionSetting: PageSize=Photo"
+  CustomMedia "Photo5x7/Photo/5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+  CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
+  CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
+  CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
+  CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
+  CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
+  CustomMedia "Env10/Envelope #10" 297.00 684.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Env10" "%% FoomaticRIPOptionSetting: PageSize=Env10"
+  CustomMedia "EnvC5/Envelope C5" 459.00 649.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC5" "%% FoomaticRIPOptionSetting: PageSize=EnvC5"
+  CustomMedia "EnvC6/Envelope C6" 323.00 459.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC6" "%% FoomaticRIPOptionSetting: PageSize=EnvC6"
+  CustomMedia "EnvDL/Envelope DL" 312.00 624.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvDL" "%% FoomaticRIPOptionSetting: PageSize=EnvDL"
+  CustomMedia "EnvISOB5/Envelope B5" 499.00 709.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5" "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5"
+  CustomMedia "EnvMonarch/Envelope Monarch" 279.00 540.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch" "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch"
+  CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
+  CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
+  CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
+  CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
+  CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
+  CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
+  CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
+  // <%LJZjsMono:Normal%>
+} // end LJZjsMono (for proprietary plugin)
+
+///////////// LJJetReady (for proprietary plugin)
+{
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
+EVICEHEIGHTPOINTS=0"
+
+  Attribute "FoomaticIDs" "" "HP-Color_LaserJet_3500 hpijs"
+  Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
+USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C -dIjsUseOutputFD%Z -sOutputFi&&
+le=- -"
+  Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
+  Attribute "FoomaticRIPOptionSetting" "Model=HP-Color_LaserJet_3500" " -sDeviceManu&&
+facturer=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;hp color Lase&&
+rJet 3500&quot;"
+  Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=NormalColor" "Quality=NormalColorCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=NormalGray" "Quality=NormalGraysc&&
+aleCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=BestColor" "Quality=BestColorCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=BestGray" "Quality=BestGraysc&&
+aleCMYK"
+  Attribute "FoomaticRIPOption" "InputSlot" "enum CmdLine C"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Default" ",PS:MediaPosition=7"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=PhotoTray" ",PS:MediaPosition=6"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Upper" ",PS:MediaPosition=1"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Lower" ",PS:MediaPosition=4"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Envelope" ",PS:MediaPosition=3"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=LargeCapacity" ",PS:MediaPosition=&&
+5"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Manual" ",PS:MediaPosition=2"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=MPTray" ",PS:MediaPosition=8"
+  Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
+dDEVICEHEIGHTPOINTS=792"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A4" " -dDEVICEWIDTHPOINTS=595 -dDEV&&
+ICEHEIGHTPOINTS=842"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo" " -dDEVICEWIDTHPOINTS=288 -d&&
+DEVICEHEIGHTPOINTS=432"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo5x7" " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=3x5" " -dDEVICEWIDTHPOINTS=216 -dDE&&
+VICEHEIGHTPOINTS=360"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=5x8" " -dDEVICEWIDTHPOINTS=360 -dDE&&
+VICEHEIGHTPOINTS=576"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A5" " -dDEVICEWIDTHPOINTS=420 -dDEV&&
+ICEHEIGHTPOINTS=595"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A6" " -dDEVICEWIDTHPOINTS=297 -dDEV&&
+ICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=B5JIS" " -dDEVICEWIDTHPOINTS=516 -d&&
+DEVICEHEIGHTPOINTS=729"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Env10" " -dDEVICEWIDTHPOINTS=297 -d&&
+DEVICEHEIGHTPOINTS=684"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC5" " -dDEVICEWIDTHPOINTS=459 -d&&
+DEVICEHEIGHTPOINTS=649"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC6" " -dDEVICEWIDTHPOINTS=323 -d&&
+DEVICEHEIGHTPOINTS=459"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvDL" " -dDEVICEWIDTHPOINTS=312 -d&&
+DEVICEHEIGHTPOINTS=624"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvISOB5" " -dDEVICEWIDTHPOINTS=499&&
+ -dDEVICEHEIGHTPOINTS=709"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvMonarch" " -dDEVICEWIDTHPOINTS=2&&
+79 -dDEVICEHEIGHTPOINTS=540"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Executive" " -dDEVICEWIDTHPOINTS=52&&
+2 -dDEVICEHEIGHTPOINTS=756"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=FLSA" " -dDEVICEWIDTHPOINTS=612 -dD&&
+EVICEHEIGHTPOINTS=936"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Hagaki" " -dDEVICEWIDTHPOINTS=283 -&&
+dDEVICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Legal" " -dDEVICEWIDTHPOINTS=612 -d&&
+DEVICEHEIGHTPOINTS=1008"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Oufuku" " -dDEVICEWIDTHPOINTS=420 -&&
+dDEVICEHEIGHTPOINTS=567"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w558h774" " -dDEVICEWIDTHPOINTS=558&&
+ -dDEVICEHEIGHTPOINTS=774"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w612h935" " -dDEVICEWIDTHPOINTS=612&&
+ -dDEVICEHEIGHTPOINTS=935"
+  Attribute "FoomaticRIPOption" "Duplex" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "Duplex=DuplexNoTumble" " -dDuplex=true -dTum&&
+ble=false"
+  Attribute "FoomaticRIPOptionSetting" "Duplex=DuplexTumble" " -dDuplex=true -dTumbl&&
+e=true"
+  Attribute "FoomaticRIPOptionSetting" "Duplex=None" " -dDuplex=false"
+  Attribute "FoomaticRIPOption" "Quality" "enum CmdLine B"
+  Attribute "FoomaticRIPOptionSetting" "Quality=NormalColorCMYK" " -r600 -sIjsParams=Qu&&
+ality:Quality=0,Quality:ColorMode=2,Quality:MediaType=0,Quality:PenSet&&
+=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=NormalGrayscaleCMYK" " -r600 -sIjsParam&&
+s=Quality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:Pe&&
+nSet=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=BestColorCMYK" " -r600 -sIjsParams=Qu&&
+ality:Quality=2,Quality:ColorMode=2,Quality:MediaType=0,Quality:PenSet&&
+=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=BestGrayscaleCMYK" " -r600 -sIjsParam&&
+s=Quality:Quality=2,Quality:ColorMode=0,Quality:MediaType=0,Quality:Pe&&
+nSet=2"
+  Group "General/General"
+    Option "PrintoutMode/Printout Mode" PickOne AnySetup 10.0
+      *Choice "NormalColor/Normal Color" "%% FoomaticRIPOptionSetting: PrintoutMode=NormalColor"
+      Choice "NormalGray/Normal Grayscale" "%% FoomaticRIPOptionSetting: PrintoutMode=NormalGray"
+      Choice "BestColor/Best Color" "%% FoomaticRIPOptionSetting: PrintoutMode=BestColor"
+      Choice "BestGray/Best Grayscale" "%% FoomaticRIPOptionSetting: PrintoutMode=BestGray"
+    Option "InputSlot/Media Source" PickOne AnySetup 100.0
+      *Choice "Default/Printer default" "%% FoomaticRIPOptionSetting: InputSlot=Default"
+      Choice "PhotoTray/Photo Tray" "%% FoomaticRIPOptionSetting: InputSlot=PhotoTray"
+      Choice "Upper/Upper Tray" "%% FoomaticRIPOptionSetting: InputSlot=Upper"
+      Choice "Lower/Lower Tray" "%% FoomaticRIPOptionSetting: InputSlot=Lower"
+      Choice "Envelope/Envelope Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Envelope"
+      Choice "LargeCapacity/Large Capacity Tray" "%% FoomaticRIPOptionSetting: InputSlot=LargeCapacity"
+      Choice "Manual/Manual Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Manual"
+      Choice "MPTray/Multi Purpose Tray" "%% FoomaticRIPOptionSetting: InputSlot=MPTray"
+    Option "Duplex/Double-Sided Printing" PickOne AnySetup 120.0
+      Choice "DuplexNoTumble/Long Edge (Standard)" "%% FoomaticRIPOptionSetting: Duplex=DuplexNoTumble"
+      Choice "DuplexTumble/Short Edge (Flip)" "%% FoomaticRIPOptionSetting: Duplex=DuplexTumble"
+      *Choice "None/Off" "%% FoomaticRIPOptionSetting: Duplex=None"
+  Group "PrintoutMode/Printout Mode"
+    Option "Quality/Resolution, Quality, Ink Type, Media Type" PickOne AnySetup 100.0
+      *Choice "FromPrintoutMode/Controlled by 'Printout Mode'" "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
+      Choice "NormalColorCMYK/600 dpi, Normal, Color, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=NormalColorCMYK"
+      Choice "NormalGrayscaleCMYK/600 dpi, Normal, Grayscale, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=NormalGrayscaleCMYK"
+      Choice "BestColorCMYK/600 dpi, Best, Color, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=BestColorCMYK"
+      Choice "BestGrayscaleCMYK/600 dpi, Best, Grayscale, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=BestGrayscaleCMYK"
+  *CustomMedia "Letter/Letter" 612.00 792.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Letter" "%% FoomaticRIPOptionSetting: PageSize=Letter"
+  CustomMedia "A4/A4" 595.00 842.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A4" "%% FoomaticRIPOptionSetting: PageSize=A4"
+  CustomMedia "Photo/Photo/4x6 inch index card" 288.00 432.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo" "%% FoomaticRIPOptionSetting: PageSize=Photo"
+  CustomMedia "Photo5x7/Photo/5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+  CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
+  CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
+  CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
+  CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
+  CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
+  CustomMedia "Env10/Envelope #10" 297.00 684.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Env10" "%% FoomaticRIPOptionSetting: PageSize=Env10"
+  CustomMedia "EnvC5/Envelope C5" 459.00 649.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC5" "%% FoomaticRIPOptionSetting: PageSize=EnvC5"
+  CustomMedia "EnvC6/Envelope C6" 323.00 459.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC6" "%% FoomaticRIPOptionSetting: PageSize=EnvC6"
+  CustomMedia "EnvDL/Envelope DL" 312.00 624.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvDL" "%% FoomaticRIPOptionSetting: PageSize=EnvDL"
+  CustomMedia "EnvISOB5/Envelope B5" 499.00 709.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5" "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5"
+  CustomMedia "EnvMonarch/Envelope Monarch" 279.00 540.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch" "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch"
+  CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
+  CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
+  CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
+  CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
+  CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
+  CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
+  CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
+  // <%LJJetReady:Normal%>
+} // end LJJetReady (for proprietary plugin)
+
+///////////// LJm1005 (for proprietary plugin)
+{
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
+EVICEHEIGHTPOINTS=0"
+
+  Attribute "FoomaticIDs" "" "HP-LaserJet_M1005 hpijs"
+  Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
+USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C%D -dIjsUseOutputFD%Z -sOutputFi&&
+le=- -"
+  Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
+  Attribute "FoomaticRIPOptionSetting" "Model=HP-LaserJet_M1005" " -sDeviceManufactur&&
+er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP LaserJet M1005&quot;"
+  Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftGraysca&&
+leK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Normal" "Quality=600GrayscaleK"
+  Attribute "FoomaticRIPOption" "MediaType" "enum CmdLine C"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Plain" ",Quality:MediaType=0"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Transparency" ",Quality:MediaType=3"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Photo" ",Quality:MediaType=3"
+  Attribute "FoomaticRIPOption" "InputSlot" "enum CmdLine D"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Default" ",PS:MediaPosition=7"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Manual" ",PS:MediaPosition=2"
+  Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
+dDEVICEHEIGHTPOINTS=792"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A4" " -dDEVICEWIDTHPOINTS=595 -dDEV&&
+ICEHEIGHTPOINTS=842"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo" " -dDEVICEWIDTHPOINTS=288 -d&&
+DEVICEHEIGHTPOINTS=432"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo5x7" " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=3x5" " -dDEVICEWIDTHPOINTS=216 -dDE&&
+VICEHEIGHTPOINTS=360"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=5x8" " -dDEVICEWIDTHPOINTS=360 -dDE&&
+VICEHEIGHTPOINTS=576"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A5" " -dDEVICEWIDTHPOINTS=420 -dDEV&&
+ICEHEIGHTPOINTS=595"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A6" " -dDEVICEWIDTHPOINTS=297 -dDEV&&
+ICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=B5JIS" " -dDEVICEWIDTHPOINTS=516 -d&&
+DEVICEHEIGHTPOINTS=729"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Env10" " -dDEVICEWIDTHPOINTS=297 -d&&
+DEVICEHEIGHTPOINTS=684"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC5" " -dDEVICEWIDTHPOINTS=459 -d&&
+DEVICEHEIGHTPOINTS=649"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC6" " -dDEVICEWIDTHPOINTS=323 -d&&
+DEVICEHEIGHTPOINTS=459"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvDL" " -dDEVICEWIDTHPOINTS=312 -d&&
+DEVICEHEIGHTPOINTS=624"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvISOB5" " -dDEVICEWIDTHPOINTS=499&&
+ -dDEVICEHEIGHTPOINTS=709"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvMonarch" " -dDEVICEWIDTHPOINTS=2&&
+79 -dDEVICEHEIGHTPOINTS=540"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Executive" " -dDEVICEWIDTHPOINTS=52&&
+2 -dDEVICEHEIGHTPOINTS=756"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=FLSA" " -dDEVICEWIDTHPOINTS=612 -dD&&
+EVICEHEIGHTPOINTS=936"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Hagaki" " -dDEVICEWIDTHPOINTS=283 -&&
+dDEVICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Legal" " -dDEVICEWIDTHPOINTS=612 -d&&
+DEVICEHEIGHTPOINTS=1008"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Oufuku" " -dDEVICEWIDTHPOINTS=420 -&&
+dDEVICEHEIGHTPOINTS=567"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w558h774" " -dDEVICEWIDTHPOINTS=558&&
+ -dDEVICEHEIGHTPOINTS=774"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w612h935" " -dDEVICEWIDTHPOINTS=612&&
+ -dDEVICEHEIGHTPOINTS=935"
+  Attribute "FoomaticRIPOption" "Quality" "enum CmdLine B"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600DraftGrayscaleK" " -r600 -sIjsPar&&
+ams=Quality:Quality=1,Quality:ColorMode=0,Quality:PenSet=0"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600GrayscaleK" " -r600 -sIjsParams=Q&&
+uality:Quality=0,Quality:ColorMode=0,Quality:PenSet=0"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600BestGrayscaleK" " -r600 -sIjsParams=Q&&
+uality:Quality=2,Quality:ColorMode=0,Quality:PenSet=0"
+  Group "General/General"
+    Option "PrintoutMode/Printout Mode" PickOne AnySetup 10.0
+      Choice "Draft/Draft (Economy)" "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
+      *Choice "Normal/Normal" "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
+    Option "MediaType/Media Type" PickOne AnySetup 10.0
+      *Choice "Plain/Plain Paper" "%% FoomaticRIPOptionSetting: MediaType=Plain"
+      Choice "Transparency/Transparency" "%% FoomaticRIPOptionSetting: MediaType=&&
+Transparency"
+      Choice "Photo/Photo Paper" "%% FoomaticRIPOptionSetting: MediaType=Photo"
+    Option "InputSlot/Media Source" PickOne AnySetup 100.0
+      *Choice "Default/Automatic" "%% FoomaticRIPOptionSetting: InputSlot=Default"
+      Choice "Manual/Manual Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Manual"
+  Group "PrintoutMode/Printout Mode"
+    Option "Quality/Resolution, Quality, Toner Type, Media Type" PickOne AnySetup 100.0
+      *Choice "FromPrintoutMode/Controlled by 'Printout Mode'" "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
+      Choice "600DraftGrayscaleK/600 dpi, Draft, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600DraftGrayscaleK"
+      Choice "600GrayscaleK/600 dpi, Normal, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600GrayscaleK"
+      Choice "600BestGrayscaleK/600 dpi, Best, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600BestGrayscaleK"
+  *CustomMedia "Letter/Letter" 612.00 792.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Letter" "%% FoomaticRIPOptionSetting: PageSize=Letter"
+  CustomMedia "A4/A4" 595.00 842.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A4" "%% FoomaticRIPOptionSetting: PageSize=A4"
+  CustomMedia "Photo/Photo/4x6 inch index card" 288.00 432.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo" "%% FoomaticRIPOptionSetting: PageSize=Photo"
+  CustomMedia "Photo5x7/Photo/5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+  CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
+  CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
+  CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
+  CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
+  CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
+  CustomMedia "Env10/Envelope #10" 297.00 684.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Env10" "%% FoomaticRIPOptionSetting: PageSize=Env10"
+  CustomMedia "EnvC5/Envelope C5" 459.00 649.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC5" "%% FoomaticRIPOptionSetting: PageSize=EnvC5"
+  CustomMedia "EnvC6/Envelope C6" 323.00 459.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC6" "%% FoomaticRIPOptionSetting: PageSize=EnvC6"
+  CustomMedia "EnvDL/Envelope DL" 312.00 624.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvDL" "%% FoomaticRIPOptionSetting: PageSize=EnvDL"
+  CustomMedia "EnvISOB5/Envelope B5" 499.00 709.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5" "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5"
+  CustomMedia "EnvMonarch/Envelope Monarch" 279.00 540.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch" "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch"
+  CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
+  CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
+  CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
+  CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
+  CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
+  CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
+  CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
+  // <%LJm1005:Normal%>
+} // end LJm1005 (for proprietary plugin)
+
+///////////////////// LJZjsColor (for proprietary plugin)
+{
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
+EVICEHEIGHTPOINTS=0"
+
+  Attribute "FoomaticIDs" "" "HP-Color_LaserJet_2600n hpijs"
+  Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
+USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C%D -dIjsUseOutputFD%Z -sOutputFi&&
+le=- -"
+  Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
+  Attribute "FoomaticRIPOptionSetting" "Model=HP-Color_LaserJet_2600n" " -sDeviceManufactur&&
+er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP Color LaserJet 2600n&quot;"
+  Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=DraftColorCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft.Gray" "Quality=DraftGrayscaleCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Normal" "Quality=NormalColorCMYK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Normal.Gray" "Quality=NormalGrayscaleCMYK"
+  Attribute "FoomaticRIPOption" "MediaType" "enum CmdLine C"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Plain" ",Quality:MediaType=0"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Transparency" ",Quality:MediaType=3"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Photo" ",Quality:MediaType=3"
+  Attribute "FoomaticRIPOption" "InputSlot" "enum CmdLine D"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Default" ",PS:MediaPosition=7"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Manual" ",PS:MediaPosition=2"
+  Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
+dDEVICEHEIGHTPOINTS=792"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A4" " -dDEVICEWIDTHPOINTS=595 -dDEV&&
+ICEHEIGHTPOINTS=842"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo" " -dDEVICEWIDTHPOINTS=288 -d&&
+DEVICEHEIGHTPOINTS=432"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo5x7" " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=3x5" " -dDEVICEWIDTHPOINTS=216 -dDE&&
+VICEHEIGHTPOINTS=360"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=5x8" " -dDEVICEWIDTHPOINTS=360 -dDE&&
+VICEHEIGHTPOINTS=576"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A5" " -dDEVICEWIDTHPOINTS=420 -dDEV&&
+ICEHEIGHTPOINTS=595"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A6" " -dDEVICEWIDTHPOINTS=297 -dDEV&&
+ICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=B5JIS" " -dDEVICEWIDTHPOINTS=516 -d&&
+DEVICEHEIGHTPOINTS=729"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Env10" " -dDEVICEWIDTHPOINTS=297 -d&&
+DEVICEHEIGHTPOINTS=684"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC5" " -dDEVICEWIDTHPOINTS=459 -d&&
+DEVICEHEIGHTPOINTS=649"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC6" " -dDEVICEWIDTHPOINTS=323 -d&&
+DEVICEHEIGHTPOINTS=459"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvDL" " -dDEVICEWIDTHPOINTS=312 -d&&
+DEVICEHEIGHTPOINTS=624"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvISOB5" " -dDEVICEWIDTHPOINTS=499&&
+ -dDEVICEHEIGHTPOINTS=709"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvMonarch" " -dDEVICEWIDTHPOINTS=2&&
+79 -dDEVICEHEIGHTPOINTS=540"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Executive" " -dDEVICEWIDTHPOINTS=52&&
+2 -dDEVICEHEIGHTPOINTS=756"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=FLSA" " -dDEVICEWIDTHPOINTS=612 -dD&&
+EVICEHEIGHTPOINTS=936"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Hagaki" " -dDEVICEWIDTHPOINTS=283 -&&
+dDEVICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Legal" " -dDEVICEWIDTHPOINTS=612 -d&&
+DEVICEHEIGHTPOINTS=1008"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Oufuku" " -dDEVICEWIDTHPOINTS=420 -&&
+dDEVICEHEIGHTPOINTS=567"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w558h774" " -dDEVICEWIDTHPOINTS=558&&
+ -dDEVICEHEIGHTPOINTS=774"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w612h935" " -dDEVICEWIDTHPOINTS=612&&
+ -dDEVICEHEIGHTPOINTS=935"
+  Attribute "FoomaticRIPOption" "Quality" "enum CmdLine B"
+  Attribute "FoomaticRIPOptionSetting" "Quality=DraftColorCMYK" " -r600 -sIjsPar&&
+ams=Quality:Quality=1,Quality:ColorMode=2,Quality:PenSet=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=NormalColorCMYK" " -r600 -sIjsParams=Q&&
+uality:Quality=0,Quality:ColorMode=2,Quality:PenSet=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=DraftGrayscaleCMYK" " -r600 -sIjsPar&&
+ams=Quality:Quality=1,Quality:ColorMode=0,Quality:PenSet=2"
+  Attribute "FoomaticRIPOptionSetting" "Quality=NormalGrayscaleCMYK" " -r600 -sIjsParams=Q&&
+uality:Quality=0,Quality:ColorMode=0,Quality:PenSet=2"
+  Group "General/General"
+    Option "PrintoutMode/Printout Mode" PickOne AnySetup 10.0
+      Choice "Draft/Draft Color" "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
+      *Choice "Normal/Normal Color" "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
+      Choice "Draft.Gray/Draft Grayscale" "%% FoomaticRIPOptionSetting: PrintoutMode=Draft.Gray"
+      Choice "Normal.Gray/Normal Grayscale" "%% FoomaticRIPOptionSetting: PrintoutMode=Normal.Gray"
+    Option "MediaType/Media Type" PickOne AnySetup 10.0
+      *Choice "Plain/Plain Paper" "%% FoomaticRIPOptionSetting: MediaType=Plain"
+      Choice "Transparency/Transparency" "%% FoomaticRIPOptionSetting: MediaType=&&
+Transparency"
+      Choice "Photo/Photo Paper" "%% FoomaticRIPOptionSetting: MediaType=Photo"
+    Option "InputSlot/Media Source" PickOne AnySetup 100.0
+      *Choice "Default/Automatic" "%% FoomaticRIPOptionSetting: InputSlot=Default"
+      Choice "Manual/Manual Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Manual"
+  Group "PrintoutMode/Printout Mode"
+    Option "Quality/Resolution, Quality, Toner Type, Media Type" PickOne AnySetup 100.0
+      *Choice "FromPrintoutMode/Controlled by 'Printout Mode'" "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
+      Choice "DraftColorCMYK/600 dpi, Draft, Color, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=DraftColorCMYK"
+      Choice "NormalColorCMYK/600 dpi, Normal, Color, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=NormalColorCMYK"
+      Choice "DraftGrayscaleCMYK/600 dpi, Draft, Grayscale, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=DraftGrayscaleCMYK"
+      Choice "NormalGrayscaleCMYK/600 dpi, Normal, Grayscale, Black + Color Cartr." "%% FoomaticRIPOptionSetting: Quality=NormalGrayscaleCMYK"
+  *CustomMedia "Letter/Letter" 612.00 792.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Letter" "%% FoomaticRIPOptionSetting: PageSize=Letter"
+  CustomMedia "A4/A4" 595.00 842.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A4" "%% FoomaticRIPOptionSetting: PageSize=A4"
+  CustomMedia "Photo/Photo/4x6 inch index card" 288.00 432.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo" "%% FoomaticRIPOptionSetting: PageSize=Photo"
+  CustomMedia "Photo5x7/Photo/5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+  CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
+  CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
+  CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
+  CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
+  CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
+  CustomMedia "Env10/Envelope #10" 297.00 684.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Env10" "%% FoomaticRIPOptionSetting: PageSize=Env10"
+  CustomMedia "EnvC5/Envelope C5" 459.00 649.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC5" "%% FoomaticRIPOptionSetting: PageSize=EnvC5"
+  CustomMedia "EnvC6/Envelope C6" 323.00 459.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC6" "%% FoomaticRIPOptionSetting: PageSize=EnvC6"
+  CustomMedia "EnvDL/Envelope DL" 312.00 624.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvDL" "%% FoomaticRIPOptionSetting: PageSize=EnvDL"
+  CustomMedia "EnvISOB5/Envelope B5" 499.00 709.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5" "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5"
+  CustomMedia "EnvMonarch/Envelope Monarch" 279.00 540.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch" "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch"
+  CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
+  CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
+  CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
+  CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
+  CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
+  CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
+  CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
+  // <%LJZjsColor:Normal%>
+} // end LJZjsColor (for proprietary plugin)
+
+///////////// LJP1XXX (for proprietary plugin)
+{
+  Attribute "DefaultResolution" "" "600dpi"
+
+  // Custom page sizes from 1x4in to Ledger
+  HWMargins 18 14.4 18 14.4
+  VariablePaperSize Yes
+  MinSize 1in 4in
+  MaxSize 11in 17in
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Custom" " -dDEVICEWIDTHPOINTS=0 -dD&&
+EVICEHEIGHTPOINTS=0"
+
+  Attribute "FoomaticIDs" "" "HP-LaserJet_M1005 hpijs"
+  Attribute "FoomaticRIPCommandLine" "" "gs -q -dBATCH -dPARANOIDSAFER -dQUIET -dNOPA&&
+USE -sDEVICE=ijs -sIjsServer=hpijs%A%B%C%D -dIjsUseOutputFD%Z -sOutputFi&&
+le=- -"
+  Attribute "FoomaticRIPOption" "Model" "enum CmdLine A 100"
+  Attribute "FoomaticRIPOptionSetting" "Model=HP-LaserJet_M1005" " -sDeviceManufactur&&
+er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP LaserJet P1005&quot;"
+  Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftGraysca&&
+leK"
+  Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Normal" "Quality=600GrayscaleK"
+  Attribute "FoomaticRIPOption" "MediaType" "enum CmdLine C"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Plain" ",Quality:MediaType=0"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Transparency" ",Quality:MediaType=3"
+  Attribute "FoomaticRipOptionSetting" "MediaType=Photo" ",Quality:MediaType=3"
+  Attribute "FoomaticRIPOption" "InputSlot" "enum CmdLine D"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Default" ",PS:MediaPosition=7"
+  Attribute "FoomaticRIPOptionSetting" "InputSlot=Manual" ",PS:MediaPosition=2"
+  Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
+dDEVICEHEIGHTPOINTS=792"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A4" " -dDEVICEWIDTHPOINTS=595 -dDEV&&
+ICEHEIGHTPOINTS=842"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo" " -dDEVICEWIDTHPOINTS=288 -d&&
+DEVICEHEIGHTPOINTS=432"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Photo5x7" " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=3x5" " -dDEVICEWIDTHPOINTS=216 -dDE&&
+VICEHEIGHTPOINTS=360"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=5x8" " -dDEVICEWIDTHPOINTS=360 -dDE&&
+VICEHEIGHTPOINTS=576"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A5" " -dDEVICEWIDTHPOINTS=420 -dDEV&&
+ICEHEIGHTPOINTS=595"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=A6" " -dDEVICEWIDTHPOINTS=297 -dDEV&&
+ICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=B5JIS" " -dDEVICEWIDTHPOINTS=516 -d&&
+DEVICEHEIGHTPOINTS=729"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Env10" " -dDEVICEWIDTHPOINTS=297 -d&&
+DEVICEHEIGHTPOINTS=684"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC5" " -dDEVICEWIDTHPOINTS=459 -d&&
+DEVICEHEIGHTPOINTS=649"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvC6" " -dDEVICEWIDTHPOINTS=323 -d&&
+DEVICEHEIGHTPOINTS=459"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvDL" " -dDEVICEWIDTHPOINTS=312 -d&&
+DEVICEHEIGHTPOINTS=624"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvISOB5" " -dDEVICEWIDTHPOINTS=499&&
+ -dDEVICEHEIGHTPOINTS=709"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=EnvMonarch" " -dDEVICEWIDTHPOINTS=2&&
+79 -dDEVICEHEIGHTPOINTS=540"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Executive" " -dDEVICEWIDTHPOINTS=52&&
+2 -dDEVICEHEIGHTPOINTS=756"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=FLSA" " -dDEVICEWIDTHPOINTS=612 -dD&&
+EVICEHEIGHTPOINTS=936"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Hagaki" " -dDEVICEWIDTHPOINTS=283 -&&
+dDEVICEHEIGHTPOINTS=420"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Legal" " -dDEVICEWIDTHPOINTS=612 -d&&
+DEVICEHEIGHTPOINTS=1008"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=Oufuku" " -dDEVICEWIDTHPOINTS=420 -&&
+dDEVICEHEIGHTPOINTS=567"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w558h774" " -dDEVICEWIDTHPOINTS=558&&
+ -dDEVICEHEIGHTPOINTS=774"
+  Attribute "FoomaticRIPOptionSetting" "PageSize=w612h935" " -dDEVICEWIDTHPOINTS=612&&
+ -dDEVICEHEIGHTPOINTS=935"
+  Attribute "FoomaticRIPOption" "Quality" "enum CmdLine B"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600DraftGrayscaleK" " -r600 -sIjsPar&&
+ams=Quality:Quality=1,Quality:ColorMode=0,Quality:PenSet=0"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600GrayscaleK" " -r600 -sIjsParams=Q&&
+uality:Quality=0,Quality:ColorMode=0,Quality:PenSet=0"
+  Attribute "FoomaticRIPOptionSetting" "Quality=600BestGrayscaleK" " -r600 -sIjsParams=Q&&
+uality:Quality=2,Quality:ColorMode=0,Quality:PenSet=0"
+  Group "General/General"
+    Option "PrintoutMode/Printout Mode" PickOne AnySetup 10.0
+      Choice "Draft/Draft (Economy)" "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
+      *Choice "Normal/Normal" "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
+    Option "MediaType/Media Type" PickOne AnySetup 10.0
+      *Choice "Plain/Plain Paper" "%% FoomaticRIPOptionSetting: MediaType=Plain"
+      Choice "Transparency/Transparency" "%% FoomaticRIPOptionSetting: MediaType=&&
+Transparency"
+      Choice "Photo/Photo Paper" "%% FoomaticRIPOptionSetting: MediaType=Photo"
+    Option "InputSlot/Media Source" PickOne AnySetup 100.0
+      *Choice "Default/Automatic" "%% FoomaticRIPOptionSetting: InputSlot=Default"
+      Choice "Manual/Manual Feeder" "%% FoomaticRIPOptionSetting: InputSlot=Manual"
+  Group "PrintoutMode/Printout Mode"
+    Option "Quality/Resolution, Quality, Toner Type, Media Type" PickOne AnySetup 100.0
+      *Choice "FromPrintoutMode/Controlled by 'Printout Mode'" "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
+      Choice "600DraftGrayscaleK/600 dpi, Draft, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600DraftGrayscaleK"
+      Choice "600GrayscaleK/600 dpi, Normal, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600GrayscaleK"
+      Choice "600BestGrayscaleK/600 dpi, Best, Grayscale, Black Toner" "%% FoomaticRIPOptionSetting: Quality=600BestGrayscaleK"
+  *CustomMedia "Letter/Letter" 612.00 792.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Letter" "%% FoomaticRIPOptionSetting: PageSize=Letter"
+  CustomMedia "A4/A4" 595.00 842.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A4" "%% FoomaticRIPOptionSetting: PageSize=A4"
+  CustomMedia "Photo/Photo/4x6 inch index card" 288.00 432.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo" "%% FoomaticRIPOptionSetting: PageSize=Photo"
+  CustomMedia "Photo5x7/Photo/5x7 inch index card" 360.00 504.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Photo5x7" "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+  CustomMedia "3x5/3x5 inch index card" 216.00 360.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=3x5" "%% FoomaticRIPOptionSetting: PageSize=3x5"
+  CustomMedia "5x8/5x8 inch index card" 360.00 576.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=5x8" "%% FoomaticRIPOptionSetting: PageSize=5x8"
+  CustomMedia "A5/A5" 420.00 595.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A5" "%% FoomaticRIPOptionSetting: PageSize=A5"
+  CustomMedia "A6/A6" 297.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=A6" "%% FoomaticRIPOptionSetting: PageSize=A6"
+  CustomMedia "B5JIS/B5 (JIS)" 516.00 729.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=B5JIS" "%% FoomaticRIPOptionSetting: PageSize=B5JIS"
+  CustomMedia "Env10/Envelope #10" 297.00 684.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Env10" "%% FoomaticRIPOptionSetting: PageSize=Env10"
+  CustomMedia "EnvC5/Envelope C5" 459.00 649.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC5" "%% FoomaticRIPOptionSetting: PageSize=EnvC5"
+  CustomMedia "EnvC6/Envelope C6" 323.00 459.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvC6" "%% FoomaticRIPOptionSetting: PageSize=EnvC6"
+  CustomMedia "EnvDL/Envelope DL" 312.00 624.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvDL" "%% FoomaticRIPOptionSetting: PageSize=EnvDL"
+  CustomMedia "EnvISOB5/Envelope B5" 499.00 709.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5" "%% FoomaticRIPOptionSetting: PageSize=EnvISOB5"
+  CustomMedia "EnvMonarch/Envelope Monarch" 279.00 540.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch" "%% FoomaticRIPOptionSetting: PageSize=EnvMonarch"
+  CustomMedia "Executive/Executive" 522.00 756.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Executive" "%% FoomaticRIPOptionSetting: PageSize=Executive"
+  CustomMedia "FLSA/American Foolscap" 612.00 936.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=FLSA" "%% FoomaticRIPOptionSetting: PageSize=FLSA"
+  CustomMedia "Hagaki/Hagaki" 283.00 420.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Hagaki" "%% FoomaticRIPOptionSetting: PageSize=Hagaki"
+  CustomMedia "Legal/Legal" 612.00 1008.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Legal" "%% FoomaticRIPOptionSetting: PageSize=Legal"
+  CustomMedia "Oufuku/Oufuku-Hagaki" 420.00 567.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=Oufuku" "%% FoomaticRIPOptionSetting: PageSize=Oufuku"
+  CustomMedia "w558h774/16K" 558.00 774.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w558h774" "%% FoomaticRIPOptionSetting: PageSize=w558h774"
+  CustomMedia "w612h935/Executive (JIS)" 612.00 935.00 18.00 14.40 18.00 14.40 "%% FoomaticRIPOptionSetting: PageSize=w612h935" "%% FoomaticRIPOptionSetting: PageSize=w612h935"
+  // <%LJP1XXX:Normal%>
+} // end LJP1XXX (for proprietary plugin)
+
 } // end Manufacturer "HP"
 
 

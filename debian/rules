@@ -19,6 +19,8 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
+-include /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
+
 # Version information
 # We cannot get the hpijs version like this because we could be generating
 # it at runtime when we run autogen.sh
@@ -78,6 +80,7 @@ clean-patched: configure
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	rm -f install-stamp install-arch-stamp install-indep-stamp
+	rm -f *.1
 
 	[ ! -f Makefile ] || $(MAKE) clean
 	[ ! -f Makefile ] || $(MAKE) distclean
@@ -129,7 +132,9 @@ configure-stamp: patch-stamp configure
 		--enable-network-build \
 		--enable-scan-build \
 		--enable-gui-build \
-		--enable-fax-build
+		--enable-fax-build \
+		--disable-qt3 \
+		--enable-qt4
 
 	touch configure-stamp
 
@@ -159,10 +164,12 @@ install-stamp: build-stamp
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
-	# Edit the generated hp.conf
+	# Edit the generated hplip.conf
 	( cd "$(PKGTMP)/etc/hp" && \
-	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' \
-	    < hplip.conf > hplip.conf.1 && \
+	  cat hplip.conf | \
+	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' | \
+	  sed -e 's#^ui-toolkit=.*#ui-toolkit=qt4#' \
+	    > hplip.conf.1 && \
 	    mv -f hplip.conf.1 hplip.conf )
 
 	# Lintian and linda overrides
@@ -180,6 +187,25 @@ install-stamp: build-stamp
 	    } ;\
 	done
 
+	# Link all executables to /usr/bin and generate the corresponding
+	# man pages
+	export HPLIP_BUILD=1; \
+	( cd ./debian/tmp/usr/share/hplip/; \
+	    for file in *.py; do \
+		if [ -x $$file ] && [ $$file != install.py ] && \
+		   [ $$file != hpssd.py ] && [ $$file != dat2drv.py ] && \
+		   [ $$file != __init__.py ]; then \
+		    dest=hp-$${file%.py}; \
+		    ln -s /usr/share/hplip/$$file \
+			../../bin/$$dest 2>/dev/null || :; \
+		    ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 \
+			2>/dev/null || rm -f $(CURDIR)/$$dest.1 || :; \
+		fi; \
+	    done \
+	)
+	install -d ./debian/tmp/usr/sbin/
+	ln -s /usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
+
 	touch install-stamp
 
 # install arch-dependent packages specific files
@@ -194,7 +220,7 @@ install-arch-stamp: install-stamp
 			mv -f "$$i.tmp" "$$i" ; \
 		done
 	# executable-not-elf-or-script
-	chmod -x $(PKGTMP)/usr/share/hplip/ui/colorcal4form_base.ui $(PKGTMP)/usr/share/hplip/installer/distros.dat
+	chmod -x $(PKGTMP)/usr/share/hplip/installer/distros.dat
 
 	mkdir -p "$(PKGTMP)/usr/share/pixmaps"
 	install -m 644 debian/*.xpm "$(PKGTMP)/usr/share/pixmaps"
@@ -214,11 +240,11 @@ install-arch-stamp: install-stamp
 	#	| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 	#	| gzip -9 \
 	#	> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
-	cat "fax/ppd/HP-Fax-hplip.ppd" \
+	zcat "fax/ppd/HP-Fax-hplip.ppd.gz" \
 		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax-hplip.ppd.gz"
-	cat "fax/ppd/HP-Fax2-hplip.ppd" \
+	zcat "fax/ppd/HP-Fax2-hplip.ppd.gz" \
 		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
 		| gzip -9 \
 		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hpijs/HP/HP-Fax2-hplip.ppd.gz"
@@ -273,7 +299,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
 
 	# Ubuntu: uncompress again, makes the package smaller for distribution
-	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip
+	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
 
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
@@ -320,12 +346,6 @@ binary-arch: install-arch
 	dh_testdir -a
 	dh_testroot
 
-	mkdir -p debian/hplip/etc/udev/rules.d
-	install -m644 debian/55-hpmud.rules debian/hplip/etc/udev/rules.d/024_hpmud.rules
-# Remove obsolete udev rules in a clean fashion
-	install -m644 debian/udev-dummy.rules debian/hplip/etc/udev/rules.d/55-hpmud.rules
-	install -m644 debian/udev-dummy.rules debian/hplip/etc/udev/rules.d/45-hplip.rules
-
 	mkdir -p debian/hplip/usr/share/bug/hplip
 	cp debian/bug/* debian/hplip/usr/share/bug/hplip
 
@@ -347,6 +367,7 @@ binary-arch: install-arch
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
+	dh_installudev
 	dh_link -a
 	dh_strip -a --dbg-package=$(DBGPKG)
 	dh_compress -a

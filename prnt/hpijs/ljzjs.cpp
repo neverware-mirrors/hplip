@@ -50,7 +50,7 @@ int (*HPLJSoInit) (int iFlag);
 APDK_BEGIN_NAMESPACE
 
 #ifdef HAVE_LIBDL
-extern void *LoadPlugin (char *szPluginName);
+extern void *LoadPlugin (const char *szPluginName);
 #endif
 
 const unsigned char LJZjs::szByte1[256] =
@@ -127,13 +127,13 @@ LJZjs::LJZjs (SystemServices* pSS, int numfonts, BOOL proto)
         *(void **) (&HPLJSoInit) = dlsym (m_hHPLibHandle, "hp_init_lib");
         if (!HPLJSoInit || (HPLJSoInit && !HPLJSoInit (1)))
         {
-            constructor_error = UNSUPPORTED_PRINTER;
+            constructor_error = PLUGIN_LIBRARY_MISSING;
         }
     }
 #endif
     if (HPLJJBGCompress == NULL)
     {
-        constructor_error = UNSUPPORTED_PRINTER;
+        constructor_error = PLUGIN_LIBRARY_MISSING;
     }
 }
 
@@ -286,6 +286,9 @@ DRIVER_ERROR LJZjs::StartPage (DWORD dwWidth, DWORD dwHeight)
 
     if (m_iPrinterType == eLJM1005)
     {
+        int    iOutputResolution = GetOutputResolutionY ();
+        if (cqm == QUALITY_BEST)
+            iOutputResolution = (int) thePrintContext->EffectiveResolutionY ();
         memset (szStr, 0x0, sizeof (szStr));
         szStr[3] = 0x03;
         szStr[7] = 0x0F;
@@ -297,7 +300,7 @@ DRIVER_ERROR LJZjs::StartPage (DWORD dwWidth, DWORD dwHeight)
         i += SendIntItem (szStr+i, 0x20000000, 0x04, 0x01);
         i += SendIntItem (szStr+i, 0x20000007, 0x04, 0x01);
         i += SendIntItem (szStr+i, 0x20000008, 0x04, (int) thePrintContext->EffectiveResolutionX ());
-        i += SendIntItem (szStr+i, 0x20000009, 0x04, (int) thePrintContext->EffectiveResolutionY ());
+        i += SendIntItem (szStr+i, 0x20000009, 0x04, iOutputResolution);
         i += SendIntItem (szStr+i, 0x2000000D, 0x04, (int) dwWidth);
         i += SendIntItem (szStr+i, 0x2000000E, 0x04, (int) m_dwLastRaster);
         i += SendIntItem (szStr+i, 0x2000000A, 0x04, m_iBPP);

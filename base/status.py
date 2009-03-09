@@ -1027,8 +1027,11 @@ def StatusType6(dev): #  LaserJet Status (XML)
     info_device_status = cStringIO.StringIO()
     info_ssp = cStringIO.StringIO()
 
-    dev.getEWSUrl("/hp/device/info_device_status.xml", info_device_status)
-    dev.getEWSUrl("/hp/device/info_ssp.xml", info_ssp)
+    try:
+        dev.getEWSUrl("/hp/device/info_device_status.xml", info_device_status)
+        dev.getEWSUrl("/hp/device/info_ssp.xml", info_ssp)
+    except:
+        pass
 
     info_device_status = info_device_status.getvalue()
     info_ssp = info_ssp.getvalue()
@@ -1038,8 +1041,8 @@ def StatusType6(dev): #  LaserJet Status (XML)
 
     if info_device_status:
         try:
-            device_status = utils.XMLToDictParser().parseXML(info_device_status)
             log.debug_block("info_device_status", info_device_status)
+            device_status = utils.XMLToDictParser().parseXML(info_device_status)
             log.debug(device_status)
         except expat.ExpatError:
             log.error("Device Status XML parse error")
@@ -1047,8 +1050,8 @@ def StatusType6(dev): #  LaserJet Status (XML)
 
     if info_ssp:
         try:
-            ssp = utils.XMLToDictParser().parseXML(info_ssp)
             log.debug_block("info_spp", info_ssp)
+            ssp = utils.XMLToDictParser().parseXML(info_ssp)
             log.debug(ssp)
         except expat.ExpatError:
             log.error("SSP XML parse error")            
@@ -1303,33 +1306,35 @@ def StatusType8(dev): #  LaserJet PJL (B&W only)
         status_code = STATUS_PRINTER_BUSY
     else:
         try:
-            dev.writePrint("\x1b%-12345X@PJL INFO STATUS \r\n\x1b%-12345X")
-            pjl_return = dev.readPrint(1024, timeout=5, allow_short_read=True)
-            dev.close()
-
-            log.debug_block("PJL return:", pjl_return)
-
-            str_code = '10001'
-
-            for line in pjl_return.splitlines():
-                line = line.strip()
-                match = pjl_code_pat.match(line)
-
-                if match is not None:
-                    str_code = match.group(1)
-                    break
-
-            log.debug("Code = %s" % str_code)
-
             try:
-                error_code = int(str_code)
-            except ValueError:
-                error_code = DEFAULT_PJL_ERROR_CODE
+                dev.writePrint("\x1b%-12345X@PJL INFO STATUS \r\n\x1b%-12345X")
+                pjl_return = dev.readPrint(1024, timeout=5, allow_short_read=True)
+                dev.close()
 
-            log.debug("Error code = %d" % error_code)
+                log.debug_block("PJL return:", pjl_return)
 
-            status_code = MapPJLErrorCode(error_code, str_code)
-        
+                str_code = '10001'
+
+                for line in pjl_return.splitlines():
+                    line = line.strip()
+                    match = pjl_code_pat.match(line)
+
+                    if match is not None:
+                        str_code = match.group(1)
+                        break
+
+                log.debug("Code = %s" % str_code)
+
+                try:
+                    error_code = int(str_code)
+                except ValueError:
+                    error_code = DEFAULT_PJL_ERROR_CODE
+
+                log.debug("Error code = %d" % error_code)
+
+                status_code = MapPJLErrorCode(error_code, str_code)
+            except Error:
+                status_code = STATUS_PRINTER_HARD_ERROR
         finally:
             try:
                 dev.closePrint()

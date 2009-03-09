@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2008 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2009 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ try:
     platform_avail = True
 except ImportError:
     platform_avail = False
-    
+
 # Local
 from g import *
 from codes import *
@@ -65,7 +65,7 @@ def lock(f):
         log.debug("Failed to unlock %s." % f.name)
         return False
 
-        
+
 def unlock(f):
     if f is not None:
         log.debug("Unlocking: %s" % f.name)
@@ -74,27 +74,31 @@ def unlock(f):
             os.remove(f.name)
         except (IOError, OSError):
             pass
-        
-        
+
+
 def lock_app(application, suppress_error=False):
-    if not os.path.exists(prop.user_dir):
-        os.makedirs(prop.user_dir)
-        
-    lock_file = os.path.join(prop.user_dir, '.'.join([application, 'lock']))
+    dir = prop.user_dir
+    if os.geteuid() == 0:
+        dir = '/var'
+
+    elif not os.path.exists(dir):
+        os.makedirs(dir)
+
+    lock_file = os.path.join(dir, '.'.join([application, 'lock']))
     try:
         lock_file_f = open(lock_file, "w")
     except IOError:
         if not suppress_error:
-            log.error("Unable to open %s lock file." % lock_file) 
+            log.error("Unable to open %s lock file." % lock_file)
         return False, None
 
-    log.debug("Locking file: %s" % lock_file)
-    
+    #log.debug("Locking file: %s" % lock_file)
+
     if not lock(lock_file_f):
         if not suppress_error:
             log.error("Unable to lock %s. Is %s already running?" % (lock_file, application))
         return False, None
-    
+
     return True, lock_file_f
 
 
@@ -264,7 +268,7 @@ class Column:
             return ' ' * (self.margin + self.width)
 
 
-            
+
 class Stack:
     def __init__(self):
         self.stack = []
@@ -274,29 +278,29 @@ class Stack:
 
     def push(self, value):
         self.stack.append(value)
-        
+
     def as_list(self):
         return self.stack
 
     def clear(self):
         self.stack = []
-        
+
     def __len__(self):
         return len(self.stack)
-        
-        
-        
+
+
+
 class Queue(Stack):
     def __init__(self):
         Stack.__init__(self)
 
     def get(self):
         return self.stack.pop(0)
-        
+
     def put(self, value):
         Stack.push(self, value)
 
-   
+
 
 
 # RingBuffer class
@@ -304,7 +308,7 @@ class Queue(Stack):
 # Credit: Sebastien Keim
 # License: Modified BSD
 class RingBuffer:
-    def __init__(self,size_max=50):
+    def __init__(self, size_max=50):
         self.max = size_max
         self.data = []
 
@@ -326,11 +330,11 @@ class RingBuffer:
 
 
 class RingBufferFull:
-    def __init__(self,n):
+    def __init__(self, n):
         #raise "you should use RingBuffer"
         pass
 
-    def append(self,x):
+    def append(self, x):
         self.data[self.cur] = x
         self.cur = (self.cur+1) % self.max
 
@@ -344,6 +348,8 @@ class RingBufferFull:
     def get(self):
         return self.data[self.cur:] + self.data[:self.cur]
 
+
+
 def sort_dict_by_value(d):
     """ Returns the keys of dictionary d sorted by their values """
     items=d.items()
@@ -351,7 +357,8 @@ def sort_dict_by_value(d):
     backitems.sort()
     return [backitems[i][1] for i in range(0, len(backitems))]
 
-def commafy(val): 
+
+def commafy(val):
     return unicode(locale.format("%d", val, grouping=True))
 
 
@@ -384,21 +391,7 @@ except AttributeError:
         fd = os.open(path, os.O_RDWR|os.O_CREAT|os.O_EXCL, 0700)
         return ( os.fdopen( fd, 'w+b' ), path )
 
-def log_title(program_name, version, show_ver=True):
-    log.info("")
 
-    if show_ver:
-        log.info(log.bold("HP Linux Imaging and Printing System (ver. %s)" % prop.version))
-    else:    
-        log.info(log.bold("HP Linux Imaging and Printing System"))
-
-    log.info(log.bold("%s ver. %s" % (program_name, version)))
-    log.info("")
-    log.info("Copyright (c) 2001-8 Hewlett-Packard Development Company, LP")
-    log.info("This software comes with ABSOLUTELY NO WARRANTY.")
-    log.info("This is free software, and you are welcome to distribute it")
-    log.info("under certain conditions. See COPYING file for more details.")
-    log.info("")
 
 
 def which(command, return_full_path=False):
@@ -429,7 +422,7 @@ def which(command, return_full_path=False):
         return found_path
 
 
-class UserSettings(object):
+class UserSettings(object): # Note: Deprecated after 2.8.8 (see ui4/ui_utils.py)
     def __init__(self):
         self.load()
 
@@ -442,18 +435,14 @@ class UserSettings(object):
             self.cmd_print = 'hp-print -p%PRINTER%'
         else:
             path = which('kprinter')
-
             if len(path) > 0:
                 self.cmd_print = 'kprinter -P%PRINTER% --system cups'
             else:
                 path = which('gtklp')
-
                 if len(path) > 0:
                     self.cmd_print = 'gtklp -P%PRINTER%'
-
                 else:
                     path = which('xpp')
-
                     if len(path) > 0:
                         self.cmd_print = 'xpp -P%PRINTER%'
 
@@ -465,13 +454,10 @@ class UserSettings(object):
             self.cmd_scan = 'xsane -V %SANE_URI%'
         else:
             path = which('kooka')
-
             if len(path) > 0:
                 self.cmd_scan = 'kooka'
-
             else:
                 path = which('xscanimage')
-
                 if len(path) > 0:
                     self.cmd_scan = 'xscanimage'
 
@@ -480,7 +466,6 @@ class UserSettings(object):
 
         if len(path):
             self.cmd_pcard = 'hp-unload -d %DEVICE_URI%'
-
         else:
             self.cmd_pcard = 'python %HOME%/unload.py -d %DEVICE_URI%'
 
@@ -489,7 +474,6 @@ class UserSettings(object):
 
         if len(path):
             self.cmd_copy = 'hp-makecopies -d %DEVICE_URI%'
-
         else:
             self.cmd_copy = 'python %HOME%/makecopies.py -d %DEVICE_URI%'
 
@@ -498,7 +482,6 @@ class UserSettings(object):
 
         if len(path):
             self.cmd_fax = 'hp-sendfax -d %FAX_URI%'
-
         else:
             self.cmd_fax = 'python %HOME%/sendfax.py -d %FAX_URI%'
 
@@ -507,102 +490,53 @@ class UserSettings(object):
 
         if len(path):
             self.cmd_fab = 'hp-fab'
-
         else:
-            self.cmd_fab = 'python %HOME%/fab.py'    
+            self.cmd_fab = 'python %HOME%/fab.py'
 
     def load(self):
         self.loadDefaults()
-
         log.debug("Loading user settings...")
-
-##        self.email_alerts = to_bool(user_cfg.alerts.email_alerts, False)
-##        self.email_to_addresses = user_cfg.alerts.email_to_addresses
-##        self.email_from_address = user_cfg.alerts.email_from_address
-        self.auto_refresh = to_bool(user_cfg.refresh.enable, False)
+        self.auto_refresh = to_bool(user_conf.get('refresh', 'enable', '0'))
 
         try:
-            self.auto_refresh_rate = int(user_cfg.refresh.rate)
-        except ValueError:    
+            self.auto_refresh_rate = int(user_conf.get('refresh', 'rate', '30'))
+        except ValueError:
             self.auto_refresh_rate = 30 # (secs)
 
         try:
-            self.auto_refresh_type = int(user_cfg.refresh.type)
+            self.auto_refresh_type = int(user_conf.get('refresh', 'type', '0'))
         except ValueError:
             self.auto_refresh_type = 0 # refresh 1 (1=refresh all)
 
-        self.cmd_print = user_cfg.commands.prnt or self.cmd_print
-        #self.cmd_print_int = to_bool(user_cfg.commands.prnt_int, True)
-
-        self.cmd_scan = user_cfg.commands.scan or self.cmd_scan
-        #self.cmd_scan_int = to_bool(user_cfg.commands.scan_int, False)
-
-        self.cmd_pcard = user_cfg.commands.pcard or self.cmd_pcard
-        #self.cmd_pcard_int = to_bool(user_cfg.commands.pcard_int, True)
-
-        self.cmd_copy = user_cfg.commands.cpy or self.cmd_copy
-        #self.cmd_copy_int = to_bool(user_cfg.commands.cpy_int, True)
-
-        self.cmd_fax = user_cfg.commands.fax or self.cmd_fax
-        #self.cmd_fax_int = to_bool(user_cfg.commands.fax_int, True)
-
-        self.cmd_fab = user_cfg.commands.fab or self.cmd_fab
-        #self.cmd_fab_int = to_bool(user_cfg.commands.fab_int, False)
-
+        self.cmd_print = user_conf.get('commands', 'prnt', self.cmd_print)
+        self.cmd_scan = user_conf.get('commands', 'scan', self.cmd_scan)
+        self.cmd_pcard = user_conf.get('commands', 'pcard', self.cmd_pcard)
+        self.cmd_copy = user_conf.get('commands', 'cpy', self.cmd_copy)
+        self.cmd_fax = user_conf.get('commands', 'fax', self.cmd_fax)
+        self.cmd_fab = user_conf.get('commands', 'fab', self.cmd_fab)
         self.debug()
 
     def debug(self):
         log.debug("Print command: %s" % self.cmd_print)
-        #log.debug("Use Internal print command: %s" % self.cmd_print_int)
-
         log.debug("PCard command: %s" % self.cmd_pcard)
-        #log.debug("Use internal PCard command: %s" % self.cmd_pcard_int)
-
         log.debug("Fax command: %s" % self.cmd_fax)
-        #log.debug("Use internal fax command: %s" % self.cmd_fax_int)
-
         log.debug("FAB command: %s" % self.cmd_fab)
-        #log.debug("Use internal FAB command: %s" % self.cmd_fab_int)
-
         log.debug("Copy command: %s " % self.cmd_copy)
-        #log.debug("Use internal copy command: %s " % self.cmd_copy_int)
-
         log.debug("Scan command: %s" % self.cmd_scan)
-        #log.debug("Use internal scan command: %s" % self.cmd_scan_int)
-
-##        log.debug("Email alerts: %s" % self.email_alerts)
-##        log.debug("Email to address(es): %s" % self.email_to_addresses)
-##        log.debug("Email from address: %s" % self.email_from_address)
         log.debug("Auto refresh: %s" % self.auto_refresh)
         log.debug("Auto refresh rate: %s" % self.auto_refresh_rate)
-        log.debug("Auto refresh type: %s" % self.auto_refresh_type)        
+        log.debug("Auto refresh type: %s" % self.auto_refresh_type)
 
     def save(self):
         log.debug("Saving user settings...")
-
-        user_cfg.commands.prnt = self.cmd_print
-        #user_cfg.commands.prnt_int = self.cmd_print_int
-
-        user_cfg.commands.pcard = self.cmd_pcard
-        #user_cfg.commands.pcard_int = self.cmd_pcard_int
-
-        user_cfg.commands.fax = self.cmd_fax
-        #user_cfg.commands.fax_int = self.cmd_fax_int
-
-        user_cfg.commands.scan = self.cmd_scan
-        #user_cfg.commands.scan_int = self.cmd_scan_int
-
-        user_cfg.commands.cpy = self.cmd_copy
-        #user_cfg.commands.cpy_int = self.cmd_copy_int
-
-##        user_cfg.alerts.email_to_addresses = self.email_to_addresses
-##        user_cfg.alerts.email_from_address = self.email_from_address
-##        user_cfg.alerts.email_alerts = self.email_alerts
-
-        user_cfg.refresh.enable = self.auto_refresh
-        user_cfg.refresh.rate = self.auto_refresh_rate
-        user_cfg.refresh.type = self.auto_refresh_type
-
+        user_conf.set('commands', 'prnt', self.cmd_print)
+        user_conf.set('commands', 'pcard', self.cmd_pcard)
+        user_conf.set('commands', 'fax', self.cmd_fax)
+        user_conf.set('commands', 'scan', self.cmd_scan)
+        user_conf.set('commands', 'cpy', self.cmd_copy)
+        user_conf.set('refresh', 'enable',self.auto_refresh)
+        user_conf.set('refresh', 'rate', self.auto_refresh_rate)
+        user_conf.set('refresh', 'type', self.auto_refresh_type)
         self.debug()
 
 
@@ -612,7 +546,7 @@ def no_qt_message_gtk():
         import gtk
         w = gtk.Window()
         dialog = gtk.MessageDialog(w, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                                   gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, 
+                                   gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
                                    "PyQt not installed. GUI not available. Please check that the PyQt package is installed. Exiting.")
         dialog.run()
         dialog.destroy()
@@ -621,7 +555,7 @@ def no_qt_message_gtk():
         log.error("PyQt not installed. GUI not available. Please check that the PyQt package is installed. Exiting.")
 
 
-def canEnterGUIMode():
+def canEnterGUIMode(): # qt3
     if not prop.gui_build:
         log.warn("GUI mode disabled in build.")
         return False
@@ -631,12 +565,27 @@ def canEnterGUIMode():
         return False
 
     elif not checkPyQtImport():
-        log.warn("Qt/PyQt initialization failed.")
+        log.warn("Qt/PyQt 3 initialization failed.")
         return False
 
     return True
 
-def checkPyQtImport():
+def canEnterGUIMode4(): # qt4
+    if not prop.gui_build:
+        log.warn("GUI mode disabled in build.")
+        return False
+
+    elif not os.getenv('DISPLAY'):
+        log.warn("No display found.")
+        return False
+
+    elif not checkPyQtImport4():
+        log.warn("Qt/PyQt 4 initialization failed.")
+        return False
+
+    return True
+
+def checkPyQtImport(): # qt3
     # PyQt
     try:
         import qt
@@ -684,6 +633,15 @@ def checkPyQtImport():
             return True
 
     return True
+
+def checkPyQtImport4():
+    try:
+        import PyQt4
+    except ImportError:
+        return False
+    else:
+        return True
+
 
 try:
     from string import Template # will fail in Python <= 2.3
@@ -820,13 +778,13 @@ def cat(s):
     globals = sys._getframe(1).f_globals.copy()
     if 'self' in globals:
         del globals['self']
-    
+
     locals = sys._getframe(1).f_locals.copy()
     if 'self' in locals:
         del locals['self']
-        
+
     return Template(s).substitute(sys._getframe(1).f_globals, **locals)
-    
+
 identity = string.maketrans('','')
 unprintable = identity.translate(identity, string.printable)
 
@@ -856,7 +814,7 @@ def find_browser():
                 return b
         else:
             return None
-    
+
 def openURL(url):
     if platform_avail and platform.system() == 'Darwin':
         cmd = 'open "%s"' % url
@@ -881,16 +839,26 @@ def uniqueList(input):
     return temp
 
 
-def list_move_up(l, m):
+def list_move_up(l, m, cmp=None):
+    if cmp is None:
+        f = lambda x: l[x] == m
+    else:
+        f = lambda x: cmp(l[x], m)
+
     for i in range(1, len(l)):
-        if l[i] == m:
+        if f(i):
             l[i-1], l[i] = l[i], l[i-1]
 
 
-def list_move_down(l, m):
+def list_move_down(l, m, cmp=None):
+    if cmp is None:
+        f = lambda x: l[x] == m
+    else:
+        f = lambda x: cmp(l[x], m)
+
     for i in range(len(l)-2, -1, -1):
-        if l[i] == m:
-            l[i], l[i+1] = l[i+1], l[i] 
+        if f(i):
+            l[i], l[i+1] = l[i+1], l[i]
 
 
 
@@ -914,7 +882,7 @@ class XMLToDictParser:
     def endElement(self, name):
         if name.lower() == self.last_start:
             self.addData('')
-        
+
         #print "END:", name
         self.stack.pop()
 
@@ -950,7 +918,7 @@ class XMLToDictParser:
                     except KeyError:
                         self.data['-'.join([stack_str, str(j)])] = data
                         break
-                    j += 1                    
+                    j += 1
 
         else:
             self.data[stack_str_0] = self.data[stack_str]
@@ -967,237 +935,35 @@ class XMLToDictParser:
         return self.data
 
 
- # ------------------------- Usage Help
-USAGE_OPTIONS = ("[OPTIONS]", "", "heading", False)
-USAGE_LOGGING1 = ("Set the logging level:", "-l<level> or --logging=<level>", 'option', False)
-USAGE_LOGGING2 = ("", "<level>: none, info\*, error, warn, debug (\*default)", "option", False)
-USAGE_LOGGING3 = ("Run in debug mode:", "-g (same as option: -ldebug)", "option", False)
-USAGE_LOGGING_PLAIN = ("Output plain text only:", "-t", "option", False)
-USAGE_ARGS = ("[PRINTER|DEVICE-URI] (See Notes)", "", "heading", False)
-USAGE_DEVICE = ("To specify a device-URI:", "-d<device-uri> or --device=<device-uri>", "option", False)
-USAGE_PRINTER = ("To specify a CUPS printer:", "-p<printer> or --printer=<printer>", "option", False)
-USAGE_BUS1 = ("Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>", "option", False)
-USAGE_BUS2 = ("", "<bus>: cups\*, usb\*, net, bt, fw, par\* (\*defaults) (Note: bt and fw not supported in this release.)", 'option', False)
-USAGE_HELP = ("This help information:", "-h or --help", "option", True)
-USAGE_SPACE = ("", "", "space", False)
-USAGE_EXAMPLES = ("Examples:", "", "heading", False)
-USAGE_NOTES = ("Notes:", "", "heading", False)
-USAGE_STD_NOTES1 = ("1. If device or printer is not specified, the local device bus is probed and the program enters interactive mode.", "", "note", False)
-USAGE_STD_NOTES2 = ("2. If -p\* is specified, the default CUPS printer will be used.", "", "note", False)
-USAGE_SEEALSO = ("See Also:", "", "heading", False)
-USAGE_LANGUAGE = ("Set the language:", "-q <lang> or --lang=<lang>. Use -q? or --lang=? to see a list of available language codes.", "option", False)
-USAGE_LANGUAGE2 = ("Set the language:", "--lang=<lang>. Use --lang=? to see a list of available language codes.", "option", False)
-
-def ttysize():
-    ln1 = commands.getoutput('stty -a').splitlines()[0]
-    vals = {'rows':None, 'columns':None}
-    for ph in ln1.split(';'):
-        x = ph.split()
-        if len(x) == 2:
-            vals[x[0]] = x[1]
-            vals[x[1]] = x[0]
-    try:
-        rows, cols = int(vals['rows']), int(vals['columns'])
-    except TypeError:
-        rows, cols = 25, 80
-
-    return rows, cols
-
-
-def usage_formatter(override=0):
-    rows, cols = ttysize()
-
-    if override:
-        col1 = override
-        col2 = cols - col1 - 8
-    else:
-        col1 = int(cols / 3) - 8
-        col2 = cols - col1 - 8
-
-    return TextFormatter(({'width': col1, 'margin' : 2},
-                            {'width': col2, 'margin' : 2},))
-
-
-def format_text(text_list, typ='text', title='', crumb='', version=''):
-    """
-    Format usage text in multiple formats:
-        text: for --help in the console
-        rest: for conversion with rst2web for the website
-        man: for manpages
-    """
-    if typ == 'text':
-        formatter = usage_formatter()
-
-        for line in text_list:
-            text1, text2, format, trailing_space = line
-
-            # remove any reST/man escapes
-            text1 = text1.replace("\\", "")
-            text2 = text2.replace("\\", "")
-
-            if format == 'summary':
-                log.info(log.bold(text1))
-                log.info("")
-
-            elif format in ('para', 'name', 'seealso'):
-                log.info(text1)
-
-                if trailing_space:
-                    log.info("")
-
-            elif format in ('heading', 'header'):
-                log.info(log.bold(text1))
-
-            elif format in ('option', 'example'):
-                log.info(formatter.compose((text1, text2), trailing_space))
-
-            elif format == 'note':
-                if text1.startswith(' '):
-                    log.info('\t' + text1.lstrip())
-                else:
-                    log.info(text1)
-
-            elif format == 'space':
-                log.info("")
-
-        log.info("")
-
-
-    elif typ == 'rest':
-        colwidth1, colwidth2 = 0, 0
-        for line in text_list:
-            text1, text2, format, trailing_space = line
-
-            if format in ('option', 'example', 'note'):
-                colwidth1 = max(len(text1), colwidth1)
-                colwidth2 = max(len(text2), colwidth2)
-
-        colwidth1 += 3
-        tablewidth = colwidth1 + colwidth2
-
-        # write the rst2web header
-        log.info("""restindex
-page-title: %s
-crumb: %s
-format: rest
-file-extension: html
-encoding: utf8
-/restindex\n""" % (title, crumb))
-
-        log.info("%s: %s (ver. %s)" % (crumb, title, version))
-        log.info("="*80)
-        log.info("")
-
-        links = []
-
-        for line in text_list:
-            text1, text2, format, trailing_space = line
-
-            if format == 'seealso':
-                links.append(text1)
-                text1 = "`%s`_" % text1
-
-            len1, len2 = len(text1), len(text2)
-
-            if format == 'summary':
-                log.info(''.join(["**", text1, "**"]))
-                log.info("")
-
-            elif format in ('para', 'name'):
-                log.info("")
-                log.info(text1)
-                log.info("")
-
-            elif format in ('heading', 'header'):
-
-                log.info("")
-                log.info("**" + text1 + "**")
-                log.info("")
-                log.info(".. class:: borderless")
-                log.info("")
-                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
-
-            elif format in ('option', 'example', 'seealso'):
-
-                if text1 and '`_' not in text1:
-                    log.info(''.join(["| *", text1, '*', " "*(colwidth1-len1-3), "|", text2, " "*(colwidth2-len2), "|"]))
-                elif text1:
-                    log.info(''.join(["|", text1, " "*(colwidth1-len1), "|", text2, " "*(colwidth2-len2), "|"]))
-                else:
-                    log.info(''.join(["|", " "*(colwidth1), "|", text2, " "*(colwidth2-len2), "|"]))
-
-                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
-
-            elif format == 'note':
-                if text1.startswith(' '):
-                    log.info(''.join(["|", " "*(tablewidth+1), "|"]))
-
-                log.info(''.join(["|", text1, " "*(tablewidth-len1+1), "|"]))
-                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
-
-            elif format == 'space':
-                log.info("")
-
-        for l in links:
-            log.info("\n.. _`%s`: %s.html\n" % (l, l.replace('hp-', '')))
-
-        log.info("")
-
-    elif typ == 'man':
-        log.info('.TH "%s" 1 "%s" Linux "User Manuals"' % (title, version))
-
-        for line in text_list:
-            text1, text2, format, trailing_space = line
-
-            text1 = text1.replace("\\*", "*")
-            text2 = text2.replace("\\*", "*")            
-
-            len1, len2 = len(text1), len(text2)
-
-            if format == 'summary':
-                log.info(".SH SYNOPSIS")
-                log.info(".B %s" % text1)
-
-            elif format == 'name':
-                log.info(".SH NAME\n%s" % text1)
-
-            elif format in ('option', 'example', 'note'):
-                if text1:
-                    log.info('.IP "%s"\n%s' % (text1, text2))
-                else:
-                    log.info(text2)
-
-            elif format in ('header', 'heading'):
-                log.info(".SH %s" % text1.upper().replace(':', '').replace('[', '').replace(']', ''))
-
-            elif format in ('seealso, para'):
-                log.info(text1)
-
-        log.info("")
-
-
 def dquote(s):
     return ''.join(['"', s, '"'])
 
-# Python 2.2 compatibility functions (strip() family with char argument)
-def xlstrip(s, chars=' '):
-    i = 0
-    for c, i in zip(s, range(len(s))):
-        if c not in chars:
-            break
+# Python 2.2.x compatibility functions (strip() family with char argument added in Python 2.2.3)
+if sys.hexversion < 0x020203f0:
+    def xlstrip(s, chars=' '):
+        i = 0
+        for c, i in zip(s, range(len(s))):
+            if c not in chars:
+                break
 
-    return s[i:]
+        return s[i:]
 
-def xrstrip(s, chars=' '):
-    return xreverse(xlstrip(xreverse(s), chars))
+    def xrstrip(s, chars=' '):
+        return xreverse(xlstrip(xreverse(s), chars))
 
-def xreverse(s):
-    l = list(s)
-    l.reverse()
-    return ''.join(l)
+    def xreverse(s):
+        l = list(s)
+        l.reverse()
+        return ''.join(l)
 
-def xstrip(s, chars=' '):
-    return xreverse(xlstrip(xreverse(xlstrip(s, chars)), chars))
+    def xstrip(s, chars=' '):
+        return xreverse(xlstrip(xreverse(xlstrip(s, chars)), chars))
+
+else:
+    xlstrip = string.lstrip
+    xrstrip = string.rstrip
+    xstrip = string.strip
+
 
 def getBitness():
     if platform_avail:
@@ -1210,13 +976,19 @@ def getProcessor():
         return platform.machine().replace(' ', '_').lower() # i386, i686, power_macintosh, etc.
     else:
         return "i686" # TODO: Need a fix here
-    
+
 
 BIG_ENDIAN = 0
 LITTLE_ENDIAN = 1
 
+#def getEndian():
+    #if struct.pack("@I", 0x01020304)[0] == '\x01':
+        #return BIG_ENDIAN
+    #else:
+        #return LITTLE_ENDIAN
+
 def getEndian():
-    if struct.pack("@I", 0x01020304)[0] == '\x01':
+    if sys.byteorder == 'big':
         return BIG_ENDIAN
     else:
         return LITTLE_ENDIAN
@@ -1224,7 +996,7 @@ def getEndian():
 
 def get_password():
     return getpass.getpass("Enter password: ")
-    
+
 
 def run(cmd, log_output=True, password_func=get_password, timeout=1):
     output = cStringIO.StringIO()
@@ -1240,8 +1012,9 @@ def run(cmd, log_output=True, password_func=get_password, timeout=1):
             i = child.expect(["[pP]assword:", pexpect.EOF, pexpect.TIMEOUT])
 
             if child.before:
-                log.debug(child.before)
                 output.write(child.before)
+                if log_output:
+                    log.debug(child.before)
 
             if i == 0: # Password:
                 if password_func is not None:
@@ -1267,28 +1040,28 @@ def run(cmd, log_output=True, password_func=get_password, timeout=1):
 
 def expand_range(ns): # ns -> string repr. of numeric range, e.g. "1-4, 7, 9-12"
     """Credit: Jean Brouwers, comp.lang.python 16-7-2004
-       Convert a string representation of a set of ranges into a 
+       Convert a string representation of a set of ranges into a
        list of ints, e.g.
-       "1-4, 7, 9-12" --> [1,2,3,4,7,9,10,11,12]
+       u"1-4, 7, 9-12" --> [1,2,3,4,7,9,10,11,12]
     """
     fs = []
-    for n in ns.split(','):
+    for n in ns.split(u','):
         n = n.strip()
         r = n.split('-')
         if len(r) == 2:  # expand name with range
-            h = r[0].rstrip('0123456789')  # header
+            h = r[0].rstrip(u'0123456789')  # header
             r[0] = r[0][len(h):]
              # range can't be empty
             if not (r[0] and r[1]):
                 raise ValueError, 'empty range: ' + n
              # handle leading zeros
-            if r[0] == '0' or r[0][0] != '0':
+            if r[0] == u'0' or r[0][0] != u'0':
                 h += '%d'
             else:
                 w = [len(i) for i in r]
                 if w[1] > w[0]:
                    raise ValueError, 'wide range: ' + n
-                h += '%%0%dd' % max(w)
+                h += u'%%0%dd' % max(w)
              # check range
             r = [int(i, 10) for i in r]
             if r[0] > r[1]:
@@ -1309,8 +1082,8 @@ def expand_range(ns): # ns -> string repr. of numeric range, e.g. "1-4, 7, 9-12"
 
 def collapse_range(x): # x --> sorted list of ints
     """ Convert a list of integers into a string
-        range representation: 
-        [1,2,3,4,7,9,10,11,12] --> "1-4,7,9-12"
+        range representation:
+        [1,2,3,4,7,9,10,11,12] --> u"1-4,7,9-12"
     """
     if not x:
         return ''
@@ -1322,17 +1095,18 @@ def collapse_range(x): # x --> sorted list of ints
             r = True
         else:
             if r:
-                s.append('-%s,%s' % (c,i))
+                s.append(u'-%s,%s' % (c,i))
                 r = False
             else:
-                s.append(',%s' % i)
+                s.append(u',%s' % i)
 
         c = i
 
     if r:
-        s.append('-%s' % i)
+        s.append(u'-%s' % i)
 
     return ''.join(s)
+
 
 def createSequencedFilename(basename, ext, dir=None, digits=3):
     if dir is None:
@@ -1362,17 +1136,17 @@ def validate_language(lang, default='en_US'):
             if lang in ll:
                 break
         else:
-            loc = user_cfg.ui.get("loc", "en_US")
+            loc = 'en_US'
             log.warn("Unknown lang/locale. Using default of %s." % loc)
 
     return loc
 
-   
+
 def gen_random_uuid():
     try:
         import uuid # requires Python 2.5+
         return str(uuid.uuid4())
-        
+
     except ImportError:
         uuidgen = which("uuidgen")
         if uuidgen:
@@ -1380,8 +1154,8 @@ def gen_random_uuid():
             return commands.getoutput(uuidgen) # TODO: Replace with subprocess (commands is deprecated in Python 3.0)
         else:
             return ''
-            
-            
+
+
 class RestTableFormatter(object):
     def __init__(self, header=None):
         self.header = header # tuple of strings
@@ -1454,15 +1228,337 @@ class RestTableFormatter(object):
 
 def mixin(cls):
     import inspect
-    
+
     locals = inspect.stack()[1][0].f_locals
     if "__module__" not in locals:
         raise TypeError("Must call mixin() from within class def.")
-        
+
     dict = cls.__dict__.copy()
     dict.pop("__doc__", None)
     dict.pop("__module__", None)
-    
+
     locals.update(dict)
-    
-    
+
+
+
+# TODO: Move usage stuff to to base/module/Module class
+
+
+ # ------------------------- Usage Help
+USAGE_OPTIONS = ("[OPTIONS]", "", "heading", False)
+USAGE_LOGGING1 = ("Set the logging level:", "-l<level> or --logging=<level>", 'option', False)
+USAGE_LOGGING2 = ("", "<level>: none, info\*, error, warn, debug (\*default)", "option", False)
+USAGE_LOGGING3 = ("Run in debug mode:", "-g (same as option: -ldebug)", "option", False)
+USAGE_LOGGING_PLAIN = ("Output plain text only:", "-t", "option", False)
+USAGE_ARGS = ("[PRINTER|DEVICE-URI]", "", "heading", False)
+USAGE_ARGS2 = ("[PRINTER]", "", "heading", False)
+USAGE_DEVICE = ("To specify a device-URI:", "-d<device-uri> or --device=<device-uri>", "option", False)
+USAGE_PRINTER = ("To specify a CUPS printer:", "-p<printer> or --printer=<printer>", "option", False)
+USAGE_BUS1 = ("Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>", "option", False)
+USAGE_BUS2 = ("", "<bus>: cups\*, usb\*, net, bt, fw, par\* (\*defaults) (Note: bt and fw not supported in this release.)", 'option', False)
+USAGE_HELP = ("This help information:", "-h or --help", "option", True)
+USAGE_SPACE = ("", "", "space", False)
+USAGE_EXAMPLES = ("Examples:", "", "heading", False)
+USAGE_NOTES = ("Notes:", "", "heading", False)
+USAGE_STD_NOTES1 = ("If device or printer is not specified, the local device bus is probed and the program enters interactive mode.", "", "note", False)
+USAGE_STD_NOTES2 = ("If -p\* is specified, the default CUPS printer will be used.", "", "note", False)
+USAGE_SEEALSO = ("See Also:", "", "heading", False)
+USAGE_LANGUAGE = ("Set the language:", "-q <lang> or --lang=<lang>. Use -q? or --lang=? to see a list of available language codes.", "option", False)
+USAGE_LANGUAGE2 = ("Set the language:", "--lang=<lang>. Use --lang=? to see a list of available language codes.", "option", False)
+USAGE_MODE = ("[MODE]", "", "header", False)
+USAGE_NON_INTERACTIVE_MODE = ("Run in non-interactive mode:", "-n or --non-interactive", "option", False)
+USAGE_GUI_MODE = ("Run in graphical UI mode:", "-u or --gui (Default)", "option", False)
+USAGE_INTERACTIVE_MODE = ("Run in interactive mode:", "-i or --interactive", "option", False)
+
+if sys_conf.get('configure', 'ui-toolkit', 'qt3') == 'qt3':
+    USAGE_USE_QT3 = ("Use Qt3:",  "--qt3 (Default)",  "option",  False)
+    USAGE_USE_QT4 = ("Use Qt4:",  "--qt4",  "option",  False)
+else:
+    USAGE_USE_QT3 = ("Use Qt3:",  "--qt3",  "option",  False)
+    USAGE_USE_QT4 = ("Use Qt4:",  "--qt4 (Default)",  "option",  False)
+
+
+
+
+def ttysize(): # TODO: Move to base/tui
+    ln1 = commands.getoutput('stty -a').splitlines()[0]
+    vals = {'rows':None, 'columns':None}
+    for ph in ln1.split(';'):
+        x = ph.split()
+        if len(x) == 2:
+            vals[x[0]] = x[1]
+            vals[x[1]] = x[0]
+    try:
+        rows, cols = int(vals['rows']), int(vals['columns'])
+    except TypeError:
+        rows, cols = 25, 80
+
+    return rows, cols
+
+
+def usage_formatter(override=0): # TODO: Move to base/module/Module class
+    rows, cols = ttysize()
+
+    if override:
+        col1 = override
+        col2 = cols - col1 - 8
+    else:
+        col1 = int(cols / 3) - 8
+        col2 = cols - col1 - 8
+
+    return TextFormatter(({'width': col1, 'margin' : 2},
+                            {'width': col2, 'margin' : 2},))
+
+
+def format_text(text_list, typ='text', title='', crumb='', version=''): # TODO: Move to base/module/Module class
+    """
+    Format usage text in multiple formats:
+        text: for --help in the console
+        rest: for conversion with rst2web for the website
+        man: for manpages
+    """
+    if typ == 'text':
+        formatter = usage_formatter()
+
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            # remove any reST/man escapes
+            text1 = text1.replace("\\", "")
+            text2 = text2.replace("\\", "")
+
+            if format == 'summary':
+                log.info(log.bold(text1))
+                log.info("")
+
+            elif format in ('para', 'name', 'seealso'):
+                log.info(text1)
+
+                if trailing_space:
+                    log.info("")
+
+            elif format in ('heading', 'header'):
+                log.info(log.bold(text1))
+
+            elif format in ('option', 'example'):
+                log.info(formatter.compose((text1, text2), trailing_space))
+
+            elif format == 'note':
+                if text1.startswith(' '):
+                    log.info('\t' + text1.lstrip())
+                else:
+                    log.info(text1)
+
+            elif format == 'space':
+                log.info("")
+
+        log.info("")
+
+
+    elif typ == 'rest':
+        opt_colwidth1, opt_colwidth2 = 0, 0
+        exmpl_colwidth1, exmpl_colwidth2 = 0, 0
+        note_colwidth1, note_colwidth2 = 0, 0
+
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            if format  == 'option':
+                opt_colwidth1 = max(len(text1), opt_colwidth1)
+                opt_colwidth2 = max(len(text2), opt_colwidth2)
+
+            elif format == 'example':
+                exmpl_colwidth1 = max(len(text1), exmpl_colwidth1)
+                exmpl_colwidth2 = max(len(text2), exmpl_colwidth2)
+
+            elif format == 'note':
+                note_colwidth1 = max(len(text1), note_colwidth1)
+                note_colwidth2 = max(len(text2), note_colwidth2)
+
+        opt_colwidth1 += 4
+        opt_colwidth2 += 4
+        exmpl_colwidth1 += 4
+        exmpl_colwidth2 += 4
+        note_colwidth1 += 4
+        note_colwidth2 += 4
+        opt_tablewidth = opt_colwidth1 + opt_colwidth2
+        exmpl_tablewidth = exmpl_colwidth1 + exmpl_colwidth2
+        note_tablewidth = note_colwidth1 + note_colwidth2
+
+        # write the rst2web header
+        log.info("""restindex
+page-title: %s
+crumb: %s
+format: rest
+file-extension: html
+encoding: utf8
+/restindex\n""" % (title, crumb))
+
+        t = "%s: %s (ver. %s)" % (crumb, title, version)
+        log.info(t)
+        log.info("="*len(t))
+        log.info("")
+
+        links = []
+        needs_header = False
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            if format == 'seealso':
+                links.append(text1)
+                text1 = "`%s`_" % text1
+
+            len1, len2 = len(text1), len(text2)
+
+            if format == 'summary':
+                log.info(''.join(["**", text1, "**"]))
+                log.info("")
+
+            elif format in ('para', 'name'):
+                log.info("")
+                log.info(text1)
+                log.info("")
+
+            elif format in ('heading', 'header'):
+
+                log.info("")
+                log.info("**" + text1 + "**")
+                log.info("")
+                needs_header = True
+
+            elif format == 'option':
+                if needs_header:
+                    log.info(".. class:: borderless")
+                    log.info("")
+                    log.info(''.join(["+", "-"*opt_colwidth1, "+", "-"*opt_colwidth2, "+"]))
+                    needs_header = False
+
+                if text1 and '`_' not in text1:
+                    log.info(''.join(["| *", text1, '*', " "*(opt_colwidth1-len1-3), "|", text2, " "*(opt_colwidth2-len2), "|"]))
+                elif text1:
+                    log.info(''.join(["|", text1, " "*(opt_colwidth1-len1), "|", text2, " "*(opt_colwidth2-len2), "|"]))
+                else:
+                    log.info(''.join(["|", " "*(opt_colwidth1), "|", text2, " "*(opt_colwidth2-len2), "|"]))
+
+                log.info(''.join(["+", "-"*opt_colwidth1, "+", "-"*opt_colwidth2, "+"]))
+
+            elif format == 'example':
+                if needs_header:
+                    log.info(".. class:: borderless")
+                    log.info("")
+                    log.info(''.join(["+", "-"*exmpl_colwidth1, "+", "-"*exmpl_colwidth2, "+"]))
+                    needs_header = False
+
+                if text1 and '`_' not in text1:
+                    log.info(''.join(["| *", text1, '*', " "*(exmpl_colwidth1-len1-3), "|", text2, " "*(exmpl_colwidth2-len2), "|"]))
+                elif text1:
+                    log.info(''.join(["|", text1, " "*(exmpl_colwidth1-len1), "|", text2, " "*(exmpl_colwidth2-len2), "|"]))
+                else:
+                    log.info(''.join(["|", " "*(exmpl_colwidth1), "|", text2, " "*(exmpl_colwidth2-len2), "|"]))
+
+                log.info(''.join(["+", "-"*exmpl_colwidth1, "+", "-"*exmpl_colwidth2, "+"]))
+
+            elif format == 'seealso':
+                if text1 and '`_' not in text1:
+                    log.info(text1)
+
+
+            elif format == 'note':
+                if needs_header:
+                    log.info(".. class:: borderless")
+                    log.info("")
+                    log.info(''.join(["+", "-"*note_colwidth1, "+", "-"*note_colwidth2, "+"]))
+                    needs_header = False
+
+                if text1.startswith(' '):
+                    log.info(''.join(["|", " "*(note_tablewidth+1), "|"]))
+
+                log.info(''.join(["|", text1, " "*(note_tablewidth-len1+1), "|"]))
+                log.info(''.join(["+", "-"*note_colwidth1, "+", "-"*note_colwidth2, "+"]))
+
+            elif format == 'space':
+                log.info("")
+
+        for l in links:
+            log.info("\n.. _`%s`: %s.html\n" % (l, l.replace('hp-', '')))
+
+        log.info("")
+
+    elif typ == 'man':
+        log.info('.TH "%s" 1 "%s" Linux "User Manuals"' % (crumb, version))
+        log.info(".SH NAME\n%s \- %s" % (crumb, title))
+
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            text1 = text1.replace("\\*", "*")
+            text2 = text2.replace("\\*", "*")
+
+            len1, len2 = len(text1), len(text2)
+
+            if format == 'summary':
+                log.info(".SH SYNOPSIS")
+                log.info(".B %s" % text1.replace('Usage:', ''))
+
+            elif format == 'name':
+                log.info(".SH DESCRIPTION\n%s" % text1)
+
+            elif format in ('option', 'example', 'note'):
+                if text1:
+                    log.info('.IP "%s"\n%s' % (text1, text2))
+                else:
+                    log.info(text2)
+
+            elif format in ('header', 'heading'):
+                log.info(".SH %s" % text1.upper().replace(':', '').replace('[', '').replace(']', ''))
+
+            elif format in ('seealso, para'):
+                log.info(text1)
+
+        log.info(".SH AUTHOR")
+        log.info("HPLIP (Hewlett-Packard Linux Imaging and Printing) is an")
+        log.info("HP developed solution for printing, scanning, and faxing with")
+        log.info("HP inkjet and laser based printers in Linux.")
+
+        log.info(".SH REPORTING BUGS")
+        log.info("The HPLIP Launchpad.net site")
+        log.info(".B https://launchpad.net/hplip")
+        log.info("is available to get help, report")
+        log.info("bugs, make suggestions, discuss the HPLIP project or otherwise")
+        log.info("contact the HPLIP Team.")
+
+        log.info(".SH COPYRIGHT")
+        log.info("Copyright (c) 2001-8 Hewlett-Packard Development Company, L.P.")
+        log.info(".LP")
+        log.info("This software comes with ABSOLUTELY NO WARRANTY.")
+        log.info("This is free software, and you are welcome to distribute it")
+        log.info("under certain conditions. See COPYING file for more details.")
+
+        log.info("")
+
+
+def log_title(program_name, version, show_ver=True): # TODO: Move to base/module/Module class
+    log.info("")
+
+    if show_ver:
+        log.info(log.bold("HP Linux Imaging and Printing System (ver. %s)" % prop.version))
+    else:
+        log.info(log.bold("HP Linux Imaging and Printing System"))
+
+    log.info(log.bold("%s ver. %s" % (program_name, version)))
+    log.info("")
+    log.info("Copyright (c) 2001-8 Hewlett-Packard Development Company, LP")
+    log.info("This software comes with ABSOLUTELY NO WARRANTY.")
+    log.info("This is free software, and you are welcome to distribute it")
+    log.info("under certain conditions. See COPYING file for more details.")
+    log.info("")
+
+
+def ireplace(old, search, replace):
+    regex = '(?i)' + re.escape(search)
+    return re.sub(regex, replace, old)
+
+
+
+
+

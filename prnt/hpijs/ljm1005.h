@@ -69,6 +69,10 @@ protected:
 private:
     virtual DRIVER_ERROR    EndPage ();
     virtual DRIVER_ERROR    SendPlaneData (int iPlaneNumber, HPLJZjsJbgEncSt *se, HPLJZjcBuff *pcBuff, BOOL bLastStride);
+    virtual int             GetOutputResolutionY ()
+    {
+        return 600;
+    }
 
 }; // LJM1005
 
@@ -96,11 +100,10 @@ public:
         "HP LaserJet M1005\0"
         "HP LaserJet M1120\0"
         "HP LaserJet M1319\0"
-        "HP LaserJet P1005\0"
-        "HP LaserJet P1006\0"
-        "HP LaserJet P1007\0"
-        "HP LaserJet P1008\0"
         "HP LaserJet P1505\0"
+        "HP LaserJet P2010\0"
+        "HP LaserJet P2014\0"
+        "HP LaserJet P2014n\0"
         "M1005\0"
     ) {m_iPrinterType = eLJM1005;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new LJM1005(pSS); }

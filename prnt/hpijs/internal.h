@@ -384,8 +384,13 @@ class LJFastRasterProxy;
 class LJZjsMonoProxy;
 #endif
 
+#ifdef APDK_LJZJS_COLOR
+class LJZjsColorProxy;
+#endif
+
 #ifdef APDK_LJM1005
 class LJM1005Proxy;
+class LJP1XXXProxy;
 #endif
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
@@ -539,8 +544,13 @@ public:
     static LJZjsMonoProxy s_LJZjsMonoProxy;
 #endif
 
+#ifdef APDK_LJZJS_COLOR
+    static LJZjsColorProxy s_LJZjsColorProxy;
+#endif
+
 #ifdef APDK_LJM1005
     static LJM1005Proxy s_LJM1005Proxy;
+    static LJP1XXXProxy s_LJP1XXXProxy;
 #endif
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)

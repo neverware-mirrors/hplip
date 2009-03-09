@@ -438,7 +438,7 @@ BOOL DJGenericVIP::HagakiFeedPresent(BOOL bQueryPrinter)
     // skip over ";S:<version=2bytes><topcover><inklid><duplexer>"
     pStr += 8;
     BYTE b = *pStr;
-    return (b & 4 == 4);
+    return ((b & 4) == 4);
 }
 
 #ifdef APDK_AUTODUPLEX
@@ -469,7 +469,7 @@ BOOL DJGenericVIP::HagakiFeedDuplexerPresent(BOOL bQueryPrinter)
     // skip over ";S:<version=2bytes><topcover><inklid>"
     pStr += 6;
     BYTE b = *pStr;
-    return (b & 4 == 4);
+    return ((b & 4) == 4);
 }
 #endif
 
@@ -588,7 +588,7 @@ void DJGenericVIP::AdjustModeSettings (BOOL bDoFullBleed, MEDIATYPE ReqMedia,
 } // AdjustModeSettings
 
 #ifdef APDK_LINUX
-DRIVER_ERROR DJGenericVIP::SendPerPageHeader (BOOL bLastPage)
+DRIVER_ERROR DJGenericVIP::SendSpeedMechCmd (BOOL bLastPage)
 {
     DRIVER_ERROR    err = NO_ERROR;
     BYTE            szStr[16];

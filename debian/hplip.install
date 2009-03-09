@@ -1,5 +1,7 @@
 etc/hp
 etc/sane.d/dll.d
+usr/bin/hp-*
+usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter
 usr/lib/lib*.so.*

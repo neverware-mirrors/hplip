@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2009 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ class IconViewItem(QIconViewItem):
 class ScrollUnloadView(ScrollView):
     def __init__(self, service, parent=None, form=None, name=None, fl=0):
         ScrollView.__init__(self, service, parent, name, fl)
-        
+
         self.form = form
         self.progress_dlg = None
         self.unload_dir = os.path.normpath(os.path.expanduser('~'))
@@ -88,13 +88,13 @@ class ScrollUnloadView(ScrollView):
 
         self.addGroupHeading("space1", "")
 
-        self.unloadButton = self.addActionButton("bottom_nav", self.__tr("Unload File(s)"), 
-                                self.unloadButton_clicked, 'download.png', 'download-disabled.png', 
+        self.unloadButton = self.addActionButton("bottom_nav", self.__tr("Unload File(s)"),
+                                self.unloadButton_clicked, 'download.png', 'download.png',
                                 self.__tr("Close"), self.funcButton_clicked)
 
         self.unloadButton.setEnabled(False)
 
-        self.maximizeControl()   
+        self.maximizeControl()
 
 
     def onDeviceChange(self, cur_device=None):
@@ -146,7 +146,7 @@ class ScrollUnloadView(ScrollView):
                     return
 
                 self.device_uri = self.pc.device.device_uri
-                user_cfg.last_used.device_uri = self.device_uri
+                user_conf.set('last_used', 'device_uri', self.device_uri)
 
                 # TODO:
                 #self.pc.device.sendEvent(EVENT_START_PCARD_JOB)
@@ -162,10 +162,7 @@ class ScrollUnloadView(ScrollView):
                 if not self.pc.write_protect:
                     log.info("DO NOT REMOVE PHOTO CARD UNTIL YOU EXIT THIS PROGRAM")
 
-                if user_cfg.last_used.working_dir and \
-                    os.path.exists(user_cfg.last_used.working_dir):
-
-                    self.unload_dir = user_cfg.last_used.working_dir
+                self.unload_dir = user_conf.workingDirectory()
 
                 try:
                     os.chdir(self.unload_dir)
@@ -433,13 +430,13 @@ class ScrollUnloadView(ScrollView):
         elif self.first_load:
             if typ == 'image':
                 f = self.image_icon_map.get(subtyp, 'unknown')
-            
+
             elif typ == 'video':
                 f = self.video_icon_map.get(subtyp, 'movie')
-            
+
             elif typ == 'audio':
                 f = 'sound'
-            
+
             else:
                 f = 'unknown'
 
@@ -454,7 +451,7 @@ class ScrollUnloadView(ScrollView):
                 num = len(self.item_map[fname])
 
             if num == 1:
-                IconViewItem(self.IconView, dirname, fname, path, 
+                IconViewItem(self.IconView, dirname, fname, path,
                     load_pixmap(f, '128x128'), typ, subtyp, size)
             else:
                 IconViewItem(self.IconView, dirname, fname + " (%d)" % num,
@@ -482,7 +479,7 @@ class ScrollUnloadView(ScrollView):
 
         self.UnloadDirectoryBrowseButton.setText(self.__tr("Browse..."))
         self.connect(self.UnloadDirectoryBrowseButton,SIGNAL("clicked()"),self.UnloadDirectoryBrowseButton_clicked)
-        self.connect(self.UnloadDirectoryEdit,SIGNAL("textChanged(const QString&)"),self.UnloadDirectoryEdit_textChanged)        
+        self.connect(self.UnloadDirectoryEdit,SIGNAL("textChanged(const QString&)"),self.UnloadDirectoryEdit_textChanged)
 
         self.bg = self.UnloadDirectoryEdit.paletteBackgroundColor()
 
@@ -510,7 +507,7 @@ class ScrollUnloadView(ScrollView):
         else:
             self.UnloadDirectoryEdit.setText(self.unload_dir)
             os.chdir(self.unload_dir)
-            user_cfg.last_used.working_dir = self.unload_dir.encode('utf-8')
+            user_conf.setWorkingDirectory(self.unload_dir)
 
     def addOptions(self):
         widget = self.getWidget()
@@ -644,7 +641,7 @@ class ScrollUnloadView(ScrollView):
         if self.pc is not None:
             self.pc.umount()
             self.pc.device.close()
-        
+
         self.form.close()
 
     def __tr(self,s,c = None):

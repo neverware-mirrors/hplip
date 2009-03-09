@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2008 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2009 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ from faxaddrbookgroupeditform_base import FaxAddrBookGroupEditForm_base
 # globals
 db = None
 
-# **************************************************************************** 
+# ****************************************************************************
 
 class AddressBookItem2(QListViewItem):
 
@@ -94,7 +94,7 @@ class PhoneNumValidator(QValidator):
 # **************************************************************************** #
 
 class FaxAddrBookGroupEditForm(FaxAddrBookGroupEditForm_base):
-    """ 
+    """
         Called when clicking New... or Edit... from the Group Dialog
     """
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -117,7 +117,7 @@ class FaxAddrBookGroupEditForm(FaxAddrBookGroupEditForm_base):
         for e, v in all_entries.items():
             i = QCheckListItem(self.entriesListView, e, QCheckListItem.CheckBox)
 
-            if group_name and group_name in v['groups']: 
+            if group_name and group_name in v['groups']:
                 i.setState(QCheckListItem.On)
 
         self.CheckOKButton()
@@ -211,7 +211,6 @@ class FaxAddrBookGroupsForm(FaxAddrBookGroupsForm_base):
         if dlg.exec_loop() == QDialog.Accepted:
             group_name, entries = dlg.getDlgData()
             db.update_groups(group_name, entries)
-            db.save()
             self.UpdateList()
 
     def editButton_clicked(self):
@@ -221,7 +220,6 @@ class FaxAddrBookGroupsForm(FaxAddrBookGroupsForm_base):
         if dlg.exec_loop() == QDialog.Accepted:
             group_name, entries = dlg.getDlgData()
             db.update_groups(group_name, entries)
-            db.save()
             self.UpdateList()
 
 
@@ -234,7 +232,6 @@ class FaxAddrBookGroupsForm(FaxAddrBookGroupsForm_base):
                                   QMessageBox.NoButton)
         if x == QMessageBox.Yes:
             db.delete_group(unicode(self.current.text(0)))
-            db.save()
             self.UpdateList()
 
     def groupListView_currentChanged(self, a0):
@@ -369,6 +366,10 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
 
         if all_entries:
             for e, v in all_entries.items():
+
+                if v['name'].startswith('__'):
+                    continue
+
                 i = AddressBookItem2(self.addressListView, v)
 
                 if first_rec is None:
@@ -395,7 +396,6 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
         if dlg.exec_loop() == QDialog.Accepted:
             d = dlg.getDlgData()
             db.set(**d)
-            db.save()
             self.sendUpdateEvent()
             self.UpdateList()
 
@@ -403,7 +403,7 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
         dlg = FaxAddrBookEditForm(True, self)
         c = self.current.entry
         dlg.setDlgData(c['name'], c['title'], c['firstname'],
-            c['lastname'], c['fax'], c['groups'], c['notes']) 
+            c['lastname'], c['fax'], c['groups'], c['notes'])
         prev_name = c['name']
         if dlg.exec_loop() == QDialog.Accepted:
             d = dlg.getDlgData()
@@ -412,7 +412,6 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
                 db.delete(prev_name)
 
             db.set(**d)
-            db.save()
             self.sendUpdateEvent()
             self.UpdateList()
 
@@ -425,7 +424,6 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
               QMessageBox.No | QMessageBox.Default,
               QMessageBox.NoButton) == QMessageBox.Yes:
             db.delete(self.current.entry['name'])
-            db.save()
             self.UpdateList()
             self.sendUpdateEvent()
 
@@ -466,16 +464,9 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
 
     def sendUpdateEvent(self):
         pass # TODO:
-        
+
     def importPushButton_clicked(self):
-        workingDirectory = user_cfg.last_used.working_dir
-
-        if not workingDirectory or not os.path.exists(workingDirectory):
-            workingDirectory = os.path.expanduser("~")
-
-        log.debug("workingDirectory: %s" % workingDirectory)
-
-        dlg = QFileDialog(workingDirectory, "LDIF (*.ldif *.ldi);;vCard (*.vcf)", None, None, True)
+        dlg = QFileDialog(user_conf.workingDirectory(), "LDIF (*.ldif *.ldi);;vCard (*.vcf)", None, None, True)
 
         dlg.setCaption("openfile")
         dlg.setMode(QFileDialog.ExistingFile)
@@ -483,21 +474,19 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
 
         if dlg.exec_loop() == QDialog.Accepted:
                 result = str(dlg.selectedFile())
-                workingDirectory = unicode(dlg.dir().absPath())
+                working_directory = unicode(dlg.dir().absPath())
                 log.debug("result: %s" % result)
-                log.debug("workingDirectory: %s" % workingDirectory)
-                user_cfg.last_used.working_dir = workingDirectory
+                user_conf.setWorkingDirectory(working_directory)
 
                 if result:
                     if result.endswith('.vcf'):
                         ok, error_str = db.import_vcard(result)
                     else:
                         ok, error_str = db.import_ldif(result)
-                    
+
                     if not ok:
                         self.FailureUI(error_str)
-                    
+
                     else:
-                        db.save()
                         self.UpdateList()
-                
+

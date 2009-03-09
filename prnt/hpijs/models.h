@@ -74,7 +74,9 @@ typedef enum PRINTER_TYPE               // typedef'ed for C interface
     eLJFastRaster,
     eLJZjsMono,
     eLJM1005,
+    eLJP1XXX,
     eQuickConnect,
+    eLJZjsColor,
     MAX_PRINTER_TYPE
 } PRINTER_TYPE;
 
@@ -115,7 +117,9 @@ const char ModelName[MAX_PRINTER_TYPE][13] =
     "LJFastRaster",
     "LJZjsMono",
     "LJM1005",
-    "QuickConnect"
+    "LJP1XXX",
+    "QuickConnect",
+    "LJZjsColor"
 };
 
 APDK_END_NAMESPACE

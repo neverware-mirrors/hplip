@@ -61,7 +61,7 @@ public:
 #endif
     virtual BOOL GetMargins (PAPER_SIZE ps, float *fMargins);
 #ifdef APDK_LINUX
-    virtual DRIVER_ERROR    SendPerPageHeader (BOOL bLastPage);
+    virtual DRIVER_ERROR    SendSpeedMechCmd (BOOL bLastPage);
 #endif // APDK_LINUX
 
 private:
@@ -128,6 +128,7 @@ public:
         "Business Inkjet 1000\0"
 		"hp business inkjet 1100\0"
    		"HP Business Inkjet 1200\0"
+        "Officejet Pro 8500\0"
         "photosmart 7150\0"
         "photosmart 7350\0"
 		"photosmart 7345\0"
@@ -166,10 +167,21 @@ public:
         "Officejet 63\0"
         "Officejet J35\0"
         "Officejet J36\0"
+        "Officejet J46\0"
         "Officejet J55\0"
         "Officejet J57\0"
         "Officejet J64\0"
         "Officejet K71\0"
+
+        "Officejet Pro K53\0"
+        "Officejet Pro K54\0"
+        "Officejet Pro K56\0"
+        "Officejet Pro K86\0"
+        "Officejet Pro L73\0"
+        "Officejet Pro L75\0"
+        "Officejet Pro L76\0"
+        "Officejet Pro L77\0"
+
         "Photosmart 2570\0"
 		"Photosmart 2600\0"
 		"Photosmart 2700\0"
@@ -180,17 +192,22 @@ public:
         "Photosmart A310\0"
         "Photosmart A320\0"
         "Photosmart A440\0"
+        "Photosmart B85\0"
         "Photosmart Pro B8300\0"
         "Photosmart Pro B88\0"
+        "Photosmart C309\0"
         "Photosmart C31\0"
         "Photosmart C41\0"
         "Photosmart C42\0"
         "Photosmart C43\0"
         "Photosmart C44\0"
+        "Photosmart C45\0"
         "Photosmart C51\0"
         "Photosmart C52\0"
+        "Photosmart C53\0"
         "Photosmart C61\0"
         "Photosmart C62\0"
+        "Photosmart C63\0"
         "Photosmart C71\0"
         "Photosmart C72\0"
         "Photosmart C81\0"

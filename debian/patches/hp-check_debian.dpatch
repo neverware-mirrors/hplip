@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp-check_debian.dpatch by  <msp@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets check there too
+
+@DPATCH@
+diff -urNad hplip-2.8.12~/check.py hplip-2.8.12/check.py
+--- hplip-2.8.12~/check.py	2008-12-18 07:41:18.000000000 +1100
++++ hplip-2.8.12/check.py	2009-01-22 14:01:40.000000000 +1100
+@@ -693,6 +693,21 @@
+                     if 'hpaio' in line:
+                         found = True
+ 
++		# Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets check there too
++
++		if not found:
++		    log.info(log.bold("'hpaio' in '/etc/sane.d/dll.d/hplip'..."))
++		    try:
++                       f = file('/etc/sane.d/dll.d/hplip', 'r')
++                    except IOError:
++                       log.error("'/etc/sane.d/dll.d/hplip' not found.")
++                       num_errors += 1
++                    else:
++                        found = False
++                        for line in f:
++                            if 'hpaio' in line:
++                                found = True
++
+                 if found:
+                     log.info("OK, found. SANE backend 'hpaio' is properly set up.")
+                 else:

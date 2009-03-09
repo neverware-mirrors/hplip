@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2009 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,27 +38,66 @@ from base import utils, models
 # installer and in a fresh sandbox if the Python extensions
 # aren't installed yet.
 try:
+    current_language = os.getenv("LANG")
+    newlang = "C"
+
+    # this is a workaround due CUPS rejecting all encoding except ASCII
+    # and utf-8
+    # if the locale contains the encoding, switch to the same locale,
+    # but with utf-8 encoding. Otherwise use C locale.
+    if current_language is not None and current_language.count('.'):
+        newlang, encoding = current_language.split('.')
+        newlang += ".UTF-8"
+
+    os.environ['LANG'] = newlang
+
+    # the same works for LC_CTYPE, in case it's not set
+    current_ctype = os.getenv("LC_CTYPE")
+    newctype = "C"
+
+    if current_ctype is not None and current_ctype.count('.'):
+        newctype, encoding = current_ctype.split('.')
+        newctype += ".UTF-8"
+
+    os.environ['LC_CTYPE'] = newctype
+
     import cupsext
+
+    # restore the old env values
+    if current_ctype is not None:
+        os.environ['LC_CTYPE'] = current_ctype
+
+    if current_language is not None:
+        os.environ['LANG'] = current_language
+
 except ImportError:
     if not os.getenv("HPLIP_BUILD"):
-        log.error("CUPSEXT could not be loaded. Please check HPLIP installation.")
+        log.warn("CUPSEXT could not be loaded. Please check HPLIP installation.")
         sys.exit(1)
 
-nickname_pat = re.compile(r'''\*NickName:\s*\"(.*)"''', re.MULTILINE)
-pat_cups_error_log = re.compile("""^loglevel\s?(debug|debug2|warn|info|error|none)""", re.I)
 
 IPP_PRINTER_STATE_IDLE = 3
 IPP_PRINTER_STATE_PROCESSING = 4
 IPP_PRINTER_STATE_STOPPED = 5
 
+# Std CUPS option types
 PPD_UI_BOOLEAN = 0   # True or False option
 PPD_UI_PICKONE = 1   # Pick one from a list
 PPD_UI_PICKMANY = 2  # Pick zero or more from a list
 
-# Non-std
+# Non-std: General
 UI_SPINNER = 100           # Simple spinner with opt. suffix (ie, %)
-UI_UNITS_SPINNER = 101     # Spinner control w/pts, cm, in, etc. units
+UI_UNITS_SPINNER = 101     # Spinner control w/pts, cm, in, etc. units (not impl.)
 UI_BANNER_JOB_SHEETS = 102 # dual combos for banner job-sheets
+UI_PAGE_RANGE = 103        # Radio + page range entry field
+
+# Non-std: Job storage
+UI_JOB_STORAGE_MODE = 104      # Combo w/linkage
+UI_JOB_STORAGE_PIN = 105       # Radios w/PIN entry
+UI_JOB_STORAGE_USERNAME = 106  # Radios w/text entry
+UI_JOB_STORAGE_ID = 107        # Radios w/text entry
+UI_JOB_STORAGE_ID_EXISTS = 108 # Combo
+
 
 # ipp_op_t
 IPP_PAUSE_PRINTER = 0x0010
@@ -89,58 +128,59 @@ IPP_JOB_ABORTED = 8    # Job has aborted due to error
 IPP_JOB_COMPLETED = 8  # Job has completed successfully
 
 # ipp_status_e
-IPP_OK = 0x0000 # successful-ok 
-IPP_OK_SUBST = 0x001 # successful-ok-ignored-or-substituted-attributes 
-IPP_OK_CONFLICT = 0x002 # successful-ok-conflicting-attributes 
-IPP_OK_IGNORED_SUBSCRIPTIONS = 0x003 # successful-ok-ignored-subscriptions 
-IPP_OK_IGNORED_NOTIFICATIONS = 0x004 # successful-ok-ignored-notifications 
-IPP_OK_TOO_MANY_EVENTS = 0x005 # successful-ok-too-many-events 
-IPP_OK_BUT_CANCEL_SUBSCRIPTION = 0x006 # successful-ok-but-cancel-subscription 
-IPP_OK_EVENTS_COMPLETE = 0x007 # successful-ok-events-complete 
+IPP_OK = 0x0000 # successful-ok
+IPP_OK_SUBST = 0x001 # successful-ok-ignored-or-substituted-attributes
+IPP_OK_CONFLICT = 0x002 # successful-ok-conflicting-attributes
+IPP_OK_IGNORED_SUBSCRIPTIONS = 0x003 # successful-ok-ignored-subscriptions
+IPP_OK_IGNORED_NOTIFICATIONS = 0x004 # successful-ok-ignored-notifications
+IPP_OK_TOO_MANY_EVENTS = 0x005 # successful-ok-too-many-events
+IPP_OK_BUT_CANCEL_SUBSCRIPTION = 0x006 # successful-ok-but-cancel-subscription
+IPP_OK_EVENTS_COMPLETE = 0x007 # successful-ok-events-complete
 IPP_REDIRECTION_OTHER_SITE = 0x300
-IPP_BAD_REQUEST = 0x0400 # client-error-bad-request 
-IPP_FORBIDDEN = 0x0401 # client-error-forbidden 
-IPP_NOT_AUTHENTICATED = 0x0402 # client-error-not-authenticated 
-IPP_NOT_AUTHORIZED = 0x0403 # client-error-not-authorized 
-IPP_NOT_POSSIBLE = 0x0404 # client-error-not-possible 
-IPP_TIMEOUT = 0x0405 # client-error-timeout 
-IPP_NOT_FOUND = 0x0406 # client-error-not-found 
-IPP_GONE = 0x0407 # client-error-gone 
-IPP_REQUEST_ENTITY = 0x0408 # client-error-request-entity-too-large 
-IPP_REQUEST_VALUE = 0x0409 # client-error-request-value-too-long 
-IPP_DOCUMENT_FORMAT = 0x040a # client-error-document-format-not-supported 
-IPP_ATTRIBUTES = 0x040b # client-error-attributes-or-values-not-supported 
-IPP_URI_SCHEME = 0x040c # client-error-uri-scheme-not-supported 
-IPP_CHARSET = 0x040d # client-error-charset-not-supported 
-IPP_CONFLICT = 0x040e # client-error-conflicting-attributes 
-IPP_COMPRESSION_NOT_SUPPORTED = 0x040f # client-error-compression-not-supported 
-IPP_COMPRESSION_ERROR = 0x0410 # client-error-compression-error 
-IPP_DOCUMENT_FORMAT_ERROR = 0x0411 # client-error-document-format-error 
-IPP_DOCUMENT_ACCESS_ERROR = 0x0412 # client-error-document-access-error 
-IPP_ATTRIBUTES_NOT_SETTABLE = 0x0413 # client-error-attributes-not-settable 
-IPP_IGNORED_ALL_SUBSCRIPTIONS = 0x0414 # client-error-ignored-all-subscriptions 
-IPP_TOO_MANY_SUBSCRIPTIONS = 0x0415 # client-error-too-many-subscriptions 
-IPP_IGNORED_ALL_NOTIFICATIONS = 0x0416 # client-error-ignored-all-notifications 
-IPP_PRINT_SUPPORT_FILE_NOT_FOUND = 0x0417 # client-error-print-support-file-not-found 
-IPP_INTERNAL_ERROR = 0x0500 # server-error-internal-error 
-IPP_OPERATION_NOT_SUPPORTED = 0x0501 # server-error-operation-not-supported 
-IPP_SERVICE_UNAVAILABLE = 0x0502 # server-error-service-unavailable 
-IPP_VERSION_NOT_SUPPORTED = 0x0503 # server-error-version-not-supported 
-IPP_DEVICE_ERROR = 0x0504 # server-error-device-error 
-IPP_TEMPORARY_ERROR = 0x0505 # server-error-temporary-error 
-IPP_NOT_ACCEPTING = 0x0506 # server-error-not-accepting-jobs 
-IPP_PRINTER_BUSY = 0x0507 # server-error-busy 
-IPP_ERROR_JOB_CANCELLED = 0x0508 # server-error-job-canceled 
-IPP_MULTIPLE_JOBS_NOT_SUPPORTED = 0x0509 # server-error-multiple-document-jobs-not-supported 
-IPP_PRINTER_IS_DEACTIVATED = 0x050a # server-error-printer-is-deactivated 
+IPP_BAD_REQUEST = 0x0400 # client-error-bad-request
+IPP_FORBIDDEN = 0x0401 # client-error-forbidden
+IPP_NOT_AUTHENTICATED = 0x0402 # client-error-not-authenticated
+IPP_NOT_AUTHORIZED = 0x0403 # client-error-not-authorized
+IPP_NOT_POSSIBLE = 0x0404 # client-error-not-possible
+IPP_TIMEOUT = 0x0405 # client-error-timeout
+IPP_NOT_FOUND = 0x0406 # client-error-not-found
+IPP_GONE = 0x0407 # client-error-gone
+IPP_REQUEST_ENTITY = 0x0408 # client-error-request-entity-too-large
+IPP_REQUEST_VALUE = 0x0409 # client-error-request-value-too-long
+IPP_DOCUMENT_FORMAT = 0x040a # client-error-document-format-not-supported
+IPP_ATTRIBUTES = 0x040b # client-error-attributes-or-values-not-supported
+IPP_URI_SCHEME = 0x040c # client-error-uri-scheme-not-supported
+IPP_CHARSET = 0x040d # client-error-charset-not-supported
+IPP_CONFLICT = 0x040e # client-error-conflicting-attributes
+IPP_COMPRESSION_NOT_SUPPORTED = 0x040f # client-error-compression-not-supported
+IPP_COMPRESSION_ERROR = 0x0410 # client-error-compression-error
+IPP_DOCUMENT_FORMAT_ERROR = 0x0411 # client-error-document-format-error
+IPP_DOCUMENT_ACCESS_ERROR = 0x0412 # client-error-document-access-error
+IPP_ATTRIBUTES_NOT_SETTABLE = 0x0413 # client-error-attributes-not-settable
+IPP_IGNORED_ALL_SUBSCRIPTIONS = 0x0414 # client-error-ignored-all-subscriptions
+IPP_TOO_MANY_SUBSCRIPTIONS = 0x0415 # client-error-too-many-subscriptions
+IPP_IGNORED_ALL_NOTIFICATIONS = 0x0416 # client-error-ignored-all-notifications
+IPP_PRINT_SUPPORT_FILE_NOT_FOUND = 0x0417 # client-error-print-support-file-not-found
+IPP_INTERNAL_ERROR = 0x0500 # server-error-internal-error
+IPP_OPERATION_NOT_SUPPORTED = 0x0501 # server-error-operation-not-supported
+IPP_SERVICE_UNAVAILABLE = 0x0502 # server-error-service-unavailable
+IPP_VERSION_NOT_SUPPORTED = 0x0503 # server-error-version-not-supported
+IPP_DEVICE_ERROR = 0x0504 # server-error-device-error
+IPP_TEMPORARY_ERROR = 0x0505 # server-error-temporary-error
+IPP_NOT_ACCEPTING = 0x0506 # server-error-not-accepting-jobs
+IPP_PRINTER_BUSY = 0x0507 # server-error-busy
+IPP_ERROR_JOB_CANCELLED = 0x0508 # server-error-job-canceled
+IPP_MULTIPLE_JOBS_NOT_SUPPORTED = 0x0509 # server-error-multiple-document-jobs-not-supported
+IPP_PRINTER_IS_DEACTIVATED = 0x050a # server-error-printer-is-deactivated
 
 CUPS_ERROR_BAD_NAME = 0x0f00
 CUPS_ERROR_BAD_PARAMETERS = 0x0f01
 
+nickname_pat = re.compile(r'''\*NickName:\s*\"(.*)"''', re.MULTILINE)
+pat_cups_error_log = re.compile("""^loglevel\s?(debug|debug2|warn|info|error|none)""", re.I)
+ppd_pat = re.compile(r'''.*hp-(.*?)(-.*)+\.ppd.*''', re.I)
 
 
-##def restartCUPS(): # must be root. How do you check for this?
-##    os.system('killall -HUP cupsd')
 
 def getPPDPath(addtional_paths=None):
     """
@@ -183,8 +223,11 @@ def getAllowableMIMETypes():
     # Add some well-known MIME types that may not appear in the .convs files
     allowable_mime_types.append("image/x-bmp")
     allowable_mime_types.append("text/cpp")
+    allowable_mime_types.append("application/x-python")
+    allowable_mime_types.append("application/hplip-fax")
 
     return allowable_mime_types
+
 
 def getPPDDescription(f):
     if f.endswith('.gz'):
@@ -205,13 +248,14 @@ def getSystemPPDs():
     ppds = {} # {'ppd name' : 'desc', ...}
 
     if major == 1 and minor < 2:
-        log.debug("(CUPS 1.1.x) Searching for PPDs in: %s" % sys_cfg.dirs.ppd)
+        ppd_dir = sys_conf.get('dirs', 'ppd')
+        log.debug("(CUPS 1.1.x) Searching for PPDs in: %s" % ppd_dir)
 
-        for f in utils.walkFiles(sys_cfg.dirs.ppd, pattern="HP*ppd*;hp*ppd*", abs_paths=True):
+        for f in utils.walkFiles(ppd_dir, pattern="HP*ppd*;hp*ppd*", abs_paths=True):
             desc = getPPDDescription(f)
 
-            if not ('foo2' in desc or 
-                    'gutenprint' in desc.lower() or 
+            if not ('foo2' in desc or
+                    'gutenprint' in desc.lower() or
                     'gutenprint' in f):
 
                 ppds[f] = desc
@@ -221,7 +265,7 @@ def getSystemPPDs():
         log.debug("(CUPS 1.2.x) Getting list of PPDs using CUPS_GET_PPDS...")
         ppd_dict = cupsext.getPPDList()
         cups_ppd_path = getPPDPath() # usually /usr/share/cups/model
-        foomatic_ppd_path = sys_cfg.dirs.ppdbase # usually /usr/share/ppd
+        foomatic_ppd_path = sys_conf.get('dirs', 'ppdbase', '/usr/share/ppd')
 
         if not foomatic_ppd_path or not os.path.exists(foomatic_ppd_path):
             foomatic_ppd_path = '/usr/share/ppd'
@@ -239,15 +283,15 @@ def getSystemPPDs():
                 desc = ppd_dict[ppd]['ppd-make-and-model']
                 #print ppd, desc
 
-                if not ('foo2' in desc.lower() or 
-                        'gutenprint' in desc.lower() or 
+                if not ('foo2' in desc.lower() or
+                        'gutenprint' in desc.lower() or
                         'gutenprint' in ppd):
 
                     # PPD files returned by CUPS_GET_PPDS (and by lpinfo -m)
-                    # can be relative to /usr/share/ppd/ or to 
+                    # can be relative to /usr/share/ppd/ or to
                     # /usr/share/cups/model/. Not sure why this is.
                     # Here we will try both and see which one it is...
-                    
+
                     if os.path.exists(ppd):
                         path = ppd
                     else:
@@ -266,12 +310,12 @@ def getSystemPPDs():
                                         path = ppd # foomatic: or some other driver
 
                     ppds[path] = desc
-                    log.debug("%s: %s" % (path, desc))
+                    #log.debug("%s: %s" % (path, desc))
 
     return ppds
 
 
-# TODO: Move this to CUPSEXT for better performance
+## TODO: Move this to CUPSEXT for better performance
 def levenshtein_distance(a,b):
     """
     Calculates the Levenshtein distance between a and b.
@@ -300,15 +344,33 @@ def levenshtein_distance(a,b):
 
 number_pat = re.compile(r""".*?(\d+)""", re.IGNORECASE)
 
-STRIP_STRINGS = ['foomatic:', 'hp-', 'hp_', 'hp ', '_series', '.gz', '.ppd', '-series', ' series', '-hpijs']
+
+STRIP_STRINGS2 = ['foomatic:', 'hp-', 'hp_', 'hp ', '.gz', '.ppd',
+                 '-hpijs', 'drv:', '-pcl', '-pcl3', '-jetready',
+                 '-zxs', '-zjs', '-ps', '-postscript',
+                 '-jr', '-lidl', '-lidil', '-ldl']
+
 
 for p in models.TECH_CLASS_PDLS.values():
     pp = '-%s' % p
-    if pp not in STRIP_STRINGS:
-        STRIP_STRINGS.append(pp)
-        
+    if pp not in STRIP_STRINGS2:
+        STRIP_STRINGS2.append(pp)
 
-def stripModel(model):
+
+STRIP_STRINGS = STRIP_STRINGS2[:]
+STRIP_STRINGS.extend(['-series', ' series', '_series'])
+
+
+def stripModel2(model): # For new 2.8.10+ PPD find algorithm
+    model = model.lower()
+
+    for x in STRIP_STRINGS2:
+        model = model.replace(x, '')
+
+    return model
+
+
+def stripModel(model): # for old PPD find algorithm (removes "series" as well)
     model = model.lower()
 
     for x in STRIP_STRINGS:
@@ -317,8 +379,7 @@ def stripModel(model):
     return model
 
 
-
-def getPPDFile(stripped_model, ppds):
+def getPPDFile(stripped_model, ppds): # Old PPD find
     """
         Match up a model name to a PPD from a list of system PPD files.
     """
@@ -327,11 +388,12 @@ def getPPDFile(stripped_model, ppds):
     eds = {}
     min_edit_distance = sys.maxint
 
-    log.debug("Determining edit distance from %s..." % stripped_model)
+    log.debug("Determining edit distance from %s (only showing edit distances < 4)..." % stripped_model)
     for f in ppds:
         t = stripModel(os.path.basename(f))
         eds[f] = levenshtein_distance(stripped_model, t)
-        log.debug("dist('%s') = %d" % (t, eds[f]))
+        if eds[f] < 4:
+            log.debug("dist('%s') = %d" % (t, eds[f]))
         min_edit_distance = min(min_edit_distance, eds[f])
 
     log.debug("Min. dist = %d" % min_edit_distance)
@@ -392,6 +454,54 @@ def getPPDFile(stripped_model, ppds):
                     break
 
     return mins
+
+
+def getPPDFile2(stripped_model, ppds): # New PPD find
+    # This routine is for the new PPD naming scheme begun in 2.8.10
+    # and beginning with implementation in 2.8.12 (Qt4 hp-setup)
+    # hp-<model name from models.dat w/o beginning hp_>[-<pdl>][-<pdl>][...].ppd[.gz]
+    log.debug("Matching PPD list to model %s..." % stripped_model)
+    matches = []
+    for f in ppds:
+        match = ppd_pat.match(f)
+        if match is not None:
+            if match.group(1) == stripped_model:
+                log.debug("Found match: %s" % f)
+                pdls = match.group(2).split('-')
+                matches.append((f, [p for p in pdls if p and p != 'hpijs']))
+
+    log.debug(matches)
+    num_matches = len(matches)
+
+    if num_matches == 0:
+        log.error("No PPD found for model %s. Trying old algorithm..." % stripped_model)
+        matches = getPPDFile(stripModel(stripped_model), ppds).items()
+        log.debug(matches)
+        num_matches = len(matches)
+
+    if num_matches == 0:
+        log.error("No PPD found for model %s using old algorithm." % stripModel(stripped_model))
+        return None
+
+    elif num_matches == 1:
+        log.debug("One match found.")
+        return (matches[0][0], '')
+
+    # > 1
+    log.debug("%d matches found. Selecting based on PDL: Host > PS > PCL/Other" % num_matches)
+    for p in [models.PDL_TYPE_HOST, models.PDL_TYPE_PS, models.PDL_TYPE_PCL]:
+        for m in matches:
+            for x in m[1]:
+                # default to HOST-based PDLs, as newly supported PDLs will most likely be of this type
+                if models.PDL_TYPES.get(x, models.PDL_TYPE_HOST) == p:
+                    log.debug("Selecting '-%s' PPD: %s" % (x, m[0]))
+                    return (m[0], '')
+
+    # No specific PDL found, so just return 1st found PPD file
+    # (e.g., files only have -hpijs, no PDL indicators)
+    log.debug("No specific PDL located. Defaulting to first found PPD file.")
+    return (matches[0][0], '')
+
 
 
 def getErrorLogLevel():
@@ -521,9 +631,9 @@ def getPrinters():
 ##            pn = pp.name.decode('utf-8')
 ##        except UnicodeError:
 ##            pass
-##            
+##
 ##        p2.append(pp)
-##        
+##
 ##    return p2
     return cupsext.getPrinters()
 

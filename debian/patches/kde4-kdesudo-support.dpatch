@@ -2,13 +2,13 @@
 ## kde4-kdesudo-support.dpatch by  <till.kamppeter@gmail.com>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: https://bugs.launchpad.net/hplip/+bug/281880
+## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-2.8.7~/ui/devmgr4.py hplip-2.8.7/ui/devmgr4.py
---- hplip-2.8.7~/ui/devmgr4.py	2008-07-30 18:42:09.000000000 +0200
-+++ hplip-2.8.7/ui/devmgr4.py	2008-10-13 11:29:26.000000000 +0200
-@@ -1381,6 +1381,9 @@
+diff -urNad hplip-3.9.2~/ui/devmgr4.py hplip-3.9.2/ui/devmgr4.py
+--- hplip-3.9.2~/ui/devmgr4.py	2009-02-19 21:36:58.000000000 -0300
++++ hplip-3.9.2/ui/devmgr4.py	2009-02-25 17:31:52.000000000 -0300
+@@ -1384,6 +1384,9 @@
          if utils.which('kdesu'):
              su_sudo = 'kdesu -- %s'
  
@@ -17,8 +17,8 @@ diff -urNad hplip-2.8.7~/ui/devmgr4.py hplip-2.8.7/ui/devmgr4.py
 +
          elif utils.which('gnomesu'):
              su_sudo = 'gnomesu -c "%s"'
-         
-@@ -2745,6 +2748,9 @@
+ 
+@@ -2766,6 +2769,9 @@
          if utils.which('kdesu'):
              su_sudo = 'kdesu -- %s'
  
@@ -27,17 +27,43 @@ diff -urNad hplip-2.8.7~/ui/devmgr4.py hplip-2.8.7/ui/devmgr4.py
 +
          elif utils.which('gnomesu'):
              su_sudo = 'gnomesu -c "%s"'
-         
-diff -urNad hplip-2.8.7~/ui/nodevicesform.py hplip-2.8.7/ui/nodevicesform.py
---- hplip-2.8.7~/ui/nodevicesform.py	2008-07-30 18:42:09.000000000 +0200
-+++ hplip-2.8.7/ui/nodevicesform.py	2008-10-13 11:30:09.000000000 +0200
+ 
+diff -urNad hplip-3.9.2~/ui/nodevicesform.py hplip-3.9.2/ui/nodevicesform.py
+--- hplip-3.9.2~/ui/nodevicesform.py	2009-02-19 21:36:58.000000000 -0300
++++ hplip-3.9.2/ui/nodevicesform.py	2009-02-25 17:32:23.000000000 -0300
 @@ -57,6 +57,9 @@
          if utils.which('kdesu'):
              su_sudo = 'kdesu -- %s'
-             
+ 
 +        elif utils.which('kdesudo'):
 +            su_sudo = 'kdesudo -- %s'
 +
          elif utils.which('gnomesu'):
              su_sudo = 'gnomesu -c "%s"'
-             
+ 
+diff -urNad hplip-3.9.2~/ui4/nodevicesdialog.py hplip-3.9.2/ui4/nodevicesdialog.py
+--- hplip-3.9.2~/ui4/nodevicesdialog.py	2009-02-19 21:36:38.000000000 -0300
++++ hplip-3.9.2/ui4/nodevicesdialog.py	2009-02-25 17:29:10.000000000 -0300
+@@ -54,6 +54,9 @@
+         if utils.which('kdesu'):
+             su_sudo = 'kdesu -- %s'
+ 
++        elif utils.which('kdesudo'):
++            su_sudo = 'kdesudo -- %s'
++
+         elif utils.which('gnomesu'):
+             su_sudo = 'gnomesu -c "%s"'
+ 
+diff -urNad hplip-3.9.2~/ui4/ui_utils.py hplip-3.9.2/ui4/ui_utils.py
+--- hplip-3.9.2~/ui4/ui_utils.py	2009-02-19 21:36:38.000000000 -0300
++++ hplip-3.9.2/ui4/ui_utils.py	2009-02-25 17:30:41.000000000 -0300
+@@ -211,6 +211,9 @@
+     if utils.which('kdesu'):
+         su_sudo_str = 'kdesu -- %s'
+ 
++    elif utils.which('kdesudo'):
++        su_sudo = 'kdesudo -- %s'
++
+     elif utils.which('gnomesu'):
+         su_sudo_str = 'gnomesu -c "%s"'
+ 
