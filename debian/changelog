@@ -1,8 +1,14 @@
-hplip (3.9.2-2) UNRELEASED; urgency=low
+hplip (3.9.2-1ubuntu1) jaunty; urgency=low
 
-  * NOT RELEASED YET
+  [ Till Kamppeter ]
+  * debian/patches/hpdio_settings_dialog.dpatch: Bug fix patch from upstream,
+    fixes busy loop when switching to another user and crash of settings
+    dialog (see LP: #335116).
 
- -- Mark Purcell <msp@debian.org>  Mon, 09 Mar 2009 13:04:05 +1100
+  [ Mark Purcell ]
+  * debian/control: Standards version 3.8.0.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  9 Mar 2009 17:29:45 +0100
 
 hplip (3.9.2-1) unstable; urgency=low
 
