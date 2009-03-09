@@ -1,5 +1,6 @@
-hplip (3.9.2-1) UNRELEASED; urgency=low
+hplip (3.9.2-1) unstable; urgency=low
 
+  [ Till Kamppeter ]
   * New upstream release
      o Fully Qt4-based
      o Added printing support for HP Color LasetJets 1600, 2600, and CP1215
@@ -18,8 +19,8 @@ hplip (3.9.2-1) UNRELEASED; urgency=low
     debian/patches/hpinfo-query-without-cups-queue.dpatch,
     debian/patches/85_rebuild_python_ui.dpatch: Regenerated.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 25 Feb 2009 16:07:45 -0300
-	
+ -- Mark Purcell <msp@debian.org>  Mon, 09 Mar 2009 12:52:14 +1100
+
 hplip (2.8.12-3ubuntu1) jaunty; urgency=low
 
   [ Till Kamppeter ]
