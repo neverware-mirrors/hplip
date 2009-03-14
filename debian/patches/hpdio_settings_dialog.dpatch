@@ -1,0 +1,43 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hpdio_settings_dialog.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.9.2~/hpdio.py hplip-3.9.2/hpdio.py
+--- hplip-3.9.2~/hpdio.py	2009-02-20 01:36:58.000000000 +0100
++++ hplip-3.9.2/hpdio.py	2009-03-09 17:22:59.000000000 +0100
+@@ -85,12 +85,20 @@
+                 r, w, e = select.select([r2], [], [r2], 1.0)
+             except KeyboardInterrupt:
+                 break
++            except select.error, e:
++                if e[0] == errno.EINTR:
++                    continue
++                else:
++                    break
+ 
+             if not r: continue
+             if e: break
+ 
+             m = ''.join([m, os.read(r2, fmt_size)])
+ 
++            if not m:
++                break
++
+             while len(m) >= fmt_size:
+                 response.clear()
+                 event = device.Event(*struct.unpack(fmt, m[:fmt_size]))
+diff -urNad hplip-3.9.2~/ui4/settingsdialog.py hplip-3.9.2/ui4/settingsdialog.py
+--- hplip-3.9.2~/ui4/settingsdialog.py	2009-02-20 01:36:38.000000000 +0100
++++ hplip-3.9.2/ui4/settingsdialog.py	2009-03-09 17:22:59.000000000 +0100
+@@ -55,7 +55,7 @@
+         if self.user_settings.auto_refresh_type == 1:
+             self.RefreshCurrentRadioButton.setChecked(True)
+         else:
+-            RefreshAllRadioButton.setChecked(True)
++            self.RefreshAllRadioButton.setChecked(True)
+ 
+         self.ScanCommandLineEdit.setText(self.user_settings.cmd_scan)
+         self.SystemTraySettings.systray_visible = self.user_settings.systray_visible

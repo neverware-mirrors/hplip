@@ -1,118 +1,127 @@
 # Udev rules file for HP printer products.
 
+ACTION!="add", GOTO="hpmud_rules_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="pid_test"
+SUBSYSTEM!="usb_device", GOTO="hpmud_rules_end"
+
+LABEL="pid_test"
+
 # Check for AiO products (0x03f0xx11).
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="??11", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="??11", GROUP="lp"
 
 # Check for Photosmart products without wildcard since cameras and scanners also used (0x03f0xx02). 
 # The xx02 pid has been retired so this explicit list should not change.
 # photosmart_d2300_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c302", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c302", GROUP="lp"
 # photosmart_100
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3802", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3802", GROUP="lp"
 # photosmart_1115
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3402", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3402", GROUP="lp"
 # photosmart_1215
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3202", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3202", GROUP="lp"
 # photosmart_1218
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3302", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3302", GROUP="lp"
 # photosmart_130
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3902", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3902", GROUP="lp"
 # photosmart_1315
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3602", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3602", GROUP="lp"
 # photosmart_140_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1002", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1002", GROUP="lp"
 # photosmart_230
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3502", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3502", GROUP="lp"
 # photosmart_240_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1102", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1102", GROUP="lp"
 # photosmart_320_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1202", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1202", GROUP="lp"
 # photosmart_330_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1602", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1602", GROUP="lp"
 # photosmart_370_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1302", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1302", GROUP="lp"
 # photosmart_380_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1702", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1702", GROUP="lp"
 # photosmart_420_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1502", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1502", GROUP="lp"
 # photosmart_470_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1802", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1802", GROUP="lp"
 # photosmart_7150
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3a02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3a02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3b02", GROUP="lp"
 # photosmart_7200_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="b002", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="b002", GROUP="lp"
 # photosmart_7345
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2002", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2002", GROUP="lp"
 # photosmart_7350 
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3c02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3c02", GROUP="lp"
 # photosmart_7400_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="b802", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="b802", GROUP="lp"
 # photosmart_7550
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="3e02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="3e02", GROUP="lp"
 # photosmart_7600_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="b202", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="b202", GROUP="lp"
 # photosmart_7700_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="b402", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="b402", GROUP="lp"
 # photosmart_7800_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c002", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c002", GROUP="lp"
 # photosmart_7900_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="b602", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="b602", GROUP="lp"
 # photosmart_8000_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c102", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c102", GROUP="lp"
 # photosmart_8100_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="ba02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="ba02", GROUP="lp"
 # photosmart_8200_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c202", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c202", GROUP="lp"
 # photosmart_8400_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="bb02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="bb02", GROUP="lp"
 # photosmart_8700_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="bc02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="bc02", GROUP="lp"
 # photosmart_a310_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1d02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1d02", GROUP="lp"
 # photosmart_a320_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1e02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1e02", GROUP="lp"
 # photosmart_a430_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1902", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1902", GROUP="lp"
 # photosmart_a440_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1f02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1f02", GROUP="lp"
 # photosmart_a510_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1a02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1a02", GROUP="lp"
 # photosmart_a520_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2602", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2602", GROUP="lp"
 # photosmart_a530_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2b02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2b02", GROUP="lp"
 # photosmart_a610_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1b02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1b02", GROUP="lp"
 # photosmart_a620_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2702", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2702", GROUP="lp"
 # photosmart_a630_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2c02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2c02", GROUP="lp"
 # photosmart_a710_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="1c02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1c02", GROUP="lp"
 # photosmart_a820_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="2902", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="2902", GROUP="lp"
 # photosmart_d5060_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c802", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c802", GROUP="lp"
 # photosmart_d5100_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c402", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c402", GROUP="lp"
 # photosmart_d6100_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c502", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c502", GROUP="lp"
 # photosmart_d7100_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c602", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c602", GROUP="lp"
 # photosmart_d7300_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="c702", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="c702", GROUP="lp"
 # photosmart_pro_b8300_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="be02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="be02", GROUP="lp"
 # photosmart_b8800_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="d002", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="d002", GROUP="lp"
 # photosmart_pro_b9100_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="bd02", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="bd02", GROUP="lp"
 # Photosmart_B8500_series
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="d102", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="d102", GROUP="lp"
 
 # Check for Business Inkjet products (0x03f0xx12).
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="??12", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="??12", GROUP="lp"
 # Check for Deskjet products (0x03f0xx04).
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="??04", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="??04", GROUP="lp"
 # Check for LaserJet products (0x03f0xx17).
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="??17", GROUP="lp"
+ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="??17", GROUP="lp"
+
+LABEL="hpmud_rules_end"
