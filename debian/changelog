@@ -1,10 +1,10 @@
-hplip (3.9.2-2) unstable; urgency=low
+hplip (3.9.2-2) UNRELEASED; urgency=low
 
   * Use Christopher Martin's debian/hplip.udev 
     - (Closes: #517297) "hplip udev rules never match" 
     - (Closes: #517434) "foo2zjs: HP LasetJet 1018 won't print" 
     - (Closes: #518029) "hp-levels: refuses to work without session bus"
-  * Apply upstream hplip-3.9.2-high_cpu_utilization_logout.patch
+  * hpdio_settings_dialog.dpatch also fixes:
     - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
     - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
