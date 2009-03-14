@@ -1,4 +1,16 @@
-hplip (3.9.2-1ubuntu1) jaunty; urgency=low
+hplip (3.9.2-2) unstable; urgency=low
+
+  * Use Christopher Martin's debian/hplip.udev 
+    - (Closes: #517297) "hplip udev rules never match" 
+    - (Closes: #517434) "foo2zjs: HP LasetJet 1018 won't print" 
+    - (Closes: #518029) "hp-levels: refuses to work without session bus"
+  * Apply upstream hplip-3.9.2-high_cpu_utilization_logout.patch
+    - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
+    - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 08:42:00 +1100
+
+hplip (3.9.2-1ubuntu1)) jaunty; urgency=low
 
   [ Till Kamppeter ]
   * debian/patches/hpdio_settings_dialog.dpatch: Bug fix patch from upstream,
@@ -7,9 +19,6 @@ hplip (3.9.2-1ubuntu1) jaunty; urgency=low
 
   [ Mark Purcell ]
   * debian/control: Standards version 3.8.0.
-  * Apply upstream hplip-3.9.2-high_cpu_utilization_logout.patch
-    - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
-    - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
  -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 08:26:16 +1100
 
