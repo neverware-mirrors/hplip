@@ -7,8 +7,11 @@ hplip (3.9.2-1ubuntu1) jaunty; urgency=low
 
   [ Mark Purcell ]
   * debian/control: Standards version 3.8.0.
+  * Apply upstream hplip-3.9.2-high_cpu_utilization_logout.patch
+    - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
+    - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  9 Mar 2009 17:29:45 +0100
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 08:26:16 +1100
 
 hplip (3.9.2-1) unstable; urgency=low
 

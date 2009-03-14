@@ -10,3 +10,4 @@ hp-check_debian
 hpinfo-query-without-cups-queue
 delayed-hp-systray-start.dpatch
 hpdio_settings_dialog.dpatch
+hplip-3.9.2-high_cpu_utilization_logout.patch
