@@ -1,4 +1,4 @@
-hplip (3.9.2-2) UNRELEASED; urgency=low
+hplip (3.9.2-2) unstable; urgency=low
 
   * Use Christopher Martin's debian/hplip.udev - group lp
     - hplip.NEWS advises users to use group lp
