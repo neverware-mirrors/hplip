@@ -244,6 +244,13 @@ hplip (2.8.7-1) experimental; urgency=low
 
  -- Mark Purcell <msp@debian.org>  Thu, 16 Oct 2008 00:18:25 +1100
 
+hplip (2.8.6.b-4) unstable; urgency=low
+
+  * Fix "hp-scan: Aborts with a traceback when trying to scan."
+    - Apply missing patches from -3 upload (Closes: #490640)
+
+ -- Mark Purcell <msp@debian.org>  Thu, 15 Jan 2009 23:56:59 +1100
+
 hplip (2.8.6.b-3) unstable; urgency=low
 
   * hplip Replaces hplip-gui (<< 2.8.6.b-2)
