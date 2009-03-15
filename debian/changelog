@@ -1,3 +1,9 @@
+hplip (3.9.2-3) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 22:39:51 +1100
+
 hplip (3.9.2-2) unstable; urgency=low
 
   * Use Christopher Martin's debian/hplip.udev - group lp
