@@ -4,11 +4,13 @@ hplip (3.9.2-2) UNRELEASED; urgency=low
     - (Closes: #517297) "hplip udev rules never match" 
     - (Closes: #517434) "foo2zjs: HP LasetJet 1018 won't print" 
     - (Closes: #518029) "hp-levels: refuses to work without session bus"
+    - Fixes "hplip error 5012 communication problem" (Closes: #519182)
+    - Fixes "libsane: No scanners were identified" (Closes: #517218)
   * hpdio_settings_dialog.dpatch also fixes:
     - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
     - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
- -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 08:42:00 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 10:52:32 +1100
 
 hplip (3.9.2-1ubuntu1)) jaunty; urgency=low
 
