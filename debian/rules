@@ -326,8 +326,8 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
-#	dh_pysupport -i
-#	dh_python -i /usr/share/hplip
+	dh_pysupport -i /usr/share/hplip
+	dh_python -i /usr/share/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i --dpkg-shlibdeps-params=--ignore-missing-info
@@ -362,8 +362,6 @@ binary-arch: install-arch
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
-	dh_pysupport -a /usr/share/hplip
-	dh_python -a /usr/share/hplip
 	# must come after dh_pysupport and dh_python, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19

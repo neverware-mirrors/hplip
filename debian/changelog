@@ -1,3 +1,16 @@
+hplip (3.9.2-3) unstable; urgency=low
+
+  [ Steve Langasek ]
+  * Add missing ${python:Depends} to hplip-data.
+  * The python scripts are in hplip-data - call dh_pysupport -i, not
+    dh_pysupport -a, so we don't end up shipping .pyc files in the
+    package!  (Closes: #519966)
+
+  [ Mark Purcell ]
+  * Do not remove .pyc/.pyo on upgrades
+
+ -- Mark Purcell <msp@debian.org>  Tue, 17 Mar 2009 20:24:47 +1100
+
 hplip (3.9.2-2) unstable; urgency=low
 
   * Use Christopher Martin's debian/hplip.udev - group lp
