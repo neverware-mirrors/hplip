@@ -54,7 +54,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 Package: hplip-data
 Architecture: all
 Recommends: hplip
-Depends: python
+Depends: ${python:Depends}
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.

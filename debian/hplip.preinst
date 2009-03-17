@@ -20,10 +20,6 @@ case "$1" in
 	if [ -h /usr/share/doc/hplip ]; then
 		rm -f /usr/share/doc/hplip
 	fi
-	# Kill any pre-compiled python crap which WILL bite us in the arse
-	[ -d /usr/share/hplip ] && \
-		find /usr/share/hplip \( -name '*.pyc' -o -name '*.pyo' \) \
-			-exec rm -f {} \;
 
 	# Stop and remove any daemon from old HPLIP installations
 	if [ -x /etc/init.d/hplip ]; then
