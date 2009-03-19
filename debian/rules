@@ -159,6 +159,9 @@ install-stamp: build-stamp
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
+	# Install Apport hook
+	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
+
 	# Remove files we are not to ship from the install tree
 	@echo Removing non-shipped files, see debian/non-shipped-files.txt
 	@cat debian/non-shipped-files.txt | \

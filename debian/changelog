@@ -1,12 +1,12 @@
+hplip (3.9.2-3ubuntu1) jaunty; urgency=low
+
+  * debian/local/apport-hook.py, debian/rules, debian/hplip-data.install:
+    Added apport hook (LP: #338442).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 19 Mar 2009 16:44:49 +0100
+
 hplip (3.9.2-3) unstable; urgency=low
 
-  [ Steve Langasek ]
-  * Add missing ${python:Depends} to hplip-data.
-  * The python scripts are in hplip-data - call dh_pysupport -i, not
-    dh_pysupport -a, so we don't end up shipping .pyc files in the
-    package!  (Closes: #519966)
-
-  [ Mark Purcell ]
   * Do not remove .pyc/.pyo on upgrades
 
  -- Mark Purcell <msp@debian.org>  Tue, 17 Mar 2009 20:24:47 +1100
@@ -22,6 +22,20 @@ hplip (3.9.2-2) unstable; urgency=low
     - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
  -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 10:52:32 +1100
+
+hplip (3.9.2-1ubuntu3) jaunty; urgency=low
+
+  * Also add missing ${python:Depends} to hplip-data.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 16 Mar 2009 13:30:57 +0000
+
+hplip (3.9.2-1ubuntu2) jaunty; urgency=low
+
+  * The python scripts are in hplip-data - call dh_pysupport -i, not
+    dh_pysupport -a, so we don't end up shipping .pyc files in the
+    package!
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 16 Mar 2009 12:50:52 +0000
 
 hplip (3.9.2-1ubuntu1)) jaunty; urgency=low
 
