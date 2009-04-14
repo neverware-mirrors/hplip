@@ -1,3 +1,12 @@
+hplip (3.9.2-3ubuntu4) jaunty; urgency=low
+
+  * debian/patches/nicknames-device-ids.dpatch: Added patch from upstream
+    for not shortening the *NickName: entries in the PPDs and not to replace
+    " " by "_" in the device IDs in the PPDs (Upstream bugs: LP: #349539,
+    LP: #349547).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 30 Mar 2009 00:56:49 -0700
+
 hplip (3.9.2-3ubuntu3) jaunty; urgency=low
 
   * Rebuild of unchanged source package. The Python installed on the Ubuntu
