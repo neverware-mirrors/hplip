@@ -18,7 +18,8 @@ Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
- hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1) 
+ hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1),
+ policykit
 Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20), sane-utils
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
 Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
@@ -94,7 +95,7 @@ Suggests: hplip
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
-Depends: foomatic-filters (>= 3.0.2), hpijs (>= ${hpijs:source:Version})
+Depends: foomatic-filters (>= 3.0.2), hpijs (>= ${hpijs:source:Version}), cups, cups-client
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -109,7 +110,7 @@ Package: hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript, cupsddk, foomatic-filters
+ ghostscript, cupsddk, foomatic-filters, cups, cups-client
 Suggests: hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
@@ -138,3 +139,28 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
+
+Package: hplip-cups
+Architecture: any
+Section: text
+Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
+ ghostscript, cupsddk, cups, cups-client
+Suggests: hplip-doc
+Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
+ This package contains a CUPS-Raster-based printer driver which adds support
+ for most inkjet printers and some LaserJet printers manufactured by HP. It
+ does not provide PPDs for the fax functionality of HP's multi-function
+ devices.
+ .
+ Users of the CUPS printing system are advised to also install the
+ hplip package, and use the hp CUPS backend to send data to the printer.
+ HPLIP supports USB, networked and parallel-port devices, and enables
+ extended hpcups functionality such as border-less printing.
+ Selecting any hpcups ppd in CUPS will use hpcups automatically.
+ .
+ No physical PPDs are shipped with this driver. PPDs are dynamically
+ generated via a CUPS DDK .drv file.
+ .
+ hpcups is still in development state and provided for testing purposes
+ only. Please switch to HPIJS if you are suffering any problems. Report
+ your problems on http://launchpad.net/hplip/.

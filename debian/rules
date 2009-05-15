@@ -129,12 +129,14 @@ configure-stamp: patch-stamp configure
 		--without-icondir \
 		--disable-foomatic-xml-install \
 		--disable-foomatic-ppd-install \
+		--enable-cups-drv-install \
 		--enable-network-build \
 		--enable-scan-build \
 		--enable-gui-build \
 		--enable-fax-build \
 		--disable-qt3 \
-		--enable-qt4
+		--enable-qt4 \
+		--enable-policykit
 
 	touch configure-stamp
 

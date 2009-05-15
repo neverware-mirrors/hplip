@@ -5,65 +5,16 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.9.2~/ui/devmgr4.py hplip-3.9.2/ui/devmgr4.py
---- hplip-3.9.2~/ui/devmgr4.py	2009-02-19 21:36:58.000000000 -0300
-+++ hplip-3.9.2/ui/devmgr4.py	2009-02-25 17:31:52.000000000 -0300
-@@ -1384,6 +1384,9 @@
-         if utils.which('kdesu'):
-             su_sudo = 'kdesu -- %s'
- 
-+        elif utils.which('kdesudo'):
-+            su_sudo = 'kdesudo -- %s'
-+
-         elif utils.which('gnomesu'):
-             su_sudo = 'gnomesu -c "%s"'
- 
-@@ -2766,6 +2769,9 @@
-         if utils.which('kdesu'):
-             su_sudo = 'kdesu -- %s'
- 
-+        elif utils.which('kdesudo'):
-+            su_sudo = 'kdesudo -- %s'
-+
-         elif utils.which('gnomesu'):
-             su_sudo = 'gnomesu -c "%s"'
- 
-diff -urNad hplip-3.9.2~/ui/nodevicesform.py hplip-3.9.2/ui/nodevicesform.py
---- hplip-3.9.2~/ui/nodevicesform.py	2009-02-19 21:36:58.000000000 -0300
-+++ hplip-3.9.2/ui/nodevicesform.py	2009-02-25 17:32:23.000000000 -0300
-@@ -57,6 +57,9 @@
-         if utils.which('kdesu'):
-             su_sudo = 'kdesu -- %s'
- 
-+        elif utils.which('kdesudo'):
-+            su_sudo = 'kdesudo -- %s'
-+
-         elif utils.which('gnomesu'):
-             su_sudo = 'gnomesu -c "%s"'
- 
-diff -urNad hplip-3.9.2~/ui4/nodevicesdialog.py hplip-3.9.2/ui4/nodevicesdialog.py
---- hplip-3.9.2~/ui4/nodevicesdialog.py	2009-02-19 21:36:38.000000000 -0300
-+++ hplip-3.9.2/ui4/nodevicesdialog.py	2009-02-25 17:29:10.000000000 -0300
-@@ -54,6 +54,9 @@
-         if utils.which('kdesu'):
-             su_sudo = 'kdesu -- %s'
- 
-+        elif utils.which('kdesudo'):
-+            su_sudo = 'kdesudo -- %s'
-+
-         elif utils.which('gnomesu'):
-             su_sudo = 'gnomesu -c "%s"'
- 
-diff -urNad hplip-3.9.2~/ui4/ui_utils.py hplip-3.9.2/ui4/ui_utils.py
---- hplip-3.9.2~/ui4/ui_utils.py	2009-02-19 21:36:38.000000000 -0300
-+++ hplip-3.9.2/ui4/ui_utils.py	2009-02-25 17:30:41.000000000 -0300
-@@ -211,6 +211,9 @@
-     if utils.which('kdesu'):
+diff -urNad hplip-3.9.4b~/base/utils.py hplip-3.9.4b/base/utils.py
+--- hplip-3.9.4b~/base/utils.py	2009-04-29 22:39:01.000000000 +0200
++++ hplip-3.9.4b/base/utils.py	2009-05-16 00:06:50.000000000 +0200
+@@ -1572,6 +1572,9 @@
+     if which('kdesu'):
          su_sudo_str = 'kdesu -- %s'
  
 +    elif utils.which('kdesudo'):
 +        su_sudo = 'kdesudo -- %s'
 +
-     elif utils.which('gnomesu'):
+     elif which('gnomesu'):
          su_sudo_str = 'gnomesu -c "%s"'
  

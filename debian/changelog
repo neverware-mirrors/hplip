@@ -1,3 +1,31 @@
+hplip (3.9.4b-0ubuntu1) karmic; urgency=low
+
+  * New upstream release
+     o Added PolicyKit support - command line tools like hp-setup, hp-plugin,
+       etc. are now run as a regular user, not root/superuser
+     o Added GPG digital signature support to the the HPLIP plug-in. This
+       feature validates that the plug-in is not corrupted and is authentic
+       prior to installation.
+     o Added CUPS Raster Driver (for testing only).
+     o Added support for HP LaserJet p1009, Designjet 4020ps, 4520ps,
+       4520mfp (except fax), HP Officejet 6500.
+     o Bug fixes.
+  * debian/rules: "./configure" options for new CUPS Raster driver.
+  * debian/rules, debian/control, debian/hplip-cups.install,
+    debian/hplip-cups.postinst, debian/hplip.install: Add binary package
+    "hplip-cups" for the new CUPS Raster driver.
+  * debian/rules, debian/control: Activate PolicyKit support.
+  * debian/control: Added "cups" to Depends: of all binary packages
+    containing or generating PPD files, as a running CUPS daemon is needed
+    for the automatic update of existing print queues.
+  * hplip.install: Added new files.
+  * debian/patches/nicknames-device-ids.dpatch,
+    debian/patches/hpdio_settings_dialog.dpatch: Removed, applied upstream.
+  * debian/patches/delayed-hp-systray-start.dpatch,
+    debian/patches/kde4-kdesudo-support.dpatch: Regenerated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 15 May 2009 22:12:49 +0200
+
 hplip (3.9.2-3ubuntu4) jaunty; urgency=low
 
   * debian/patches/nicknames-device-ids.dpatch: Added patch from upstream
