@@ -1,12 +1,71 @@
+hplip (3.9.4b-1) unstable; urgency=low
+
+  * New Upstream Release
+
+ -- Mark Purcell <msp@debian.org>  Wed, 20 May 2009 21:13:15 +1000
+
+hplip (3.9.4b-0ubuntu1) karmic; urgency=low
+
+  * New upstream release
+     o Added PolicyKit support - command line tools like hp-setup, hp-plugin,
+       etc. are now run as a regular user, not root/superuser
+     o Added GPG digital signature support to the the HPLIP plug-in. This
+       feature validates that the plug-in is not corrupted and is authentic
+       prior to installation.
+     o Added CUPS Raster Driver (for testing only).
+     o Added support for HP LaserJet p1009, Designjet 4020ps, 4520ps,
+       4520mfp (except fax), HP Officejet 6500.
+     o Bug fixes.
+  * debian/rules: "./configure" options for new CUPS Raster driver.
+  * debian/rules, debian/control, debian/hplip-cups.install,
+    debian/hplip-cups.postinst, debian/hplip.install: Add binary package
+    "hplip-cups" for the new CUPS Raster driver.
+  * debian/rules, debian/control: Activate PolicyKit support.
+  * debian/control: Added "cups" to Depends: of all binary packages
+    containing or generating PPD files, as a running CUPS daemon is needed
+    for the automatic update of existing print queues.
+  * hplip.install: Added new files.
+  * debian/patches/nicknames-device-ids.dpatch,
+    debian/patches/hpdio_settings_dialog.dpatch: Removed, applied upstream.
+  * debian/patches/delayed-hp-systray-start.dpatch,
+    debian/patches/kde4-kdesudo-support.dpatch: Regenerated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 15 May 2009 22:12:49 +0200
+
+hplip (3.9.2-3ubuntu4) jaunty; urgency=low
+
+  * debian/patches/nicknames-device-ids.dpatch: Added patch from upstream
+    for not shortening the *NickName: entries in the PPDs and not to replace
+    " " by "_" in the device IDs in the PPDs (Upstream bugs: LP: #349539,
+    LP: #349547).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 30 Mar 2009 00:56:49 -0700
+
+hplip (3.9.2-3ubuntu3) jaunty; urgency=low
+
+  * Rebuild of unchanged source package. The Python installed on the Ubuntu
+    build server for i386 was broken and produced a broken cupsext.so file
+    (LP: #349781, LP: #349467).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 30 Mar 2009 11:24:49 +0200
+
+hplip (3.9.2-3ubuntu2) jaunty; urgency=low
+
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Silenced non-fatal 
+    error messages when post-install script updates PPDs and there are PPDs
+    not belonging to a CUPS queue in /etc/cups/ppd/ (LP: #345866).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 26 Mar 2009 15:28:49 +0100
+
+hplip (3.9.2-3ubuntu1) jaunty; urgency=low
+
+  * debian/local/apport-hook.py, debian/rules, debian/hplip-data.install:
+    Added apport hook (LP: #338442).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 19 Mar 2009 16:44:49 +0100
+
 hplip (3.9.2-3) unstable; urgency=low
 
-  [ Steve Langasek ]
-  * Add missing ${python:Depends} to hplip-data.
-  * The python scripts are in hplip-data - call dh_pysupport -i, not
-    dh_pysupport -a, so we don't end up shipping .pyc files in the
-    package!  (Closes: #519966)
-
-  [ Mark Purcell ]
   * Do not remove .pyc/.pyo on upgrades
 
  -- Mark Purcell <msp@debian.org>  Tue, 17 Mar 2009 20:24:47 +1100
@@ -22,6 +81,20 @@ hplip (3.9.2-2) unstable; urgency=low
     - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
 
  -- Mark Purcell <msp@debian.org>  Sun, 15 Mar 2009 10:52:32 +1100
+
+hplip (3.9.2-1ubuntu3) jaunty; urgency=low
+
+  * Also add missing ${python:Depends} to hplip-data.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 16 Mar 2009 13:30:57 +0000
+
+hplip (3.9.2-1ubuntu2) jaunty; urgency=low
+
+  * The python scripts are in hplip-data - call dh_pysupport -i, not
+    dh_pysupport -a, so we don't end up shipping .pyc files in the
+    package!
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 16 Mar 2009 12:50:52 +0000
 
 hplip (3.9.2-1ubuntu1)) jaunty; urgency=low
 

@@ -1,11 +1,16 @@
 etc/hp
 etc/sane.d/dll.d
+etc/dbus-1
+etc/udev/rules.d/56-hpmud_support.rules
 usr/bin/hp-*
 usr/sbin/hpssd
 usr/lib/cups/backend
-usr/lib/cups/filter
+usr/lib/cups/filter/hplipjs
 usr/lib/lib*.so.*
 usr/lib/python*
 usr/lib/sane/libsane*.so.*
 usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi
+usr/share/dbus-1
+usr/share/PolicyKit
 usr/share/pixmaps
+var/lib

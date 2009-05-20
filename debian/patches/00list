@@ -9,4 +9,3 @@ kde4-kdesudo-support.dpatch
 hp-check_debian
 hpinfo-query-without-cups-queue
 delayed-hp-systray-start.dpatch
-hpdio_settings_dialog.dpatch

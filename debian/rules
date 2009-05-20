@@ -19,6 +19,7 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
+SF_MIRRORS:= optusnet ovh puzzle superb-east
 -include /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
 
 # Version information
@@ -129,12 +130,14 @@ configure-stamp: patch-stamp configure
 		--without-icondir \
 		--disable-foomatic-xml-install \
 		--disable-foomatic-ppd-install \
+		--enable-cups-drv-install \
 		--enable-network-build \
 		--enable-scan-build \
 		--enable-gui-build \
 		--enable-fax-build \
 		--disable-qt3 \
-		--enable-qt4
+		--enable-qt4 \
+		--enable-policykit
 
 	touch configure-stamp
 
@@ -158,6 +161,9 @@ install-stamp: build-stamp
 	dh_installdirs
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
+
+	# Install Apport hook
+	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
 	# Remove files we are not to ship from the install tree
 	@echo Removing non-shipped files, see debian/non-shipped-files.txt
