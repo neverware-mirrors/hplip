@@ -1,3 +1,9 @@
+hplip (3.9.4b-1) unstable; urgency=low
+
+  * New Upstream Release
+
+ -- Mark Purcell <msp@debian.org>  Wed, 20 May 2009 21:13:15 +1000
+
 hplip (3.9.4b-0ubuntu1) karmic; urgency=low
 
   * New upstream release
