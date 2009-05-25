@@ -1,3 +1,9 @@
+hplip (3.9.4b-1ubuntu1) UNRELEASED; urgency=low
+
+  * debian/patches/kde4-kdesudo-support.dpatch: Fixed typo (LP: #380311).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 26 May 2009 01:14:49 +0200
+
 hplip (3.9.4b-1) unstable; urgency=low
 
   * New Upstream Release
