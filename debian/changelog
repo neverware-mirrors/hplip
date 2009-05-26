@@ -1,4 +1,4 @@
-hplip (3.9.4b-1ubuntu1) UNRELEASED; urgency=low
+hplip (3.9.4b-1ubuntu1) karmic; urgency=low
 
   * debian/patches/kde4-kdesudo-support.dpatch: Fixed typo (LP: #380311).
 
