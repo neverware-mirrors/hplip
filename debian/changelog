@@ -1,3 +1,17 @@
+hplip (3.9.4b-1ubuntu2) karmic; urgency=low
+
+  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
+    on cups, cups-client, and perl-base to Pre-Depends:, as only this way it
+    is assured that these packages are configured (especially CUPS daemon
+    running) before this package gets configured (update of the PPDs of
+    existing queues).
+
+  * debian/hpijs.postinst: Made update of the PPD files of already existing
+    CUPS queues also working with the crippled NickNames of the PPDs of HPLIP
+    3.9.2.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  1 Jun 2009 21:29:49 +0200
+
 hplip (3.9.4b-1ubuntu1) karmic; urgency=low
 
   * debian/patches/kde4-kdesudo-support.dpatch: Fixed typo (LP: #380311).
