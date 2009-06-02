@@ -95,8 +95,7 @@ Suggests: hplip
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
-Pre-Depends: perl-base, cups-client, cups
-Depends: foomatic-filters (>= 3.0.2), hpijs (>= ${hpijs:source:Version})
+Depends: foomatic-filters (>= 3.0.2), hpijs (>= ${hpijs:source:Version}), cups-client, cups
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -110,9 +109,8 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
 Package: hpijs
 Architecture: any
 Section: text
-Pre-Depends: perl-base, cups-client, cups
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript, cupsddk, foomatic-filters
+ ghostscript, cupsddk, foomatic-filters, cups-client, cups
 Suggests: hpijs-ppds (= ${hpijs:source:Version}), hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
@@ -145,9 +143,8 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
 Package: hplip-cups
 Architecture: any
 Section: text
-Pre-Depends: perl-base, cups-client, cups
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript, cupsddk
+ ghostscript, cupsddk, cups-client, cups
 Suggests: hplip-doc
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support

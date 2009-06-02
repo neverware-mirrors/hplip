@@ -1,3 +1,11 @@
+hplip (3.9.4b-1ubuntu3) karmic; urgency=low
+
+  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
+    on cups, cups-client back to Depends:, for post-install this is
+    sufficient.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue,  2 Jun 2009 09:16:49 +0200
+
 hplip (3.9.4b-1ubuntu2) karmic; urgency=low
 
   * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
