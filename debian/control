@@ -144,7 +144,7 @@ Package: hplip-cups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript, cupsddk, cups-client, cups
+ ghostscript-cups, cupsddk, cups-client, cups
 Suggests: hplip-doc
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support

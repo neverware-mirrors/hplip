@@ -1,3 +1,9 @@
+hplip (3.9.4b-1ubuntu4) karmic; urgency=low
+
+  * debian/control: Added ghostscript-cups dependency. (LP: #385606)
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 11 Jun 2009 22:03:49 +0200
+
 hplip (3.9.4b-1ubuntu3) karmic; urgency=low
 
   * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
