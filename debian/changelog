@@ -1,3 +1,17 @@
+hplip (3.9.6-0ubuntu2) karmic; urgency=low
+
+  * debian/hplip.udev: Added 'ENV{ID_HPLIP}="1"' to all device rules, so that
+    the /lib/udev//rules.d/70-acl.rules can react to the HPLIP-supported devices
+    to open them up for accessing the non-printing functions by normal users.
+
+  * debian/hplip.install: Do not install an UDEV rules file in /etc, as we
+    can put package-supplied rules into /lib.
+
+  * debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh: Updated
+    HAL rules to use "usb_device" instead of "usb".
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 19 Jun 2009 14:56:49 +0200
+
 hplip (3.9.6-0ubuntu1) karmic; urgency=low
 
   * New upstream release

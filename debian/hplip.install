@@ -1,7 +1,7 @@
 etc/hp
 etc/sane.d/dll.d
 etc/dbus-1
-etc/udev/rules.d/56-hpmud_support.rules
+etc/udev/rules.d/56-hpmud_support.rules lib/udev/rules.d 
 usr/bin/hp-*
 usr/sbin/hpssd
 usr/lib/cups/backend
