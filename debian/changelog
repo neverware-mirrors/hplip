@@ -1,3 +1,42 @@
+hplip (3.9.6-0ubuntu1) karmic; urgency=low
+
+  * New upstream release
+     o The new native CUPS driver (HPCUPS) is now the default printer driver. 
+       We now have PPDs with exact printable regions for normal, borderless
+       and duplex paper sizes.
+     o A new utility 'hp-wificonfig' allows to configure select wifi-capable
+       printers on a wireless network.
+     o Added support for: HP Deskjet d2660, d2645, d2663, d2666, d2668, d2680,
+       f4440, f4435, f4450, f4470, f4472, f4473, f4480, f4483, f4488, f4492,
+       LaserJet p3011, p3015, m4349 MFP, m9059 MFP, Photosmart c4640, c4650,
+       c4680, c4610, c4635, c4670, c4673, c4680, c4683, c4688, Color LaserJet
+       cp5225, cp5225n, cp5225dn, cm6049 MFP, Officejet 6000, 6000 Wireless.
+  * debian/rules: Updated ./configure options
+  * debian/rules: Create empty files NEWS, README, AUTHORS, and ChangeLog
+    before building and remove them on cleaning. They are needed by autoreconf.
+  * debian/rules: Updated installation of Fax PPDs, for both the CUPS
+    Raster driver and HPIJS.
+  * debian/rules: Removed PPD manipulation code which did not work any more
+    for longer time. Removed also some code which was commented out.
+  * debian/rules, debian/hpijs-ppds.install, debian/hplip.install: Moved
+    PPDs into /usr/share/ppd/hplip, moved PostScript PPDs into the hplip
+    package.
+  * debian/hplip-cups.install: Updated to the files which are actually present
+    in this version.
+  * debian/control: Updated to make hplip-cups instead of hpijs being the
+    preferred printer driver.
+  * debian/control: Added cups-client dependency to hplip package, to assure
+    that the auto-update of the PPDs of existing print queues works.
+  * debian/hplip.postinst, debian/hplip-cups.postinst, debian/hpijs.postinst,
+    debian/hpijs-ppds.postinst: Updated auto-update facility for the PPD
+    files of existing print queues.
+  * debian/hplip-cups.postinst: Modified regexps for PPD auto-update so that
+    HPIJS queues get migrated to hpcups queues.
+  * debian/hpijs-ppds.links: Static PPDs use foomatic-rip-hplip as filter name,
+    added link to make them work anyway.
+	
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 18 Jun 2009 20:59:49 +0200
+
 hplip (3.9.4b-1ubuntu4) karmic; urgency=low
 
   * debian/control: Added ghostscript-cups dependency. (LP: #385606)

@@ -27,8 +27,8 @@ case "$1" in
 	    which lpadmin > /dev/null 2>&1 && \
 	    lpstat -r > /dev/null 2>&1; then
 	    # Update the PPD files of all already installed print queues
-	    driverregexp='lsb/usr/hpijs/HP/.*\b(Postscript|PS)\b'
-	    gennicknameregexp='s/\s*(v\d+\.\d+|(Ver|-\s*RC)\s*[\d\.]+)//'
+	    driverregexp='lsb/usr/hplip/HP/.*-hpijs'
+	    gennicknameregexp='s/,?(\s*hpijs,?|,)\s*[\d\.]+[a-zA-Z]?\s*$//; s/\s*(Foomatic\/|)hpijs(\s*\S+|)$//i; s/\s*Series$//i; s/(HP\s+)PhotoSmart(\s+)/\1PS\2/i; s/(HP\s+)DeskJet(\s+)/\1DJ\2/i; s/(HP\s+)Color\s*(LaserJet|LJ)(\s+)/\1CLJ\3/i; s/(HP\s+)LaserJet(\s+)/\1LJ\2/i; s/(HP\s+)OfficeJet(\s+)/\1OJ\2/i; s/(HP\s+)Business\s*InkJet(\s+)/\1BIJ\2/i; s/(HP\s+)DesignJet(\s+)/\1DESIGNJ\2/i; s/(HP\s+)Printer\s*Scanner\s*Copier(\s+)/\1PSC\2/i; s/(HP\s+)Color\s*InkJet\s*Printer\s+/\1/i'
 	    [ ! -z "$gennicknameregexp" ] && \
 		gennicknameregexp="; $gennicknameregexp"
 	    gennicknameregexp='s/\s*\(recommended\)//'"$gennicknameregexp"
@@ -48,7 +48,7 @@ case "$1" in
 		englishppduri=""
 		tmpfile2=`mktemp -t updateppds.XXXXXX`
 		tempfiles="$tempfiles $tmpfile2"
-		cat $tmpfile1 | perl -p -e "$gennicknameregexp" | grep -E '^\S+\s+.*'"$nickname"'$' | cut -d ' ' -f 1 > $tmpfile2
+		cat $tmpfile1 | perl -p -e "$gennicknameregexp; s/\s*$/\n/" | grep -E '\b'"$nickname"'$' | cut -d ' ' -f 1 > $tmpfile2
 		while read newppduri; do
 		    [ "$ppdfound" = "0" ] && lpadmin -p "$queue" -m $newppduri 2>/dev/null || continue
 		    newlang=`grep '\*LanguageVersion:' "$ppd" | cut -d ' ' -f 2 | perl -e 'print lc(<>)' | perl -p -e 's/[\r\n]//gs'`

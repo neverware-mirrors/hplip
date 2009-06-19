@@ -17,10 +17,10 @@ Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
- coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), 
+ coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
  hplip-data (>> ${hplip:Upstream-Version}), hplip-data (<< ${hplip:Upstream-Version}.1),
  policykit
-Recommends: hpijs (>= ${hpijs:Upstream-Version}), cups-client (>= 1.1.20), sane-utils
+Recommends: hplip-cups (>= ${hplip:Upstream-Version}), sane-utils
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
 Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
@@ -37,6 +37,9 @@ Description: HP Linux Printing and Imaging System (HPLIP)
     HP printers (provides printer status feedback to CUPS and enhanced
     HPIJS functionality such as 4-side full-bleed printing support)
   * HP CUPS backend driver for sending faxes (hpfax:)
+  * hpcups CUPS Raster driver to turn rasterized input from the CUPS
+    filter chain into the printer's native format (PCL, LIDIL, ...).
+    (hpcups is shipped in a separate package)
   * HPIJS Ghostscript IJS driver to rasterize output from PostScript(tm)
     files or from any other input format supported by Ghostscript, and
     also for PostScript(tm) to fax conversion support
@@ -72,7 +75,7 @@ Description: HP Linux Printing and Imaging - GUI utilities
 Package: hplip-dbg
 Architecture: any
 Priority: extra
-Depends: hplip (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
+Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the
  binaries and libraries in the hplip and hpijs packages.
@@ -160,7 +163,3 @@ Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  .
  No physical PPDs are shipped with this driver. PPDs are dynamically
  generated via a CUPS DDK .drv file.
- .
- hpcups is still in development state and provided for testing purposes
- only. Please switch to HPIJS if you are suffering any problems. Report
- your problems on http://launchpad.net/hplip/.
