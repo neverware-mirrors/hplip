@@ -1,3 +1,11 @@
+hplip (3.9.6-0ubuntu3) karmic; urgency=low
+
+  * debian/patches/set-media-type-and-input-tray-for-cd-dvd.dpatch: Let
+    the media type CD/DVD and the CD tray automatically get selected if the
+    user chooses a CD/DVD size as paper size (LP: #380858).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 22 Jun 2009 18:32:49 +0200
+
 hplip (3.9.6-0ubuntu2) karmic; urgency=low
 
   * debian/hplip.udev: Added 'ENV{ID_HPLIP}="1"' to all device rules, so that
