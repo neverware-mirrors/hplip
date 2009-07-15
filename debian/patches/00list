@@ -9,4 +9,3 @@ kde4-kdesudo-support.dpatch
 hp-check_debian
 #hpinfo-query-without-cups-queue
 delayed-hp-systray-start.dpatch
-set-media-type-and-input-tray-for-cd-dvd.dpatch
