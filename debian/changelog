@@ -1,3 +1,10 @@
+hplip (3.9.6b-1ubuntu2) karmic; urgency=low
+
+  * debian/patches/hplip-device-id-report-fix.dpatch: Fixed segfault when
+    usblp kernel module was not loaded.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 23 Jul 2009 16:00:49 +0200
+
 hplip (3.9.6b-1ubuntu1) karmic; urgency=low
 
   * debian/patches/hplip-device-id-report-fix.dpatch: Patch from Tim Waugh

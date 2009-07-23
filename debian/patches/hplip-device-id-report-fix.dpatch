@@ -46,7 +46,7 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
  
  mud_device_vf __attribute__ ((visibility ("hidden"))) musb_mud_device_vf = 
  {
-@@ -1960,6 +1962,137 @@
+@@ -1960,6 +1962,143 @@
   * USB probe devices, walk the USB bus(s) looking for HP products.
   */
  
@@ -151,6 +151,9 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
 +			udev_device_get_parent_with_subsystem_devtype (ddev,
 +								       "usb",
 +								       "usb_device");
++		    if (!parent_dev)
++			continue;
++
 +		    idVendor = udev_device_get_sysattr_value (parent_dev,
 +							      "idVendor");
 +		    if (!idVendor || strcmp (idVendor, "03f0"))
@@ -170,6 +173,9 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
 +
 +		    ieee1284_id = udev_device_get_sysattr_value (ddev,
 +								 "ieee1284_id");
++		    if (!ieee1284_id)
++			continue;
++
 +		    strncpy (device_id, ieee1284_id, len);
 +		    device_id[len - 1] = '\0';
 +		}
@@ -184,7 +190,7 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
  int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int lst_size, int *cnt)
  {
     struct usb_bus *bus;
-@@ -2007,6 +2140,7 @@
+@@ -2007,6 +2146,7 @@
  
              if (model[0])
              {
@@ -192,7 +198,7 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
                 snprintf(sz, sizeof(sz), "hp:/usb/%s?serial=%s", model, serial);
  
                 /* See if device is supported by hplip. */
-@@ -2017,17 +2151,19 @@
+@@ -2017,17 +2157,19 @@
                    continue;           /* ignor, not supported */
                 }
  
