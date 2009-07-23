@@ -6,8 +6,8 @@
 
 @DPATCH@
 diff -urNad hplip-3.9.6b~/Makefile.am hplip-3.9.6b/Makefile.am
---- hplip-3.9.6b~/Makefile.am	2009-07-23 02:03:42.000000000 +0200
-+++ hplip-3.9.6b/Makefile.am	2009-07-23 02:06:41.000000000 +0200
+--- hplip-3.9.6b~/Makefile.am	2009-07-23 20:06:15.000000000 +0200
++++ hplip-3.9.6b/Makefile.am	2009-07-23 20:53:55.000000000 +0200
 @@ -67,9 +67,9 @@
  	  io/hpmud/hpmud.h io/hpmud/hpmudi.h io/hpmud/list.h io/hpmud/mlc.h io/hpmud/musb.h io/hpmud/pml.h io/hpmud/dot4.c \
  	  io/hpmud/dot4.h io/hpmud/jd.c io/hpmud/jd.h io/hpmud/pp.c io/hpmud/pp.h
@@ -21,9 +21,9 @@ diff -urNad hplip-3.9.6b~/Makefile.am hplip-3.9.6b/Makefile.am
  libhpmud_la_CFLAGS = -DMUDNAME=\"$(MUDNAME)\" -DCONFDIR=\"$(hplip_confdir)\"
  
 diff -urNad hplip-3.9.6b~/Makefile.in hplip-3.9.6b/Makefile.in
---- hplip-3.9.6b~/Makefile.in	2009-07-13 17:27:53.000000000 +0200
-+++ hplip-3.9.6b/Makefile.in	2009-07-23 02:08:38.000000000 +0200
-@@ -3621,8 +3621,8 @@
+--- hplip-3.9.6b~/Makefile.in	2009-07-23 20:34:31.000000000 +0200
++++ hplip-3.9.6b/Makefile.in	2009-07-23 20:54:31.000000000 +0200
+@@ -3619,8 +3619,8 @@
  @HPLIP_BUILD_TRUE@	  io/hpmud/hpmud.h io/hpmud/hpmudi.h io/hpmud/list.h io/hpmud/mlc.h io/hpmud/musb.h io/hpmud/pml.h io/hpmud/dot4.c \
  @HPLIP_BUILD_TRUE@	  io/hpmud/dot4.h io/hpmud/jd.c io/hpmud/jd.h io/hpmud/pp.c io/hpmud/pp.h
  
@@ -35,154 +35,224 @@ diff -urNad hplip-3.9.6b~/Makefile.in hplip-3.9.6b/Makefile.in
  @HPLIP_BUILD_TRUE@libhpip_la_LDFLAGS = -version-info 0:1:0
  @HPLIP_BUILD_TRUE@libhpip_la_LIBADD = -lm
 diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
---- hplip-3.9.6b~/io/hpmud/musb.c	2009-06-25 21:05:49.000000000 +0200
-+++ hplip-3.9.6b/io/hpmud/musb.c	2009-07-23 02:04:02.000000000 +0200
-@@ -26,6 +26,8 @@
+--- hplip-3.9.6b~/io/hpmud/musb.c	2009-07-23 20:06:15.000000000 +0200
++++ hplip-3.9.6b/io/hpmud/musb.c	2009-07-23 20:52:24.000000000 +0200
+@@ -26,6 +26,11 @@
  
  #include "hpmud.h"
  #include "hpmudi.h"
 +#define LIBUDEV_I_KNOW_THE_API_IS_SUBJECT_TO_CHANGE 1
 +#include <libudev.h>
++
++/* Flags for claim_interface() */
++#define CLAIM_NO_DETACH 1
  
  mud_device_vf __attribute__ ((visibility ("hidden"))) musb_mud_device_vf = 
  {
-@@ -1960,6 +1962,143 @@
+@@ -489,7 +494,8 @@
+    return -1;  /* no endpoint found */
+ }
+ 
+-static int claim_interface(struct usb_device *dev, file_descriptor *pfd)
++static int claim_interface(struct usb_device *dev, file_descriptor *pfd,
++			   int flags)
+ {
+    int stat=1;
+ 
+@@ -502,7 +508,8 @@
+       goto bugout;
+    }
+ 
+-   detach(pfd->hd, pfd->interface);
++   if (!(flags & CLAIM_NO_DETACH))
++      detach(pfd->hd, pfd->interface);
+ 
+ #if 0   /* hp devices only have one configuration, so far ... */
+    if (usb_set_configuration(FD[fd].pHD, dev->config[config].bConfigurationValue))
+@@ -562,7 +569,7 @@
+ }
+ 
+ /* Claim any open interface which is valid for device_id and device status. */
+-static int claim_id_interface(struct usb_device *dev)
++static int claim_id_interface(struct usb_device *dev, int flags)
+ {
+    enum FD_ID i;
+ 
+@@ -570,7 +577,7 @@
+    {
+       if (get_interface(dev, i, &fd_table[i]) == 0)
+       {
+-         if (claim_interface(libusb_device, &fd_table[i]))
++         if (claim_interface(libusb_device, &fd_table[i], flags))
+             continue;  /* interface is busy, try next interface */
+          break;  /* done */
+       }
+@@ -1111,7 +1118,7 @@
+    {
+       /* First client. */
+ 
+-      if ((fd = claim_id_interface(libusb_device)) == MAX_FD)
++      if ((fd = claim_id_interface(libusb_device, 0)) == MAX_FD)
+       {
+          stat = HPMUD_R_DEVICE_BUSY;
+          goto blackout;
+@@ -1186,7 +1193,7 @@
+       if (fd == FD_NA)
+       {
+          /* Device not in use. Claim interface, but release for other processes. */
+-         if ((fd = claim_id_interface(libusb_device)) != MAX_FD)
++         if ((fd = claim_id_interface(libusb_device, 0)) != MAX_FD)
+          {
+             *len = device_id(fd, pd->id, sizeof(pd->id));  /* get new copy and cache it  */ 
+             release_interface(&fd_table[fd]);
+@@ -1239,7 +1246,7 @@
+       if (fd == FD_NA)
+       {
+          /* Device not in use. Claim interface, but release for other processes. */
+-         if ((fd = claim_id_interface(libusb_device)) != MAX_FD)
++         if ((fd = claim_id_interface(libusb_device, 0)) != MAX_FD)
+          {
+             r = device_status(fd, status);
+             release_interface(&fd_table[fd]);
+@@ -1344,7 +1351,7 @@
+ 
+    get_interface(libusb_device, fd, &fd_table[fd]);
+ 
+-   if (claim_interface(libusb_device, &fd_table[fd]))
++   if (claim_interface(libusb_device, &fd_table[fd], 0))
+       goto bugout;
+ 
+    pc->fd = fd;
+@@ -1475,7 +1482,7 @@
+       goto bugout;
+    }
+ 
+-   if (claim_interface(libusb_device, &fd_table[fd]))
++   if (claim_interface(libusb_device, &fd_table[fd], 0))
+       goto bugout;
+ 
+    pc->fd = fd;
+@@ -1499,13 +1506,13 @@
+    /* Initialize MLC transport if this is the first MLC channel. */
+    if (pd->channel_cnt==1)
+    {
+-      if (get_interface(libusb_device, FD_7_1_3, &fd_table[FD_7_1_3]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_3]) == 0)
++      if (get_interface(libusb_device, FD_7_1_3, &fd_table[FD_7_1_3]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_3], 0) == 0)
+          fd = FD_7_1_3;    /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_ff_ff_ff, &fd_table[FD_ff_ff_ff]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_ff_ff]) == 0)
++      else if (get_interface(libusb_device, FD_ff_ff_ff, &fd_table[FD_ff_ff_ff]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_ff_ff], 0) == 0)
+          fd = FD_ff_ff_ff;   /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_ff_d4_0, &fd_table[FD_ff_d4_0]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_d4_0]) == 0)
++      else if (get_interface(libusb_device, FD_ff_d4_0, &fd_table[FD_ff_d4_0]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_d4_0], 0) == 0)
+          fd = FD_ff_d4_0;   /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_7_1_2, &fd_table[FD_7_1_2]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_2]) == 0)
++      else if (get_interface(libusb_device, FD_7_1_2, &fd_table[FD_7_1_2]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_2], 0) == 0)
+          fd = FD_7_1_2;    /* raw, mlc, dot4 */
+       else
+       {
+@@ -1719,13 +1726,13 @@
+    /* Initialize MLC transport if this is the first MLC channel. */
+    if (pd->channel_cnt==1)
+    {
+-      if (get_interface(libusb_device, FD_7_1_3, &fd_table[FD_7_1_3]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_3]) == 0)
++      if (get_interface(libusb_device, FD_7_1_3, &fd_table[FD_7_1_3]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_3], 0) == 0)
+          fd = FD_7_1_3;    /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_ff_ff_ff, &fd_table[FD_ff_ff_ff]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_ff_ff]) == 0)
++      else if (get_interface(libusb_device, FD_ff_ff_ff, &fd_table[FD_ff_ff_ff]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_ff_ff], 0) == 0)
+          fd = FD_ff_ff_ff;   /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_ff_d4_0, &fd_table[FD_ff_d4_0]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_d4_0]) == 0)
++      else if (get_interface(libusb_device, FD_ff_d4_0, &fd_table[FD_ff_d4_0]) == 0 && claim_interface(libusb_device, &fd_table[FD_ff_d4_0], 0) == 0)
+          fd = FD_ff_d4_0;   /* mlc, dot4 */
+-      else if (get_interface(libusb_device, FD_7_1_2, &fd_table[FD_7_1_2]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_2]) == 0)
++      else if (get_interface(libusb_device, FD_7_1_2, &fd_table[FD_7_1_2]) == 0 && claim_interface(libusb_device, &fd_table[FD_7_1_2], 0) == 0)
+          fd = FD_7_1_2;    /* raw, mlc, dot4 */
+       else
+       {
+@@ -1960,6 +1967,91 @@
   * USB probe devices, walk the USB bus(s) looking for HP products.
   */
  
 +static void
 +get_device_id (struct usb_device *dev, const char *serial,
-+	       char *device_id, size_t len)
++	       char *id, size_t len)
 +{
-+    struct usb_config_descriptor *confptr;
 +    int try_usblp = 0;
-+    int conf;
++    int fd;
 +
-+    *device_id = '\0';
++    *id = '\0';
 +    if (dev->descriptor.idVendor != 0x3f0)
-+	return;
++       return;
 +
-+    for (conf = 0, confptr = dev->config;
-+	 conf < dev->descriptor.bNumConfigurations;
-+	 conf++, confptr++)
-+	{
-+	    struct usb_interface *ifaceptr;
-+	    int iface = 0;
-+	    for (ifaceptr = confptr->interface;
-+		 iface < confptr->bNumInterfaces;
-+		 iface++, ifaceptr++)
-+		{
-+		    struct usb_interface_descriptor *altptr;
-+		    int altset = 0;
-+		    for (altptr = ifaceptr->altsetting;
-+			 altset < ifaceptr->num_altsetting;
-+			 altset++, altptr++)
-+			{
-+			    if (altptr->bInterfaceClass == USB_CLASS_PRINTER &&
-+				altptr->bInterfaceSubClass == 1)
-+				{
-+				    int n;
-+				    struct usb_dev_handle *hd;
++    libusb_device = dev;
++    fd = claim_id_interface (dev, CLAIM_NO_DETACH);
++    if (fd == FD_NA)
++    {
++       try_usblp = 1;
++       goto try_usblp_instead;
++    }
 +
-+				    if ((hd = usb_open (dev)) == NULL)
-+					continue;
++    if (device_id (fd, id, len) == 0)
++       try_usblp = 1;
 +
-+				    n = confptr->bConfigurationValue;
-+				    if (usb_set_configuration (hd, n) < 0)
-+					goto try_usblp_instead;
++    release_interface (&fd_table[fd]);
 +
-+				    n = altptr->bInterfaceNumber;
-+				    if (usb_claim_interface (hd, n) < 0)
-+					goto try_usblp_instead;
-+
-+				    n = altptr->bAlternateSetting;
-+				    if (usb_set_altinterface (hd, n) < 0)
-+					goto try_usblp_instead;
-+
-+				    memset (device_id, '\0',
-+					    sizeof (device_id));
-+				    if (usb_control_msg (hd,
-+							 USB_TYPE_CLASS |
-+							 USB_ENDPOINT_IN |
-+							 USB_RECIP_INTERFACE,
-+							 0, conf, iface,
-+							 device_id, len,
-+							 5000) < 0)
-+					goto try_usblp_instead;
-+
-+				    usb_close (hd);
-+				    memmove (device_id, device_id + 2,
-+					     len - 2);
-+				    device_id[len - 2] = '\0';
-+				    device_id[len - 1] = '\0';
-+				    return;
-+
-+				try_usblp_instead:
-+				    usb_close (hd);
-+				    try_usblp = 1;
-+				    goto out;
-+				}
-+			}
-+		}
-+	}
-+
-+ out:
++ try_usblp_instead:
 +    if (try_usblp)
-+	{
-+	    struct udev *udev = udev_new ();
-+	    struct udev_enumerate *en = udev_enumerate_new (udev);
-+	    struct udev_list_entry *list, *each;
-+	    udev_enumerate_add_match_subsystem (en, "usb");
-+	    udev_enumerate_add_match_sysattr (en, "bInterfaceClass", "07");
-+	    udev_enumerate_add_match_sysattr (en, "bInterfaceSubClass", "01");
-+	    udev_enumerate_scan_devices (en);
-+	    list = udev_enumerate_get_list_entry (en);
-+	    udev_list_entry_foreach (each, list)
-+		{
-+		    const char *syspath = udev_list_entry_get_name (each);
-+		    struct udev_device *parent_dev, *ddev;
-+		    const char *ieee1284_id;
-+		    const char *idVendor;
-+		    const char *idProductStr;
-+		    const char *serialstr;
-+		    unsigned long idProduct;
-+		    ddev = udev_device_new_from_syspath (udev, syspath);
-+		    parent_dev =
-+			udev_device_get_parent_with_subsystem_devtype (ddev,
-+								       "usb",
-+								       "usb_device");
-+		    if (!parent_dev)
-+			continue;
++    {
++       struct udev *udev = udev_new ();
++       struct udev_enumerate *en = udev_enumerate_new (udev);
++       struct udev_list_entry *list, *each;
++       udev_enumerate_add_match_subsystem (en, "usb");
++       udev_enumerate_add_match_sysattr (en, "bInterfaceClass", "07");
++       udev_enumerate_add_match_sysattr (en, "bInterfaceSubClass", "01");
++       udev_enumerate_scan_devices (en);
++       list = udev_enumerate_get_list_entry (en);
++       udev_list_entry_foreach (each, list)
++       {
++	  const char *syspath = udev_list_entry_get_name (each);
++	  struct udev_device *parent_dev, *ddev;
++	  const char *ieee1284_id;
++	  const char *idVendor;
++	  const char *idProductStr;
++	  const char *serialstr;
++	  unsigned long idProduct;
++	  ddev = udev_device_new_from_syspath (udev, syspath);
++	  parent_dev =
++	     udev_device_get_parent_with_subsystem_devtype (ddev,
++							    "usb",
++							    "usb_device");
++	  if (!parent_dev)
++	     continue;
 +
-+		    idVendor = udev_device_get_sysattr_value (parent_dev,
-+							      "idVendor");
-+		    if (!idVendor || strcmp (idVendor, "03f0"))
-+			continue;
++	  idVendor = udev_device_get_sysattr_value (parent_dev,
++						    "idVendor");
++	  if (!idVendor || strcmp (idVendor, "03f0"))
++	     continue;
 +
-+		    idProductStr = udev_device_get_sysattr_value (parent_dev,
-+								  "idProduct");
-+		    if (!idProductStr ||
-+			strtoul (idProductStr, NULL, 16) !=
-+			dev->descriptor.idProduct)
-+			continue;
++	  idProductStr = udev_device_get_sysattr_value (parent_dev,
++							"idProduct");
++	  if (!idProductStr ||
++	      strtoul (idProductStr, NULL, 16) !=
++	      dev->descriptor.idProduct)
++	     continue;
 +
-+		    serialstr = udev_device_get_sysattr_value (parent_dev,
-+							       "serial");
-+		    if (!serialstr || strcmp (serialstr, serial))
-+			continue;
++	  serialstr = udev_device_get_sysattr_value (parent_dev,
++						     "serial");
++	  if (!serialstr || strcmp (serialstr, serial))
++	     continue;
 +
-+		    ieee1284_id = udev_device_get_sysattr_value (ddev,
-+								 "ieee1284_id");
-+		    if (!ieee1284_id)
-+			continue;
++	  ieee1284_id = udev_device_get_sysattr_value (ddev,
++						       "ieee1284_id");
++	  if (!ieee1284_id)
++	     continue;
 +
-+		    strncpy (device_id, ieee1284_id, len);
-+		    device_id[len - 1] = '\0';
-+		}
++	  strncpy (id, ieee1284_id, len);
++	  id[len - 1] = '\0';
++       }
 +
-+	    udev_enumerate_unref (en);
-+	    udev_unref (udev);
-+	}
++       udev_enumerate_unref (en);
++       udev_unref (udev);
++    }
 +
 +    return;
 +}
@@ -190,7 +260,7 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
  int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int lst_size, int *cnt)
  {
     struct usb_bus *bus;
-@@ -2007,6 +2146,7 @@
+@@ -2007,6 +2099,7 @@
  
              if (model[0])
              {
@@ -198,7 +268,7 @@ diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
                 snprintf(sz, sizeof(sz), "hp:/usb/%s?serial=%s", model, serial);
  
                 /* See if device is supported by hplip. */
-@@ -2017,17 +2157,19 @@
+@@ -2017,17 +2110,19 @@
                    continue;           /* ignor, not supported */
                 }
  
