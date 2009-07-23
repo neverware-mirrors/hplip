@@ -1,0 +1,225 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hplip-device-id-report-fix.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.9.6b~/Makefile.am hplip-3.9.6b/Makefile.am
+--- hplip-3.9.6b~/Makefile.am	2009-07-23 02:03:42.000000000 +0200
++++ hplip-3.9.6b/Makefile.am	2009-07-23 02:06:41.000000000 +0200
+@@ -67,9 +67,9 @@
+ 	  io/hpmud/hpmud.h io/hpmud/hpmudi.h io/hpmud/list.h io/hpmud/mlc.h io/hpmud/musb.h io/hpmud/pml.h io/hpmud/dot4.c \
+ 	  io/hpmud/dot4.h io/hpmud/jd.c io/hpmud/jd.h io/hpmud/pp.c io/hpmud/pp.h
+ if NETWORK_BUILD
+-libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -lpthread -l$(SNMPLIB) -lcrypto
++libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -ludev -lpthread -l$(SNMPLIB) -lcrypto
+ else
+-libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -lpthread
++libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -ludev -lpthread
+ endif
+ libhpmud_la_CFLAGS = -DMUDNAME=\"$(MUDNAME)\" -DCONFDIR=\"$(hplip_confdir)\"
+ 
+diff -urNad hplip-3.9.6b~/Makefile.in hplip-3.9.6b/Makefile.in
+--- hplip-3.9.6b~/Makefile.in	2009-07-13 17:27:53.000000000 +0200
++++ hplip-3.9.6b/Makefile.in	2009-07-23 02:08:38.000000000 +0200
+@@ -3621,8 +3621,8 @@
+ @HPLIP_BUILD_TRUE@	  io/hpmud/hpmud.h io/hpmud/hpmudi.h io/hpmud/list.h io/hpmud/mlc.h io/hpmud/musb.h io/hpmud/pml.h io/hpmud/dot4.c \
+ @HPLIP_BUILD_TRUE@	  io/hpmud/dot4.h io/hpmud/jd.c io/hpmud/jd.h io/hpmud/pp.c io/hpmud/pp.h
+ 
+-@HPLIP_BUILD_TRUE@@NETWORK_BUILD_FALSE@libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -lpthread
+-@HPLIP_BUILD_TRUE@@NETWORK_BUILD_TRUE@libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -lpthread -l$(SNMPLIB) -lcrypto
++@HPLIP_BUILD_TRUE@@NETWORK_BUILD_FALSE@libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -ludev -lpthread
++@HPLIP_BUILD_TRUE@@NETWORK_BUILD_TRUE@libhpmud_la_LDFLAGS = -version-info 0:5:0 -lusb -ludev -lpthread -l$(SNMPLIB) -lcrypto
+ @HPLIP_BUILD_TRUE@libhpmud_la_CFLAGS = -DMUDNAME=\"$(MUDNAME)\" -DCONFDIR=\"$(hplip_confdir)\"
+ @HPLIP_BUILD_TRUE@libhpip_la_LDFLAGS = -version-info 0:1:0
+ @HPLIP_BUILD_TRUE@libhpip_la_LIBADD = -lm
+diff -urNad hplip-3.9.6b~/io/hpmud/musb.c hplip-3.9.6b/io/hpmud/musb.c
+--- hplip-3.9.6b~/io/hpmud/musb.c	2009-06-25 21:05:49.000000000 +0200
++++ hplip-3.9.6b/io/hpmud/musb.c	2009-07-23 02:04:02.000000000 +0200
+@@ -26,6 +26,8 @@
+ 
+ #include "hpmud.h"
+ #include "hpmudi.h"
++#define LIBUDEV_I_KNOW_THE_API_IS_SUBJECT_TO_CHANGE 1
++#include <libudev.h>
+ 
+ mud_device_vf __attribute__ ((visibility ("hidden"))) musb_mud_device_vf = 
+ {
+@@ -1960,6 +1962,137 @@
+  * USB probe devices, walk the USB bus(s) looking for HP products.
+  */
+ 
++static void
++get_device_id (struct usb_device *dev, const char *serial,
++	       char *device_id, size_t len)
++{
++    struct usb_config_descriptor *confptr;
++    int try_usblp = 0;
++    int conf;
++
++    *device_id = '\0';
++    if (dev->descriptor.idVendor != 0x3f0)
++	return;
++
++    for (conf = 0, confptr = dev->config;
++	 conf < dev->descriptor.bNumConfigurations;
++	 conf++, confptr++)
++	{
++	    struct usb_interface *ifaceptr;
++	    int iface = 0;
++	    for (ifaceptr = confptr->interface;
++		 iface < confptr->bNumInterfaces;
++		 iface++, ifaceptr++)
++		{
++		    struct usb_interface_descriptor *altptr;
++		    int altset = 0;
++		    for (altptr = ifaceptr->altsetting;
++			 altset < ifaceptr->num_altsetting;
++			 altset++, altptr++)
++			{
++			    if (altptr->bInterfaceClass == USB_CLASS_PRINTER &&
++				altptr->bInterfaceSubClass == 1)
++				{
++				    int n;
++				    struct usb_dev_handle *hd;
++
++				    if ((hd = usb_open (dev)) == NULL)
++					continue;
++
++				    n = confptr->bConfigurationValue;
++				    if (usb_set_configuration (hd, n) < 0)
++					goto try_usblp_instead;
++
++				    n = altptr->bInterfaceNumber;
++				    if (usb_claim_interface (hd, n) < 0)
++					goto try_usblp_instead;
++
++				    n = altptr->bAlternateSetting;
++				    if (usb_set_altinterface (hd, n) < 0)
++					goto try_usblp_instead;
++
++				    memset (device_id, '\0',
++					    sizeof (device_id));
++				    if (usb_control_msg (hd,
++							 USB_TYPE_CLASS |
++							 USB_ENDPOINT_IN |
++							 USB_RECIP_INTERFACE,
++							 0, conf, iface,
++							 device_id, len,
++							 5000) < 0)
++					goto try_usblp_instead;
++
++				    usb_close (hd);
++				    memmove (device_id, device_id + 2,
++					     len - 2);
++				    device_id[len - 2] = '\0';
++				    device_id[len - 1] = '\0';
++				    return;
++
++				try_usblp_instead:
++				    usb_close (hd);
++				    try_usblp = 1;
++				    goto out;
++				}
++			}
++		}
++	}
++
++ out:
++    if (try_usblp)
++	{
++	    struct udev *udev = udev_new ();
++	    struct udev_enumerate *en = udev_enumerate_new (udev);
++	    struct udev_list_entry *list, *each;
++	    udev_enumerate_add_match_subsystem (en, "usb");
++	    udev_enumerate_add_match_sysattr (en, "bInterfaceClass", "07");
++	    udev_enumerate_add_match_sysattr (en, "bInterfaceSubClass", "01");
++	    udev_enumerate_scan_devices (en);
++	    list = udev_enumerate_get_list_entry (en);
++	    udev_list_entry_foreach (each, list)
++		{
++		    const char *syspath = udev_list_entry_get_name (each);
++		    struct udev_device *parent_dev, *ddev;
++		    const char *ieee1284_id;
++		    const char *idVendor;
++		    const char *idProductStr;
++		    const char *serialstr;
++		    unsigned long idProduct;
++		    ddev = udev_device_new_from_syspath (udev, syspath);
++		    parent_dev =
++			udev_device_get_parent_with_subsystem_devtype (ddev,
++								       "usb",
++								       "usb_device");
++		    idVendor = udev_device_get_sysattr_value (parent_dev,
++							      "idVendor");
++		    if (!idVendor || strcmp (idVendor, "03f0"))
++			continue;
++
++		    idProductStr = udev_device_get_sysattr_value (parent_dev,
++								  "idProduct");
++		    if (!idProductStr ||
++			strtoul (idProductStr, NULL, 16) !=
++			dev->descriptor.idProduct)
++			continue;
++
++		    serialstr = udev_device_get_sysattr_value (parent_dev,
++							       "serial");
++		    if (!serialstr || strcmp (serialstr, serial))
++			continue;
++
++		    ieee1284_id = udev_device_get_sysattr_value (ddev,
++								 "ieee1284_id");
++		    strncpy (device_id, ieee1284_id, len);
++		    device_id[len - 1] = '\0';
++		}
++
++	    udev_enumerate_unref (en);
++	    udev_unref (udev);
++	}
++
++    return;
++}
++
+ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int lst_size, int *cnt)
+ {
+    struct usb_bus *bus;
+@@ -2007,6 +2140,7 @@
+ 
+             if (model[0])
+             {
++	       char device_id[1024];
+                snprintf(sz, sizeof(sz), "hp:/usb/%s?serial=%s", model, serial);
+ 
+                /* See if device is supported by hplip. */
+@@ -2017,17 +2151,19 @@
+                   continue;           /* ignor, not supported */
+                }
+ 
+-               /*
+-                * For Cups 1.2 we append a dummy deviceid. A valid deviceid would require us to claim the USB interface, thus removing usblp. 
+-                * This will allow us to do discovery and not disable other CUPS backend(s) who use /dev/usb/lpx instead of libusb.
+-                */
+-               if (strncasecmp(rmodel, "hp ", 3) == 0)
+-                  size += snprintf(lst+size, lst_size-size, "direct %s \"HP %s\" \"HP %s USB %s HPLIP\" \"MFG:HP;MDL:%s;CLS:PRINTER;DES:%s;SN:%s;\"\n", 
+-                                                      sz, &rmodel[3], &rmodel[3], serial, rmodel, rmodel, rserial);
+-               else
+-                  size += snprintf(lst+size, lst_size-size, "direct %s \"HP %s\" \"HP %s USB %s HPLIP\" \"MFG:HP;MDL:%s;CLS:PRINTER;DES:%s;SN:%s;\"\n", 
+-                                                   sz, rmodel, rmodel, serial, rmodel, rmodel, rserial);
+-
++	       get_device_id (dev, rserial, device_id, sizeof (device_id));
++	       if (strncasecmp(rmodel, "hp ", 3) == 0)
++		   size += snprintf(lst+size, lst_size-size,
++				    "direct %s \"HP %s\" \"HP %s USB %s "
++				    "HPLIP\" \"%s\"\n", 
++				    sz, &rmodel[3], &rmodel[3], serial,
++				    device_id);
++	       else
++		   size += snprintf(lst+size, lst_size-size,
++				    "direct %s \"HP %s\" \"HP %s USB %s "
++				    "HPLIP\" \"%s\"\n", 
++				    sz, rmodel, rmodel, serial,
++				    device_id);
+                *cnt+=1;
+             }
+          }
