@@ -1,3 +1,12 @@
+hplip (3.9.6b-1ubuntu4) karmic; urgency=low
+
+  * debian/patches/plugin-execution-fix.dpatch: Added "--nox11" options to the
+    command lines for running the installer for the proprietary plugin as
+    otherwise hp-plugin does not succeed to run the installer when it is run
+    out of another program.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 26 Jul 2009 01:24:49 +0200
+
 hplip (3.9.6b-1ubuntu3) karmic; urgency=low
 
   * debian/patches/hplip-device-id-report-fix.dpatch: Fixed unreliable
