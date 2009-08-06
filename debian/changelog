@@ -1,3 +1,33 @@
+hplip (3.9.8-0ubuntu1) karmic; urgency=low
+
+  * New upstream release
+     o mDNS/Bonjour support
+     o Support for udev variable ID_HPLIP (ACL setting via udev rule
+       70-acl.rules)
+     o Added support for: HP Deskjet d1620, d1630, d1650, d1658, d1660, d1663,
+       d5545, d5560, d5563, d5568, Ink Advantage k109a, k209a, PhotoSmart
+       c4740, c4750, c4780, c4783, c4785, c4788, c4793, c4795, c4798, c4799,
+       Photosmart Plus All-in-one b209a, b209b, b209c, Officejet 7000 Wide
+       Format Printer e809a, HP LaserJet p3011, p3015
+  * debian/rules: Added "--enable-udev-acl-rules" to "./configure" command line
+  * debian/hplip.install: Let 40-hplip.rules get installed in /lib/udev/rules.d,
+    removed HAL .fdi file.
+  * debian/hplip.udev: Removed, adopted upstream.
+  * debian/patches/plugin-execution-fix.dpatch,
+    debian/patches/hplip-device-id-report-fix.dpatch,
+    debian/patches/hpinfo-query-without-cups-queue.dpatch: Removed, fixed
+    upstream.
+  * debian/rules: Removed the corrections on the Fax PPDs, they are fixed
+    upstream now.
+  * debian/hplip-cups.postinst, debian/hpijs.postinst,
+    debian/hpijs-ppds.postinst: Let updates of the PPDs of existing queues
+    also work with HPLIP versions where there is more than one letter appended
+    to the version number.
+  * debian/hplip-cups.postinst: Made automatic migration of Fax queues to
+    hpcups working.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  6 Aug 2009 18:55:38 +0200
+
 hplip (3.9.6b-1ubuntu4) karmic; urgency=low
 
   * debian/patches/plugin-execution-fix.dpatch: Added "--nox11" options to the

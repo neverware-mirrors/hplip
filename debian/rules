@@ -144,7 +144,8 @@ configure-stamp: patch-stamp configure
 		--enable-fax-build \
 		--disable-qt3 \
 		--enable-qt4 \
-		--enable-policykit
+		--enable-policykit \
+		--enable-udev-acl-rules
 
 	touch configure-stamp
 
@@ -250,18 +251,13 @@ install-arch-stamp: install-stamp
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP"
 	mkdir -p "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP"
 
-	zcat "fax/ppd/HP-Fax-hpijs.ppd.gz" \
-		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
-		| gzip -9 \
-		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax-hpijs.ppd.gz"
-	zcat "fax/ppd/HP-Fax2-hpijs.ppd.gz" \
-		| perl -p -e 's,^\*cupsFilter:\s*\"application/vnd.cups-postscript\s+0\s+foomatic-rip\",*cupsFilter: "application/vnd.cups-postscript 100 foomatic-rip"\n*cupsFilter: "application/vnd.cups-pdf 0 foomatic-rip",' \
-		| gzip -9 \
-		> "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax2-hpijs.ppd.gz"
+	cp "fax/ppd/HP-Fax-hpijs.ppd.gz" \
+	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax-hpijs.ppd.gz"
+	cp "fax/ppd/HP-Fax2-hpijs.ppd.gz" \
+	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax2-hpijs.ppd.gz"
 
 	cp "fax/ppd/HP-Fax-hpcups.ppd.gz" \
 	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax-hpcups.ppd.gz"
-
 	cp "fax/ppd/HP-Fax2-hpcups.ppd.gz" \
 	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax2-hpcups.ppd.gz"
 
