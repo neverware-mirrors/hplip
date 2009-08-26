@@ -8,3 +8,4 @@ pjl-duplex-binding.dpatch
 kde4-kdesudo-support.dpatch
 hp-check_debian
 delayed-hp-systray-start.dpatch
+hpcups-drv-page-sizes-order.dpatch
