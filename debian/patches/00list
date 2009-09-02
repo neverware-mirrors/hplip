@@ -9,3 +9,4 @@ kde4-kdesudo-support.dpatch
 hp-check_debian
 delayed-hp-systray-start.dpatch
 hpcups-drv-page-sizes-order.dpatch
+hplip-polkit-1-migration.dpatch

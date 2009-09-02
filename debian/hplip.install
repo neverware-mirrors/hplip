@@ -12,6 +12,6 @@ usr/lib/lib*.so.*
 usr/lib/python*
 usr/lib/sane/libsane*.so.*
 usr/share/dbus-1
-usr/share/PolicyKit
+usr/share/polkit-1
 usr/share/pixmaps
 var/lib

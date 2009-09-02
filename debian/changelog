@@ -1,3 +1,10 @@
+hplip (3.9.8-0ubuntu4) karmic; urgency=low
+
+  * debian/patches/hplip-polkit-1-migration.dpatch: Upstream patch to make
+    HPLIP supporting Policy Kit 1.0 (LP: #419834).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  2 Sep 2009 17:13:38 +0200
+
 hplip (3.9.8-0ubuntu3) karmic; urgency=low
 
   * debian/control: Added to all "cupsddk" dependencies an alternative
