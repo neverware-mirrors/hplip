@@ -1,3 +1,9 @@
+hplip (3.9.8-0ubuntu5) karmic; urgency=low
+
+  * debian/control: Let HPLIP build-depend and depend on policykit-1.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Sep 2009 19:22:38 +0200
+
 hplip (3.9.8-0ubuntu4) karmic; urgency=low
 
   * debian/patches/hplip-polkit-1-migration.dpatch: Upstream patch to make
