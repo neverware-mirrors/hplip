@@ -1,3 +1,17 @@
+hplip (3.9.8-0ubuntu6) karmic; urgency=low
+
+  * debian/hpijs-ppds.postinst, debian/hplip-cups.postinst, 
+    debian/hplip.postinst, debian/hpijs.postinst: Fixed "lpstat -r" check
+    for the auto update of PPDs of existing queues. "lpstat -r" exits always
+    with status 0, we must check the actual output. Call lpstat, lpadmin, and
+    cupsctl with "-h /var/run/cups/cups.sock" to avoid querying remote
+    servers set up in /etc/cups/client.conf, and asking for passwords. 
+    Thanks to Martin-Éric Racine for tracking this down and the solution!
+    See Debian bug #543468. Use signal names instead of numbers for trap.
+    Quiesces a lintian bashism warning.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Sep 2009 19:22:38 +0200
+
 hplip (3.9.8-0ubuntu5) karmic; urgency=low
 
   * debian/control: Let HPLIP build-depend and depend on policykit-1.
