@@ -1,3 +1,14 @@
+hplip (3.9.8-1) unstable; urgency=low
+
+  * New Upstream Release 
+    - sync with ubuntu
+  * Fix "Please port to PolicyKit 1" (Closes: #549499) 
+    - ubuntu patch to support policykit1
+  * Fix "Missing /usr/lib/libhpmud.so symlink" (Closes: #548379)
+    - libsane-hpaio.so.1 now links correctly at build time
+
+ -- Mark Purcell <msp@debian.org>  Sun, 04 Oct 2009 09:29:02 +1100
+
 hplip (3.9.8-0ubuntu6) karmic; urgency=low
 
   * debian/hpijs-ppds.postinst, debian/hplip-cups.postinst, 
