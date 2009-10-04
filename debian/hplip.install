@@ -3,7 +3,26 @@ etc/sane.d/dll.d
 etc/dbus-1
 etc/udev/rules.d/40-hplip.rules lib/udev/rules.d 
 etc/udev/rules.d/56-hpmud_support.rules lib/udev/rules.d 
-usr/bin/hp-*
+usr/bin/hp-align
+usr/bin/hp-check
+usr/bin/hp-clean
+usr/bin/hp-colorcal
+usr/bin/hp-fab
+usr/bin/hp-firmware
+usr/bin/hp-hpdio
+usr/bin/hp-info
+usr/bin/hp-levels
+usr/bin/hp-makeuri
+usr/bin/hp-mkuri
+usr/bin/hp-pkservice
+usr/bin/hp-plugin
+usr/bin/hp-probe
+usr/bin/hp-query
+usr/bin/hp-scan
+usr/bin/hp-setup
+usr/bin/hp-testpage
+usr/bin/hp-timedate
+usr/bin/hp-unload
 usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/hplipjs

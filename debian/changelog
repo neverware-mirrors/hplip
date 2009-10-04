@@ -1,9 +1,13 @@
-hplip (3.9.8-2) UNRELEASED; urgency=low
+hplip (3.9.8-1ubuntu1) karmic; urgency=low
 
+  [ Till Kamppeter ]
+  * merged in Debian fixes.
+
+  [ Mark Purcell ]
   * hplip.NEWS truncated to only include relevant messages (Closes: #432454) 
   * Modify hplip-dbg Section: debug
 
- -- Mark Purcell <msp@debian.org>  Sun, 04 Oct 2009 22:47:12 +1100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun,  4 Oct 2009 14:00:38 +0200
 
 hplip (3.9.8-1) unstable; urgency=low
 
@@ -15,6 +19,30 @@ hplip (3.9.8-1) unstable; urgency=low
     - libsane-hpaio.so.1 now links correctly at build time
 
  -- Mark Purcell <msp@debian.org>  Sun, 04 Oct 2009 09:29:02 +1100
+
+hplip (3.9.8-0ubuntu7) karmic; urgency=low
+
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Let the hpijs package
+    migrate queues for the hpcups driver (hplip-cups package) to the HPIJS
+    driver when updating PPDs of existing queues. The hplip-cups package
+    does not migrate HPIJS queues any more now. We prefer HPIJS for now as
+    hpcups has still problems, especially shifted prints on the back side
+    of the sheet (LP: #426826), page size confusion with duplex printing
+    (LP: #428588) and borderless printing.
+  * debian/patches/kde4-kdesudo-support.dpatch: Try also
+    /usr/lib/kde4/libexec/kdesu as sudo GUI (LP: #281880).
+  * debian/hplip.install, debian/hplip-gui.install: Moved all hp-* utilities
+    which do not work in text mode from hplip to hplip-gui (LP: #430539).
+  * debian/control: Let hplip recommend hpijs instead of hplip-cups, as this
+    is our preferred driver for now. Add to hplip-gui's dependencies
+    kdebase-runtime as one of the alternatives to provide a sudo GUI utility
+    (LP: #281880). Added versioned depends and conflicts on hplip to hp-gui,
+    due to the moving of the GUI-only utilities to hplip-gui.
+  * debian/patches/hp-setup-prompt-for-custom-PPD.dpatch: hp-setup did not
+    prompt for a custom PPD if the description field of the default PPD is
+    empty (LP: #432808).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Sep 2009 19:22:38 +0200
 
 hplip (3.9.8-0ubuntu6) karmic; urgency=low
 

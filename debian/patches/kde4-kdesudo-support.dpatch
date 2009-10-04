@@ -8,10 +8,13 @@
 diff -urNad hplip-3.9.4b~/base/utils.py hplip-3.9.4b/base/utils.py
 --- hplip-3.9.4b~/base/utils.py	2009-04-29 22:39:01.000000000 +0200
 +++ hplip-3.9.4b/base/utils.py	2009-05-16 00:06:50.000000000 +0200
-@@ -1572,6 +1572,9 @@
+@@ -1572,6 +1572,12 @@
      if which('kdesu'):
          su_sudo_str = 'kdesu -- %s'
  
++    elif utils.which('/usr/lib/kde4/libexec/kdesu'):
++        su_sudo_str = '/usr/lib/kde4/libexec/kdesu -- %s'
++
 +    elif utils.which('kdesudo'):
 +        su_sudo_str = 'kdesudo -- %s'
 +
