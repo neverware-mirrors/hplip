@@ -75,6 +75,7 @@ Description: HP Linux Printing and Imaging - GUI utilities
 Package: hplip-dbg
 Architecture: any
 Priority: extra
+Section: debug
 Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the
