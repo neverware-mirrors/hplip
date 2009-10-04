@@ -1,3 +1,9 @@
+hplip (3.9.8-2) UNRELEASED; urgency=low
+
+  * hplip.NEWS truncated to only include relevant messages (Closes: #432454) 
+
+ -- Mark Purcell <msp@debian.org>  Sun, 04 Oct 2009 12:24:14 +1100
+
 hplip (3.9.8-1) unstable; urgency=low
 
   * New Upstream Release 
