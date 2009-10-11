@@ -1,3 +1,11 @@
+hplip (3.9.8-1ubuntu2) karmic; urgency=low
+
+  * debian/patches/set-media-type.dpatch: Fix media type selection for CD/DVD
+    printing with the HPIJS driver, as we still use HPIJS by default. Fixes
+    LP: #380858 for the HPIJS driver.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Oct 2009 18:39:38 +0200
+
 hplip (3.9.8-1ubuntu1) karmic; urgency=low
 
   [ Till Kamppeter ]
