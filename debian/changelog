@@ -21,6 +21,9 @@ hplip (3.9.10-0ubuntu1) lucid; urgency=low
     by the new Qt4-based "pyqt4-dev-tools".
   * debian/control: Made "hplip-gui" requiring "hplip-cups" as hp-setup can
     only create fax queues with the hpcups driver (LP: #459275).
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Let queues using
+    the HPIJS driver be automatically migrated to using the hpcups driver as
+    the regressions of hpcups should be fixed now.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 10 Nov 2009 10:29:18 +0100
 
