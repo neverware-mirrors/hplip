@@ -14,7 +14,7 @@ diff -urNad hplip-3.9.10~55~/Makefile.am hplip-3.9.10~55/Makefile.am
  
 +# Generic rules
 +%.py: %.ui
-+	$(PYUIC) -x -o $@ $<
++	$(PYUIC4) -x -o $@ $<
 +
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs
  
@@ -26,8 +26,8 @@ diff -urNad hplip-3.9.10~55~/configure.in hplip-3.9.10~55/configure.in
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
-+   AC_ARG_VAR([PYUIC], [PyQT pyuic .ui to .py compiler command])
-+   AC_CHECK_TOOLS([PYUIC], [pyuic])
++   AC_ARG_VAR([PYUIC4], [PyQT pyuic4 .ui to .py compiler command])
++   AC_CHECK_TOOLS([PYUIC4], [pyuic4])
  fi
  
  if test "$hpijs_only_build" = "no" && test "$scan_build" = "yes" && test "$hpcups_only_build" = "no"; then

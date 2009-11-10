@@ -16,6 +16,10 @@ hplip (3.9.10-0ubuntu1) lucid; urgency=low
     version.
   * debian/patches/hplip-polkit-1-migration.dpatch,
     debian/patches/hpcups-drv-page-sizes-order.dpatch: Removed, fixed upstream.
+  * debian/control: Replaced old Qt3-based build dependency on "pyqt-tools"
+    by the new Qt4-based "pyqt4-dev-tools".
+  * debian/control: Made "hplip-gui" requiring "hplip-cups" as hp-setup can
+    only create fax queues with the hpcups driver.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 10 Nov 2009 10:29:18 +0100
 
