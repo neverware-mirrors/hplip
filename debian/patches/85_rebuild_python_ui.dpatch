@@ -5,24 +5,24 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.9.2~/Makefile.am hplip-3.9.2/Makefile.am
---- hplip-3.9.2~/Makefile.am	2009-02-25 17:40:45.000000000 -0300
-+++ hplip-3.9.2/Makefile.am	2009-02-25 17:44:19.000000000 -0300
+diff -urNad hplip-3.9.10~55~/Makefile.am hplip-3.9.10~55/Makefile.am
+--- hplip-3.9.10~55~/Makefile.am	2009-11-10 09:58:52.000000000 +0100
++++ hplip-3.9.10~55/Makefile.am	2009-11-10 10:00:06.000000000 +0100
 @@ -4,6 +4,10 @@
  #  (c) 2004-2007 Copyright Hewlett-Packard Development Company, LP
  #
  
 +# Generic rules
 +%.py: %.ui
-+	$(PYUIC) -x -o $@ $<
++       $(PYUIC) -x -o $@ $<
 +
- INCLUDES = -Iip -Iio/hpmud -Iscan/sane
+ INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs
  
  hplipdir = $(datadir)/hplip
-diff -urNad hplip-3.9.2~/configure.in hplip-3.9.2/configure.in
---- hplip-3.9.2~/configure.in	2009-02-19 21:37:18.000000000 -0300
-+++ hplip-3.9.2/configure.in	2009-02-25 17:47:49.000000000 -0300
-@@ -335,6 +335,8 @@
+diff -urNad hplip-3.9.10~55~/configure.in hplip-3.9.10~55/configure.in
+--- hplip-3.9.10~55~/configure.in	2009-11-04 11:06:27.000000000 +0100
++++ hplip-3.9.10~55/configure.in	2009-11-10 10:01:57.000000000 +0100
+@@ -500,6 +500,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
@@ -30,4 +30,4 @@ diff -urNad hplip-3.9.2~/configure.in hplip-3.9.2/configure.in
 +   AC_CHECK_TOOLS([PYUIC], [pyuic])
  fi
  
- if test "$hpijs_only_build" = "no" && test "$scan_build" = "yes"; then
+ if test "$hpijs_only_build" = "no" && test "$scan_build" = "yes" && test "$hpcups_only_build" = "no"; then

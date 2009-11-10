@@ -1,3 +1,24 @@
+hplip (3.9.10-0ubuntu1) lucid; urgency=low
+
+  * New upstream release
+     o hpcups driver rewritten: Simpler code, no bi-directional access needed
+       any more, especially not for 4-edge borderless printing, therefore
+       faster, print modes, paper sizes, mechanical offsets, and margins are
+       controlled by the PPD now, so easier debugging in cooperation with the
+       user.
+     o Added support for: HP Photosmart All-in-one Printer b109 Series,
+       including Wireless, HP Photosmart Premium All-in-one Printer c309
+       Series, including Fax, HP Photosmart a640 Printer Series, HP Deskjet
+       f24xx All-in-one Printer Series, HP Deskjet f4500 All-in-one Printer
+       Series
+  * debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/85_rebuild_python_ui.dpatch: Regenerated for new upstream
+    version.
+  * debian/patches/hplip-polkit-1-migration.dpatch,
+    debian/patches/hpcups-drv-page-sizes-order.dpatch: Removed, fixed upstream.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 10 Nov 2009 10:29:18 +0100
+
 hplip (3.9.8-1ubuntu2) karmic; urgency=low
 
   * debian/patches/set-media-type.dpatch: Fix media type selection for CD/DVD
