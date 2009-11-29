@@ -57,7 +57,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 
 Package: hplip-data
 Architecture: all
-Recommends: hplip
+Suggests: hplip
 Depends: ${python:Depends}
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
@@ -88,6 +88,7 @@ Description: HP Linux Printing and Imaging - debugging information
 Package: hplip-doc
 Architecture: all
 Section: doc
+Suggests: hplip
 Description: HP Linux Printing and Imaging - documentation
  This package contains the full documentation for the HP Linux
  Printing and Imaging System for off-line reading.  It includes
@@ -96,7 +97,6 @@ Description: HP Linux Printing and Imaging - documentation
 Package: hpijs-ppds
 Architecture: all
 Section: utils
-Suggests: hplip
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
