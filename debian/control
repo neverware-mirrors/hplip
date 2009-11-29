@@ -68,7 +68,7 @@ Architecture: all
 Depends: hplip (= ${hplip:binary:Version}), python-qt4, python-qt4-dbus, python-reportlab, dbus-x11, hplip-cups,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
 Recommends: xsane
-Replaces: hplip (<= 3.9.8-1)
+Replaces: hplip (<= 3.9.10-1)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for
  HPLIP: HP Toolbox, HP Fax, ...

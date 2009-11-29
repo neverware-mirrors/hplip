@@ -1,4 +1,4 @@
-hplip (3.9.10-2) UNRELEASED; urgency=low
+hplip (3.9.10-2) unstable; urgency=low
 
   * "New upstream version 3.9.10 available" (Closes: #554714)
   * Fix "hp-toolbox crash with "ImportError: No module named qt""
@@ -14,8 +14,9 @@ hplip (3.9.10-2) UNRELEASED; urgency=low
   * hplip.NEWS truncated to only include relevant messages (Closes: #432454) 
   * Added "[hplip-gui] dependency on ktsuss" (Closes: #523315)
   * hplip-data: s/Recommends:/Suggests:/ hplip (Closes: #387093)
+  * Move hplip-gui manages to package {Replaces: hplip (<= 3.9.10-1)}
 
- -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 17:28:01 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 17:44:27 +1100
 
 hplip (3.9.10-1) unstable; urgency=low
 
