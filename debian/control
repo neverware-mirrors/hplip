@@ -6,7 +6,7 @@ Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <tor
 Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cups (>= 1.4.0) | cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
- python-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3), 
+ python-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3),
  python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, libudev-dev, policykit-1
 Standards-Version: 3.8.0
 Homepage: http://hplip.sourceforge.net/
@@ -16,7 +16,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging,
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
  hplip-data (= ${hplip:binary:Version}),
  policykit-1

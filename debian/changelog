@@ -1,5 +1,6 @@
-hplip (3.9.10-1) UNRELEASED; urgency=low
+hplip (3.9.10-2) UNRELEASED; urgency=low
 
+  * "New upstream version 3.9.10 available" (Closes: #554714)
   * Fix "hp-toolbox crash with "ImportError: No module named qt""
     - relevant utils to hplip-gui (Closes: #525556,#525786,#520789)
   * hpli-gui - Depends: hplip (= ${hplip:binary:Version}) 
@@ -8,8 +9,10 @@ hplip (3.9.10-1) UNRELEASED; urgency=low
   * Match depends to exact binary version (= ${hplip:binary:Version})
   * Update hplip.preinst to remove obsolete udev rules (Closes: #556431,#552376)
   * hplip now recommends hplip-cups (Closes: #494421)
+  * Depends: python-pexpect (Does not fix bug 555361) 
+    - TODO remove embedded code
 
- -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 16:18:56 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 16:42:25 +1100
 
 hplip (3.9.10-1) unstable; urgency=low
 
