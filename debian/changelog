@@ -1,3 +1,12 @@
+hplip (3.9.10-2) UNRELEASED; urgency=low
+
+  * Fix "hp-toolbox crash with "ImportError: No module named qt""
+    - Till moved relevant hp-* utils to hplip-gui package (Closes: #525556)
+  * hpli-gui - Depends: hplip (= ${hplip:binary:Version}) 
+             - Replaces: hplip (<= 3.9.8-1) (Closes: #557524)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 15:16:14 +1100
+
 hplip (3.9.10-1) unstable; urgency=low
 
   * New Upstream Release
