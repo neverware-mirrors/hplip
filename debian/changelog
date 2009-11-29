@@ -5,8 +5,9 @@ hplip (3.9.10-1) UNRELEASED; urgency=low
   * hpli-gui - Depends: hplip (= ${hplip:binary:Version}) 
              - Replaces: hplip (<= 3.9.8-1) (Closes: #557524)
   * Versioned Suggests: Recommends: have no effect - removed
+  * Match depends to exact binary version (= ${hplip:binary:Version})
 
- -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 15:36:28 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 29 Nov 2009 15:41:07 +1100
 
 hplip (3.9.10-1) unstable; urgency=low
 
