@@ -1,3 +1,13 @@
+hplip (3.9.10-2ubuntu1) unstable; urgency=low
+
+  * debian/patches/hplip-systray-longer-timeout-for-system-tray-start.dpatch:
+    Let hp-systray wait for the system tray appearing on the user's desktop
+    panel up to three minutes before giving up. This should finally stop
+    hp-systray to give up even on the slowest systems (Closes: #517365,
+    LP: 335662).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 29 Nov 2009 21:44:18 +0100
+
 hplip (3.9.10-2) unstable; urgency=low
 
   * "New upstream version 3.9.10 available" (Closes: #554714)

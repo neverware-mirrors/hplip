@@ -7,6 +7,6 @@ hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
 kde4-kdesudo-support.dpatch
 hp-check_debian
-delayed-hp-systray-start.dpatch
 hp-setup-prompt-for-custom-PPD.dpatch
 set-media-type.dpatch
+hplip-systray-longer-timeout-for-system-tray-start.dpatch
