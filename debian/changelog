@@ -1,4 +1,4 @@
-hplip (3.9.10-2ubuntu1) unstable; urgency=low
+hplip (3.9.10-2ubuntu1) lucid; urgency=low
 
   * debian/patches/hplip-systray-longer-timeout-for-system-tray-start.dpatch:
     Let hp-systray wait for the system tray appearing on the user's desktop
