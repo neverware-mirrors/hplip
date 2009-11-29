@@ -59,6 +59,22 @@ case "$1" in
 			rm -f "/etc/udev/rules.d/024_hpmud.rules"
 		fi
 	fi
+
+	if [ -e "/etc/udev/rules.d/56-hpmud_support.rules" ]; then
+		if [ "`md5sum \"/etc/udev/rules.d/56-hpmud_support.rules\" | sed -e \"s/ .*//\"`" = \
+		     "`dpkg-query -W -f='${Conffiles}' hplip | sed -n -e \"\\\\' /etc/udev/rules.d/56-hpmud_support.rules's/.* //p\"`" ]
+		then
+			rm -f "/etc/udev/rules.d/56-hpmud_support.rules"
+		fi
+	fi
+
+	if [ -e "/etc/udev/rules.d/z60_hplip.rules" ]; then
+		if [ "`md5sum \"/etc/udev/rules.d/z60_hplip.rules\" | sed -e \"s/ .*//\"`" = \
+		     "`dpkg-query -W -f='${Conffiles}' hplip | sed -n -e \"\\\\' /etc/udev/rules.d/z60_hplip.rules's/.* //p\"`" ]
+		then
+			rm -f "/etc/udev/rules.d/z60_hplip.rules"
+		fi
+	fi
     ;;
 
     *)
