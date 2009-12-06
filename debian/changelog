@@ -1,3 +1,9 @@
+hplip (3.9.10-3ubuntu1) lucid; urgency=low
+
+  * Merged man page build fix into Ubuntu.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 06 Dec 2009 15:18:18 +0100
+
 hplip (3.9.10-3) unstable; urgency=low
 
   * Set local PYTHONPATH & LD_LIBRARY_PATH during man page build
