@@ -1,3 +1,10 @@
+hplip (3.9.10-3) unstable; urgency=low
+
+  * Set local PYTHONPATH & LD_LIBRARY_PATH during man page build
+    - "hplip_3.9.10-2: FTBFS: missing man page" (Closes: #558489)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 06 Dec 2009 19:28:34 +1100
+
 hplip (3.9.10-2ubuntu1) lucid; urgency=low
 
   * debian/patches/hplip-systray-longer-timeout-for-system-tray-start.dpatch:
