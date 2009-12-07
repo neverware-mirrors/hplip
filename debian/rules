@@ -212,7 +212,7 @@ install-stamp: build-stamp
 		    dest=hp-$${file%.py}; \
 		    ln -s /usr/share/hplip/$$file \
 			../../bin/$$dest 2>/dev/null || :; \
-		    PYTHONPATH=../../lib/python2.5/site-packages/  LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
+		    PYTHONPATH=../../lib/python2.5/site-packages/:../../lib/python2.6/dist-packages/  LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
 		fi; \
 	    done \
 	)

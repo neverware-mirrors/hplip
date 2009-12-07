@@ -1,3 +1,9 @@
+hplip (3.9.10-3ubuntu2) lucid; urgency=low
+
+  * Update PYTHONPATH for both Debian & Ubuntu configs 
+
+ -- Mark Purcell <msp@debian.org>  Tue, 08 Dec 2009 07:57:13 +1100
+
 hplip (3.9.10-3ubuntu1) lucid; urgency=low
 
   * Merged man page build fix into Ubuntu.
