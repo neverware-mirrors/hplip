@@ -1,3 +1,10 @@
+hplip (3.9.10-3ubuntu3) lucid; urgency=low
+
+  * debian/rules: Remove identical PPD files, they only waiste space and
+    cause duplicate entries in printer setup tools (LP: #493282).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 09 Dec 2009 16:45:18 +0100
+
 hplip (3.9.10-3ubuntu2) lucid; urgency=low
 
   * Update PYTHONPATH for both Debian & Ubuntu configs 

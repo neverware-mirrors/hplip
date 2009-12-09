@@ -178,6 +178,16 @@ install-stamp: build-stamp
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
+	# Remove identical PPD files shipped under different names
+	cd "$(PKGTMP)" && LC_ALL=C fdupes -r1nq usr/share/ppd | while read s; do \
+	    set -- $$(echo $$s | tr ' ' '\n' | sort); \
+	    f=$$1; shift; \
+	    for d; do \
+		echo "Removing duplicate PPD file $$d (original is $$f)"; \
+		rm $$d; \
+	    done; \
+	done
+
 	# Edit the generated hplip.conf
 	( cd "$(PKGTMP)/etc/hp" && \
 	  cat hplip.conf | \
