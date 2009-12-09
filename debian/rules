@@ -178,12 +178,15 @@ install-stamp: build-stamp
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
+	# Uncompress PPDs, this makes the package smaller for distribution
+	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
+
 	# Remove identical PPD files shipped under different names
-	( cd "$(PKGTMP)" && LC_ALL=C fdupes -r1nq usr/share/ppd | while read s; do \
+	( cd "$(PKGTMP)" && fdupes -r1q usr/share/ppd | while read s; do \
 	      set -- $$(echo $$s | tr ' ' '\n' | sort); \
 	      f=$$1; shift; \
 	      for d; do \
-		  echo "Removing duplicate PPD file $$d (original is $$f)"; \
+		  echo "Removing duplicate PPD file $$d, original is $$f"; \
 		  rm $$d; \
 	      done; \
 	  done )
@@ -270,6 +273,9 @@ install-arch-stamp: install-stamp
 	cp "fax/ppd/HP-Fax2-hpcups.ppd.gz" \
 	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax2-hpcups.ppd.gz"
 
+	# Uncompress PPDs, this makes the package smaller for distribution
+	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
+
 	# Generate .fdi file for HAL setting "scanner" capability to all
 	# HPLIP-supported devices (also without scanner), so that permissions
 	# get automatically set so that always the user logged in on the
@@ -286,9 +292,6 @@ install-indep: install-indep-stamp
 install-indep-stamp: install-stamp install-arch-stamp
 	# Remove the Fax PPDs, we have handled them in the arch-dependent part
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
-
-	# Ubuntu: uncompress again, makes the package smaller for distribution
-	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
 
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
