@@ -1,6 +1,13 @@
+hplip (3.9.10-3ubuntu4) lucid; urgency=low
+
+  * debian/control: Add "fdupes" to the build dependencies. The utility is
+    needed for the previous upload to work.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 10 Dec 2009 09:55:18 +0100
+
 hplip (3.9.10-3ubuntu3) lucid; urgency=low
 
-  * debian/rules: Remove identical PPD files, they only waiste space and
+  * debian/rules: Remove identical PPD files, they only waste space and
     cause duplicate entries in printer setup tools (LP: #493282).
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 09 Dec 2009 16:45:18 +0100
