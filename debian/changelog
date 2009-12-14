@@ -1,3 +1,9 @@
+hplip (3.9.10-4) unstable; urgency=low
+
+  * KBSD patch from KiBi (Closes: #560796)
+
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Dec 2009 20:08:44 +1100
+
 hplip (3.9.10-3ubuntu4) lucid; urgency=low
 
   * debian/control: Add "fdupes" to the build dependencies. The utility is

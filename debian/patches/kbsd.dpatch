@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## kbsd.dpatch by  <msp@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.9.10~/prnt/hpcups/ErnieFilter.cpp hplip-3.9.10/prnt/hpcups/ErnieFilter.cpp
+--- hplip-3.9.10~/prnt/hpcups/ErnieFilter.cpp	2009-11-07 08:53:28.000000000 +1100
++++ hplip-3.9.10/prnt/hpcups/ErnieFilter.cpp	2009-12-14 05:32:17.000000000 +1100
+@@ -50,7 +50,7 @@
+ #include "ErnieFilter.h"
+ 
+ 
+-#if defined(__APPLE__) || defined(__linux)
++#if defined(__APPLE__) || defined(__linux) || defined(__GLIBC__)
+ #include <math.h>
+ #endif
+ 
