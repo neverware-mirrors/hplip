@@ -129,9 +129,7 @@ configure-stamp: patch-stamp configure
 		--libexecdir=\$${prefix}/lib \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
-		--enable-debug \
 		--without-icondir \
-		--disable-foomatic-xml-install \
 		--disable-foomatic-ppd-install \
 		--enable-hpcups-install \
 		--enable-cups-drv-install \

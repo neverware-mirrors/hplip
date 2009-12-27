@@ -1,3 +1,12 @@
+hplip (3.9.12-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * remove unrecognized options: --enable-debug, --disable-foomatic-xml-install
+  * prnt/hpijs/dj9xxvip.cpp fixed upstream for DVD/CD
+    - obsoletes debian/patches/set-media-type.dpatch
+
+ -- Mark Purcell <msp@debian.org>  Sat, 26 Dec 2009 17:49:03 +1100
+
 hplip (3.9.10-4) unstable; urgency=low
 
   * KBSD patch from KiBi (Closes: #560796)
