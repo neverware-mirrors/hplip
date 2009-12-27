@@ -1,11 +1,11 @@
-hplip (3.9.12-1) UNRELEASED; urgency=low
+hplip (3.9.12-1) unstable; urgency=low
 
-  * New upstream release
+  * New upstream release 
   * remove unrecognized options: --enable-debug, --disable-foomatic-xml-install
   * prnt/hpijs/dj9xxvip.cpp fixed upstream for DVD/CD
     - obsoletes debian/patches/set-media-type.dpatch
 
- -- Mark Purcell <msp@debian.org>  Sat, 26 Dec 2009 17:49:03 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 27 Dec 2009 22:22:16 +1100
 
 hplip (3.9.10-4) unstable; urgency=low
 
