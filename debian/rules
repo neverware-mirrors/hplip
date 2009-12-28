@@ -317,7 +317,6 @@ binary-indep: install-indep
 	dh_fixperms -i
 #	dh_perl -i
 	dh_pysupport -i /usr/share/hplip
-	dh_python -i /usr/share/hplip
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i --dpkg-shlibdeps-params=--ignore-missing-info

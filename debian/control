@@ -9,7 +9,7 @@ Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpe
  python-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3),
  python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, libudev-dev [!hurd-i386 !kfreebsd-amd64 !kfreebsd-i386], policykit-1,
  fdupes
-Standards-Version: 3.8.0
+Standards-Version: 3.8.3
 Homepage: http://hplip.sourceforge.net/
 Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
@@ -139,10 +139,6 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  extended HPIJS functionality such as border-less printing.
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
- Users of spoolers other than CUPS with printers connected through USB or
- parallel ports are advised to install the hpoj package.  Extended HPIJS
- functionality will not be available.
- .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
 
@@ -150,7 +146,7 @@ Package: hplip-cups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
- ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups-client, cups
+ ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups-client
 Suggests: hplip-doc
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support
@@ -171,7 +167,8 @@ Package: libhpmud0
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: hplip (<< 3.9.12-1)
+Replaces: hplip (<= 3.9.12-1)
+Conflicts: hplip (<= 3.9.12-1)
 Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
  Shared library that provides direct I/O for each process. Prior to
  hpmud, all I/O was serialized through hpiod, a monolithic I/O processor.
@@ -183,3 +180,22 @@ Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
  HPLIP. A public HPLIP "C" API is exposed through hpmud. See hpmud.h
  for documentation. A Python wrapper for hpmud, called hpmudext, is also
  available.
+
+Package: libhpmud-dev
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${binary:Version})
+Replaces: hplip (<= 3.9.12-1)
+Conflicts: hplip (<= 3.9.12-1)
+Description: HP Multi-Point Transport Driver (hpmud) development libraries
+ Shared library that provides direct I/O for each process. Prior to
+ hpmud, all I/O was serialized through hpiod, a monolithic I/O processor.
+ The new hpmud direct I/O is faster. Hpmud supports parallel, USB and
+ JetDirect connectivity.
+ .
+ With hpmud, HPLIP no longer has Linux specific libusb extensions. This
+ means any UNIX/Linux derivative that supports libusb may work with
+ HPLIP. A public HPLIP "C" API is exposed through hpmud. See hpmud.h
+ for documentation. A Python wrapper for hpmud, called hpmudext, is also
+ available.
+
