@@ -183,7 +183,7 @@ Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
 
 Package: libhpmud-dev
 Architecture: any
-Section: libs
+Section: libdevel
 Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${binary:Version})
 Replaces: hplip (<= 3.9.12-1)
 Conflicts: hplip (<= 3.9.12-1)
