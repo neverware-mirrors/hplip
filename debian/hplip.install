@@ -27,7 +27,6 @@ usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/hplipjs
 usr/lib/cups/filter/hpcac
-usr/lib/lib*.so.*
 usr/lib/python*
 usr/lib/sane/libsane*.so.*
 usr/share/dbus-1

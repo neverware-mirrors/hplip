@@ -1,8 +1,14 @@
 hplip (3.9.12-2) UNRELEASED; urgency=low
 
-  * Soften bug/presubj message. Fixes "requiring authentication" (Closes: #494420)
+  * NEW package libhpmud0 - splits hard dependency between hpijs & hplip
+    - Fix "hpijs linked against libhpmud.so.0 in hplip package - brings
+    large (14Mb) depends" (Closes: #454117)
+    - Fix "automatically got a systray app which I don't need" (Closes: #484801)
+    - Fix "depends (via hplip) on cups, to no purpose" (Closes: #561134)
+  * Soften bug/presubj. Fixes "requiring authentication" (Closes: #494420)
+  * dh_desktop-is-deprecated - removed
 
- -- Mark Purcell <msp@debian.org>  Mon, 28 Dec 2009 11:13:52 +1100
+ -- Mark Purcell <msp@debian.org>  Mon, 28 Dec 2009 14:35:17 +1100
 
 hplip (3.9.12-1) unstable; urgency=low
 
