@@ -1,3 +1,9 @@
+hplip (3.9.12-3) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Mon, 28 Dec 2009 16:59:33 +1100
+
 hplip (3.9.12-2) unstable; urgency=low
 
   * NEW package libhpmud0 - splits hard dependency between hpijs & hplip 
