@@ -1,8 +1,11 @@
-hplip (3.9.12-3) UNRELEASED; urgency=low
+hplip (3.9.12-2ubuntu1) lucid; urgency=low
 
-  * NOT RELEASED YET
+  * Merged changes from Debian.
+  * debian/control: hpcups (package hplip-cups) works without the hplip package 
+    as well (even 4-edge borderless on arbitrary paper sizes on HP inkjets),
+    moved the dependency on hplip to Suggests.
 
- -- Mark Purcell <msp@debian.org>  Mon, 28 Dec 2009 16:59:33 +1100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 29 Dec 2009 10:21:18 +0100
 
 hplip (3.9.12-2) unstable; urgency=low
 

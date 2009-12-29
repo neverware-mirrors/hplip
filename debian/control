@@ -145,9 +145,9 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
 Package: hplip-cups
 Architecture: any
 Section: text
-Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version}),
+Depends: ${shlibs:Depends}, ${misc:Depends},
  ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups-client
-Suggests: hplip-doc
+Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support
  for most inkjet printers and some LaserJet printers manufactured by HP. It
