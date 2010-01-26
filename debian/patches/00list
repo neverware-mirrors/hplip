@@ -10,3 +10,4 @@ hp-check_debian
 hp-setup-prompt-for-custom-PPD.dpatch
 hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
+udev-rules-use-attrs-not-sysfs.dpatch

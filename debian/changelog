@@ -1,3 +1,17 @@
+hplip (3.9.12-2ubuntu3) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch: Convert
+    remaining $sysfs string, too
+
+ -- Daniel T Chen <crimsun@ubuntu.com>  Mon, 04 Jan 2010 21:05:46 -0500
+
+hplip (3.9.12-2ubuntu2) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch: Don't use
+    deprecated syntax (LP: #491346)
+
+ -- Daniel T Chen <crimsun@ubuntu.com>  Fri, 01 Jan 2010 16:23:37 -0500
+
 hplip (3.9.12-2ubuntu1) lucid; urgency=low
 
   * Merged changes from Debian.
