@@ -1,3 +1,25 @@
+hplip (3.9.12-2ubuntu4) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch,
+    debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch:
+    56-hpmud_support.rules id not call "hp-mkuri" any more with curent udev.
+    Added fix to the existing patch for 56-hpmud_support.rules and renamed
+    the patch.
+  * debian/local/scripts/hp-plugin-ubuntu, debian/rules: Added script for
+    downloading and installing HP's proprietary plugin on Ubuntu systems,
+    taking into account that many systems do not have python-qt installed
+    and some do not have X. This script is supposed to get called by
+    update-notifier when triggered by udev on a connection of a printer
+    which needs the plugin. This script will only be installed when the package
+    gets built on Ubuntu.
+  * debian/patches/ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch:
+    Let hp-mkuri not simply generate a notification message when HP's
+    proprietary plugin is needed for the newly connected printer but also
+    send a D-Bus message to update-notifier to execute the installation
+    of the plugin.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 11 Feb 2009 00:06:18 +0100
+
 hplip (3.9.12-2ubuntu3) lucid; urgency=low
 
   * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch: Convert

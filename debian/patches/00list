@@ -10,4 +10,5 @@ hp-check_debian
 hp-setup-prompt-for-custom-PPD.dpatch
 hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
-udev-rules-use-attrs-not-sysfs.dpatch
+udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
+ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch
