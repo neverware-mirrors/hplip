@@ -168,6 +168,12 @@ install-stamp: build-stamp
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
+	# Install wrapper script for hp-plugin, to be called by update-notifier
+	# on udev signal (Ubuntu only)
+	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
+		install -m 755 debian/local/scripts/hp-plugin-ubuntu $(PKGTMP)/usr/bin/; \
+	fi
+
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
