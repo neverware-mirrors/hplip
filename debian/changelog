@@ -1,3 +1,32 @@
+hplip (3.10.2~rc1-0ubuntu2) lucid; urgency=low
+
+  * debian/rules: Copy all fax PPDs, there are "Fax3" PPDs now and there will
+    come more in the future.
+  * debian/hplip.install: Install also the new pstotiff filter (for fax) and
+    the corresponding *.types and *.convs files.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Feb 2010 19:35:18 +0100
+
+hplip (3.10.2~rc1-0ubuntu1) lucid; urgency=low
+
+  * New upstream pre-release
+     o The hpcups driver information file (hpcups.drv) is updated for the
+       devices listed below to align with the product specifications.
+       Capabilities like print modes, paper sizes, trays, mechanical offsets,
+       margins, overspray and UIConstraints are consistent with the product
+       specifications. Affected printers: HP Photosmart Premium Fax All-in-One
+       C309a, C309c, Photosmart Premium All-in-One C309g, C309h, Photosmart
+       C53xx, C63xx, D7560, B85xx, Officejet 6000 Printer E609n, E609a,
+       Officejet 6500 All-in-One Printer E709a, E709c, E709n, E709q.
+     o Added support for: HP Officejet 4500 All-in-one Printer g510a, g510b,
+       g510g, g510h
+     o Added fax support for HP LaserJet m1319f
+     o Added 1284DeviceID for duplicate post script PPD's
+  * debian/patches/85_rebuild_python_ui.dpatch: Regenerated for new upstream
+    version.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Feb 2010 17:33:18 +0100
+
 hplip (3.9.12-2ubuntu4) lucid; urgency=low
 
   * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch,

@@ -266,16 +266,10 @@ install-arch-stamp: install-stamp
 	# Fax PPDs, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP"
 	mkdir -p "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP"
-
-	cp "fax/ppd/HP-Fax-hpijs.ppd.gz" \
-	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax-hpijs.ppd.gz"
-	cp "fax/ppd/HP-Fax2-hpijs.ppd.gz" \
-	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax2-hpijs.ppd.gz"
-
-	cp "fax/ppd/HP-Fax-hpcups.ppd.gz" \
-	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax-hpcups.ppd.gz"
-	cp "fax/ppd/HP-Fax2-hpcups.ppd.gz" \
-	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax2-hpcups.ppd.gz"
+	cp fax/ppd/HP-Fax*-hpijs.ppd.gz \
+	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/"
+	cp fax/ppd/HP-Fax*-hpcups.ppd.gz \
+	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/"
 
 	# Uncompress PPDs, this makes the package smaller for distribution
 	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
