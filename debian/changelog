@@ -1,3 +1,10 @@
+hplip (3.10.2~rc1-0ubuntu3) lucid; urgency=low
+
+  * debian/hplip.preinst: when removing old udev rules, handle files that
+    are marked as obsolete when checking md5sums.
+
+ -- Kees Cook <kees@ubuntu.com>  Tue, 16 Feb 2010 16:14:50 -0800
+
 hplip (3.10.2~rc1-0ubuntu2) lucid; urgency=low
 
   * debian/rules: Copy all fax PPDs, there are "Fax3" PPDs now and there will
