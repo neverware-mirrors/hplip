@@ -1,3 +1,16 @@
+hplip (3.10.2-0ubuntu1) lucid; urgency=low
+
+  * New upstream release
+     o Final 3.10.2 release
+     o Removed device IDs from the PostScript PPDs again
+     o Support for *.types and *.convs files in /usr/share/cups/mime/
+  * debian/hplip.install: "make install" puts *.types and *.convs files into
+    /usr/share/cups/mime/ now.
+  * debian/hpijs.postinst: Corrected regexps for the PPD NickName so that this
+    package does not migrate existing hpcups-based fax queues to HPIJS.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 26 Feb 2010 14:33:18 +0100
+
 hplip (3.10.2~rc1-0ubuntu3) lucid; urgency=low
 
   * debian/hplip.preinst: when removing old udev rules, handle files that
@@ -28,7 +41,7 @@ hplip (3.10.2~rc1-0ubuntu1) lucid; urgency=low
      o Added support for: HP Officejet 4500 All-in-one Printer g510a, g510b,
        g510g, g510h
      o Added fax support for HP LaserJet m1319f
-     o Added 1284DeviceID for duplicate post script PPD's
+     o Added 1284DeviceID for duplicate PostScript PPD's
   * debian/patches/85_rebuild_python_ui.dpatch: Regenerated for new upstream
     version.
 
