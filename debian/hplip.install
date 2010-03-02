@@ -30,9 +30,9 @@ usr/lib/cups/filter/hplipjs
 usr/lib/cups/filter/hpcac
 usr/lib/python*
 usr/lib/sane/libsane*.so.*
-etc/cups/*.types
-etc/cups/*.convs
+usr/share/cups/mime/*.types
+usr/share/cups/mime/*.convs
 usr/share/dbus-1
-usr/share/PolicyKit
+usr/share/polkit-1
 usr/share/pixmaps
 var/lib

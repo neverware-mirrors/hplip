@@ -1,15 +1,3 @@
-hplip (3.10.2-1~bpo50+1) lenny-backports; urgency=low
-
-  * Rebuild for lenny-backports.
-  * debian/control:
-    - Use old PolicyKit instead of PolicyKit-1.
-    - Drop libudev-dev build-dependency, not available on lenny.
-    - Add myself to Uploaders.
-  * debian/hplip.install:
-    - Change usr/share/cups/mime to etc/cups.
-
- -- Julian Andres Klode <jak@debian.org>  Sat, 03 Apr 2010 17:41:49 +0200
-
 hplip (3.10.2-1) unstable; urgency=low
 
   * New Upstream Release 
