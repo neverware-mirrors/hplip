@@ -1,3 +1,12 @@
+hplip (3.10.2-1) unstable; urgency=low
+
+  * New Upstream Release 
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch
+    - Fixes "/lib/udev/rules.d/56-hpmud_support.rules: udev warnings:
+    SYSFS{}= will be removed in a future udev version..." (Closes: #559289)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 02 Mar 2010 13:32:59 +1100
+
 hplip (3.10.2-0ubuntu1) lucid; urgency=low
 
   * New upstream release
