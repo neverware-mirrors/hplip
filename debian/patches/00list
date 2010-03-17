@@ -11,4 +11,5 @@ hp-setup-prompt-for-custom-PPD.dpatch
 hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
 udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
-ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch
+hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
+ubuntu-hp-mkuri-notification-text.dpatch

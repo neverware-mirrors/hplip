@@ -1,3 +1,16 @@
+hplip (3.10.2-1ubuntu1) unstable; urgency=low
+
+  * debian/hplip.install: let /usr/bin/hp-plugin-ubuntu get installed.
+  * debian/patches/hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch:
+    The hp-mkuri utility did not take into account whether the proprietary
+    plugin is already installed when returning its exit value.
+  * debian/patches/ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch,
+    debian/patches/ubuntu-hp-mkuri-notification-text.dpatch: Replaced the
+    Ubuntu-specific patch for hp-mkuri, as we do not need to send a D-Bus
+    message any more.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 16 Mar 2010 18:33:18 +0100
+
 hplip (3.10.2-1) unstable; urgency=low
 
   * New Upstream Release 
