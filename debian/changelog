@@ -1,4 +1,4 @@
-hplip (3.10.2-1ubuntu1) unstable; urgency=low
+hplip (3.10.2-1ubuntu1) lucid; urgency=low
 
   * debian/hplip.install: let /usr/bin/hp-plugin-ubuntu get installed.
   * debian/patches/hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch:
