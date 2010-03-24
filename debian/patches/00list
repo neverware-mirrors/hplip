@@ -13,3 +13,4 @@ kbsd.dpatch
 udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
 hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
 ubuntu-hp-mkuri-notification-text.dpatch
+simple-scan-as-default.dpatch

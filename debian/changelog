@@ -1,3 +1,10 @@
+hplip (3.10.2-1ubuntu3) lucid; urgency=low
+
+  * debian/patches/simple-scan-as-default.dpatch: Make simple-scan the default
+    scanning frontend (LP: #539015).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 24 Mar 2010 09:13:18 +0100
+
 hplip (3.10.2-1ubuntu2) lucid; urgency=low
 
   * debian/control: Added lsb-release to the build dependencies, as we use
