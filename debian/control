@@ -8,7 +8,7 @@ Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpe
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
  python-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3),
  python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, libudev-dev [!hurd-i386 !kfreebsd-amd64 !kfreebsd-i386], policykit-1,
- fdupes
+ fdupes, lsb-release
 Standards-Version: 3.8.3
 Homepage: http://hplip.sourceforge.net/
 Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/

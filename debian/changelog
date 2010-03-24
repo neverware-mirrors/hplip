@@ -1,3 +1,14 @@
+hplip (3.10.2-1ubuntu2) lucid; urgency=low
+
+  * debian/control: Added lsb-release to the build dependencies, as we use
+    lsb_release to determine whether we build on Ubuntu, to do Ubuntu-specific
+    steps.
+  * debian/rules, debian/hplip.install: Install hp-plugin-ubuntu directly
+    into debian/hplip/, as we cannot use debian/hplip.install for this Ubuntu-
+    specific file.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 23 Mar 2010 13:11:18 +0100
+
 hplip (3.10.2-1ubuntu1) lucid; urgency=low
 
   * debian/hplip.install: let /usr/bin/hp-plugin-ubuntu get installed.
@@ -13,7 +24,7 @@ hplip (3.10.2-1ubuntu1) lucid; urgency=low
 
 hplip (3.10.2-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
   * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch
     - Fixes "/lib/udev/rules.d/56-hpmud_support.rules: udev warnings:
     SYSFS{}= will be removed in a future udev version..." (Closes: #559289)

@@ -23,7 +23,6 @@ usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
 usr/bin/hp-unload
-usr/bin/hp-plugin-ubuntu
 usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/pstotiff
