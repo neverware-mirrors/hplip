@@ -25,11 +25,14 @@ usr/bin/hp-timedate
 usr/bin/hp-unload
 usr/sbin/hpssd
 usr/lib/cups/backend
+usr/lib/cups/filter/pstotiff
 usr/lib/cups/filter/hplipjs
 usr/lib/cups/filter/hpcac
 usr/lib/python*
 usr/lib/sane/libsane*.so.*
+etc/cups/*.types
+etc/cups/*.convs
 usr/share/dbus-1
-usr/share/polkit-1
+usr/share/PolicyKit
 usr/share/pixmaps
 var/lib

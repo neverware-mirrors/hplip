@@ -168,6 +168,12 @@ install-stamp: build-stamp
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
+	# Install wrapper script for hp-plugin, to be called by update-notifier
+	# on udev signal (Ubuntu only)
+	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
+		install -m 755 debian/local/scripts/hp-plugin-ubuntu $(PKGTMP)/usr/bin/; \
+	fi
+
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
@@ -260,16 +266,10 @@ install-arch-stamp: install-stamp
 	# Fax PPDs, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP"
 	mkdir -p "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP"
-
-	cp "fax/ppd/HP-Fax-hpijs.ppd.gz" \
-	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax-hpijs.ppd.gz"
-	cp "fax/ppd/HP-Fax2-hpijs.ppd.gz" \
-	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/HP-Fax2-hpijs.ppd.gz"
-
-	cp "fax/ppd/HP-Fax-hpcups.ppd.gz" \
-	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax-hpcups.ppd.gz"
-	cp "fax/ppd/HP-Fax2-hpcups.ppd.gz" \
-	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/HP-Fax2-hpcups.ppd.gz"
+	cp fax/ppd/HP-Fax*-hpijs.ppd.gz \
+	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/"
+	cp fax/ppd/HP-Fax*-hpcups.ppd.gz \
+	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/"
 
 	# Uncompress PPDs, this makes the package smaller for distribution
 	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f

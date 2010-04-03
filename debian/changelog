@@ -1,3 +1,118 @@
+hplip (3.10.2-1~bpo50+1) lenny-backports; urgency=low
+
+  * Rebuild for lenny-backports.
+  * debian/control:
+    - Use old PolicyKit instead of PolicyKit-1.
+    - Drop libudev-dev build-dependency, not available on lenny.
+    - Add myself to Uploaders.
+  * debian/hplip.install:
+    - Change usr/share/cups/mime to etc/cups.
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 03 Apr 2010 17:41:49 +0200
+
+hplip (3.10.2-1) unstable; urgency=low
+
+  * New Upstream Release 
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch
+    - Fixes "/lib/udev/rules.d/56-hpmud_support.rules: udev warnings:
+    SYSFS{}= will be removed in a future udev version..." (Closes: #559289)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 02 Mar 2010 13:32:59 +1100
+
+hplip (3.10.2-0ubuntu1) lucid; urgency=low
+
+  * New upstream release
+     o Final 3.10.2 release
+     o Removed device IDs from the PostScript PPDs again
+     o Support for *.types and *.convs files in /usr/share/cups/mime/
+  * debian/hplip.install: "make install" puts *.types and *.convs files into
+    /usr/share/cups/mime/ now.
+  * debian/hpijs.postinst: Corrected regexps for the PPD NickName so that this
+    package does not migrate existing hpcups-based fax queues to HPIJS.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 26 Feb 2010 14:33:18 +0100
+
+hplip (3.10.2~rc1-0ubuntu3) lucid; urgency=low
+
+  * debian/hplip.preinst: when removing old udev rules, handle files that
+    are marked as obsolete when checking md5sums.
+
+ -- Kees Cook <kees@ubuntu.com>  Tue, 16 Feb 2010 16:14:50 -0800
+
+hplip (3.10.2~rc1-0ubuntu2) lucid; urgency=low
+
+  * debian/rules: Copy all fax PPDs, there are "Fax3" PPDs now and there will
+    come more in the future.
+  * debian/hplip.install: Install also the new pstotiff filter (for fax) and
+    the corresponding *.types and *.convs files.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Feb 2010 19:35:18 +0100
+
+hplip (3.10.2~rc1-0ubuntu1) lucid; urgency=low
+
+  * New upstream pre-release
+     o The hpcups driver information file (hpcups.drv) is updated for the
+       devices listed below to align with the product specifications.
+       Capabilities like print modes, paper sizes, trays, mechanical offsets,
+       margins, overspray and UIConstraints are consistent with the product
+       specifications. Affected printers: HP Photosmart Premium Fax All-in-One
+       C309a, C309c, Photosmart Premium All-in-One C309g, C309h, Photosmart
+       C53xx, C63xx, D7560, B85xx, Officejet 6000 Printer E609n, E609a,
+       Officejet 6500 All-in-One Printer E709a, E709c, E709n, E709q.
+     o Added support for: HP Officejet 4500 All-in-one Printer g510a, g510b,
+       g510g, g510h
+     o Added fax support for HP LaserJet m1319f
+     o Added 1284DeviceID for duplicate PostScript PPD's
+  * debian/patches/85_rebuild_python_ui.dpatch: Regenerated for new upstream
+    version.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Feb 2010 17:33:18 +0100
+
+hplip (3.9.12-2ubuntu4) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch,
+    debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch:
+    56-hpmud_support.rules id not call "hp-mkuri" any more with curent udev.
+    Added fix to the existing patch for 56-hpmud_support.rules and renamed
+    the patch.
+  * debian/local/scripts/hp-plugin-ubuntu, debian/rules: Added script for
+    downloading and installing HP's proprietary plugin on Ubuntu systems,
+    taking into account that many systems do not have python-qt installed
+    and some do not have X. This script is supposed to get called by
+    update-notifier when triggered by udev on a connection of a printer
+    which needs the plugin. This script will only be installed when the package
+    gets built on Ubuntu.
+  * debian/patches/ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch:
+    Let hp-mkuri not simply generate a notification message when HP's
+    proprietary plugin is needed for the newly connected printer but also
+    send a D-Bus message to update-notifier to execute the installation
+    of the plugin.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 11 Feb 2009 00:06:18 +0100
+
+hplip (3.9.12-2ubuntu3) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch: Convert
+    remaining $sysfs string, too
+
+ -- Daniel T Chen <crimsun@ubuntu.com>  Mon, 04 Jan 2010 21:05:46 -0500
+
+hplip (3.9.12-2ubuntu2) lucid; urgency=low
+
+  * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch: Don't use
+    deprecated syntax (LP: #491346)
+
+ -- Daniel T Chen <crimsun@ubuntu.com>  Fri, 01 Jan 2010 16:23:37 -0500
+
+hplip (3.9.12-2ubuntu1) lucid; urgency=low
+
+  * Merged changes from Debian.
+  * debian/control: hpcups (package hplip-cups) works without the hplip package 
+    as well (even 4-edge borderless on arbitrary paper sizes on HP inkjets),
+    moved the dependency on hplip to Suggests.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 29 Dec 2009 10:21:18 +0100
+
 hplip (3.9.12-2) unstable; urgency=low
 
   * NEW package libhpmud0 - splits hard dependency between hpijs & hplip 
