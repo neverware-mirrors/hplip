@@ -1,9 +1,10 @@
 hplip (3.10.2-2) UNRELEASED; urgency=low
 
-  * Fix "can't add printer (Printer queue setup failed)" added debian/NEWS which
-  outlines the CUPS need to be a member of lpadmin group. (Closes: #566692)
+  * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS 
+    - CUPS requires user to be a member of lpadmin group. (Closes: #566692)
+  * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
 
- -- Mark Purcell <msp@debian.org>  Tue, 06 Apr 2010 18:21:40 +1000
+ -- Mark Purcell <msp@debian.org>  Tue, 06 Apr 2010 19:53:43 +1000
 
 hplip (3.10.2-1ubuntu3) lucid; urgency=low
 
