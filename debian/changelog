@@ -5,8 +5,9 @@ hplip (3.10.2-2) UNRELEASED; urgency=low
   * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
   * Add bug/presubj to hplip-cups & hpijs
   * Add hplip-cups.NEWS
+  * bug/script provide status message before hp-check
 
- -- Mark Purcell <msp@debian.org>  Tue, 06 Apr 2010 20:16:31 +1000
+ -- Mark Purcell <msp@debian.org>  Tue, 06 Apr 2010 21:12:02 +1000
 
 hplip (3.10.2-1ubuntu3) lucid; urgency=low
 
