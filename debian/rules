@@ -340,6 +340,8 @@ binary-arch: install-arch
 	cp debian/bug/* debian/hplip/usr/share/bug/hplip
 	mkdir -p debian/hplip/usr/share/bug/hplip-cups
 	cp debian/bug/presubj debian/hplip/usr/share/bug/hplip-cups
+	mkdir -p debian/hplip/usr/share/bug/hplip-gui
+	cp debian/bug/presubj debian/hplip/usr/share/bug/hplip-gui
 	mkdir -p debian/hplip/usr/share/bug/hpijs
 	cp debian/bug/presubj debian/hplip/usr/share/bug/hpijs
 
