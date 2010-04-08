@@ -6,8 +6,9 @@ hplip (3.10.2-2) UNRELEASED; urgency=low
   * Add bug/presubj to hplip-cups, hplip-gui & hpijs
   * Add hplip-cups.NEWS
   * bug/script provide status message before hp-check
+  * Patch hp-check to check for group membership of lp & lpadmin
 
- -- Mark Purcell <msp@debian.org>  Tue, 06 Apr 2010 21:12:02 +1000
+ -- Mark Purcell <msp@debian.org>  Fri, 09 Apr 2010 08:05:54 +1000
 
 hplip (3.10.2-1ubuntu3) lucid; urgency=low
 
