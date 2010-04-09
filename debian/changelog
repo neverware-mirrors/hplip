@@ -1,6 +1,15 @@
-hplip (3.10.2-2) UNRELEASED; urgency=low
+hplip (3.10.2-1ubuntu5) lucid; urgency=low
 
-  * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS 
+  [ Till Kamppeter ]
+  * debian/patches/make-commafy-correctly-work-with-python-2.dpatch:
+    Installation of the proprietary plug-in did not work with some locales
+    (LP: #525901).
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Switch back to HPIJS as
+    default driver (migrate hpcups queues to HPIJS) as there are new problems
+    with hpcups (LP: #553573, LP: #539708, LP: #538031, LP: #405116).
+
+  [ Mark Purcell ]
+  * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS
     - CUPS requires user to be a member of lpadmin group. (Closes: #566692)
   * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
   * Add bug/presubj to hplip-cups, hplip-gui & hpijs
@@ -8,7 +17,7 @@ hplip (3.10.2-2) UNRELEASED; urgency=low
   * bug/script provide status message before hp-check
   * Patch hp-check to check for group membership of lp & lpadmin
 
- -- Mark Purcell <msp@debian.org>  Fri, 09 Apr 2010 08:05:54 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Apr 2010 21:26:18 +0200
 
 hplip (3.10.2-1ubuntu4) lucid; urgency=low
 

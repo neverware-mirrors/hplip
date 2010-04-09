@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## make-commafy-correctly-work-with-python-2.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.10.2~/base/utils.py hplip-3.10.2/base/utils.py
+--- hplip-3.10.2~/base/utils.py	2010-04-09 21:20:22.085486637 +0200
++++ hplip-3.10.2/base/utils.py	2010-04-09 21:22:19.865465070 +0200
+@@ -362,7 +362,7 @@
+ 
+ 
+ def commafy(val):
+-    return unicode(locale.format("%d", val, grouping=True))
++    return locale.format("%d", val, grouping=True).decode(locale.getpreferredencoding())
+ 
+ 
+ def format_bytes(s, show_bytes=False):
