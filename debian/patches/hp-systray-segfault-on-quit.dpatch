@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp-systray-segfault-on-quit.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.10.2~/ui4/systemtray.py hplip-3.10.2/ui4/systemtray.py
+--- hplip-3.10.2~/ui4/systemtray.py	2010-03-25 13:44:07.721989209 +0100
++++ hplip-3.10.2/ui4/systemtray.py	2010-03-25 13:45:12.670776286 +0100
+@@ -488,6 +488,12 @@
+     def quitTriggered(self):
+         log.debug("Exiting")
+         self.sendMessage('', '', EVENT_SYSTEMTRAY_EXIT)
++
++        # fix ubuntu launchpad bug #546816. without this, pyqt sometimes gets
++        # confused when python's garbage collection deletes other objects
++        # before this one, resulting in a segfault
++        del self.tray_icon
++
+         self.quit()
+ 
+ 
