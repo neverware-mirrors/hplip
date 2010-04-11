@@ -1,7 +1,7 @@
-hplip (3.10.2-2) UNRELEASED; urgency=low
+hplip (3.10.2-2) unstable; urgency=low
 
   * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS
-    - CUPS requires user to be a member of lpadmin group. (Closes: #566692)
+    - CUPS requires user to be a member of lpadmin group. (Closes: #566692) 
   * Patch hp-check to check for group membership of lp & lpadmin
     - Fixes "start/stop button should fail with permission error dialog if
     not member of lpadmin" (Closes: #572247)
@@ -11,7 +11,7 @@ hplip (3.10.2-2) UNRELEASED; urgency=low
   * Fix "hpijs_readme.html mentioned in man page does not exist"
     - Removed reference (Closes: #561125)
 
- -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 12:38:49 +1000
+ -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 14:26:01 +1000
 
 hplip (3.10.2-1ubuntu5) lucid; urgency=low
 
