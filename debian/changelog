@@ -8,8 +8,10 @@ hplip (3.10.2-2) UNRELEASED; urgency=low
   * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
   * Fix "[hplip-cups] Page background is printed black" switch back to HPIJS as
     default driver (migrate hpcups queues to HPIJS) (Closes: #568377)
+  * Fix "hpijs_readme.html mentioned in man page does not exist"
+    - Removed reference (Closes: #561125)
 
- -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 11:20:12 +1000
+ -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 12:38:49 +1000
 
 hplip (3.10.2-1ubuntu5) lucid; urgency=low
 
