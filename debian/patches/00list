@@ -17,3 +17,4 @@ ubuntu-hp-mkuri-notification-text.dpatch
 simple-scan-as-default.dpatch
 hp-systray-segfault-on-quit.dpatch
 make-commafy-correctly-work-with-python-2.dpatch
+remove-duplicate-entry-for-cp1700-in-drv-files.dpatch

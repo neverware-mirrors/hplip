@@ -9,3 +9,4 @@ usr/share/doc/hplip/COPYING
 usr/share/hplip/hplip.conf
 usr/lib/sane/libsane-hpaio.so
 usr/lib/sane/libsane-hpaio.la
+usr/share/ppd/hplip/HP/hp-color_inkjet_cp1700-hpijs.ppd.gz

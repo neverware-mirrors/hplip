@@ -1,0 +1,76 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## remove-duplicate-entry-for-cp1700-in-drv-files.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad hplip-3.10.2~/prnt/drv/hpcups.drv.in hplip-3.10.2/prnt/drv/hpcups.drv.in
+--- hplip-3.10.2~/prnt/drv/hpcups.drv.in	2010-04-11 09:58:07.000000000 +0200
++++ hplip-3.10.2/prnt/drv/hpcups.drv.in	2010-04-11 10:01:29.285465160 +0200
+@@ -1626,14 +1626,6 @@
+       Attribute "Product" "" "(HP Photosmart 1315 Printer)"
+     }
+     {
+-      ModelName "HP Color Inkjet cp1700"
+-      Attribute "NickName" "" "HP Color Inkjet cp1700, $Version"
+-      Attribute "ShortNickName" "" "HP Color Inkjet cp1700"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:hp color inkjet cp1700;DES:hp color inkjet cp1700;"
+-      PCFileName "hp-color_inkjet_cp1700.ppd"
+-      Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
+-    }
+-    {
+       ModelName "HP PSC 2100 Series"
+       Attribute "NickName" "" "HP PSC 2100 Series, $Version"
+       Attribute "ShortNickName" "" "HP PSC 2100 Series"
+@@ -1741,11 +1733,11 @@
+ 
+     // <%DJ9xxVIP:LargeFormatSuperB%>
+     {
+-      ModelName "HP Color Inkjet Printer cp1700"
+-      Attribute "NickName" "" "HP Color Inkjet Printer cp1700, $Version"
+-      Attribute "ShortNickName" "" "HP Color Inkjet Printer cp1700"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:color inkjet printer cp1700;DES:color inkjet printer cp1700;"
+-      PCFileName "hp-color_inkjet_printer_cp1700.ppd"
++      ModelName "HP Color Inkjet cp1700"
++      Attribute "NickName" "" "HP Color Inkjet cp1700, $Version"
++      Attribute "ShortNickName" "" "HP Color Inkjet cp1700"
++      Attribute "1284DeviceID" "" "MFG:HP;MDL:color inkjet cp1700;DES:color inkjet cp1700;"
++      PCFileName "hp-color_inkjet_cp1700.ppd"
+       Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
+       Attribute "Product" "" "(HP Color Inkjet cp1700ps Printer)"
+       Attribute "Product" "" "(HP Color Inkjet cp1700d Printer)"
+diff -urNad hplip-3.10.2~/prnt/drv/hpijs.drv.in hplip-3.10.2/prnt/drv/hpijs.drv.in
+--- hplip-3.10.2~/prnt/drv/hpijs.drv.in	2010-04-11 09:58:07.000000000 +0200
++++ hplip-3.10.2/prnt/drv/hpijs.drv.in	2010-04-11 10:00:39.616713799 +0200
+@@ -1744,14 +1744,6 @@
+     Attribute "Product" "" "(HP Photosmart 1315 Printer)"
+   }
+   {
+-    ModelName "HP Color Inkjet cp1700 hpijs"
+-    Attribute "NickName" "" "HP Color Inkjet cp1700 hpijs, $Version"
+-    Attribute "ShortNickName" "" "HP Color Inkjet cp1700 hpijs"
+-    Attribute "1284DeviceID" "" "MFG:HP;MDL:hp color inkjet cp1700;DES:hp color inkjet cp1700;"
+-    PCFileName "hp-color_inkjet_cp1700-hpijs.ppd"
+-    Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
+-  }
+-  {
+     ModelName "HP PSC 2100 Series hpijs"
+     Attribute "NickName" "" "HP PSC 2100 Series hpijs, $Version"
+     Attribute "ShortNickName" "" "HP PSC 2100 Series hpijs"
+@@ -1833,11 +1825,11 @@
+     CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
+     // <%DJ9xxVIP:LargeFormatSuperB%>
+     {
+-      ModelName "HP Color Inkjet Printer cp1700 hpijs"
+-      Attribute "NickName" "" "HP Color Inkjet Printer cp1700 hpijs, $Version"
++      ModelName "HP Color Inkjet cp1700 hpijs"
++      Attribute "NickName" "" "HP Color Inkjet cp1700 hpijs, $Version"
+       Attribute "ShortNickName" "" "HP cp1700 hpijs"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:color inkjet printer cp1700;DES:color inkjet printer cp1700;"
+-      PCFileName "hp-color_inkjet_printer_cp1700-hpijs.ppd"
++      Attribute "1284DeviceID" "" "MFG:HP;MDL:color inkjet cp1700;DES:color inkjet cp1700;"
++      PCFileName "hp-color_inkjet_cp1700-hpijs.ppd"
+       Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
+       Attribute "Product" "" "(HP Color Inkjet cp1700ps Printer)"
+       Attribute "Product" "" "(HP Color Inkjet cp1700d Printer)"

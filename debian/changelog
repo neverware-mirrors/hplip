@@ -1,8 +1,14 @@
-hplip (3.10.2-3) UNRELEASED; urgency=low
+hplip (3.10.2-2ubuntu1) lucid; urgency=low
 
-  * NOT RELEASED YET
+  * debian/control: As we use HPIJS as default printer driver flavor again,
+    let the "hplip" package recommend the "hpijs" package and not the
+    "hplip-cups" package.
+  * debian/patches/remove-duplicate-entry-for-cp1700-in-drv-files.dpatch,
+    debian/non-shipped-files.txt: Removed duplicate entry for the HP Color
+    Inkjet Printer 1700, the wrong entry missed also the large (A3,
+    SuperB, ...) paper sizes (LP: #290559).
 
- -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 14:43:43 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 11 Apr 2010 09:55:18 +0200
 
 hplip (3.10.2-2) unstable; urgency=low
 
