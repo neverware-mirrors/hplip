@@ -1,6 +1,80 @@
+hplip (3.10.2-2) unstable; urgency=low
+
+  * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS
+    - CUPS requires user to be a member of lpadmin group. (Closes: #566692) 
+  * Patch hp-check to check for group membership of lp & lpadmin
+    - Fixes "start/stop button should fail with permission error dialog if
+    not member of lpadmin" (Closes: #572247)
+  * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
+  * Fix "[hplip-cups] Page background is printed black" switch back to HPIJS as
+    default driver (migrate hpcups queues to HPIJS) (Closes: #568377)
+  * Fix "hpijs_readme.html mentioned in man page does not exist"
+    - Removed reference (Closes: #561125)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 11 Apr 2010 14:26:01 +1000
+
+hplip (3.10.2-1ubuntu5) lucid; urgency=low
+
+  [ Till Kamppeter ]
+  * debian/patches/make-commafy-correctly-work-with-python-2.dpatch:
+    Installation of the proprietary plug-in did not work with some locales
+    (LP: #525901).
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Switch back to HPIJS as
+    default driver (migrate hpcups queues to HPIJS) as there are new problems
+    with hpcups (LP: #553573, LP: #539708, LP: #538031, LP: #405116).
+
+  [ Mark Purcell ]
+  * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS
+    - CUPS requires user to be a member of lpadmin group. (Closes: #566692)
+  * Add Recommends: avahi-daemon "HP Color Laserjet CM1312nfi" (Closes: #564520)
+  * Add bug/presubj to hplip-cups, hplip-gui & hpijs
+  * Add hplip-cups.NEWS
+  * bug/script provide status message before hp-check
+  * Patch hp-check to check for group membership of lp & lpadmin
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  9 Apr 2010 21:26:18 +0200
+
+hplip (3.10.2-1ubuntu4) lucid; urgency=low
+
+  * debian/patches/hp-systray-segfault-on-quit.dpatch: Fixed a hp-systray to
+    not segfaulting when quitting the program (LP: #546816).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 25 Mar 2010 13:51:18 +0100
+
+hplip (3.10.2-1ubuntu3) lucid; urgency=low
+
+  * debian/patches/simple-scan-as-default.dpatch: Make simple-scan the default
+    scanning frontend (LP: #539015).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 24 Mar 2010 09:13:18 +0100
+
+hplip (3.10.2-1ubuntu2) lucid; urgency=low
+
+  * debian/control: Added lsb-release to the build dependencies, as we use
+    lsb_release to determine whether we build on Ubuntu, to do Ubuntu-specific
+    steps.
+  * debian/rules, debian/hplip.install: Install hp-plugin-ubuntu directly
+    into debian/hplip/, as we cannot use debian/hplip.install for this Ubuntu-
+    specific file.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 23 Mar 2010 13:11:18 +0100
+
+hplip (3.10.2-1ubuntu1) lucid; urgency=low
+
+  * debian/hplip.install: let /usr/bin/hp-plugin-ubuntu get installed.
+  * debian/patches/hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch:
+    The hp-mkuri utility did not take into account whether the proprietary
+    plugin is already installed when returning its exit value.
+  * debian/patches/ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch,
+    debian/patches/ubuntu-hp-mkuri-notification-text.dpatch: Replaced the
+    Ubuntu-specific patch for hp-mkuri, as we do not need to send a D-Bus
+    message any more.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 16 Mar 2010 18:33:18 +0100
+
 hplip (3.10.2-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
   * debian/patches/udev-rules-use-attrs-not-sysfs.dpatch
     - Fixes "/lib/udev/rules.d/56-hpmud_support.rules: udev warnings:
     SYSFS{}= will be removed in a future udev version..." (Closes: #559289)

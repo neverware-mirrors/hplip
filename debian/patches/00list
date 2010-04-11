@@ -6,9 +6,14 @@
 hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
 kde4-kdesudo-support.dpatch
+hp-check-groups
 hp-check_debian
 hp-setup-prompt-for-custom-PPD.dpatch
 hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
 udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
-ubuntu-hp-mkuri-send-dbus-signal-to-update-notifier.dpatch
+hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
+ubuntu-hp-mkuri-notification-text.dpatch
+simple-scan-as-default.dpatch
+hp-systray-segfault-on-quit.dpatch
+make-commafy-correctly-work-with-python-2.dpatch

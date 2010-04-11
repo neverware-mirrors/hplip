@@ -1,0 +1,27 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp-check-groups.dpatch by  <msp@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: https://bugs.launchpad.net/debian/+source/hplip/+bug/530746
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.2~/check.py hplip-3.10.2/check.py
+--- hplip-3.10.2~/check.py	2010-02-25 10:07:55.000000000 +1100
++++ hplip-3.10.2/check.py	2010-04-09 08:03:08.000000000 +1000
+@@ -859,6 +859,16 @@
+         if status == 0:
+             log.info(output)
+ 
++        if "lp " in output:
++            log.info(log.green("User member of group 'lp'. Enables print/ scan/ fax."))
++        else:
++            log.error("User needs to be member of group 'lp' to enable print, scan & fax.")
++
++        if "lpadmin" in output:
++            log.info(log.green("User member of group 'lpadmin'."))
++        else:
++            log.error("User needs to be member of group 'lpadmin' to manage printers.")
++
+ 
+     tui.header("SUMMARY")
+ 
