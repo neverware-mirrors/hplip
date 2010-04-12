@@ -1,3 +1,10 @@
+hplip (3.10.2-3) unstable; urgency=low
+
+  * Fix "[hpijs-ppds] missing A3 media size for HP Color Inkjet cp1700"
+    Till reworked c1700 dpatch (Closes: #503621)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 13 Apr 2010 06:45:34 +1000
+
 hplip (3.10.2-2ubuntu1) lucid; urgency=low
 
   * debian/control: As we use HPIJS as default printer driver flavor again,
