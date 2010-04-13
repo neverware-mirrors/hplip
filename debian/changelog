@@ -5,6 +5,18 @@ hplip (3.10.2-3) unstable; urgency=low
 
  -- Mark Purcell <msp@debian.org>  Tue, 13 Apr 2010 06:45:34 +1000
 
+hplip (3.10.2-2ubuntu2) lucid; urgency=low
+
+  * debian/hplip-dbg.install, debian/hplip.install, debian/control: Moved
+    hp-check into hplip-dbg, as it is a debugging tool. Added dependency
+    on libcups2-dev to hplip-dbg, as hp-check needs cups-config
+    (LP: #530327).
+  * debian/hplip-cups.postinst, debian/hpijs.postinst,
+    debian/hpijs-ppds.postinst: Updated also PPDs with version numbers like
+    3.10.2rc1.9.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 12 Apr 2010 10:55:18 +0200
+
 hplip (3.10.2-2ubuntu1) lucid; urgency=low
 
   * debian/control: As we use HPIJS as default printer driver flavor again,

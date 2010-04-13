@@ -4,7 +4,6 @@ etc/dbus-1
 etc/udev/rules.d/40-hplip.rules lib/udev/rules.d 
 etc/udev/rules.d/56-hpmud_support.rules lib/udev/rules.d 
 usr/bin/hp-align
-usr/bin/hp-check
 usr/bin/hp-clean
 usr/bin/hp-colorcal
 usr/bin/hp-fab

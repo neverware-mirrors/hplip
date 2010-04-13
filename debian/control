@@ -22,7 +22,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-dbus (>= 
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:binary:Version}),
  policykit-1
 Recommends: hpijs, sane-utils, avahi-daemon
-Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, openprinting-ppds
+Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc
 Conflicts: hpijs (<< 2.1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
 XB-Python-Version: ${python:Versions}
@@ -78,7 +78,8 @@ Package: hplip-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
+Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version}), libcups2-dev
+Conflicts: hplip (<< 3.10.2-2ubuntu2)
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the
  binaries and libraries in the hplip and hpijs packages.
@@ -116,7 +117,7 @@ Package: hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${hplip:binary:Version})
-Recommends: ghostscript, cups (>= 1.4.0) | cupsddk, foomatic-filters, cups-client
+Recommends: ghostscript, cups (>= 1.4.0) | cupsddk, foomatic-filters, cups, cups-client
 Suggests: hplip, hpijs-ppds, hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
@@ -146,7 +147,7 @@ Package: hplip-cups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends},
- ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups-client
+ ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups, cups-client
 Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support
