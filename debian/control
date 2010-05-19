@@ -78,7 +78,7 @@ Package: hplip-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version}), libcups2-dev
+Depends: hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
 Conflicts: hplip (<< 3.10.2-2ubuntu2)
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the

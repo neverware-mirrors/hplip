@@ -1,3 +1,10 @@
+hplip (3.10.5-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * Move hp-check back to hplip package - missing cups-config -> warning
+
+ -- Mark Purcell <msp@debian.org>  Wed, 19 May 2010 21:33:21 +1000
+
 hplip (3.10.2-3) unstable; urgency=low
 
   * Fix "[hpijs-ppds] missing A3 media size for HP Color Inkjet cp1700"
