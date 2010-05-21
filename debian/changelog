@@ -1,12 +1,12 @@
-hplip (3.10.5-1) UNRELEASED; urgency=low
+hplip (3.10.5-1) unstable; urgency=low
 
-  * New upstream release
+  * New upstream release 
   * Move hp-check back to hplip package - missing cups-config -> warning
   * Added +hpcheck-cupsconfig-warn.dpatch
   * Refresh udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
   * Remove hp-systray-segfault-on-quit.dpatch - included upstream
 
- -- Mark Purcell <msp@debian.org>  Fri, 21 May 2010 17:41:33 +1000
+ -- Mark Purcell <msp@debian.org>  Fri, 21 May 2010 18:51:43 +1000
 
 hplip (3.10.2-3) unstable; urgency=low
 
