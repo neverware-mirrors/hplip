@@ -1,9 +1,31 @@
+hplip (3.10.5-1) unstable; urgency=low
+
+  * New upstream release 
+  * Move hp-check back to hplip package - missing cups-config -> warning
+  * Added +hpcheck-cupsconfig-warn.dpatch
+  * Refresh udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
+  * Remove hp-systray-segfault-on-quit.dpatch - included upstream
+
+ -- Mark Purcell <msp@debian.org>  Fri, 21 May 2010 18:51:43 +1000
+
 hplip (3.10.2-3) unstable; urgency=low
 
   * Fix "[hpijs-ppds] missing A3 media size for HP Color Inkjet cp1700"
     Till reworked c1700 dpatch (Closes: #503621)
 
  -- Mark Purcell <msp@debian.org>  Tue, 13 Apr 2010 06:45:34 +1000
+
+hplip (3.10.2-2ubuntu2) lucid; urgency=low
+
+  * debian/hplip-dbg.install, debian/hplip.install, debian/control: Moved
+    hp-check into hplip-dbg, as it is a debugging tool. Added dependency
+    on libcups2-dev to hplip-dbg, as hp-check needs cups-config
+    (LP: #530327).
+  * debian/hplip-cups.postinst, debian/hpijs.postinst,
+    debian/hpijs-ppds.postinst: Updated also PPDs with version numbers like
+    3.10.2rc1.9.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 12 Apr 2010 10:55:18 +0200
 
 hplip (3.10.2-2ubuntu1) lucid; urgency=low
 
