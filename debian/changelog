@@ -1,12 +1,18 @@
-hplip (3.10.5-2) UNRELEASED; urgency=low
+hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
-  * NOT RELEASED YET
+  * Uploaded new upstream version also to Ubuntu.
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Switch to hpcups as
+    default driver (migrate HPIJS queues to hpcups). The problem of Ghostscript
+    segfaulting when generating CUPS raster data is solved and the hpcups
+    driver needs also more testing.
+  * debian/control: Added conflict definition to the hplip package for smooth
+    updating after moving /usr/bin/hp-chjeck back to hplip.
 
- -- Mark Purcell <msp@debian.org>  Fri, 21 May 2010 20:06:11 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Jun 2010 15:36:18 +0200
 
 hplip (3.10.5-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
   * Move hp-check back to hplip package - missing cups-config -> warning
   * Added +hpcheck-cupsconfig-warn.dpatch
   * Refresh udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
