@@ -1,3 +1,9 @@
+hplip (3.10.5-2) UNRELEASED; urgency=low
+
+  * Add Depends: python-notify
+
+ -- Mark Purcell <msp@debian.org>  Sun, 13 Jun 2010 11:29:01 +1000
+
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
   * Uploaded new upstream version also to Ubuntu.
