@@ -60,14 +60,14 @@ Description: HP Linux Printing and Imaging System (HPLIP)
 Package: hplip-data
 Architecture: all
 Suggests: hplip
-Depends: ${python:Depends}
 Description: HP Linux Printing and Imaging - data files
  This package contains data files for the HP Linux Printing and
  Imaging System.
 
 Package: hplip-gui
 Architecture: all
-Depends: hplip (= ${hplip:binary:Version}), python-qt4, python-qt4-dbus, python-reportlab, dbus-x11, hplip-cups,
+Depends: hplip (= ${hplip:binary:Version}), dbus-x11, hplip-cups,
+ ${python:Depends}, python-qt4, python-qt4-dbus, python-reportlab,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
 Recommends: xsane
 Replaces: hplip (<= 3.9.10-1)
