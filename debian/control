@@ -19,9 +19,9 @@ Package: hplip
 Architecture: any
 Pre-Depends: python (>= 2.4.4~c1)
 Depends: ${shlibs:Depends}, ${misc:Depends},
+ libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:binary:Version}), hplip-cups (= ${hplip:binary:Version}), 
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect, python-notify,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
- libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:binary:Version}),
  policykit-1
 Recommends: hpijs, sane-utils, avahi-daemon
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc
@@ -68,7 +68,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}), dbus-x11, hplip-cups,
+Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}), dbus-x11, 
  ${python:Depends}, python-qt4, python-qt4-dbus, python-reportlab,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
 Recommends: xsane

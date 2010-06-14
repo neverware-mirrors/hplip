@@ -1,5 +1,7 @@
+etc/xdg/autostart/hplip-systray.desktop
 usr/bin/hp-devicesettings
 usr/bin/hp-faxsetup
+usr/bin/hp-fab
 usr/bin/hp-linefeedcal
 usr/bin/hp-makecopies
 usr/bin/hp-pqdiag
@@ -10,4 +12,4 @@ usr/bin/hp-systray
 usr/bin/hp-toolbox
 usr/bin/hp-wificonfig
 usr/share/applications
-etc/xdg/autostart/hplip-systray.desktop
+usr/share/pixmaps

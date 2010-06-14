@@ -8,10 +8,17 @@ hplip (3.10.5-2) UNRELEASED; urgency=low
   * *.lintian possible-gpl-code-linked-with-openssl 
     - it uses none of its symbols
   * Drop obsolete hpijs[-ppds].NEWS - debian-news-entry-has-unknown-version
-  * mv hplip.menu -> hplip-gui.menu - menu-command-not-in-package
-    +Replaces: hplip (<= 3.10.5-1ubuntu1)
+  * hplip.manpages: drop hp-hpdio.1 - empty-manual-page
+  * Move more GUI components to hplip-gui
+    - Replaces: hplip (<= 3.10.5-1ubuntu1)
+    - hp-fab: -> hplip-gui.install -> hplip-gui.manpages
+    - hp-toolbox.1 -> hplip-gui.manpages
+    - usr/share/pixmaps -> hplip-gui.install
+    - mv hplip.menu -> hplip-gui.menu - menu-command-not-in-package
+  * CUPS/gs segfaults addressed (Closes: #503468)
+  * hplip Depends: Switch to hpcups as default driver (Closes: #579170)
 
- -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:49:58 +1000
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 19:03:59 +1000
 
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 

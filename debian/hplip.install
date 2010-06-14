@@ -7,7 +7,6 @@ usr/bin/hp-align
 usr/bin/hp-check
 usr/bin/hp-clean
 usr/bin/hp-colorcal
-usr/bin/hp-fab
 usr/bin/hp-firmware
 usr/bin/hp-hpdio
 usr/bin/hp-info
@@ -34,5 +33,4 @@ usr/share/cups/mime/*.types
 usr/share/cups/mime/*.convs
 usr/share/dbus-1
 usr/share/polkit-1
-usr/share/pixmaps
 var/lib
