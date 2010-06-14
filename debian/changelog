@@ -2,7 +2,7 @@ hplip (3.10.5-2) unstable; urgency=low
 
   * Add Depends: python-notify
   * hplip-gui Add ${python:Depends}
-  * Add +XS-Python-Version: >= 2.5
+  * Add +XS-Python-Version: >= 2.5 (Closes: #585627)
   * Add debhelper-but-no-misc-depends
   * Update Standards-Version: 3.8.4 - no changes necessary
   * *.lintian possible-gpl-code-linked-with-openssl 
