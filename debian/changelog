@@ -2,8 +2,10 @@ hplip (3.10.5-2) UNRELEASED; urgency=low
 
   * Add Depends: python-notify
   * hplip-gui Add ${python:Depends}
+  * Add +XS-Python-Version: >= 2.5
+  * Add debhelper-but-no-misc-depends
 
- -- Mark Purcell <msp@debian.org>  Sun, 13 Jun 2010 18:52:18 +1000
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:37:42 +1000
 
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
