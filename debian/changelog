@@ -1,4 +1,4 @@
-hplip (3.10.5-2) UNRELEASED; urgency=low
+hplip (3.10.5-2) unstable; urgency=low
 
   * Add Depends: python-notify
   * hplip-gui Add ${python:Depends}
@@ -15,10 +15,11 @@ hplip (3.10.5-2) UNRELEASED; urgency=low
     - hp-toolbox.1 -> hplip-gui.manpages
     - usr/share/pixmaps -> hplip-gui.install
     - mv hplip.menu -> hplip-gui.menu - menu-command-not-in-package
+    - Fixes "Icons in notifications missing" (Closes: #581785)
   * CUPS/gs segfaults addressed (Closes: #503468)
   * hplip Depends: Switch to hpcups as default driver (Closes: #579170)
 
- -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 19:03:59 +1000
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 19:32:20 +1000
 
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
