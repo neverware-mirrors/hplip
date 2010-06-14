@@ -8,8 +8,9 @@ hplip (3.10.5-2) UNRELEASED; urgency=low
   * hplip.lintian possible-gpl-code-linked-with-openssl - it uses none
     of its symbols
   * Drop obsolete hpijs[-ppds].NEWS - debian-news-entry-has-unknown-version
+  * mv hplip.menu -> hplip-gui.menu - menu-command-not-in-package
 
- -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:46:14 +1000
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:49:58 +1000
 
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
