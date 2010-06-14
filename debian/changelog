@@ -1,6 +1,41 @@
+hplip (3.10.5-2) unstable; urgency=low
+
+  * Add Depends: python-notify
+  * hplip-gui Add ${python:Depends}
+  * Add +XS-Python-Version: >= 2.5 (Closes: #585627)
+  * Add debhelper-but-no-misc-depends
+  * Update Standards-Version: 3.8.4 - no changes necessary
+  * *.lintian possible-gpl-code-linked-with-openssl 
+    - it uses none of its symbols
+  * Drop obsolete hpijs[-ppds].NEWS - debian-news-entry-has-unknown-version
+  * hplip.manpages: drop hp-hpdio.1 - empty-manual-page
+  * Move more GUI components to hplip-gui
+    - Replaces: hplip (<= 3.10.5-1ubuntu1)
+    - hp-fab: -> hplip-gui.install -> hplip-gui.manpages
+    - hp-toolbox.1 -> hplip-gui.manpages
+    - usr/share/pixmaps -> hplip-gui.install
+    - mv hplip.menu -> hplip-gui.menu - menu-command-not-in-package
+    - Fixes "Icons in notifications missing" (Closes: #581785)
+  * CUPS/gs segfaults addressed (Closes: #503468)
+  * hplip Depends: Switch to hpcups as default driver (Closes: #579170)
+
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 19:32:20 +1000
+
+hplip (3.10.5-1ubuntu1) maverick; urgency=low
+
+  * Uploaded new upstream version also to Ubuntu.
+  * debian/hplip-cups.postinst, debian/hpijs.postinst: Switch to hpcups as
+    default driver (migrate HPIJS queues to hpcups). The problem of Ghostscript
+    segfaulting when generating CUPS raster data is solved and the hpcups
+    driver needs also more testing.
+  * debian/control: Added conflict definition to the hplip package for smooth
+    updating after moving /usr/bin/hp-chjeck back to hplip.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Jun 2010 15:36:18 +0200
+
 hplip (3.10.5-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
   * Move hp-check back to hplip package - missing cups-config -> warning
   * Added +hpcheck-cupsconfig-warn.dpatch
   * Refresh udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
