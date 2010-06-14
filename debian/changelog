@@ -4,8 +4,11 @@ hplip (3.10.5-2) UNRELEASED; urgency=low
   * hplip-gui Add ${python:Depends}
   * Add +XS-Python-Version: >= 2.5
   * Add debhelper-but-no-misc-depends
+  * Update Standards-Version: 3.8.4 - no changes necessary
+  * hplip.lintian possible-gpl-code-linked-with-openssl - it uses none
+    of its symbols
 
- -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:37:42 +1000
+ -- Mark Purcell <msp@debian.org>  Mon, 14 Jun 2010 18:43:27 +1000
 
 hplip (3.10.5-1ubuntu1) maverick; urgency=low
 
