@@ -1,3 +1,10 @@
+hplip (3.10.5-3) unstable; urgency=high
+
+  * Switch Depends: hplip:source:Version (Closes: #586385) fixes binNMU
+    - Uprgency high for RC bug
+
+ -- Mark Purcell <msp@debian.org>  Sat, 19 Jun 2010 11:30:26 +1000
+
 hplip (3.10.5-2) unstable; urgency=low
 
   * Add Depends: python-notify
