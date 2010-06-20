@@ -15,6 +15,17 @@ include /usr/share/dpatch/dpatch.make
 export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
 #export DH_VERBOSE=1
 
+-include /usr/share/python/python.mk
+ ifeq (,$(py_sitename))
+   py_sitename = site-packages
+   py_libdir = /usr/lib/python$(subst python,,$(1))/site-packages
+   py_sitename_sh = $(py_sitename)
+   py_libdir_sh = $(py_libdir)
+endif
+PYTHON_DEFAULT_VERSION:=$(shell pyversions -dv)
+PYTHON_SITENAME:=$(call py_sitename, $(PYTHON_DEFAULT_VERSION))
+
+
 DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
@@ -230,7 +241,8 @@ install-stamp: build-stamp
 		    dest=hp-$${file%.py}; \
 		    ln -s /usr/share/hplip/$$file \
 			../../bin/$$dest 2>/dev/null || :; \
-		    PYTHONPATH=../../lib/python2.5/site-packages/:../../lib/python2.6/dist-packages/  LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
+	            PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
+		        LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
 		fi; \
 	    done \
 	)
@@ -367,6 +379,7 @@ binary-arch: install-arch
 	dh_fixperms -a
 	dh_makeshlibs -a
 	dh_installdeb -a
+	dh_pysupport -a /usr/share/hplip
 	dh_shlibdeps -a --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -a -- \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \
