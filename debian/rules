@@ -329,7 +329,7 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
-	dh_pysupport -i /usr/share/hplip
+	dh_pysupport -i
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i --dpkg-shlibdeps-params=--ignore-missing-info
@@ -378,8 +378,8 @@ binary-arch: install-arch
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
+	dh_pysupport -a
 	dh_installdeb -a
-	dh_pysupport -a /usr/share/hplip
 	dh_shlibdeps -a --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -a -- \
 		-V"hplip:source:Version=$(HPLIP_VERSION)" \
