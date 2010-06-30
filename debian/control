@@ -23,7 +23,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect, python-notify,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
  policykit-1
-Recommends: hpijs, sane-utils, avahi-daemon
+Recommends: sane-utils, avahi-daemon
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc
 Conflicts: hpijs (<< 2.1), hplip-dbg (<< 3.10.5-1ubuntu1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)

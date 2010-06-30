@@ -1,8 +1,11 @@
-hplip (3.10.5-3ubuntu1) UNRELEASED; urgency=low
+hplip (3.10.5-3ubuntu1) maverick; urgency=low
 
   * debian/copyright: Updated.
+  * debian/control: Removed hpijs from Recommends: of hplip, as we already
+    require hplip-cups via Depends:, hpijs is not needed any more for using
+    HPLIP with all supported HP printers.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 12:16:18 +0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 13:31:18 +0200
 
 hplip (3.10.5-3) unstable; urgency=high
 
@@ -42,7 +45,7 @@ hplip (3.10.5-1ubuntu1) maverick; urgency=low
     segfaulting when generating CUPS raster data is solved and the hpcups
     driver needs also more testing.
   * debian/control: Added conflict definition to the hplip package for smooth
-    updating after moving /usr/bin/hp-chjeck back to hplip.
+    updating after moving /usr/bin/hp-check back to hplip.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Jun 2010 15:36:18 +0200
 
