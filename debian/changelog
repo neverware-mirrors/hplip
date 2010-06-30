@@ -1,7 +1,13 @@
+hplip (3.10.5-3ubuntu1) UNRELEASED; urgency=low
+
+  * debian/copyright: Updated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 12:16:18 +0200
+
 hplip (3.10.5-3) unstable; urgency=high
 
   * Switch Depends: hplip:source:Version (Closes: #586385) fixes binNMU
-    - Uprgency high for RC bug
+    - Urgency high for RC bug
 
  -- Mark Purcell <msp@debian.org>  Sat, 19 Jun 2010 11:30:26 +1000
 
@@ -12,7 +18,7 @@ hplip (3.10.5-2) unstable; urgency=low
   * Add +XS-Python-Version: >= 2.5 (Closes: #585627)
   * Add debhelper-but-no-misc-depends
   * Update Standards-Version: 3.8.4 - no changes necessary
-  * *.lintian possible-gpl-code-linked-with-openssl 
+  * *.lintian possible-gpl-code-linked-with-openssl
     - it uses none of its symbols
   * Drop obsolete hpijs[-ppds].NEWS - debian-news-entry-has-unknown-version
   * hplip.manpages: drop hp-hpdio.1 - empty-manual-page
