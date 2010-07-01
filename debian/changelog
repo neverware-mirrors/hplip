@@ -1,4 +1,4 @@
-hplip (3.10.5-3ubuntu3) UNRELEASED; urgency=low
+hplip (3.10.5-3ubuntu3) maverick; urgency=low
 
   * debian/control: Added alternative scanning frontends to the Recommends:
     of hplip-gui, to avoid installing a scanning frontend if there is already
