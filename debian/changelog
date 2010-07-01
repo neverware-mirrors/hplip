@@ -1,3 +1,12 @@
+hplip (3.10.5-3ubuntu3) UNRELEASED; urgency=low
+
+  * debian/control: Added alternative scanning frontends to the Recommends:
+    of hplip-gui, to avoid installing a scanning frontend if there is already
+    one and also to avoid installing GTK in KDE/Qt-only systems.
+  * debian/control: Added python-notify to the Recommends: of hplip-gui.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  1 Jul 2010 09:47:18 +0200
+
 hplip (3.10.5-3ubuntu2) maverick; urgency=low
 
   * debian/control: Drop python-notify to suggests, it's pulling half of

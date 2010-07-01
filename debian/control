@@ -71,7 +71,7 @@ Architecture: all
 Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}), dbus-x11, 
  ${python:Depends}, python-qt4, python-qt4-dbus, python-reportlab,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
-Recommends: xsane
+Recommends: xsane | simple-scan | skanlite, python-notify
 Replaces: hplip (<= 3.10.5-1ubuntu1)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for
