@@ -1,3 +1,10 @@
+hplip (3.10.5-3ubuntu2) maverick; urgency=low
+
+  * debian/control: Drop python-notify to suggests, it's pulling half of
+    the desktop into server images.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 01 Jul 2010 08:38:35 +0200
+
 hplip (3.10.5-3ubuntu1) maverick; urgency=low
 
   * debian/copyright: Updated.
@@ -45,7 +52,7 @@ hplip (3.10.5-1ubuntu1) maverick; urgency=low
     segfaulting when generating CUPS raster data is solved and the hpcups
     driver needs also more testing.
   * debian/control: Added conflict definition to the hplip package for smooth
-    updating after moving /usr/bin/hp-check back to hplip.
+    updating after moving /usr/bin/hp-chjeck back to hplip.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  3 Jun 2010 15:36:18 +0200
 
