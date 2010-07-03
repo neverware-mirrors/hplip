@@ -1,3 +1,11 @@
+hplip (3.10.5-4) UNRELEASED; urgency=high
+
+  * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
+    - Urgency high for RC bug
+  * Ack python transition NMUs - Thanks Bernd  
+
+ -- Mark Purcell <msp@debian.org>  Sat, 03 Jul 2010 13:09:53 +1000
+
 hplip (3.10.5-3ubuntu3) maverick; urgency=low
 
   * debian/control: Added alternative scanning frontends to the Recommends:
