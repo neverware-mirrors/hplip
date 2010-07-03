@@ -23,6 +23,17 @@ hplip (3.10.5-3ubuntu1) maverick; urgency=low
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 13:31:18 +0200
 
+hplip (3.10.5-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Remove the need of Python as pre-dependency of hplip.
+  * Call dh_pysupport for arch:any packages (Closes: #585627)
+  * Use /usr/share/python/python.mk:   
+    Instead of hard-coding PYTHONPATH, use the proper path depending on the
+    default Python version. 
+
+ -- Bernd Zeimetz <bzed@debian.org>  Sun, 20 Jun 2010 22:10:09 +0200
+
 hplip (3.10.5-3) unstable; urgency=high
 
   * Switch Depends: hplip:source:Version (Closes: #586385) fixes binNMU

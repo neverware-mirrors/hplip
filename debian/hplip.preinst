@@ -36,9 +36,10 @@ case "$1" in
 
 	# Stop and remove any daemon from old HPLIP installations
 	if [ -x /etc/init.d/hplip ]; then
-		invoke-rc.d hplip stop || true
-		if test -n "`ps auxwww | grep hpiod | grep -v grep`"; then
-		    echo 'Old HPLIP daemon (hpiod) should of stopped, but did not.  Please kill manually before hplip can proceed'
+		pkill hpiod || true
+		if pgrep hpiod >/dev/null; then sleep 3; pkill -9 hpiod || true; fi
+		if pgrep hpiod >/dev/null; then
+			echo 'Old HPLIP daemon (hpiod) should have been stopped, but did not.  Please kill manually before hplip can proceed'
 		    exit 1
 		fi
 		rm -fR /etc/init.d/hplip
