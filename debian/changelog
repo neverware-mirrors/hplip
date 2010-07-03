@@ -1,4 +1,4 @@
-hplip (3.10.5-4) UNRELEASED; urgency=high
+hplip (3.10.5-4) unstable; urgency=high
 
   * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
     - Urgency high for RC bug
