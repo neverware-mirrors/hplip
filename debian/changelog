@@ -23,6 +23,15 @@ hplip (3.10.5-3ubuntu1) maverick; urgency=low
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 13:31:18 +0200
 
+hplip (3.10.5-3.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Remove unnecessary module path option for dh_pysupport.
+  * Call dh_installdeb after dh_pysupport. This really
+    closes: #585627 
+
+ -- Bernd Zeimetz <bzed@debian.org>  Tue, 22 Jun 2010 21:37:37 +0200
+
 hplip (3.10.5-3.1) unstable; urgency=high
 
   * Non-maintainer upload.
