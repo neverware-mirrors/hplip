@@ -1,0 +1,2 @@
+etc/sane.d/dll.d
+usr/lib/sane/libsane*.so.*

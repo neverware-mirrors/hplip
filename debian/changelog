@@ -1,3 +1,9 @@
+hplip (3.10.5-5) UNRELEASED; urgency=low
+
+  * Split libsane-hplip - headless scanner libs
+
+ -- Mark Purcell <msp@debian.org>  Sun, 11 Jul 2010 17:01:49 +1000
+
 hplip (3.10.5-4) unstable; urgency=high
 
   * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
