@@ -1,14 +1,19 @@
-hplip (3.10.5-5) UNRELEASED; urgency=low
+hplip (3.10.5-4ubuntu1) maverick; urgency=low
 
+  [ Till Kamppeter ]
+  * debian/patches/black-stripes-on-pcl5c-printouts.dpatch: The PCL 5c
+    driver (Color LaserJet) printed blank raster lines in black (LP: #561264).
+
+  [ Mark Purcell ]
   * Split libsane-hplip - headless scanner libs
 
- -- Mark Purcell <msp@debian.org>  Sun, 11 Jul 2010 17:01:49 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 18 Jul 2010 12:15:18 +0200
 
 hplip (3.10.5-4) unstable; urgency=high
 
   * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
     - Urgency high for RC bug
-  * Ack python transition NMUs - Thanks Bernd  
+  * Ack python transition NMUs - Thanks Bernd
 
  -- Mark Purcell <msp@debian.org>  Sat, 03 Jul 2010 13:09:53 +1000
 

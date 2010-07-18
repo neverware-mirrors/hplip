@@ -1,0 +1,18 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## black-stripes-on-pcl5c-printouts.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.5~/prnt/hpcups/LJColor.h hplip-3.10.5/prnt/hpcups/LJColor.h
+--- hplip-3.10.5~/prnt/hpcups/LJColor.h	2010-05-13 01:41:08.000000000 +0200
++++ hplip-3.10.5/prnt/hpcups/LJColor.h	2010-07-18 12:12:11.296937153 +0200
+@@ -48,6 +48,7 @@
+     DRIVER_ERROR    Configure(Pipeline **pipeline);
+     DRIVER_ERROR    EndJob();
+     DRIVER_ERROR    FormFeed();
++    bool            CanSkipRasters() {return false;}
+ protected:
+     virtual DRIVER_ERROR addJobSettings();
+     void    configureRasterData();
