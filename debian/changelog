@@ -1,3 +1,17 @@
+hplip (3.10.6-0ubuntu1) maverick; urgency=low
+
+  * New upstream release
+     o New protocol LEDM support for device status over Network and USB.
+     o Do not use cups-config in hp-check (real fix for LP: #530327).
+     o Added support for: HP Photosmart All-in-one Printer - b010,
+       Photosmart Wireless All-in-one Printer - b110, Deskjet 1050 j410
+       All-in-one Printer, LaserJet Professional m1136 Multifunction
+       Printer, Deskjet 2050 j510 All-in-one Printer, Officejet 4500
+       All-in-one Printer - k710, Officejet 4500 g510n-z All-in-one Printer
+  * debian/patches/hpcheck-cupsconfig-warn.dpatch: Removed, fixed upstream.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 23 Jul 2010 16:15:18 +0200
+
 hplip (3.10.5-4ubuntu1) maverick; urgency=low
 
   [ Till Kamppeter ]
