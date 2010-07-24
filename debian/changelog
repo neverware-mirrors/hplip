@@ -1,11 +1,11 @@
-hplip (3.10.6-1) UNRELEASED; urgency=low
+hplip (3.10.6-1) unstable; urgency=low
 
   * New Upstream Release
   * NEW package libsane-hplip - headless scanner libs
   * udev/rules.d/40-hplip.rules -> libhpmud0 - headless printing
   * fixup debian/shlibs -> shlibs.libhpmud0
 
- -- Mark Purcell <msp@debian.org>  Sat, 24 Jul 2010 08:49:54 +1000
+ -- Mark Purcell <msp@debian.org>  Sat, 24 Jul 2010 13:50:37 +1000
 
 hplip (3.10.6-0ubuntu1) maverick; urgency=low
 
