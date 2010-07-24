@@ -1,8 +1,42 @@
+hplip (3.10.6-1) unstable; urgency=low
+
+  * New Upstream Release
+  * NEW package libsane-hplip - headless scanner libs
+  * udev/rules.d/40-hplip.rules -> libhpmud0 - headless printing
+  * fixup debian/shlibs -> shlibs.libhpmud0
+
+ -- Mark Purcell <msp@debian.org>  Sat, 24 Jul 2010 13:50:37 +1000
+
+hplip (3.10.6-0ubuntu1) maverick; urgency=low
+
+  * New upstream release
+     o New protocol LEDM support for device status over Network and USB.
+     o Do not use cups-config in hp-check (real fix for LP: #530327).
+     o Added support for: HP Photosmart All-in-one Printer - b010,
+       Photosmart Wireless All-in-one Printer - b110, Deskjet 1050 j410
+       All-in-one Printer, LaserJet Professional m1136 Multifunction
+       Printer, Deskjet 2050 j510 All-in-one Printer, Officejet 4500
+       All-in-one Printer - k710, Officejet 4500 g510n-z All-in-one Printer
+  * debian/patches/hpcheck-cupsconfig-warn.dpatch: Removed, fixed upstream.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 23 Jul 2010 16:15:18 +0200
+
+hplip (3.10.5-4ubuntu1) maverick; urgency=low
+
+  [ Till Kamppeter ]
+  * debian/patches/black-stripes-on-pcl5c-printouts.dpatch: The PCL 5c
+    driver (Color LaserJet) printed blank raster lines in black (LP: #561264).
+
+  [ Mark Purcell ]
+  * Split libsane-hplip - headless scanner libs
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 18 Jul 2010 12:15:18 +0200
+
 hplip (3.10.5-4) unstable; urgency=high
 
   * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
     - Urgency high for RC bug
-  * Ack python transition NMUs - Thanks Bernd  
+  * Ack python transition NMUs - Thanks Bernd
 
  -- Mark Purcell <msp@debian.org>  Sat, 03 Jul 2010 13:09:53 +1000
 

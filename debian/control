@@ -18,7 +18,8 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 Package: hplip
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}), hplip-cups (= ${hplip:binary:Version}), 
+ libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}),
+ hplip-cups (= ${hplip:binary:Version}), libsane-hpaio (= ${hplip:binary:Version}),
  python (>> 2.6), python (<< 2.7),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
@@ -167,13 +168,16 @@ Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  .
  No physical PPDs are shipped with this driver. PPDs are dynamically
  generated via a CUPS DDK .drv file.
+ .
+ This package can be installed to provide a minimal headless printer
+ solution using CUPS.
 
 Package: libhpmud0
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: hplip (<= 3.9.12-1)
-Conflicts: hplip (<= 3.9.12-1)
+Replaces: hplip (<= 3.10.6-0ubuntu1)
+Conflicts: hplip (<= 3.10.6-0ubuntu1)
 Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
  Shared library that provides direct I/O for each process. Prior to
  hpmud, all I/O was serialized through hpiod, a monolithic I/O processor.
@@ -204,3 +208,18 @@ Description: HP Multi-Point Transport Driver (hpmud) development libraries
  for documentation. A Python wrapper for hpmud, called hpmudext, is also
  available.
 
+Package: libsane-hpaio
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: hplip (<= 3.10.5-4), hplip-data (<= 3.10.5-4)
+Conflicts: hplip (<= 3.10.5-4), hplip-data (<= 3.10.5-4)
+Recommends: sane-utils
+Description: HP SANE backend for multi-function peripherals
+ This package contains the sane backend libraries for use with HP
+ Multi-function peripherals.
+ .
+ Users of hplip are advised to install the hplip{-gui} packages for 
+ command line and GUI tools associated with HPLIP.
+ .
+ This package is useful for a minimal footprint headless scanning solution.
