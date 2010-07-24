@@ -176,8 +176,8 @@ Package: libhpmud0
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: hplip (<= 3.9.12-1)
-Conflicts: hplip (<= 3.9.12-1)
+Replaces: hplip (<= 3.10.6-0ubuntu1)
+Conflicts: hplip (<= 3.10.6-0ubuntu1)
 Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
  Shared library that provides direct I/O for each process. Prior to
  hpmud, all I/O was serialized through hpiod, a monolithic I/O processor.
