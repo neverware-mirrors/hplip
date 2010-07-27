@@ -39,7 +39,7 @@ case "$1" in
 		pkill hpiod || true
 		if pgrep hpiod >/dev/null; then sleep 3; pkill -9 hpiod || true; fi
 		if pgrep hpiod >/dev/null; then
-		    echo 'Old HPLIP daemon (hpiod) should have been stopped, but did not.  Please kill manually before hplip can proceed'
+			echo 'Old HPLIP daemon (hpiod) should have been stopped, but did not.  Please kill manually before hplip can proceed'
 		    exit 1
 		fi
 		rm -fR /etc/init.d/hplip

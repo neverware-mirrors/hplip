@@ -2,12 +2,12 @@ Source: hplip
 Section: utils
 Priority: optional
 Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
-Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>, Till Kamppeter <till.kamppeter@gmail.com>
+Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>, Till Kamppeter <till.kamppeter@gmail.com>, Julian Andres Klode <jak@debian.org>
 Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cups (>= 1.4.0) | cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
  python-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3),
- python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, libudev-dev [!hurd-i386 !kfreebsd-amd64 !kfreebsd-i386], policykit-1,
+ python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, policykit,
  fdupes, lsb-release
 XS-Python-Version: >= 2.5
 Standards-Version: 3.8.4
@@ -19,11 +19,11 @@ Package: hplip
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}), hplip-cups (= ${hplip:binary:Version}), 
- ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect, python-notify,
+ ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
- policykit-1
-Recommends: hpijs, sane-utils, avahi-daemon
-Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc
+ policykit
+Recommends: sane-utils, avahi-daemon
+Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, python-notify
 Conflicts: hpijs (<< 2.1), hplip-dbg (<< 3.10.5-1ubuntu1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
 XB-Python-Version: ${python:Versions}
@@ -70,7 +70,7 @@ Architecture: all
 Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}), dbus-x11, 
  ${python:Depends}, python-qt4, python-qt4-dbus, python-reportlab,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
-Recommends: xsane
+Recommends: xsane | simple-scan | skanlite, python-notify
 Replaces: hplip (<= 3.10.5-1ubuntu1)
 Description: HP Linux Printing and Imaging - GUI utilities
  This package contains utilities with graphical user interface (GUI) for
@@ -150,7 +150,7 @@ Package: hplip-cups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends},
- ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups, cups-client
+ ghostscript, cups (>= 1.4.0) | cupsddk, cups, cups-client
 Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support

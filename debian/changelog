@@ -1,3 +1,45 @@
+hplip (3.10.5-4~bpo50+1) lenny-backports; urgency=low
+
+  * Rebuild for lenny-backports.
+  * Depend on ghostscript instead of ghostscript-cups, the latter is
+    not available in lenny (see #581878).
+  * Revert the change from 3.10.5-4.
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 27 Jul 2010 14:21:17 +0200
+
+hplip (3.10.5-4) unstable; urgency=high
+
+  * Force Depends: python (>> 2.6), python (<< 2.7) (Closes: #587737)
+    - Urgency high for RC bug
+  * Ack python transition NMUs - Thanks Bernd  
+
+ -- Mark Purcell <msp@debian.org>  Sat, 03 Jul 2010 13:09:53 +1000
+
+hplip (3.10.5-3ubuntu3) maverick; urgency=low
+
+  * debian/control: Added alternative scanning frontends to the Recommends:
+    of hplip-gui, to avoid installing a scanning frontend if there is already
+    one and also to avoid installing GTK in KDE/Qt-only systems.
+  * debian/control: Added python-notify to the Recommends: of hplip-gui.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  1 Jul 2010 09:47:18 +0200
+
+hplip (3.10.5-3ubuntu2) maverick; urgency=low
+
+  * debian/control: Drop python-notify to suggests, it's pulling half of
+    the desktop into server images.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 01 Jul 2010 08:38:35 +0200
+
+hplip (3.10.5-3ubuntu1) maverick; urgency=low
+
+  * debian/copyright: Updated.
+  * debian/control: Removed hpijs from Recommends: of hplip, as we already
+    require hplip-cups via Depends:, hpijs is not needed any more for using
+    HPLIP with all supported HP printers.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 30 Jun 2010 13:31:18 +0200
+
 hplip (3.10.5-3.2) unstable; urgency=low
 
   * Non-maintainer upload.
@@ -21,7 +63,7 @@ hplip (3.10.5-3.1) unstable; urgency=high
 hplip (3.10.5-3) unstable; urgency=high
 
   * Switch Depends: hplip:source:Version (Closes: #586385) fixes binNMU
-    - Uprgency high for RC bug
+    - Urgency high for RC bug
 
  -- Mark Purcell <msp@debian.org>  Sat, 19 Jun 2010 11:30:26 +1000
 
@@ -32,7 +74,7 @@ hplip (3.10.5-2) unstable; urgency=low
   * Add +XS-Python-Version: >= 2.5 (Closes: #585627)
   * Add debhelper-but-no-misc-depends
   * Update Standards-Version: 3.8.4 - no changes necessary
-  * *.lintian possible-gpl-code-linked-with-openssl 
+  * *.lintian possible-gpl-code-linked-with-openssl
     - it uses none of its symbols
   * Drop obsolete hpijs[-ppds].NEWS - debian-news-entry-has-unknown-version
   * hplip.manpages: drop hp-hpdio.1 - empty-manual-page
@@ -174,6 +216,18 @@ hplip (3.10.2-1ubuntu1) lucid; urgency=low
     message any more.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 16 Mar 2010 18:33:18 +0100
+
+hplip (3.10.2-1~bpo50+1) lenny-backports; urgency=low
+
+  * Rebuild for lenny-backports.
+  * debian/control:
+    - Use old PolicyKit instead of PolicyKit-1.
+    - Drop libudev-dev build-dependency, not available on lenny.
+    - Add myself to Uploaders.
+  * debian/hplip.install:
+    - Change usr/share/cups/mime to etc/cups.
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 03 Apr 2010 17:41:49 +0200
 
 hplip (3.10.2-1) unstable; urgency=low
 
