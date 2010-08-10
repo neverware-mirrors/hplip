@@ -7,7 +7,7 @@ hplip (3.10.6-1ubuntu1) maverick; urgency=low
     or a derivative distribution). The archives are self-extracting and located
     in /usr/lib/cups/driver/, so that CUPS automatically extracts the PPD
     files. Thank you very much to Vitor Baptista who developed this great PPD
-    compressor in the Google Summer of Code 2010.
+    compressor in the Google Summer of Code 2010 (LP: #493282).
   * debian/hplip.postinst: Updated auto updater for the PPDs of the already
     existing print queues to work with the new PPD archive.
   * debian/control: Changed versioned conflict of hpijs-ppds with
