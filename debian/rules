@@ -111,6 +111,9 @@ clean-patched: configure
 
 	dh_clean
 
+	rm -f debian/local/pyppd/*/*.pyc
+	rm -f debian/local/pyppd/pyppd-ppdfile
+
 ##
 ##  Package build
 ##
@@ -306,6 +309,16 @@ install-indep-stamp: install-stamp install-arch-stamp
 
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
+
+	# Compress the PPD files with Vitor Baptista's pyppd PPD
+	# archiving tool. This makes the space needed for PPDs at least
+	# 10 times smaller.
+	(cd debian/local/pyppd/; \
+	  PYTHONPATH=. bin/pyppd $(CURDIR)/debian/hplip-data/usr/share/ppd/hplip; \
+	  install -D -m 755 pyppd-ppdfile $(CURDIR)/debian/hplip-data/usr/lib/cups/driver/hplip; \
+	  rm -rf $(CURDIR)/debian/hplip-data/usr/share/ppd; \
+	  rm -f */*.pyc pyppd-ppdfile; \
+	)
 
 	# Remove models.dat from hplip-data - we ship with libsane-hpaio
 	rm $(CURDIR)/debian/hplip-data/usr/share/hplip/data/models/models.dat

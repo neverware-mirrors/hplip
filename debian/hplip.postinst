@@ -68,7 +68,7 @@ case "$1" in
 	    which lpadmin > /dev/null 2>&1 && \
 	    LC_ALL=C lpstat -h /var/run/cups/cups.sock -r | grep -v not > /dev/null 2>&1; then
 	    # Update the PPD files of all already installed print queues
-	    driverregexp='lsb/usr/hplip/HP/.*-ps.ppd'
+	    driverregexp='^hplip:'
 	    gennicknameregexp='s/\s*(v\d+\.\d+|(Ver|-\s*RC)\s*[\d\.]+)//'
 	    [ ! -z "$gennicknameregexp" ] && \
 		gennicknameregexp="; $gennicknameregexp"

@@ -106,7 +106,7 @@ Architecture: all
 Section: utils
 Provides: hplip-ppds
 Replaces: hplip-ppds
-Conflicts: hplip-ppds, foomatic-filters-ppds (<< 20060113-1)
+Conflicts: hplip-ppds, foomatic-filters-ppds (>> 20000101)
 Depends: ${misc:Depends}, hpijs (= ${hpijs:binary:Version}),  foomatic-filters (>= 3.0.2), cups-client, cups
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the

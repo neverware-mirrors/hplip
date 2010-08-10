@@ -1,3 +1,22 @@
+hplip (3.10.6-1ubuntu1) maverick; urgency=low
+
+  * debian/local/pyppd/, debian/rules: Compressed all the physical PPD files
+    for the PostScript printers of the hplip-data package into an archiv file
+    reducing the disk space occupation by a factor of 10, freeing several tens
+    of megabytes on the Ubuntu Desktop CDs (or on any live CD based on Debian
+    or a derivative distribution). The archives are self-extracting and located
+    in /usr/lib/cups/driver/, so that CUPS automatically extracts the PPD
+    files. Thank you very much to Vitor Baptista who developed this great PPD
+    compressor in the Google Summer of Code 2010.
+  * debian/hplip.postinst: Updated auto updater for the PPDs of the already
+    existing print queues to work with the new PPD archive.
+  * debian/control: Changed versioned conflict of hpijs-ppds with
+    foomatic-filters-ppds. Now it conflicts for versions bigger than
+    20000101 (real foomatic-filters-ppds packages) and not with
+    foomatic-filters-ppds with a small version number (transitional packages).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 10 Aug 2010 23:16:18 +0200
+
 hplip (3.10.6-1) unstable; urgency=low
 
   * New Upstream Release
