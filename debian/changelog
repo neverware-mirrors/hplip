@@ -1,3 +1,19 @@
+hplip (3.10.6-1ubuntu3) maverick; urgency=low
+
+  * debian/rules: Running PPD compressor inplace did not work on the build
+    servers due to the .diff.gz not able to convey the empty file
+    pyppd/__init__.py. Re-added the file via "touch pyppd/__init__.py".
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 11 Aug 2010 17:37:03 +0200
+
+hplip (3.10.6-1ubuntu2) maverick; urgency=low
+
+  * debian/control: Added build and runtime dependencies for the PPD archiving
+    and extracting.
+  * debian/rules: Let build process error out if PPD archiving errors out.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 11 Aug 2010 11:31:03 +0200
+
 hplip (3.10.6-1ubuntu1) maverick; urgency=low
 
   * debian/local/pyppd/, debian/rules: Compressed all the physical PPD files
