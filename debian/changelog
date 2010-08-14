@@ -1,3 +1,10 @@
+hplip (3.10.6-1ubuntu4) maverick; urgency=low
+
+  * debian/control: Make user aware of that the tools in hplip-gui are Qt-based
+    (LP: #570842).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 14 Aug 2010 10:57:03 +0200
+
 hplip (3.10.6-1ubuntu3) maverick; urgency=low
 
   * debian/rules: Running PPD compressor inplace did not work on the build
