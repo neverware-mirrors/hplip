@@ -310,6 +310,14 @@ install-indep-stamp: install-stamp install-arch-stamp
 	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
 
+	# Patch the PPDs for the hpijs-ppds package to use foomatic-rip
+	# as CUPS filter and not foomatic-rip-hplip
+	(cd $(CURDIR)/debian/hpijs-ppds/usr/share/ppd/hplip/HP/ && \
+	  for ppd in *.ppd; do \
+	    perl -p -i -e 's/foomatic-rip-hplip/foomatic-rip/g' $$ppd; \
+	  done \
+	)
+
 	# Compress the PPD files with Vitor Baptista's pyppd PPD
 	# archiving tool. This makes the space needed for PPDs at least
 	# 10 times smaller.

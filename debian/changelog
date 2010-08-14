@@ -1,3 +1,13 @@
+hplip (3.10.6-1ubuntu5) maverick; urgency=low
+
+  * debian/rules: Let PPD files of hpijs-ppds use "foomatic-rip" as CUPS
+    filter and not "foomatic-rip-hplip". This avoids an ugly link and
+    problems when uninstalling hpijs-ppds.
+  * debian/hpijs-ppds.links: Remove the ugly "foomatic-rip-hplip" link from
+    hpijs-ppds.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 15 Aug 2010 00:56:03 +0200
+
 hplip (3.10.6-1ubuntu4) maverick; urgency=low
 
   * debian/control: Make user aware of that the tools in hplip-gui are Qt-based
