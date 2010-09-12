@@ -19,12 +19,12 @@ Package: hplip
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}),
- hplip-cups (= ${hplip:binary:Version}), libsane-hpaio (= ${hplip:binary:Version}),
+ hplip-cups (= ${hplip:binary:Version}),
  python (>> 2.6), python (<< 2.7),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
  policykit-1
-Recommends: sane-utils, avahi-daemon
+Recommends: sane-utils, avahi-daemon, libsane-hpaio
 Suggests: kdeprint | gtklp | xpp, hplip-gui, hplip-doc, python-notify
 Conflicts: hpijs (<< 2.1), hplip-dbg (<< 3.10.5-1ubuntu1), hplip-base, hplip-gui (<< 2.8.10), hpoj
 Replaces: hplip-data (<< 0.9.3), hplip-base, hplip-gui (<< 2.8.10)
@@ -214,7 +214,7 @@ Description: HP Multi-Point Transport Driver (hpmud) development libraries
 Package: libsane-hpaio
 Architecture: any
 Section: libs
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, hplip (= ${hplip:binary:Version})
 Replaces: hplip (<= 3.10.5-4), hplip-data (<= 3.10.5-4)
 Conflicts: hplip (<= 3.10.5-4), hplip-data (<= 3.10.5-4)
 Recommends: sane-utils

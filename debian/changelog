@@ -1,3 +1,11 @@
+hplip (3.10.6-1ubuntu6) maverick; urgency=low
+
+  * debian/control: Made libsane-hpaio depend on hplip and not vice versa
+    (Closes: #596467). Let hplip recommend libsane-hpaio to not break Ubuntu
+    standard installation.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 12 Sep 2010 12:00:00 +0200
+
 hplip (3.10.6-1ubuntu5) maverick; urgency=low
 
   * debian/rules: Let PPD files of hpijs-ppds use "foomatic-rip" as CUPS
