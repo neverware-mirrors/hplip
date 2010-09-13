@@ -1,3 +1,16 @@
+hplip (3.10.6-1ubuntu7) maverick; urgency=low
+
+  * debian/control: libsane-hpaio actually works without hplip, it only needs
+    a few selected files from hplip. What was still missing was
+    /etc/hp/hplip.conf. So moved over /etc/hp/hplip.conf to libsane-hpaio,
+    made libsane-hpaio only recommending hplip and hplip depending on
+    libsane-hpaio again, as hplip also does not work without /etc/hp/hplip.conf.
+    This configuration allows minumum setups for HP MF device support without
+    hplip, only using one of hpijs and hpcups for the printer and libsane-hpaio
+    for the scanner (Closes: #596467).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 13 Sep 2010 09:09:00 +0200
+
 hplip (3.10.6-1ubuntu6) maverick; urgency=low
 
   * debian/control: Made libsane-hpaio depend on hplip and not vice versa

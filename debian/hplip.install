@@ -1,4 +1,3 @@
-etc/hp
 etc/dbus-1
 etc/udev/rules.d/56-hpmud_support.rules lib/udev/rules.d 
 usr/bin/hp-align
