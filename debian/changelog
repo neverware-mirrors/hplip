@@ -1,3 +1,21 @@
+hplip (3.10.6-1ubuntu9) maverick; urgency=low
+
+  * debian/local/pyppd/pyppd/ppd.py, debian/local/pyppd/pyppd/pyppd-ppdfile.in:
+    Let the compressed PPD archives not contain duplicate PPD URIs, even if the
+    lines reference the same PPD. Most printer setup tools cannot cope with
+    duplicate PPD URIs.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 16 Sep 2010 00:28:03 +0200
+
+hplip (3.10.6-1ubuntu8) maverick; urgency=low
+
+  * debian/patches/add-lidil-two-cartridge-modes.dpatch: For the Lidil printers
+    enable two-cartridge modes (black and color cartridge) in the hpcups driver
+    and assign the choices of the "Printout Mode" option to two-cartridge
+    moddes in the hpijs driver (LP: #235399).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 14 Sep 2010 16:15:00 +0200
+
 hplip (3.10.6-1ubuntu7) maverick; urgency=low
 
   * debian/control: libsane-hpaio actually works without hplip, it only needs
