@@ -1,3 +1,13 @@
+hplip (3.10.6-1ubuntu10) maverick; urgency=low
+
+  * debian/local/pyppd/pyppd/pyppd-ppdfile.in: Suppress any kind of runtime
+    error tracebacks by putting a "try: ... except: pass" construct around the
+    main function call. This avoids Apport pop-ups when the execution of the
+    self-extracting compressed PPD file archives gets stopped by the calling
+    process (LP: #618017).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 21 Sep 2010 20:07:03 +0200
+
 hplip (3.10.6-1ubuntu9) maverick; urgency=low
 
   * debian/local/pyppd/pyppd/ppd.py, debian/local/pyppd/pyppd/pyppd-ppdfile.in:
