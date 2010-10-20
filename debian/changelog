@@ -1,3 +1,11 @@
+hplip (3.10.6-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Try libhpmud.so.0 when libhpmud.so is not found.
+    Closes: #600670
+
+ -- Evgeni Golov <evgeni@debian.org>  Wed, 20 Oct 2010 17:57:23 +0200
+
 hplip (3.10.6-1) unstable; urgency=low
 
   * New Upstream Release
