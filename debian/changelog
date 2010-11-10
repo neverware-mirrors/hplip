@@ -1,3 +1,14 @@
+hplip (3.10.6-1ubuntu11) natty; urgency=low
+
+  * debian/local/make-duplex-page-sizes-default.sh, debian/rules: Renamed
+    paper sizes so that the duplex paper sizes (the ones with the tightest
+    unprintable margins) get the standard ones and the former standard sizes
+    get optional "Small Margins" sizes. This makes it possible to print
+    duplex from current desktop applications like OpenOffice.org or GNOME
+    applications (LP: #487695).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 10 Nov 2010 10:50:03 +0100
+
 hplip (3.10.6-1ubuntu10) maverick; urgency=low
 
   * debian/local/pyppd/pyppd/: Updated to pyppd 0.4.9, to suppress runtime

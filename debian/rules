@@ -182,6 +182,12 @@ install-stamp: build-stamp
 
 	$(MAKE) install "DESTDIR=$(PKGTMP)" docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
+	# Modify PPD generator of hpcups (hpcups.drv) so that standard paper
+	# sizes support duplex printing. The former standard paper sizes with
+	# narrower borders get optional choices now (Ubuntu/upstream bug
+	# 487695)
+	sh debian/local/make-duplex-page-sizes-default.sh $(PKGTMP)/usr/share/cups/drv/hpcups.drv
+
 	# Install wrapper script for hp-plugin, to be called by update-notifier
 	# on udev signal (Ubuntu only)
 	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
