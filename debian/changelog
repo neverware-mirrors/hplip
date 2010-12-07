@@ -1,3 +1,10 @@
+hplip (3.10.9-0ubuntu2) natty; urgency=low
+
+  * debian/patches/add_missing_newline_for_error_log.dpatch: Added a missing
+    newline at the end of the "PAGE:" message for the CUPS error_log.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue,  7 Dec 2010 10:59:18 +0100
+
 hplip (3.10.9-0ubuntu1) natty; urgency=low
 
   * New upstream release

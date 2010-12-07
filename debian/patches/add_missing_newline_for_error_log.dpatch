@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## add_missing_newline_for_error_log.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.9~/prnt/hpcups/HPCupsFilter.cpp hplip-3.10.9/prnt/hpcups/HPCupsFilter.cpp
+--- hplip-3.10.9~/prnt/hpcups/HPCupsFilter.cpp	2010-09-26 19:01:47.000000000 +0200
++++ hplip-3.10.9/prnt/hpcups/HPCupsFilter.cpp	2010-12-07 10:57:00.075229061 +0100
+@@ -620,7 +620,7 @@
+             WriteBMPHeader (kfp, cups_header.cupsWidth, cups_header.cupsHeight, BLACK_RASTER);
+         }
+ 
+-        fprintf(stderr, "PAGE: %d %s", current_page_number, m_argv[4]);
++        fprintf(stderr, "PAGE: %d %s\n", current_page_number, m_argv[4]);
+         // Iterating through the raster per page
+         for (int y = 0; y < (int) cups_header.cupsHeight; y++) {
+             cupsRasterReadPixels (cups_raster, m_pPrinterBuffer, cups_header.cupsBytesPerLine);
