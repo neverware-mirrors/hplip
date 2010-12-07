@@ -1,3 +1,16 @@
+hplip (3.10.9-0ubuntu1) natty; urgency=low
+
+  * New upstream release
+     o New protocol LEDM support for scanning (Low End Data Model).
+     o Added support for: HP Designjet 4500ps, 4500mfp, T1100ps 24/44in,
+       T1120ps 24/44in, T770ps 24in, Deskjet 1000 J110, 2000 J210, 3000
+       J310, 3050 J610, Envy 100 D410, Officejet 6500 E710n-z, 7500 E910,
+       pro 8500 A910, Photosmart eStn C510, Plus B210, Prem C310, Prem
+       C410.
+  * debian/patches/85_rebuild_python_ui.dpatch: Regenerated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue,  7 Dec 2010 09:55:18 +0100
+
 hplip (3.10.6-1.1) unstable; urgency=low
 
   * Non-maintainer upload.

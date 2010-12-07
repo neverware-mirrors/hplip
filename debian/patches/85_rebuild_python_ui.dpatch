@@ -5,12 +5,12 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.10.2~rc1~/Makefile.am hplip-3.10.2~rc1/Makefile.am
---- hplip-3.10.2~rc1~/Makefile.am	2010-02-12 04:05:08.000000000 +0100
-+++ hplip-3.10.2~rc1/Makefile.am	2010-02-12 17:39:12.405233096 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.9~/Makefile.am hplip-3.10.9/Makefile.am
+--- hplip-3.10.9~/Makefile.am	2010-12-07 10:14:49.188809130 +0100
++++ hplip-3.10.9/Makefile.am	2010-12-07 10:16:10.468679317 +0100
 @@ -4,6 +4,10 @@
  #  (c) 2004-2010 Copyright Hewlett-Packard Development Company, LP
- #
+ #  Author: David Suffield, Naga Samrat Chowdary Narla,
  
 +# Generic rules
 +%.py: %.ui
@@ -19,10 +19,10 @@ diff -urNad hplip-3.10.2~rc1~/Makefile.am hplip-3.10.2~rc1/Makefile.am
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs
  
  hplipdir = $(datadir)/hplip
-diff -urNad hplip-3.10.2~rc1~/configure.in hplip-3.10.2~rc1/configure.in
---- hplip-3.10.2~rc1~/configure.in	2010-02-12 04:07:49.000000000 +0100
-+++ hplip-3.10.2~rc1/configure.in	2010-02-12 17:41:00.355232078 +0100
-@@ -500,6 +500,8 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.9~/configure.in hplip-3.10.9/configure.in
+--- hplip-3.10.9~/configure.in	2010-09-26 19:08:18.000000000 +0200
++++ hplip-3.10.9/configure.in	2010-12-07 10:18:40.398439745 +0100
+@@ -508,6 +508,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
