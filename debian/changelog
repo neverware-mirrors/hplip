@@ -1,3 +1,9 @@
+hplip (3.10.9-0ubuntu6) natty; urgency=low
+
+  * debian/rules: Do not ship *.pyc files with the package.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 10 Dec 2010 11:10:18 +0100
+
 hplip (3.10.9-0ubuntu5) natty; urgency=low
 
   * debian/control: Remove hard-coded python-version dependencies (LP: #688002)

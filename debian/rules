@@ -258,6 +258,10 @@ install-stamp: build-stamp
 	install -d ./debian/tmp/usr/sbin/
 	ln -s /usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
+	# Remove all *.pyc files, they do not need to be shipped with the
+	# package
+	find ./debian/tmp/ -name '*.pyc' -print0 | xargs -0 rm -f
+
 	touch install-stamp
 
 # install arch-dependent packages specific files
