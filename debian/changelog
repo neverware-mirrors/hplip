@@ -1,7 +1,7 @@
 hplip (3.10.9-0ubuntu4) natty; urgency=low
 
   * debian/control: Modify Depends: and XS-Python-Versions: to build with,
-    and depend on python 2.7 .
+    and depend on python 2.7 (LP: #688002).
 
  -- Bilal Akhtar <bilalakhtar@ubuntu.com>  Fri, 10 Dec 2010 11:06:14 +0300
 
