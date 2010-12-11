@@ -1,3 +1,10 @@
+hplip (3.10.9-0ubuntu7) natty; urgency=low
+
+  * debian/patches/scan-on-dj-1050-2050.dpatch: Corrected model properties
+    to make scanning on DeskJet 1050 and 2050 actually working (LP: #652963)
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 11 Dec 2010 14:10:18 +0100
+
 hplip (3.10.9-0ubuntu6) natty; urgency=low
 
   * debian/rules: Do not ship *.pyc files with the package.
