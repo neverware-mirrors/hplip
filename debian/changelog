@@ -1,3 +1,9 @@
+hplip (3.10.9-1) experimental; urgency=low
+
+  * New Upstream Release 
+
+ -- Mark Purcell <msp@debian.org>  Thu, 23 Dec 2010 11:04:31 +1100
+
 hplip (3.10.9-0ubuntu7) natty; urgency=low
 
   * debian/patches/scan-on-dj-1050-2050.dpatch: Corrected model properties
