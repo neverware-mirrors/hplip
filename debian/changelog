@@ -1,6 +1,15 @@
+hplip (3.10.9-2) UNRELEASED; urgency=low
+
+  * debian/control: Removed stand-alone print dialog applications from the
+    Suggests: of the hplip package. These applications are obsolete, as
+    modern desktop applications already have a CUPS-based printing dialog.
+    Added system-config-printer instead (Closes: #608947).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 04 Jan 2010 22:52:18 +0100
+
 hplip (3.10.9-1) experimental; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
 
  -- Mark Purcell <msp@debian.org>  Thu, 23 Dec 2010 11:04:31 +1100
 
