@@ -5,9 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.9~/Makefile.am hplip-3.10.9/Makefile.am
---- hplip-3.10.9~/Makefile.am	2010-12-07 10:14:49.188809130 +0100
-+++ hplip-3.10.9/Makefile.am	2010-12-07 10:16:10.468679317 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.1~/Makefile.am hplip-3.11.1/Makefile.am
+--- hplip-3.11.1~/Makefile.am	2011-01-19 06:18:26.000000000 +0100
++++ hplip-3.11.1/Makefile.am	2011-01-23 23:50:17.895291308 +0100
 @@ -4,6 +4,10 @@
  #  (c) 2004-2010 Copyright Hewlett-Packard Development Company, LP
  #  Author: David Suffield, Naga Samrat Chowdary Narla,
@@ -19,9 +19,9 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs
  
  hplipdir = $(datadir)/hplip
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.9~/configure.in hplip-3.10.9/configure.in
---- hplip-3.10.9~/configure.in	2010-09-26 19:08:18.000000000 +0200
-+++ hplip-3.10.9/configure.in	2010-12-07 10:18:40.398439745 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.1~/configure.in hplip-3.11.1/configure.in
+--- hplip-3.11.1~/configure.in	2011-01-19 06:19:05.000000000 +0100
++++ hplip-3.11.1/configure.in	2011-01-23 23:51:08.845262676 +0100
 @@ -508,6 +508,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])

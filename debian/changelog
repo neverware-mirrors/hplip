@@ -1,11 +1,27 @@
-hplip (3.10.9-2) UNRELEASED; urgency=low
+hplip (3.11.1-0ubuntu1) natty; urgency=low
 
+  * New upstream release
+     o New encapsulation format for LJZJStream class
+     o Alignment of cartridges over LEDM (auto, semi-automatic and manual)
+     o LEDM dynamic scan resolution
+     o New fax protocol (Low End Data Model, LEDM) support
+     o ADF scan support for HP LaserJet Pro M1212nf, M1213nf, and M1217nfw MFP
+       devices
+     o Color scan support for HP LaserJet Pro M1132, M1136, M1212nf, M1213nf, 
+       and M1217nfw MFP devices
+     o Added support for: HP LaserJet Pro CP1020, M1213nf MFP, CM1410,
+       LaserJet M1536dnf MFP, M1537dnf MFP, M1538dnf MFP, M1539dnf MFP.
+       Color LaserJet CM4540 MFP, CP5520, Photosmart Ink Adv K510,
+       Deskjet Ink Adv 2010 K010, 2060 K110, Officejet 6500 E710a-f
+  * debian/patches/scan-on-dj-1050-2050.dpatch: Removed, fixed upstream.
+  * debian/patches/85_rebuild_python_ui.dpatch,
+    debian/patches/87_move_documentation.dpatch: Regenerated.
   * debian/control: Removed stand-alone print dialog applications from the
     Suggests: of the hplip package. These applications are obsolete, as
     modern desktop applications already have a CUPS-based printing dialog.
     Added system-config-printer instead (Closes: #608947).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 04 Jan 2010 22:52:18 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 23 Jan 2010 23:34:18 +0100
 
 hplip (3.10.9-1) experimental; urgency=low
 
