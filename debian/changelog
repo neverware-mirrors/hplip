@@ -1,3 +1,12 @@
+hplip (3.11.1-1) experimental; urgency=low
+
+  * New Upstream Release
+    - Fixes "CVE-2010-4267: Buffer overflow" (Closes: #610960)
+  * SECURITY UPDATE: denial of service and possible arbitrary code
+    execution via long SNMP response
+
+ -- Mark Purcell <msp@debian.org>  Thu, 27 Jan 2011 00:26:43 +1100
+
 hplip (3.11.1-0ubuntu2) natty; urgency=low
 
   * SECURITY UPDATE: denial of service and possible arbitrary code
