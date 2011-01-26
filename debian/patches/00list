@@ -19,3 +19,4 @@ make-commafy-correctly-work-with-python-2.dpatch
 remove-duplicate-entry-for-cp1700-in-drv-files.dpatch
 black-stripes-on-pcl5c-printouts.dpatch
 try_libhpmud.so.0.dpatch
+CVE-2010-4267.dpatch

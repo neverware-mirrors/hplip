@@ -1,3 +1,13 @@
+hplip (3.10.6-2) unstable; urgency=high
+
+  * SECURITY UPDATE: denial of service and possible arbitrary code
+    execution via long SNMP response - Thanks Till
+    - debian/patches/CVE-2010-4267.dpatch: validate dLen in io/hpmud/pml.c.
+    - Fixes "CVE-2010-4267: Buffer overflow" (Closes: #610960)
+  * Ack NMU - Thanks Evgeni
+
+ -- Mark Purcell <msp@debian.org>  Thu, 27 Jan 2011 00:48:24 +1100
+
 hplip (3.10.6-1.1) unstable; urgency=low
 
   * Non-maintainer upload.
