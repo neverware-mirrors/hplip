@@ -3,8 +3,9 @@ hplip (3.11.1-2) unstable; urgency=low
   * Upload to unstable
     - Fixes "[hplip] New upstream version" (Closes: #613295)
   * kdeprint no longer Depends: (Closes: #608947)
+  * "ppd" included the description" (Closes: #608836)
 
- -- Mark Purcell <msp@debian.org>  Sun, 20 Feb 2011 20:53:46 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 20 Feb 2011 20:55:51 +1100
 
 hplip (3.11.1-1) experimental; urgency=low
 

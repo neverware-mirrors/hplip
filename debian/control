@@ -63,7 +63,7 @@ Architecture: all
 Suggests: hplip
 Depends: ${python:Depends}, ${misc:Depends}, xz-utils
 Description: HP Linux Printing and Imaging - data files
- This package contains data files for the HP Linux Printing and
+ This package contains data files and PPDs for the HP Linux Printing and
  Imaging System.
 
 Package: hplip-gui
