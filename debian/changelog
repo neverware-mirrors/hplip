@@ -2,11 +2,12 @@ hplip (3.11.1-2) unstable; urgency=low
 
   * Upload to unstable
     - Fixes "[hplip] New upstream version" (Closes: #613295)
+  * Drop obsolete 00patch-opts "patch: invalid option -- 'U'" (Closes: #612646)
   * kdeprint no longer Depends: (Closes: #608947)
-  * "ppd" included the description" (Closes: #608836)
+  * "ppd" included in description" (Closes: #608836)
   * Fixes "sane" lowercase in extended description" (Closes: #591919)
 
- -- Mark Purcell <msp@debian.org>  Sun, 20 Feb 2011 20:57:56 +1100
+ -- Mark Purcell <msp@debian.org>  Sun, 20 Feb 2011 21:20:06 +1100
 
 hplip (3.11.1-1) experimental; urgency=low
 
