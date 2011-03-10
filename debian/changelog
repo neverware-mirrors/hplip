@@ -1,3 +1,10 @@
+hplip (3.11.1-2ubuntu1) natty; urgency=low
+
+  * debian/control, debian/rules, debian/local/pyppd: Use external pyppd
+    package for the compression of the PostScript PPDs.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 10 Mar 2010 12:41:18 +0100
+
 hplip (3.11.1-2) unstable; urgency=low
 
   * Upload to unstable
