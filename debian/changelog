@@ -1,5 +1,9 @@
 hplip (3.11.1-2ubuntu1) natty; urgency=low
 
+  * debian/rules: Modified PPD generator for hpcups so that the PostScript
+    code for the "PageSize" option also sets the PCL paper size
+    ("/cupsInteger0 XX") and not only PageRegion (Closes: #518227,
+    LP: #405116, Red Hat bug #518756).
   * debian/control, debian/rules, debian/local/pyppd: Use external pyppd
     package for the compression of the PostScript PPDs.
 
