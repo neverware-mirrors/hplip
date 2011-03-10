@@ -190,7 +190,8 @@ install-stamp: build-stamp
 	# Add the setting of the PCL page size ("/cupsInteger0 XX") also to the
 	# PostScript instructions for PageSize and not only for PageRegion (PPD
 	# generator for the hpcups driver)
-	perl -e -i 'my $content = join("", <>); while($content =~ s:^(\s*CustomMedia.*?<<)(/PageSize.*?>>.*?\n?.*?<<)(/cupsInteger0\s+\d+)(.*>>.*)$:\1\3\2\3\4:smgi); print $content' $(PKGTMP)/usr/share/cups/drv/hpcups.drv
+	perl -e 'my $$content = join("", <>); while($$content =~ s:^(\s*CustomMedia.*?<<)(/PageSize.*?>>.*?\n?.*?<<)(/cupsInteger0\s+\d+)(.*>>.*)$$:\1\3\2\3\4:smgi) {}; print $$content' $(PKGTMP)/usr/share/cups/drv/hpcups.drv > $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new && \
+	mv -f $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 
 	# Install wrapper script for hp-plugin, to be called by update-notifier
 	# on udev signal (Ubuntu only)
