@@ -1,3 +1,19 @@
+hplip (3.11.1-2ubuntu2) natty; urgency=low
+
+  * debian/patches/workaround-sf-server-bug-for-plugin-index-download.dpatch:
+    In order to download the proprietary plug-in (firmware files, driver
+    add-ons), the "hp-plugin" utility downloads an index file from SourceForge.
+    Due to software changes at SourceForge which introduced a bug, Python's
+    urllib is not able any more to download this file, making the plug-in
+    download via "hp-plugin" impossible. HP has quickly released HPLIP 3.11.3a
+    which works around the problem by using the command line utility "wget".
+    This patch is a backport of the workaround (LP: #740140).
+
+  * debian/control: Let hplip depend on wget. wget is needed for the plugin
+    download now.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 25 Mar 2011 17:08:18 +0100
+
 hplip (3.11.1-2ubuntu1) natty; urgency=low
 
   * debian/rules: Modified PPD generator for hpcups so that the PostScript
@@ -7,7 +23,7 @@ hplip (3.11.1-2ubuntu1) natty; urgency=low
   * debian/control, debian/rules, debian/local/pyppd: Use external pyppd
     package for the compression of the PostScript PPDs.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 10 Mar 2010 12:41:18 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 10 Mar 2011 12:41:18 +0100
 
 hplip (3.11.1-2) unstable; urgency=low
 

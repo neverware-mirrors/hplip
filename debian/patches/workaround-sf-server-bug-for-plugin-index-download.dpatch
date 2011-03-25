@@ -1,0 +1,36 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## workaround-sf-server-bug-for-plugin-index-download.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.1~/installer/core_install.py hplip-3.11.1/installer/core_install.py
+--- hplip-3.11.1~/installer/core_install.py	2011-01-19 06:18:19.000000000 +0100
++++ hplip-3.11.1/installer/core_install.py	2011-03-25 16:54:59.646967284 +0100
+@@ -1843,12 +1843,22 @@
+ 
+         local_conf_fp, local_conf = utils.make_temp_file()
+ 
+-        if os.path.exists(local_conf):
+-            os.remove(local_conf)
++        #if os.path.exists(local_conf):
++            #os.remove(local_conf)
+ 
+         try:
+             try:
+-                filename, headers = urllib.urlretrieve(plugin_conf_url, local_conf, callback)
++                #filename, headers = urllib.urlretrieve(plugin_conf_url, local_conf, callback)
++                wget = utils.which("wget")
++                if wget:
++                    wget = os.path.join(wget, "wget")
++                    status, output = self.run("%s --timeout=60 --output-document=%s %s" %(wget, local_conf, plugin_conf_url))
++                    if status:
++			log.error("Plugin download failed with error code = %d" %status)
++                	return '', 0, 0, 0, False
++                else:
++                    log.error("Please install wget package to download the plugin.")
++                    return '', 0, 0, 0, False
+             except IOError, e:
+                 log.error("I/O Error: %s" % e.strerror)
+                 return '', 0, 0, 0, False

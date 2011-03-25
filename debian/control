@@ -22,7 +22,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:source:Ver
  hplip-cups (= ${hplip:binary:Version}),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
- policykit-1
+ policykit-1, wget
 Recommends: sane-utils, avahi-daemon
 Suggests: hplip-gui, hplip-doc, python-notify, system-config-printer
 Conflicts: hpijs (<< 2.1), hplip-dbg (<< 3.10.5-1ubuntu1), hplip-base, hplip-gui (<< 2.8.10), hpoj
