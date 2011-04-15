@@ -17,7 +17,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 
 Package: hplip
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:source:Version}),
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:binary:Version}),
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}),
  hplip-cups (= ${hplip:binary:Version}),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
@@ -68,7 +68,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: hplip-gui
 Architecture: all
-Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}), dbus-x11, 
+Depends: ${misc:Depends}, hplip (>= ${hplip:source:Version}), dbus-x11, 
  ${python:Depends}, python-qt4, python-qt4-dbus, python-reportlab,
  gksu | kdebase-bin (<< 4:4.4.0-1) | kdebase-runtime | kdesudo | ktsuss
 Recommends: xsane | simple-scan | skanlite, python-notify
