@@ -7,13 +7,16 @@ hplip (3.11.1-3) unstable; urgency=low
     LP: #405116, Red Hat bug #518756).
 
   [ Mark Purcell ]
+  * Make BinNMU safe
   * hplip Depends: libsane-hpaio (= ${hplip:binary:Version})
     - Fixes "depends on libsane-hpaio 3.11.1-2 instead of 3.11.1-2+b1"
     (Closes: #622598)
   * hplip-gui Depends: hplip (>= ${hplip:source:Version})
     - Fixes "binNMU is not installable" (Closes: #622602)
+  * hplip-ppds Depends: hpijs (>= ${hpijs:source:Version})
+    - Fixes "Uninstallable due to not binNMU safe" (Closes: #622596)
 
- -- Mark Purcell <msp@debian.org>  Sat, 16 Apr 2011 08:43:21 +1000
+ -- Mark Purcell <msp@debian.org>  Sat, 16 Apr 2011 08:46:43 +1000
 
 hplip (3.11.1-2ubuntu2) natty; urgency=low
 
