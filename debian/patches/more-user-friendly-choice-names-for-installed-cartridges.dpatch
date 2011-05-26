@@ -1,0 +1,70 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## more-user-friendly-choice-names-for-installed-cartridges.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.5~/prnt/drv/hpcups.drv.in hplip-3.11.5/prnt/drv/hpcups.drv.in
+--- hplip-3.11.5~/prnt/drv/hpcups.drv.in	2011-05-26 14:23:17.762457622 +0200
++++ hplip-3.11.5/prnt/drv/hpcups.drv.in	2011-05-26 14:27:20.962443341 +0200
+@@ -5008,9 +5008,9 @@
+ 
+   // Installed Cartridge: Only For Lidil Devices.
+   Option "InstalledCartridge/Installed Cartridges" PickOne AnySetup 10.0
+-    Choice "BlackColorOnly/BlackColor Only" "<</cupsInteger1 0>>setpagedevice"
++    Choice "BlackColorOnly/Black Only" "<</cupsInteger1 0>>setpagedevice"
+     Choice "TriColorOnly/TriColor Only" "<</cupsInteger1 1>>setpagedevice"
+-    Choice "PhotoColorOnly/PhotoColor Only" "<</cupsInteger1 2>>setpagedevice"
++    Choice "PhotoColorOnly/Photo Only" "<</cupsInteger1 2>>setpagedevice"
+     *Choice "BlackAndTriColor/Black and TriColor" "<</cupsInteger1 3>>setpagedevice"
+     Choice "PhotoAndColor/Photo and TriColor" "<</cupsInteger1 4>>setpagedevice"
+ 
+@@ -5227,9 +5227,9 @@
+ 
+   // Installed Cartridge: Only For Lidil Devices.
+   Option "InstalledCartridge/Installed Cartridges" PickOne AnySetup 10.0
+-    Choice "BlackColorOnly/BlackColor Only" "<</cupsInteger1 0>>setpagedevice"
++    Choice "BlackColorOnly/Black Only" "<</cupsInteger1 0>>setpagedevice"
+     Choice "TriColorOnly/TriColor Only" "<</cupsInteger1 1>>setpagedevice"
+-    Choice "PhotoColorOnly/PhotoColor Only" "<</cupsInteger1 2>>setpagedevice"
++    Choice "PhotoColorOnly/Photo Only" "<</cupsInteger1 2>>setpagedevice"
+     *Choice "BlackAndTriColor/Black and TriColor" "<</cupsInteger1 3>>setpagedevice"
+     Choice "PhotoAndColor/Photo and TriColor" "<</cupsInteger1 4>>setpagedevice"
+ 
+@@ -8349,9 +8349,9 @@
+ 
+   // Installed Cartridge: Only For Lidil Devices.
+   Option "InstalledCartridge/Installed Cartridges" PickOne AnySetup 10.0
+-    Choice "BlackColorOnly/BlackColor Only" "<</cupsInteger1 0>>setpagedevice"
++    Choice "BlackColorOnly/Black Only" "<</cupsInteger1 0>>setpagedevice"
+     Choice "TriColorOnly/TriColor Only" "<</cupsInteger1 1>>setpagedevice"
+-    Choice "PhotoColorOnly/PhotoColor Only" "<</cupsInteger1 2>>setpagedevice"
++    Choice "PhotoColorOnly/Photo Only" "<</cupsInteger1 2>>setpagedevice"
+     *Choice "BlackAndTriColor/Black and TriColor" "<</cupsInteger1 3>>setpagedevice"
+     Choice "PhotoAndColor/Photo and TriColor" "<</cupsInteger1 4>>setpagedevice"
+ 
+@@ -8770,9 +8770,9 @@
+ 
+   // Installed Cartridge: Only For Lidil Devices.
+   Option "InstalledCartridge/Installed Cartridges" PickOne AnySetup 10.0
+-    Choice "BlackColorOnly/BlackColor Only" "<</cupsInteger1 0>>setpagedevice"
++    Choice "BlackColorOnly/Black Only" "<</cupsInteger1 0>>setpagedevice"
+     Choice "TriColorOnly/TriColor Only" "<</cupsInteger1 1>>setpagedevice"
+-    Choice "PhotoColorOnly/PhotoColor Only" "<</cupsInteger1 2>>setpagedevice"
++    Choice "PhotoColorOnly/Photo Only" "<</cupsInteger1 2>>setpagedevice"
+     *Choice "BlackAndTriColor/Black and TriColor" "<</cupsInteger1 3>>setpagedevice"
+     Choice "PhotoAndColor/Photo and TriColor" "<</cupsInteger1 4>>setpagedevice"
+ 
+@@ -9175,9 +9175,9 @@
+ 
+   // Installed Cartridge: Only For Lidil Devices.
+   Option "InstalledCartridge/Installed Cartridges" PickOne AnySetup 10.0
+-    Choice "BlackColorOnly/BlackColor Only" "<</cupsInteger1 0>>setpagedevice"
++    Choice "BlackColorOnly/Black Only" "<</cupsInteger1 0>>setpagedevice"
+     Choice "TriColorOnly/TriColor Only" "<</cupsInteger1 1>>setpagedevice"
+-    Choice "PhotoColorOnly/PhotoColor Only" "<</cupsInteger1 2>>setpagedevice"
++    Choice "PhotoColorOnly/Photo Only" "<</cupsInteger1 2>>setpagedevice"
+     *Choice "BlackAndTriColor/Black and TriColor" "<</cupsInteger1 3>>setpagedevice"
+     Choice "PhotoAndColor/Photo and TriColor" "<</cupsInteger1 4>>setpagedevice"
+ 

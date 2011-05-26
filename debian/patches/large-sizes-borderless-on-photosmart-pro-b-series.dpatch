@@ -1,0 +1,117 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## large-sizes-borderless-on-photosmart-pro-b-series.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.5~/prnt/drv/hpcups.drv.in hplip-3.11.5/prnt/drv/hpcups.drv.in
+--- hplip-3.11.5~/prnt/drv/hpcups.drv.in	2011-05-26 14:44:32.682328934 +0200
++++ hplip-3.11.5/prnt/drv/hpcups.drv.in	2011-05-26 14:44:32.992328880 +0200
+@@ -3604,25 +3604,6 @@
+       Attribute "Product" "" "(HP Officejet k7108 Printer)"
+     }
+     {
+-      ModelName "HP Photosmart Pro b8300 Series"
+-      Attribute "NickName" "" "HP Photosmart Pro b8300 Series, $Version"
+-      Attribute "ShortNickName" "" "HP Photosmart Pro b8300 Series"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8300 series;DES:photosmart pro b8300 series;"
+-      PCFileName "hp-photosmart_pro_b8300_series.ppd"
+-      Attribute "Product" "" "(HP Photosmart Pro b8330 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8338 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8350 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8353 Printer)"
+-    }
+-    {
+-      ModelName "HP Photosmart Pro b8800 Series"
+-      Attribute "NickName" "" "HP Photosmart Pro b8800 Series, $Version"
+-      Attribute "ShortNickName" "" "HP Photosmart Pro b8800 Series"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8800 series;DES:photosmart pro b8800 series;"
+-      PCFileName "hp-photosmart_pro_b8800_series.ppd"
+-      Attribute "Product" "" "(HP Photosmart Pro b8850 Printer)"
+-    }
+-    {
+       ModelName "HP Deskjet 9600"
+       Attribute "NickName" "" "HP Deskjet 9600, $Version"
+       Attribute "ShortNickName" "" "HP Deskjet 9600"
+@@ -6946,6 +6927,25 @@
+ 
+     // <%Python:LargeFormatA3:NoAutoDuplex%>
+     {
++      ModelName "HP Photosmart Pro b8300 Series"
++      Attribute "NickName" "" "HP Photosmart Pro b8300 Series, $Version"
++      Attribute "ShortNickName" "" "HP Photosmart Pro b8300 Series"
++      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8300 series;DES:photosmart pro b8300 series;"
++      PCFileName "hp-photosmart_pro_b8300_series.ppd"
++      Attribute "Product" "" "(HP Photosmart Pro b8330 Printer)"
++      Attribute "Product" "" "(HP Photosmart Pro b8338 Printer)"
++      Attribute "Product" "" "(HP Photosmart Pro b8350 Printer)"
++      Attribute "Product" "" "(HP Photosmart Pro b8353 Printer)"
++    }
++    {
++      ModelName "HP Photosmart Pro b8800 Series"
++      Attribute "NickName" "" "HP Photosmart Pro b8800 Series, $Version"
++      Attribute "ShortNickName" "" "HP Photosmart Pro b8800 Series"
++      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8800 series;DES:photosmart pro b8800 series;"
++      PCFileName "hp-photosmart_pro_b8800_series.ppd"
++      Attribute "Product" "" "(HP Photosmart Pro b8850 Printer)"
++    }
++    {
+       ModelName "HP Photosmart b8500 Series"
+       Attribute "NickName" "" "HP Photosmart b8500 Series, $Version"
+       Attribute "ShortNickName" "" "HP Photosmart b8500 Series"
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.5~/prnt/drv/hpijs.drv.in hplip-3.11.5/prnt/drv/hpijs.drv.in
+--- hplip-3.11.5~/prnt/drv/hpijs.drv.in	2011-05-26 14:44:32.712328932 +0200
++++ hplip-3.11.5/prnt/drv/hpijs.drv.in	2011-05-26 14:46:38.472309672 +0200
+@@ -3714,25 +3714,6 @@
+       Attribute "Product" "" "(HP Officejet k7108 Printer)"
+     }
+     {
+-      ModelName "HP Photosmart Pro b8300 Series hpijs"
+-      Attribute "NickName" "" "HP Photosmart Pro b8300 Series hpijs, $Version"
+-      Attribute "ShortNickName" "" "HP PS Pro b8300 Series hpijs"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8300 series;DES:photosmart pro b8300 series;"
+-      PCFileName "hp-photosmart_pro_b8300_series-hpijs.ppd"
+-      Attribute "Product" "" "(HP Photosmart Pro b8330 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8338 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8350 Printer)"
+-      Attribute "Product" "" "(HP Photosmart Pro b8353 Printer)"
+-    }
+-    {
+-      ModelName "HP Photosmart Pro b8800 Series hpijs"
+-      Attribute "NickName" "" "HP Photosmart Pro b8800 Series hpijs, $Version"
+-      Attribute "ShortNickName" "" "HP PS Pro b8800 Series hpijs"
+-      Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8800 series;DES:photosmart pro b8800 series;"
+-      PCFileName "hp-photosmart_pro_b8800_series-hpijs.ppd"
+-      Attribute "Product" "" "(HP Photosmart Pro b8850 Printer)"
+-    }
+-    {
+       ModelName "HP Deskjet 9600 hpijs"
+       Attribute "NickName" "" "HP Deskjet 9600 hpijs, $Version"
+       Attribute "ShortNickName" "" "HP Deskjet 9600 hpijs"
+@@ -14746,6 +14727,25 @@
+     CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
+   // <%Python:LargeFormatA3:NoAutoDuplex%>
+   {
++    ModelName "HP Photosmart Pro b8300 Series hpijs"
++    Attribute "NickName" "" "HP Photosmart Pro b8300 Series hpijs, $Version"
++    Attribute "ShortNickName" "" "HP PS Pro b8300 Series hpijs"
++    Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8300 series;DES:photosmart pro b8300 series;"
++    PCFileName "hp-photosmart_pro_b8300_series-hpijs.ppd"
++    Attribute "Product" "" "(HP Photosmart Pro b8330 Printer)"
++    Attribute "Product" "" "(HP Photosmart Pro b8338 Printer)"
++    Attribute "Product" "" "(HP Photosmart Pro b8350 Printer)"
++    Attribute "Product" "" "(HP Photosmart Pro b8353 Printer)"
++  }
++  {
++    ModelName "HP Photosmart Pro b8800 Series hpijs"
++    Attribute "NickName" "" "HP Photosmart Pro b8800 Series hpijs, $Version"
++    Attribute "ShortNickName" "" "HP PS Pro b8800 Series hpijs"
++    Attribute "1284DeviceID" "" "MFG:HP;MDL:photosmart pro b8800 series;DES:photosmart pro b8800 series;"
++    PCFileName "hp-photosmart_pro_b8800_series-hpijs.ppd"
++    Attribute "Product" "" "(HP Photosmart Pro b8850 Printer)"
++  }
++  {
+     ModelName "HP Photosmart b8500 Series hpijs"
+     Attribute "NickName" "" "HP Photosmart b8500 Series hpijs, $Version"
+     Attribute "ShortNickName" "" "HP PS b8500 Series hpijs"

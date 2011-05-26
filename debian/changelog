@@ -1,3 +1,42 @@
+hplip (3.11.5-0ubuntu1) oneiric; urgency=low
+
+  * New upstream release
+     o Added LEDM ADF Scan support
+     o Added LEDM Wireless support
+     o "/cupsInteger0 <PCL page size number>" is added to the PageSize option
+       of the hpcups driver, not only in PageRegion (Upstream fix for Debian
+       bug #518227, LP: #405116, Red Hat bug #518756).
+     o Fixed HP Laserjet 1020 printing negative images and photos (LP: #754383).
+     o ADF now recognised on HP Officejet Pro 8500 A910a (LP: #776509).
+     o Added new option "Installed Cartridges" to enable users to select
+       correct installed cartridges for printing (Partial upstream fix for
+       LP: #235399, currently only applied to the hpcups driver, for the hpijs
+       driver we continue with the Debian/Ubuntu patch).
+     o Margin issues fixed on HP OfficeJet 7500 E910, 6500 e710n-z, LaserJet
+       m1319f MFP
+     o Removed scan icon in toolbox for HP Color LaserJet CM4540 MFP (scanner
+       is network-only).
+     o Fixed "Download Firmware" link in Action tab with HP LaserJet P1566.
+     o Redundant PostScript PPDs are removed.
+     o Added support for: HP Designjet T790ps 24in/44in, T1300 Postscript,
+       LaserJet M4555 MFP, LaserJet Professional m1214nfh MFP
+  * debian/patches/add-lidil-two-cartridge-modes.dpatch: Adapted to the partial
+    upstream fix.
+  * debian/patches/workaround-sf-server-bug-for-plugin-index-download.dpatch:
+    Removed, fixed upstream.
+  * debian/rules: Removed modification of the PPD generator for hpcups, as
+    the missing "/cupsInteger0 <PCL page size number>" in the PostScript code
+    of the PageSize option is fixed upstream.
+  * debian/patches/large-sizes-borderless-on-photosmart-pro-b-series.dpatch:
+    The HP PhotoSmart Pro B 8xxx printers are capable of borderless printing
+    on all paper sizes including the large formats. The HPLIP-supplied PPD
+    allowed borderless only up to Legal size (LP: #787580).
+  * debian/patches/more-user-friendly-choice-names-for-installed-cartridges.dpatch:
+    Make the menu entry strings for the "Installed Cartridges" option (on LIDIL
+    printers) more user-friendly.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 26 May 2011 13:33:18 +0200
+
 hplip (3.11.1-3) unstable; urgency=low
 
   [ Till Kamppeter ]

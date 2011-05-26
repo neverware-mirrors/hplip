@@ -22,4 +22,5 @@ try_libhpmud.so.0.dpatch
 add-lidil-two-cartridge-modes.dpatch
 add_missing_newline_for_error_log.dpatch
 CVE-2010-4267
-workaround-sf-server-bug-for-plugin-index-download.dpatch
+large-sizes-borderless-on-photosmart-pro-b-series
+more-user-friendly-choice-names-for-installed-cartridges
