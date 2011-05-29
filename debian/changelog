@@ -1,3 +1,10 @@
+hplip (3.11.5-1) unstable; urgency=low
+
+  * New Upstream Release
+  * Updated Homepage:
+
+ -- Mark Purcell <msp@debian.org>  Fri, 27 May 2011 21:16:17 +1000
+
 hplip (3.11.5-0ubuntu1) oneiric; urgency=low
 
   * New upstream release
