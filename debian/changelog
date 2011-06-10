@@ -1,4 +1,4 @@
-hplip (3.11.5-1ubuntu1) unstable; urgency=low
+hplip (3.11.5-1ubuntu1) oneiric; urgency=low
 
   * debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch:
     Added the missing '/' in the "bin/sh" calles, to assure that they work in
