@@ -1,3 +1,2 @@
 usr/lib/lib*.so
-usr/lib/*.la
 ../../io/hpmud/hpmud.h usr/include

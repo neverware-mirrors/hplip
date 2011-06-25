@@ -1,3 +1,11 @@
+hplip (3.11.5-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Don't ship .la files (Closes: #621591).
+  * Add missing '/' in bin/sh calls (Closes: #630648, #600673).
+
+ -- Luk Claes <luk@debian.org>  Sun, 19 Jun 2011 19:04:01 +0200
+
 hplip (3.11.5-1ubuntu1) oneiric; urgency=low
 
   * debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch:
