@@ -1,3 +1,10 @@
+hplip (3.11.5-2) UNRELEASED; urgency=low
+
+  * debian/control: Build-Depend on libjpeg-dev instead of libjpeg62-dev,
+    so that the package also builds with libjpeg8 (Closes: #634030).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 16 Jul 2011 11:54:00 +0200
+
 hplip (3.11.5-1.1) unstable; urgency=low
 
   * Non-maintainer upload.

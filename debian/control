@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
 Uploaders: Henrique de Moraes Holschuh <hmh@debian.org>, Torsten Landschoff <torsten@debian.org>, Mark Purcell <msp@debian.org>, Till Kamppeter <till.kamppeter@gmail.com>
-Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpeg62-dev, libusb-dev (>= 0.1.8), 
+Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpeg-dev, libusb-dev (>= 0.1.8), 
  debhelper (>= 5.0.37.2), autotools-dev, dpatch (>= 2), autoconf, automake, libtool, cups (>= 1.4.0) | cupsddk,
  patch (>= 2.5.9-3bpo1), findutils (>= 4.2.28), 
  python-dev, python-all-dev, python-qt4, pyqt4-dev-tools, python-support (>= 0.3),
