@@ -1,3 +1,13 @@
+hplip (3.11.5-2ubuntu1) oneiric; urgency=low
+
+  * debian/rules: Added "-dNOINTERPOLATE" to all Ghostscript command lines
+    defined in the HPLIP package: PPD generator hpijs.drv for HPIJS,
+    ready-made PPDs for HPIJS (hpijs-ppds package), Fax PPDs, pstotiff
+    CUPS filter. This makes the page rendering by Ghostscript significantly
+    faster.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 24 Jul 2011 20:50:00 +0200
+
 hplip (3.11.5-2) unstable; urgency=low
 
   [ Till Kamppeter ] 

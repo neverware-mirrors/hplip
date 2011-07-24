@@ -187,6 +187,10 @@ install-stamp: build-stamp
 	# 487695)
 	sh debian/local/make-duplex-page-sizes-default.sh $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 
+	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
+	# coomand line option. This makes rendering the pages much faster
+	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(PKGTMP)/usr/share/cups/drv/hpijs.drv $(PKGTMP)/usr/lib/cups/filter/pstotiff
+
 	# Install wrapper script for hp-plugin, to be called by update-notifier
 	# on udev signal (Ubuntu only)
 	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
@@ -297,7 +301,12 @@ install-arch-stamp: install-stamp
 	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/"
 
 	# Uncompress PPDs, this makes the package smaller for distribution
-	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
+	-find "$(CURDIR)/debian/hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	-find "$(CURDIR)/debian/hplip-cups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+
+	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
+	# coomand line option. This makes rendering the pages much faster
+	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd
 
 	# Generate .fdi file for HAL setting "scanner" capability to all
 	# HPLIP-supported devices (also without scanner), so that permissions
@@ -320,10 +329,13 @@ install-indep-stamp: install-stamp install-arch-stamp
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
 
 	# Patch the PPDs for the hpijs-ppds package to use foomatic-rip
-	# as CUPS filter and not foomatic-rip-hplip
+	# as CUPS filter and not foomatic-rip-hplip. Also add
+	# "-dNOINTERPOLATE" to the Ghostscript command lines to make rendering
+	# by Ghostscript faster.
 	(cd $(CURDIR)/debian/hpijs-ppds/usr/share/ppd/hplip/HP/ && \
 	  for ppd in *.ppd; do \
 	    perl -p -i -e 's/foomatic-rip-hplip/foomatic-rip/g' $$ppd; \
+	    perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $$ppd; \
 	  done \
 	)
 
