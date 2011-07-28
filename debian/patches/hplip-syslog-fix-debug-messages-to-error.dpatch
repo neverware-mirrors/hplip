@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hplip-syslog-fix-debug-messages-to-error.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.7~/prnt/hpcups/CommonDefinitions.h hplip-3.11.7/prnt/hpcups/CommonDefinitions.h
+--- hplip-3.11.7~/prnt/hpcups/CommonDefinitions.h	2011-07-24 20:58:05.000000000 +0200
++++ hplip-3.11.7/prnt/hpcups/CommonDefinitions.h	2011-07-28 10:22:02.706223578 +0200
+@@ -68,7 +68,7 @@
+ #define _STRINGIZE(x) #x
+ #define STRINGIZE(x) _STRINGIZE(x)
+ 
+-#define dbglog(args...) {syslog(LOG_ERR, __FILE__ " " STRINGIZE(__LINE__) ": " args); \
++#define dbglog(args...) {syslog(LOG_DEBUG, __FILE__ " " STRINGIZE(__LINE__) ": " args); \
+ fprintf(stderr, __FILE__ " " STRINGIZE(__LINE__) ": " args);}
+ 
+ 

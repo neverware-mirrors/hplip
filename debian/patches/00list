@@ -24,3 +24,4 @@ add_missing_newline_for_error_log.dpatch
 CVE-2010-4267
 large-sizes-borderless-on-photosmart-pro-b-series
 more-user-friendly-choice-names-for-installed-cartridges
+hplip-syslog-fix-debug-messages-to-error.dpatch

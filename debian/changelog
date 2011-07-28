@@ -1,3 +1,18 @@
+hplip (3.11.7-0ubuntu1) oneiric; urgency=low
+
+  * New upstream release
+     o Fixed missing leading "/" in /bin/sh call in 56-hpmud_support.rules
+       (LP: #795759).
+     o Added support for: HP DeskJet 3050A J611 series, LaserJet 100 Color
+       MFP M175, LaserJet Professional M1216nfh MFP, M1219nf MFP.
+     o Bug fixes.
+  * debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch:
+    Regenerated.
+  * debian/patches/hplip-syslog-fix-debug-messages-to-error.dpatch: Debug
+    messages were reported as errors and so cluttered the syslog (LP: #816763).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 28 Jul 2011 09:57:00 +0200
+
 hplip (3.11.5-2ubuntu1) oneiric; urgency=low
 
   * debian/rules: Added "-dNOINTERPOLATE" to all Ghostscript command lines
@@ -10,7 +25,7 @@ hplip (3.11.5-2ubuntu1) oneiric; urgency=low
 
 hplip (3.11.5-2) unstable; urgency=low
 
-  [ Till Kamppeter ] 
+  [ Till Kamppeter ]
   * debian/control: Build-Depend on libjpeg-dev instead of libjpeg62-dev,
     so that the package also builds with libjpeg8 (Closes: #634030).
 
