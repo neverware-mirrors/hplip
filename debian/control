@@ -21,7 +21,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:binary:Ver
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}),
  hplip-cups (= ${hplip:binary:Version}),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
- coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20), cups-client (>= 1.1.20),
+ coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20),
  policykit-1, wget
 Recommends: sane-utils, avahi-daemon
 Suggests: hplip-gui, hplip-doc, python-notify, system-config-printer
@@ -109,7 +109,7 @@ Section: utils
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (>> 20000101)
-Depends: ${misc:Depends}, hpijs (>= ${hpijs:source:Version}),  foomatic-filters (>= 3.0.2), cups-client, cups
+Depends: ${misc:Depends}, hpijs (>= ${hpijs:source:Version}), foomatic-filters (>= 3.0.2)
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -124,7 +124,7 @@ Package: hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${hplip:binary:Version})
-Recommends: ghostscript, cups (>= 1.4.0) | cupsddk, foomatic-filters, cups, cups-client
+Recommends: ghostscript, cups (>= 1.4.0) | cupsddk | hpijs-ppds, foomatic-filters
 Suggests: hplip, hpijs-ppds, hplip-doc
 Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
@@ -154,7 +154,7 @@ Package: hplip-cups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends},
- ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups, cups-client
+ ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups
 Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support

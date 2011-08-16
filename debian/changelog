@@ -1,3 +1,27 @@
+hplip (3.11.7-0ubuntu2) oneiric; urgency=low
+
+  * debian/hpijs.ppd-updater, debian/hplip-cups.ppd-updater,
+    debian/hplip.ppd-updater, debian/hpijs-ppds.ppd-updater: Added data files
+    to trigger the update of the PPD files of existing print queues by CUPS
+    and to tell CUPS which PPD files to use for the update and how to match
+    them with the PPDs of the existing queues.
+  * debian/hplip.postinst: Removed the repeated code for updating the PPD
+    files of existing print queues. This code is now centralized in the
+    cups package, as a trigger.
+  * debian/hpijs.postinst, debian/hplip-cups.postinst,
+    debian/hpijs-ppds.postinst: Removed the post-install scripts which only
+    contain the code for updating the PPDs of existing print queues.
+  * debian/hpijs.install, debian/hplip-cups.install, debian/hplip.install,
+    debian/hpijs-ppds.install, debian/rules: Install the *.ppd-updater
+    file of each printer driver/PPD package in the /usr/share/cups/ppd-updaters
+    directory.
+  * debian/control: Removed the dependency on cups-client from the printer
+    driver/PPD packages, as we do not call the command line utilities of CUPS
+    in the post-install scripts any more. Also removed the dependency on CUPS
+    from the hpijs and hpijs-ppds packages.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 16 Aug 2011 22:38:00 +0200
+
 hplip (3.11.7-0ubuntu1) oneiric; urgency=low
 
   * New upstream release
