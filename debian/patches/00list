@@ -25,4 +25,4 @@ CVE-2010-4267
 large-sizes-borderless-on-photosmart-pro-b-series
 more-user-friendly-choice-names-for-installed-cartridges
 hplip-syslog-fix-debug-messages-to-error.dpatch
-cups-1.5-needs-explicit-include-cups-ppd-h.dpatch
+cups-1.5.0-compatibility

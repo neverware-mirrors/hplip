@@ -1,8 +1,5 @@
-hplip (3.11.7-0ubuntu2) oneiric; urgency=low
+hplip (3.11.7-0ubuntu3) oneiric; urgency=low
 
-  * debian/patches/cups-1.5-needs-explicit-include-cups-ppd-h.dpatch:
-    CUPS 1.5 needs an explicit "#include <cups/ppd.h>" to use the PPD
-    functions in the CUPS library.
   * debian/hpijs.ppd-updater, debian/hplip-cups.ppd-updater,
     debian/hplip.ppd-updater, debian/hpijs-ppds.ppd-updater: Added data files
     to trigger the update of the PPD files of existing print queues by CUPS
@@ -24,6 +21,14 @@ hplip (3.11.7-0ubuntu2) oneiric; urgency=low
     from the hpijs and hpijs-ppds packages.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 17 Aug 2011 10:26:00 +0200
+
+hplip (3.11.7-0ubuntu2) oneiric; urgency=low
+
+  * debian/patches/cups-1.5.0-compatibility.dpatch: directly include
+    cups/ppd.h, for compatibility with cups 1.5.0.
+  * switch from the deprecated python-support to dh_python2.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 10 Aug 2011 00:39:24 +0000
 
 hplip (3.11.7-0ubuntu1) oneiric; urgency=low
 
