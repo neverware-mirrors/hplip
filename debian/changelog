@@ -1,3 +1,10 @@
+hplip (3.11.7-0ubuntu4) oneiric; urgency=low
+
+  * debian/control, debian/rules: Use new debhelper dh_pyppd to compress the
+    PPD files.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 21 Aug 2011 23:59:00 +0200
+
 hplip (3.11.7-0ubuntu3) oneiric; urgency=low
 
   * debian/hpijs.ppd-updater, debian/hplip-cups.ppd-updater,
