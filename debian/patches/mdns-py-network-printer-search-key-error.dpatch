@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## mdns-py-network-printer-search-key-error.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.7~/base/mdns.py hplip-3.11.7/base/mdns.py
+--- hplip-3.11.7~/base/mdns.py	2011-07-24 21:07:17.000000000 +0200
++++ hplip-3.11.7/base/mdns.py	2011-09-01 00:37:39.191408840 +0200
+@@ -308,8 +308,10 @@
+                         off += l
+ 
+                     log.debug("TXT: %s" % repr(txt))
+-                    y['device1'] = "MFG:Hewlett-Packard;MDL:%s;CLS:PRINTER;" % txt['ty']
+-
++                    try:
++                        y['device1'] = "MFG:Hewlett-Packard;MDL:%s;CLS:PRINTER;" % txt['ty']
++                    except KeyError:
++                        log.debug("NO ty Key in txt: %s" % repr(txt))
+                     if 'note' in txt:
+                         y['note'] = txt['note']
+ 

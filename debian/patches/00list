@@ -26,3 +26,4 @@ large-sizes-borderless-on-photosmart-pro-b-series
 more-user-friendly-choice-names-for-installed-cartridges
 hplip-syslog-fix-debug-messages-to-error.dpatch
 cups-1.5.0-compatibility
+mdns-py-network-printer-search-key-error

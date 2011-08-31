@@ -1,3 +1,11 @@
+hplip (3.11.7-0ubuntu5) oneiric; urgency=low
+
+  * debian/patches/mdns-py-network-printer-search-key-error.dpatch:
+    In some cases a search of network printers with the hp-setup utility
+    crashed with a key error (LP: #519430).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  1 Sep 2011 00:42:00 +0200
+
 hplip (3.11.7-0ubuntu4) oneiric; urgency=low
 
   * debian/control, debian/rules: Use new debhelper dh_pyppd to compress the
