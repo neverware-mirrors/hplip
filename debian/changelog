@@ -1,3 +1,9 @@
+hplip (3.11.7-1ubuntu1) oneiric; urgency=low
+
+  * debian/patches/mdns-py-typo.dpatch: Fixed typo in code (LP: #757899).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 22 Sep 2011 08:47:00 +0200
+
 hplip (3.11.7-1) unstable; urgency=low
 
   * New Upstream Release 
