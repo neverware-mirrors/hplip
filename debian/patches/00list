@@ -28,3 +28,4 @@ hplip-syslog-fix-debug-messages-to-error.dpatch
 cups-1.5.0-compatibility
 mdns-py-network-printer-search-key-error
 mdns-py-typo
+hpfax-bug-function-used-before-importing-log

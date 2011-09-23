@@ -1,3 +1,12 @@
+hplip (3.11.7-1ubuntu2) oneiric; urgency=low
+
+  * debian/patches/hpfax-bug-function-used-before-importing-log.dpatch:
+    The hpfax CUPS backend uses its function bug() (which in turnuses log())
+    before log() gets imported (with base.g). Made use of log() in bug()
+    optional (LP: #560849).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 23 Sep 2011 11:05:00 +0200
+
 hplip (3.11.7-1ubuntu1) oneiric; urgency=low
 
   * debian/patches/mdns-py-typo.dpatch: Fixed typo in code (LP: #757899).
@@ -6,7 +15,7 @@ hplip (3.11.7-1ubuntu1) oneiric; urgency=low
 
 hplip (3.11.7-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
   * Fixes "please replace deprecated python-support with dh_python2"
     3.11.7-0ubuntu2 by Steve (Closes: #637268)
 
