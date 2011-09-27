@@ -1,0 +1,20 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.patch.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.7~/ui4/systemtray.py hplip-3.11.7/ui4/systemtray.py
+--- hplip-3.11.7~/ui4/systemtray.py	2011-09-27 16:36:29.656301152 +0200
++++ hplip-3.11.7/ui4/systemtray.py	2011-09-27 16:38:47.716834875 +0200
+@@ -473,6 +473,9 @@
+ 
+         elif reason == QSystemTrayIcon.Trigger:
+             #print "single click"
++            self.updateMenu()
++            if not self.menu is None:
++                self.menu.popup(QCursor.pos())
+             pass
+ 
+         elif reason == QSystemTrayIcon.MiddleClick:

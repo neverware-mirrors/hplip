@@ -29,3 +29,5 @@ cups-1.5.0-compatibility
 mdns-py-network-printer-search-key-error
 mdns-py-typo
 hpfax-bug-function-used-before-importing-log
+hp-systray-make-menu-title-visible-in-sni-qt-indicator
+hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde

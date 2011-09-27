@@ -1,7 +1,21 @@
+hplip (3.11.7-1ubuntu3) oneiric; urgency=low
+
+  * debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch:
+    Simplified the construction of the title line of the hp-systray applet
+    menu, so that the applet-to-indicator converter sni-qt also imports this
+    title line (at least the text of it). Thanks to Aurelien Gateau for this
+    patch.
+  * debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
+    Make the menu of the hp-systray applet appearing when the applet is
+    converted to an indicator applet by sni-qt and put into the notification
+    area of KDE (LP: #857929).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 27 Sep 2011 17:13:00 +0200
+
 hplip (3.11.7-1ubuntu2) oneiric; urgency=low
 
   * debian/patches/hpfax-bug-function-used-before-importing-log.dpatch:
-    The hpfax CUPS backend uses its function bug() (which in turnuses log())
+    The hpfax CUPS backend uses its function bug() (which in turn uses log())
     before log() gets imported (with base.g). Made use of log() in bug()
     optional (LP: #560849).
 
