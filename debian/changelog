@@ -1,3 +1,18 @@
+hplip (3.11.10-0ubuntu1) precise; urgency=low
+
+  * New upstream release
+     o Added support for: HP DeskJet 3070 B611 series, Envy 110 e-All-in-One,
+       LaserJet Enterprise 500 Color M551, OfficeJet Pro 8100 N811, Pro 8600,
+       PhotoSmart 5510 e-All-in-One, 6510 e-All-in-one, 7510 e-All-in-One
+     o Bug fixes.
+  * debian/patches/large-sizes-borderless-on-photosmart-pro-b-series.dpatch,
+    debian/patches/more-user-friendly-choice-names-for-installed-cartridges.dpatch,
+    debian/patches/cups-1.5.0-compatibility.dpatch,
+    debian/patches/mdns-py-network-printer-search-key-error.dpatch,
+    debian/patches/mdns-py-typo.dpatch: Removed, fixed upstream.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 26 Oct 2011 21:31:00 +0200
+
 hplip (3.11.7-1ubuntu3) oneiric; urgency=low
 
   * debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch:

@@ -22,12 +22,7 @@ try_libhpmud.so.0.dpatch
 add-lidil-two-cartridge-modes.dpatch
 add_missing_newline_for_error_log.dpatch
 CVE-2010-4267
-large-sizes-borderless-on-photosmart-pro-b-series
-more-user-friendly-choice-names-for-installed-cartridges
 hplip-syslog-fix-debug-messages-to-error.dpatch
-cups-1.5.0-compatibility
-mdns-py-network-printer-search-key-error
-mdns-py-typo
 hpfax-bug-function-used-before-importing-log
 hp-systray-make-menu-title-visible-in-sni-qt-indicator
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde
