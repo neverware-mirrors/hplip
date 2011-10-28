@@ -1,9 +1,9 @@
-hplip (3.11.10-1) UNRELEASED; urgency=low
+hplip (3.11.10-1) unstable; urgency=low
 
   * New Upstream Release
   * Switch to dh_bugfiles - fixes reportbug script
 
- -- Mark Purcell <msp@debian.org>  Sat, 29 Oct 2011 09:39:39 +1100
+ -- Mark Purcell <msp@debian.org>  Sat, 29 Oct 2011 10:02:57 +1100
 
 hplip (3.11.10-0ubuntu1) precise; urgency=low
 
