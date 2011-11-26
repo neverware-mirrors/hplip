@@ -1,3 +1,11 @@
+hplip (3.10.6-2+squeeze1) stable; urgency=low
+
+  * Fix "Insecure tempfile handling" CVE-2011-2722 by backporting from
+    the removal of the culprit code by upstream.  (Closes: #635549)
+    - Added CVE-2011-2722.dpatch by Didier Raboud
+
+ -- Mark Purcell <msp@debian.org>  Sun, 27 Nov 2011 02:39:13 +1100
+
 hplip (3.10.6-2) unstable; urgency=high
 
   * SECURITY UPDATE: denial of service and possible arbitrary code

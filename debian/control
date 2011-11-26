@@ -12,7 +12,7 @@ Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpe
 XS-Python-Version: >= 2.5
 Standards-Version: 3.8.4
 Homepage: http://hplip.sourceforge.net/
-Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
+Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/branches/squeeze/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 
 Package: hplip
