@@ -1,0 +1,29 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hpcups-top-margins-not-respected.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.10~/prnt/hpcups/HPCupsFilter.cpp hplip-3.11.10/prnt/hpcups/HPCupsFilter.cpp
+--- hplip-3.11.10~/prnt/hpcups/HPCupsFilter.cpp	2011-12-01 10:59:18.504613295 +0100
++++ hplip-3.11.10/prnt/hpcups/HPCupsFilter.cpp	2011-12-01 11:00:17.088807279 +0100
+@@ -544,18 +544,10 @@
+         return true;
+     }
+ 
+-    if(header->cupsColorSpace == CUPS_CSPACE_K){
+-	if (*input_raster == 0x00 &&
+-            !(memcmp(input_raster + 1, input_raster, length_in_bytes - 1))) {
+-        return true;
+-        }
+-    }
+-    else{
+         if (*input_raster == 0xFF &&
+               !(memcmp(input_raster + 1, input_raster, length_in_bytes - 1))) {
+         return true;
+         }
+-    }
+     return false;
+ }
+ 
