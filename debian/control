@@ -19,7 +19,7 @@ Package: hplip
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:binary:Version}),
  libhpmud0 (= ${hplip:binary:Version}), hplip-data (= ${hplip:source:Version}),
- hplip-cups (= ${hplip:binary:Version}),
+ printer-driver-hpcups (= ${hplip:binary:Version}),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20),
  policykit-1, wget
@@ -65,6 +65,16 @@ Description: HP Linux Printing and Imaging - data files
  This package contains data files and PPDs for the HP Linux Printing and
  Imaging System.
 
+Package: printer-driver-postscript-hp
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: hplip (>= ${hplip:source:Version})
+Replaces: hplip-data (<< 3.11.10-1ubuntu2), hplip (<< 3.11.10-1ubuntu2)
+Breaks: cups (<< 1.5.0-11~)
+Description: HP Printers PostScript Descriptions
+ This package contains the compressed PPDs for the PostScript HP
+ Printers.
+
 Package: hplip-gui
 Architecture: all
 Depends: ${misc:Depends}, hplip (>= ${hplip:source:Version}), dbus-x11, 
@@ -83,7 +93,7 @@ Package: hplip-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}) | hplip-cups (= ${hplip:binary:Version}) | hpijs (= ${hpijs:binary:Version})
+Depends: ${misc:Depends}, hplip (= ${hplip:binary:Version}) | printer-driver-hpcups (= ${hplip:binary:Version}) | printer-driver-hpijs (= ${hpijs:binary:Version})
 Conflicts: hplip (<< 3.10.2-2ubuntu2)
 Description: HP Linux Printing and Imaging - debugging information
  This package contains debugging symbolic information for all the
@@ -108,7 +118,7 @@ Section: utils
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Conflicts: hplip-ppds, foomatic-filters-ppds (>> 20000101)
-Depends: ${misc:Depends}, hpijs (>= ${hpijs:source:Version}), foomatic-filters (>= 3.0.2)
+Depends: ${misc:Depends}, printer-driver-hpijs (>= ${hpijs:source:Version}), foomatic-filters (>= 3.0.2)
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -120,12 +130,22 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
  version of the PPDs (which are not guaranteed to work well).
 
 Package: hpijs
+Architecture: all
+Section: oldlibs
+Priority: extra
+Depends: printer-driver-hpijs
+Description: transitional dummy package for hpijs printer driver
+ This is a transitional dummy package to transition to uniformly named
+ printer-driver-hpijs.
+
+Package: printer-driver-hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${hplip:binary:Version})
 Recommends: ghostscript, cups (>= 1.4.0) | cupsddk | hpijs-ppds, foomatic-filters
 Suggests: hplip, hpijs-ppds, hplip-doc
-Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1)
+Replaces: hpijs-ppds (<< 2.6.10+1.6.10-1), hplip-ppds (<< 1.6.10-1), hpijs (<< 3.11.10-1ubuntu2)
+Breaks: hpijs (<< 3.11.10-1ubuntu2)
 Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  This package contains an IJS printer driver for Ghostscript, which
  adds support for most inkjet printers and some LaserJet printers
@@ -150,11 +170,22 @@ Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
  foomatic-filters package).
 
 Package: hplip-cups
+Architecture: all
+Section: oldlibs
+Priority: extra
+Depends: printer-driver-hpcups
+Description: transitional dummy package for hpcups printer driver
+ This is a transitional dummy package to transition to uniformly named
+ printer-driver-hpcups.
+
+Package: printer-driver-hpcups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends},
  ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups
 Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
+Replaces: hplip-cups (<< 3.11.10-1ubuntu2)
+Breaks: hplip-cups (<< 3.11.10-1ubuntu2)
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  This package contains a CUPS-Raster-based printer driver which adds support
  for most inkjet printers and some LaserJet printers manufactured by HP. It

@@ -199,9 +199,9 @@ install-stamp: build-stamp
 	# Install the ppd updater data files so that CUPS can update the
 	# PPDs of the already existing queue after each update of HPLIP's
 	# printer driver/PPD packages
-	install -D -m 644 debian/hplip.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hplip
-	install -D -m 644 debian/hplip-cups.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hplip-cups
-	install -D -m 644 debian/hpijs.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hpijs
+	install -D -m 644 debian/printer-driver-postscript-hp.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-postscript-hp
+	install -D -m 644 debian/printer-driver-hpcups.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpcups
+	install -D -m 644 debian/printer-driver-hpijs.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpijs
 	install -D -m 644 debian/hpijs-ppds.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hpijs-ppds
 
 	# Install Apport hook
@@ -299,16 +299,16 @@ install-arch-stamp: install-stamp
 	install -m 755 hplipjs "$(PKGTMP)/usr/lib/cups/filter/"
 
 	# Fax PPDs, install to destdir directly
-	mkdir -p "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP"
-	mkdir -p "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP"
+	mkdir -p "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/hplip/HP"
+	mkdir -p "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP"
 	cp fax/ppd/HP-Fax*-hpijs.ppd.gz \
-	   "$(CURDIR)/debian/hpijs/usr/share/ppd/hplip/HP/"
+	   "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/hplip/HP/"
 	cp fax/ppd/HP-Fax*-hpcups.ppd.gz \
-	   "$(CURDIR)/debian/hplip-cups/usr/share/ppd/hplip/HP/"
+	   "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP/"
 
 	# Uncompress PPDs, this makes the package smaller for distribution
-	-find "$(CURDIR)/debian/hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
-	-find "$(CURDIR)/debian/hplip-cups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	-find "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	-find "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
 
 	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
 	# coomand line option. This makes rendering the pages much faster
@@ -346,8 +346,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 	)
 
 	# Compress the PPD files with pyppd
-	dh_pyppd -phplip-data
-	mv $(CURDIR)/debian/hplip-data/usr/lib/cups/driver/hplip-data $(CURDIR)/debian/hplip-data/usr/lib/cups/driver/hplip
+	dh_pyppd -pprinter-driver-postscript-hp
 
 	# Remove models.dat from hplip-data - we ship with libsane-hpaio
 	rm $(CURDIR)/debian/hplip-data/usr/share/hplip/data/models/models.dat

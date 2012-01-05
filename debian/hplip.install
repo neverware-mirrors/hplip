@@ -27,7 +27,6 @@ usr/lib/cups/filter/hpcac
 usr/lib/python*
 usr/share/cups/mime/*.types
 usr/share/cups/mime/*.convs
-usr/share/cups/ppd-updaters/hplip
 usr/share/dbus-1
 usr/share/polkit-1
 var/lib

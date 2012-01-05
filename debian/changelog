@@ -1,3 +1,34 @@
+hplip (3.11.10-1ubuntu2) precise; urgency=low
+
+  * debian/control, debian/rules, debian/hpijs.README.Debian,
+    debian/hpijs.docs, debian/hpijs.install, debian/hpijs.lintian,
+    debian/hpijs.manpages, debian/hpijs.ppd-updater,
+    debian/hplip-cups.NEWS, debian/hplip-cups.install,
+    debian/hplip-cups.lintian, debian/hplip-cups.ppd-updater,
+    debian/hplip-data.install, debian/hplip.install,
+    debian/hplip.ppd-updater, debian/printer-driver-hpcups.NEWS,
+    debian/printer-driver-hpcups.install,
+    debian/printer-driver-hpcups.lintian,
+    debian/printer-driver-hpcups.ppd-updater,
+    debian/printer-driver-hpijs.README.Debian,
+    debian/printer-driver-hpijs.docs,
+    debian/printer-driver-hpijs.install,
+    debian/printer-driver-hpijs.lintian,
+    debian/printer-driver-hpijs.manpages,
+    debian/printer-driver-hpijs.ppd-updater,
+    debian/printer-driver-postscript-hp.install,
+    debian/printer-driver-postscript-hp.ppd-updater: Updated to follow Debian's
+    new printer driver package naming policy, naming printer driver binary
+    packages starting with "printer-driver-...": renamed the "hplip-cups"
+    package to "printer-driver-hpcups" and "hpijs" to "printer-driver-hpijs",
+    moved the PostScript printer PPDs from "hplip-data" to the newly introuced
+    "printer-driver-postscript-hp" package. Moved PPD updater for the
+    PostScript PPDs which was (wrongly) packaged in "hplip" also to
+    "printer-driver-postscript-hp". Added transitional packages. Thanks
+    to Didier Raboud (odyx at debian dot org) for the patch (Closes: #649991).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  5 Jan 2012 22:49:00 +0100
+
 hplip (3.11.10-1ubuntu1) precise; urgency=low
 
   * debian/patches/hpcups-top-margins-not-respected.dpatch: Reverted upstream
@@ -1208,7 +1239,7 @@ hplip (3.9.6-0ubuntu1) karmic; urgency=low
     HPIJS queues get migrated to hpcups queues.
   * debian/hpijs-ppds.links: Static PPDs use foomatic-rip-hplip as filter name,
     added link to make them work anyway.
-	
+
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 18 Jun 2009 20:59:49 +0200
 
 hplip (3.9.4b-1ubuntu4) karmic; urgency=low
