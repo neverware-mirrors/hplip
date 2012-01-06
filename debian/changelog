@@ -1,3 +1,9 @@
+hplip (3.11.10-1ubuntu3) precise; urgency=low
+
+  * debian/hplip.install: Added entry for /usr/lib/cups/filter/hpps.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  6 Jan 2012 01:13:00 +0100
+
 hplip (3.11.10-1ubuntu2) precise; urgency=low
 
   * debian/control, debian/rules, debian/hpijs.README.Debian,
