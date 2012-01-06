@@ -1,3 +1,12 @@
+hplip (3.11.10-1ubuntu4) precise; urgency=low
+
+  * debian/rules: Use "#!/usr/bin/python" instead of "#!/usr/bin/env python"
+    to specify the path to the Python interpreter, to assure that always
+    the system's interpreter is used and never a possibly incompatible
+    alternative Python interpreter (LP: #912625).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  6 Jan 2012 09:37:00 +0100
+
 hplip (3.11.10-1ubuntu3) precise; urgency=low
 
   * debian/hplip.install: Added entry for /usr/lib/cups/filter/hpps.

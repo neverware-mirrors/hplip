@@ -267,6 +267,11 @@ install-stamp: build-stamp
 	install -d ./debian/tmp/usr/sbin/
 	ln -s /usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
+	# Correct Python interpreter path in all executables
+	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/sbin/* ./debian/tmp/usr/lib/cups/*/*; do \
+	    perl -p -i -e 's:^\s*\#\!/usr/bin/env\s+python.*:#!/usr/bin/python:' `readlink -f $$file`; \
+	done
+
 	# Remove all *.pyc files, they do not need to be shipped with the
 	# package
 	find ./debian/tmp/ -name '*.pyc' -print0 | xargs -0 rm -f
