@@ -11,7 +11,7 @@ hp-check_debian
 hp-setup-prompt-for-custom-PPD.dpatch
 hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
-udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch
+udev-rules-hp-mkuri-call-fix.dpatch
 hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
 ubuntu-hp-mkuri-notification-text.dpatch
 simple-scan-as-default.dpatch
@@ -20,10 +20,8 @@ remove-duplicate-entry-for-cp1700-in-drv-files.dpatch
 black-stripes-on-pcl5c-printouts.dpatch
 try_libhpmud.so.0.dpatch
 add-lidil-two-cartridge-modes.dpatch
-add_missing_newline_for_error_log.dpatch
 CVE-2010-4267
 hplip-syslog-fix-debug-messages-to-error.dpatch
 hpfax-bug-function-used-before-importing-log
 hp-systray-make-menu-title-visible-in-sni-qt-indicator
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde
-hpcups-top-margins-not-respected

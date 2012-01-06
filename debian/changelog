@@ -1,3 +1,28 @@
+hplip (3.11.12-0ubuntu1) precise; urgency=low
+
+  * New upstream release
+     o Auto-detection and installation of missing plug-ins
+     o Added support for: HP LaserJet Enterprise 600 M601n, M601dn, M602n,
+       M602dn, M602x, M603n, M603dn, M603xh, LaserJet 200 color MFP M275nw,
+       M275s, M275t, M275u, Photosmart 5510d e-All-in-One
+     o Bug fixes.
+  * debian/patches/add_missing_newline_for_error_log.dpatch,
+    debian/patches/hpcups-top-margins-not-respected.dpatch: Removed, fixed
+    upstream.
+  * debian/patches/udev-rules-use-attrs-not-sysfs-and-hp-mkuri-call-fix.dpatch,
+    debian/patches/udev-rules-hp-mkuri-call-fix.dpatch: SYSFS issue is fixed
+    upstream, replaced the patch by one for only the hp-mkuri part.
+  * debian/patches/hplip-syslog-fix-debug-messages-to-error.dpatch: Regenerated.
+  * debian/hplip-gui.install: Added new files for automatic plugin installation.
+  * debian/hplip.dirs: Install new /var/log/hp/ directory.
+  * debian/control: printer-driver-postscript-hp needs hpps CUPS filter, which
+    is in the hplip package, therefore depend on hplip.
+  * debian/local/scripts/hp-plugin-ubuntu: Only do the automatic installation
+    of the plugin if the HPLIP GUI is not installed, otherwise HPLIP does
+    the installation on its own.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  6 Jan 2012 12:53:00 +0100
+
 hplip (3.11.10-1ubuntu4) precise; urgency=low
 
   * debian/rules: Use "#!/usr/bin/python" instead of "#!/usr/bin/env python"

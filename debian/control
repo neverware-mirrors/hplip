@@ -67,8 +67,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: printer-driver-postscript-hp
 Architecture: all
-Depends: ${misc:Depends}
-Recommends: hplip (>= ${hplip:source:Version})
+Depends: ${misc:Depends}, hplip (>= ${hplip:source:Version})
 Replaces: hplip-data (<< 3.11.10-1ubuntu2), hplip (<< 3.11.10-1ubuntu2)
 Breaks: cups (<< 1.5.0-11~)
 Description: HP Printers PostScript Descriptions

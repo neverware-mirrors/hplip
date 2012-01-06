@@ -1,7 +1,10 @@
 etc/xdg/autostart/hplip-systray.desktop
+etc/udev/rules.d/86-hpmud_plugin.rules lib/udev/rules.d 
+usr/bin/hp-check-plugin
 usr/bin/hp-devicesettings
-usr/bin/hp-faxsetup
+usr/bin/hp-diagnose_plugin
 usr/bin/hp-fab
+usr/bin/hp-faxsetup
 usr/bin/hp-linefeedcal
 usr/bin/hp-makecopies
 usr/bin/hp-pqdiag
