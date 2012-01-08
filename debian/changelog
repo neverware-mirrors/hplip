@@ -1,3 +1,16 @@
+hplip (3.11.12-1) unstable; urgency=low
+
+  * New Upstream Release 
+  * Fix "Please rename the hplip packages to the printer-driver-
+    convention" odyx patch - thks (Closes: #649991)
+  * Fix "debian/control uses hardcoded list of non-Linux architectures"
+    Update Build-Depends: libudev-dev [linux-any] (Closes: #634488)
+  * Fix "hp-scan scans entire job and then reports inability to produce
+    PDFs without reportlab" Added Depends: python-reportlab (Closes: #651240)
+  * Fix "hplip bug report" python handling correct (Closes: #609680)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 08 Jan 2012 20:10:45 +1100
+
 hplip (3.11.12-0ubuntu1) precise; urgency=low
 
   * New upstream release
