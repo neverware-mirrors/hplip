@@ -1,6 +1,6 @@
 hplip (3.11.12-2) unstable; urgency=low
 
-  * Reinstate printer-driver-hpcups.install
+  * Reinstate printer-driver-{hpcups,hpijs}.install
     - Fixes "File "/usr/lib/cups/filter/hpcups" not available: No such file
     or directory" (Closes: #655424)
 
