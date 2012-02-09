@@ -1,3 +1,16 @@
+hplip (3.12.2-0ubuntu1) precise; urgency=low
+
+  * New upstream release
+     o Added support for: HP LaserJet Pro 300 color MFP M375nw, 400 color
+       MFP M475dn, 400 color MFP M475dw, 300 color M351a, 400 color M451nw,
+       400 color M451dn, 400 color M451dw, P1108, P1106, P1102s, Color
+       LaserJet CP1217
+     o Bug fixes.
+  * debian/patches/hplip-systray-longer-timeout-for-system-tray-start.dpatch:
+    Removed, fixed upstream.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  9 Feb 2012 16:29:00 +0100
+
 hplip (3.11.12-2) unstable; urgency=low
 
   * Reinstate printer-driver-{hpcups,hpijs}.install
@@ -8,7 +21,7 @@ hplip (3.11.12-2) unstable; urgency=low
 
 hplip (3.11.12-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
   * Fix "Please rename the hplip packages to the printer-driver-
     convention" odyx patch - thks (Closes: #649991)
   * Fix "debian/control uses hardcoded list of non-Linux architectures"

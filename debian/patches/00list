@@ -9,7 +9,6 @@ kde4-kdesudo-support.dpatch
 hp-check-groups
 hp-check_debian
 hp-setup-prompt-for-custom-PPD.dpatch
-hplip-systray-longer-timeout-for-system-tray-start.dpatch
 kbsd.dpatch
 udev-rules-hp-mkuri-call-fix.dpatch
 hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
