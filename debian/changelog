@@ -1,3 +1,11 @@
+hplip (3.12.2-1) UNRELEASED; urgency=low
+
+  * New Upstream Release
+  * Fixup Replaces: for squeeze security updates (Closes: #658056)
+  * Cleanup Obsolete Replaces: Depends: - only support upgrade from squeeze
+
+ -- Mark Purcell <msp@debian.org>  Sat, 18 Feb 2012 10:39:17 +1100
+
 hplip (3.12.2-0ubuntu1) precise; urgency=low
 
   * New upstream release
