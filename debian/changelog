@@ -1,12 +1,14 @@
-hplip (3.12.2-1) UNRELEASED; urgency=low
+hplip (3.12.2-1) unstable; urgency=low
 
   * New Upstream Release
   * Fixup Replaces: for squeeze security updates (Closes: #658056)
+    - Fixes "obsolete conffiles not removed on upgrades" (Closes: #645848)
   * Cleanup Obsolete Replaces: Depends: Breaks: - support upgrades squeeze+
   * Obtain user consent before running hp-check in reportbug
     - Fixes "bug script starts /usr/share/hplip/systray.py" (Closes: #623627)
+  * Drop legacy Uploaders
 
- -- Mark Purcell <msp@debian.org>  Sat, 18 Feb 2012 11:33:56 +1100
+ -- Mark Purcell <msp@debian.org>  Sat, 18 Feb 2012 13:50:39 +1100
 
 hplip (3.12.2-0ubuntu1) precise; urgency=low
 
