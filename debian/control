@@ -22,7 +22,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libsane-hpaio (= ${hplip:binary:Ver
  printer-driver-hpcups (= ${hplip:binary:Version}),
  ${python:Depends}, python-dbus (>= 0.80), python-imaging, python-pexpect, python-reportlab,
  coreutils (>= 5.1.0), lsb-base (>= 3), adduser (>= 3.34), cups (>= 1.1.20),
- policykit-1, wget
+ policykit-1, python-gobject-2, wget
 Recommends: sane-utils, avahi-daemon
 Suggests: hplip-gui, hplip-doc, python-notify, system-config-printer
 Description: HP Linux Printing and Imaging System (HPLIP)

@@ -7,8 +7,10 @@ hplip (3.12.2-1) unstable; urgency=low
   * Obtain user consent before running hp-check in reportbug
     - Fixes "bug script starts /usr/share/hplip/systray.py" (Closes: #623627)
   * Drop legacy Uploaders
+  * Add hplip Depends: python-gobject-2
+    - Fixes "missing dependency causes hp-plugin to fail" (Closes: #600360)
 
- -- Mark Purcell <msp@debian.org>  Sat, 18 Feb 2012 13:50:39 +1100
+ -- Mark Purcell <msp@debian.org>  Sat, 18 Feb 2012 13:56:10 +1100
 
 hplip (3.12.2-0ubuntu1) precise; urgency=low
 
