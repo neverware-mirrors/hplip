@@ -13,9 +13,7 @@ Password: " \
     hp-plugin -i
 else
     if python -c 'import PyQt4.QtGui' 2>/dev/null && which hp-toolbox 2>/dev/null; then
-	# Do nothing if the full HPLIP GUI is installed, then HPLIP is able to
-	# do the automatic plug-in installation on its own.
-	#gksu -D 'HP Printer Driver Plug-in Installation' -- hp-plugin -u >/dev/null 2>&1
+	gksu -D 'HP Printer Driver Plug-in Installation' -- hp-plugin -u >/dev/null 2>&1
 	exit 0
     else
 	gksu -D 'HP Printer Driver Plug-in Installation' -- xterm -T 'HP Printer Driver Plug-in Installation' -sb -rightbar -hold -e hp-plugin -i >/dev/null 2>&1 &

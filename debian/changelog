@@ -1,3 +1,14 @@
+hplip (3.12.2-1ubuntu1) precise; urgency=low
+
+  * debian/local/scripts/hp-plugin-ubuntu, debian/hplip-gui.install: Return
+    from HPLIP's own automatic plugin installation to the Ubuntu method,
+    HP's method installs the plugin when an arbitrary HP LaserJet printer is
+    detected on the USB.
+  * debian/patches/hp-mkuri-libnotify-so-4-support.dpatch: Let hp-mkuri use
+    libnotify.so.4.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 27 Feb 2012 16:13:00 +0100
+
 hplip (3.12.2-1) unstable; urgency=low
 
   * New Upstream Release
