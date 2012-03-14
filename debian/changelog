@@ -1,3 +1,11 @@
+hplip (3.12.2-1ubuntu2) precise; urgency=low
+
+  * debian/control: Added Replaces/Breaks on hplip-data (<< 3.10.5-4ubuntu1)
+    to the libsane-hpaio binary package, to make update from Ubuntu Lucid LTS
+    to Precise LTS working (LP: #954847).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 14 Feb 2012 18:49:00 +0100
+
 hplip (3.12.2-1ubuntu1) precise; urgency=low
 
   * debian/local/scripts/hp-plugin-ubuntu, debian/hplip-gui.install: Return

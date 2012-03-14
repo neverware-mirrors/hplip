@@ -238,8 +238,8 @@ Package: libsane-hpaio
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: hplip (<< 3.10.6-3)
-Breaks: hplip (<< 3.10.6-3)
+Replaces: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
+Breaks: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
 Recommends: sane-utils, hplip (= ${hplip:binary:Version})
 Description: HP SANE backend for multi-function peripherals
  This package contains the SANE backend libraries for use with HP
