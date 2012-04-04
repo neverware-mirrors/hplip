@@ -1,3 +1,10 @@
+hplip (3.12.2-1ubuntu3) precise; urgency=low
+
+  * debian/patches/fax-support-hp-laserjet-m1522nf-mfp.dpatch: Fixed fax
+    sending support for the HP LaserJet M1522nf MFP (LP: #790238).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  4 Apr 2012 13:59:00 +0200
+
 hplip (3.12.2-1ubuntu2) precise; urgency=low
 
   * debian/control: Added Replaces/Breaks on hplip-data (<< 3.10.5-4ubuntu1)

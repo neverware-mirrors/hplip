@@ -25,3 +25,4 @@ hpfax-bug-function-used-before-importing-log
 hp-systray-make-menu-title-visible-in-sni-qt-indicator
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde
 hp-mkuri-libnotify-so-4-support.dpatch
+fax-support-hp-laserjet-m1522nf-mfp.dpatch
