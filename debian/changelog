@@ -1,18 +1,15 @@
-hplip (3.12.4-1) UNRELEASED; urgency=low
+hplip (3.12.4-1) unstable; urgency=low
 
   * New upstream release
   * Switch to source/format 3.0 (quilt) - drop dpatch
   * Refreshed debian/patches
   * dh_autoreconf debian/autogen.sh & set local-options single-debian-patch
   * Update to debian/compat -> 9
+  * Fix "hardened build flags" patch from Moritz - thanks (Closes: #667828)
+  * Fix "duplex descriptor uninitialized" patch from Matej (Closes: #583273)
+  * Fix "please migrate to kde-runtime" patch from Pino (Closes: #666544)
 
- -- Mark Purcell <msp@debian.org>  Sun, 15 Apr 2012 14:07:13 +1000
-
-hplip (3.12.2-1ubuntu4) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
-
- -- Mark Purcell <msp@debian.org>  Sun, 15 Apr 2012 13:41:57 +1000
+ -- Mark Purcell <msp@debian.org>  Sat, 26 May 2012 11:20:39 +1000
 
 hplip (3.12.2-1ubuntu3) precise; urgency=low
 

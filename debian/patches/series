@@ -26,3 +26,4 @@ hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
 hp-mkuri-libnotify-so-4-support.dpatch
 fax-support-hp-laserjet-m1522nf-mfp.dpatch
+hpaio-option-duplex.diff

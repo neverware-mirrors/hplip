@@ -61,15 +61,11 @@ else
   CONFFLAGS += --disable-pp-build
 endif
 
-DEBUGFLAGS=-g
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	DEBUGFLAGS += -O0
-else
-	DEBUGFLAGS += -O2
-endif
-
-CFLAGS:=-Wall -pipe $(DEBUGFLAGS)
+CFLAGS:=-Wall -pipe
+CFLAGS += `dpkg-buildflags --get CFLAGS`
 CXXFLAGS:=$(CFLAGS)
+LDFLAGS = `dpkg-buildflags --get LDFLAGS`
+CPPFLAGS = `dpkg-buildflags --get CPPFLAGS`
 
 ##
 ##  Build-tree preparation
@@ -117,7 +113,7 @@ configure-stamp: configure
 	ln -sf /usr/share/misc/config.guess .
 	rm -f config.cache
 
-	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
+	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"\
 		HPLIP_PPD_PATH=/usr/share/ppd \
 		$(CONFFLAGS) \
 	 	--config-cache \
