@@ -5,9 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.9.10~/prnt/hpcups/ErnieFilter.cpp hplip-3.9.10/prnt/hpcups/ErnieFilter.cpp
---- hplip-3.9.10~/prnt/hpcups/ErnieFilter.cpp	2009-11-07 08:53:28.000000000 +1100
-+++ hplip-3.9.10/prnt/hpcups/ErnieFilter.cpp	2009-12-14 05:32:17.000000000 +1100
+Index: hplip-3.12.4/prnt/hpcups/ErnieFilter.cpp
+===================================================================
+--- hplip-3.12.4.orig/prnt/hpcups/ErnieFilter.cpp	2012-04-10 18:32:37.000000000 +1000
++++ hplip-3.12.4/prnt/hpcups/ErnieFilter.cpp	2012-05-26 10:21:29.000000000 +1000
 @@ -50,7 +50,7 @@
  #include "ErnieFilter.h"
  

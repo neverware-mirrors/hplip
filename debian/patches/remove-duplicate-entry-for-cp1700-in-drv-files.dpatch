@@ -5,10 +5,11 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.10.2~/prnt/drv/hpcups.drv.in hplip-3.10.2/prnt/drv/hpcups.drv.in
---- hplip-3.10.2~/prnt/drv/hpcups.drv.in	2010-04-11 09:58:07.000000000 +0200
-+++ hplip-3.10.2/prnt/drv/hpcups.drv.in	2010-04-11 10:01:29.285465160 +0200
-@@ -1626,14 +1626,6 @@
+Index: hplip-3.12.4/prnt/drv/hpcups.drv.in
+===================================================================
+--- hplip-3.12.4.orig/prnt/drv/hpcups.drv.in	2012-04-10 18:38:29.000000000 +1000
++++ hplip-3.12.4/prnt/drv/hpcups.drv.in	2012-05-26 10:21:29.000000000 +1000
+@@ -1672,14 +1672,6 @@
        Attribute "Product" "" "(HP Photosmart 1315 Printer)"
      }
      {
@@ -23,7 +24,7 @@ diff -urNad hplip-3.10.2~/prnt/drv/hpcups.drv.in hplip-3.10.2/prnt/drv/hpcups.dr
        ModelName "HP PSC 2100 Series"
        Attribute "NickName" "" "HP PSC 2100 Series, $Version"
        Attribute "ShortNickName" "" "HP PSC 2100 Series"
-@@ -1741,11 +1733,11 @@
+@@ -1787,11 +1779,11 @@
  
      // <%DJ9xxVIP:LargeFormatSuperB%>
      {
@@ -40,10 +41,11 @@ diff -urNad hplip-3.10.2~/prnt/drv/hpcups.drv.in hplip-3.10.2/prnt/drv/hpcups.dr
        Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
        Attribute "Product" "" "(HP Color Inkjet cp1700ps Printer)"
        Attribute "Product" "" "(HP Color Inkjet cp1700d Printer)"
-diff -urNad hplip-3.10.2~/prnt/drv/hpijs.drv.in hplip-3.10.2/prnt/drv/hpijs.drv.in
---- hplip-3.10.2~/prnt/drv/hpijs.drv.in	2010-04-11 09:58:07.000000000 +0200
-+++ hplip-3.10.2/prnt/drv/hpijs.drv.in	2010-04-11 10:00:39.616713799 +0200
-@@ -1744,14 +1744,6 @@
+Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
+===================================================================
+--- hplip-3.12.4.orig/prnt/drv/hpijs.drv.in	2012-04-10 18:38:30.000000000 +1000
++++ hplip-3.12.4/prnt/drv/hpijs.drv.in	2012-05-26 10:23:43.000000000 +1000
+@@ -1745,14 +1745,6 @@
      Attribute "Product" "" "(HP Photosmart 1315 Printer)"
    }
    {
@@ -58,7 +60,7 @@ diff -urNad hplip-3.10.2~/prnt/drv/hpijs.drv.in hplip-3.10.2/prnt/drv/hpijs.drv.
      ModelName "HP PSC 2100 Series hpijs"
      Attribute "NickName" "" "HP PSC 2100 Series hpijs, $Version"
      Attribute "ShortNickName" "" "HP PSC 2100 Series hpijs"
-@@ -1833,11 +1825,11 @@
+@@ -1834,11 +1826,11 @@
      CustomMedia "A3/A3" 842.00 1190.00 18.00 36.00 18.00 9.00 "%% FoomaticRIPOptionSetting: PageSize=A3" "%% FoomaticRIPOptionSetting: PageSize=A3"
      // <%DJ9xxVIP:LargeFormatSuperB%>
      {

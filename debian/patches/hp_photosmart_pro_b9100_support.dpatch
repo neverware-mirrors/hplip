@@ -5,10 +5,11 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.9.10~55~/data/models/models.dat hplip-3.9.10~55/data/models/models.dat
---- hplip-3.9.10~55~/data/models/models.dat	2009-11-04 11:06:38.000000000 +0100
-+++ hplip-3.9.10~55/data/models/models.dat	2009-11-10 10:11:32.000000000 +0100
-@@ -40174,9 +40174,9 @@
+Index: hplip-3.12.4/data/models/models.dat
+===================================================================
+--- hplip-3.12.4.orig/data/models/models.dat	2012-04-10 18:34:07.000000000 +1000
++++ hplip-3.12.4/data/models/models.dat	2012-05-26 10:23:07.000000000 +1000
+@@ -48076,9 +48076,9 @@
  status-type=2
  support-released=True
  support-subtype=219b2b

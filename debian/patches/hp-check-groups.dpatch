@@ -5,10 +5,11 @@
 ## DP: https://bugs.launchpad.net/debian/+source/hplip/+bug/530746
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.2~/check.py hplip-3.10.2/check.py
---- hplip-3.10.2~/check.py	2010-02-25 10:07:55.000000000 +1100
-+++ hplip-3.10.2/check.py	2010-04-09 08:03:08.000000000 +1000
-@@ -859,6 +859,16 @@
+Index: hplip-3.12.4/check.py
+===================================================================
+--- hplip-3.12.4.orig/check.py	2012-04-10 18:35:14.000000000 +1000
++++ hplip-3.12.4/check.py	2012-05-26 10:23:57.000000000 +1000
+@@ -870,6 +870,16 @@
          if status == 0:
              log.info(output)
  

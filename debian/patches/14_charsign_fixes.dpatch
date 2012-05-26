@@ -5,10 +5,11 @@
 ## DP: some missing charsign
 
 @DPATCH@
-diff -urNad hplip-1.7.3~/scan/sane/scl.c hplip-1.7.3/scan/sane/scl.c
---- hplip-1.7.3~/scan/sane/scl.c	2007-03-19 16:26:48.000000000 +0000
-+++ hplip-1.7.3/scan/sane/scl.c	2007-03-26 22:48:39.000000000 +0100
-@@ -36,10 +36,11 @@
+Index: hplip-3.12.4/scan/sane/scl.c
+===================================================================
+--- hplip-3.12.4.orig/scan/sane/scl.c	2012-04-10 18:34:05.000000000 +1000
++++ hplip-3.12.4/scan/sane/scl.c	2012-05-26 10:21:29.000000000 +1000
+@@ -37,10 +37,11 @@
  #define DEBUG_DECLARE_ONLY
  #include "sanei_debug.h"
  

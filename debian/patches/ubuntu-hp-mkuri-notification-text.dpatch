@@ -8,9 +8,10 @@
 . /usr/share/dpatch/dpatch-run
 
 @DPATCH@
-diff -urNad hplip-3.10.2~/io/hpmud/hp-mkuri.c hplip-3.10.2/io/hpmud/hp-mkuri.c
---- hplip-3.10.2~/io/hpmud/hp-mkuri.c	2010-03-17 22:56:18.000737637 +0100
-+++ hplip-3.10.2/io/hpmud/hp-mkuri.c	2010-03-17 23:00:11.610781053 +0100
+Index: hplip-3.12.4/io/hpmud/hp-mkuri.c
+===================================================================
+--- hplip-3.12.4.orig/io/hpmud/hp-mkuri.c	2012-05-26 10:21:29.000000000 +1000
++++ hplip-3.12.4/io/hpmud/hp-mkuri.c	2012-05-26 10:23:15.000000000 +1000
 @@ -355,6 +355,8 @@
     if (hpmud_get_key_value(datfile, model, "fax-type", value, sizeof(value)) != HPMUD_R_OK)
        goto bugout;

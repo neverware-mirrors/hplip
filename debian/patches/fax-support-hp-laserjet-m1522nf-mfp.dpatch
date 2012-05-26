@@ -5,10 +5,11 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.12.2~/data/models/models.dat hplip-3.12.2/data/models/models.dat
---- hplip-3.12.2~/data/models/models.dat	2012-04-04 13:10:54.221074007 +0200
-+++ hplip-3.12.2/data/models/models.dat	2012-04-04 13:13:08.369072940 +0200
-@@ -20232,7 +20232,7 @@
+Index: hplip-3.12.4/data/models/models.dat
+===================================================================
+--- hplip-3.12.4.orig/data/models/models.dat	2012-05-26 10:21:29.000000000 +1000
++++ hplip-3.12.4/data/models/models.dat	2012-05-26 10:21:30.000000000 +1000
+@@ -20122,7 +20122,7 @@
  color-cal-type=0
  copy-type=0
  embedded-server-type=1

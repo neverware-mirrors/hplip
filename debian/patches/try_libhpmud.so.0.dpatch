@@ -6,11 +6,11 @@
 
 @DPATCH@
 
-diff --git a/scan/sane/marvell.c b/scan/sane/marvell.c
-index c36caa7..465342e 100644
---- a/scan/sane/marvell.c
-+++ b/scan/sane/marvell.c
-@@ -63,8 +63,11 @@ static int bb_load(struct marvell_session *ps, const char *so)
+Index: hplip-3.12.4/scan/sane/marvell.c
+===================================================================
+--- hplip-3.12.4.orig/scan/sane/marvell.c	2012-04-10 18:34:05.000000000 +1000
++++ hplip-3.12.4/scan/sane/marvell.c	2012-05-26 10:21:29.000000000 +1000
+@@ -63,8 +63,11 @@
     /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
     if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
     {
@@ -24,11 +24,11 @@ index c36caa7..465342e 100644
     } 
  
     /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
-diff --git a/scan/sane/soap.c b/scan/sane/soap.c
-index 28b83cc..698f58c 100644
---- a/scan/sane/soap.c
-+++ b/scan/sane/soap.c
-@@ -71,8 +71,11 @@ static int bb_load(struct soap_session *ps, const char *so)
+Index: hplip-3.12.4/scan/sane/soap.c
+===================================================================
+--- hplip-3.12.4.orig/scan/sane/soap.c	2012-04-10 18:34:05.000000000 +1000
++++ hplip-3.12.4/scan/sane/soap.c	2012-05-26 10:21:29.000000000 +1000
+@@ -71,8 +71,11 @@
     /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
     if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
     {
@@ -42,11 +42,11 @@ index 28b83cc..698f58c 100644
     } 
  
     /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
-diff --git a/scan/sane/soapht.c b/scan/sane/soapht.c
-index 5535245..e6039c1 100644
---- a/scan/sane/soapht.c
-+++ b/scan/sane/soapht.c
-@@ -62,10 +62,13 @@ static int bb_load(struct soap_session *ps, const char *so)
+Index: hplip-3.12.4/scan/sane/soapht.c
+===================================================================
+--- hplip-3.12.4.orig/scan/sane/soapht.c	2012-04-10 18:34:05.000000000 +1000
++++ hplip-3.12.4/scan/sane/soapht.c	2012-05-26 10:21:29.000000000 +1000
+@@ -63,10 +63,13 @@
     int stat=1;
  
     /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 

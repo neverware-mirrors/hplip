@@ -5,10 +5,11 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad hplip-3.9.8~/setup.py hplip-3.9.8/setup.py
---- hplip-3.9.8~/setup.py	2009-08-04 23:37:39.000000000 +0200
-+++ hplip-3.9.8/setup.py	2009-10-02 18:42:39.000000000 +0200
-@@ -473,14 +473,13 @@
+Index: hplip-3.12.4/setup.py
+===================================================================
+--- hplip-3.12.4.orig/setup.py	2012-04-10 18:35:14.000000000 +1000
++++ hplip-3.12.4/setup.py	2012-05-26 10:21:29.000000000 +1000
+@@ -487,14 +487,13 @@
                  print_ppd, desc = print_ppd
                  log.info("\nFound PPD file: %s" % print_ppd)
  

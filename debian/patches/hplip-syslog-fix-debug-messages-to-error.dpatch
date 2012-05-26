@@ -5,9 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.12~/prnt/hpcups/CommonDefinitions.h hplip-3.11.12/prnt/hpcups/CommonDefinitions.h
---- hplip-3.11.12~/prnt/hpcups/CommonDefinitions.h	2011-12-09 12:17:50.000000000 +0100
-+++ hplip-3.11.12/prnt/hpcups/CommonDefinitions.h	2012-01-06 16:02:11.680182011 +0100
+Index: hplip-3.12.4/prnt/hpcups/CommonDefinitions.h
+===================================================================
+--- hplip-3.12.4.orig/prnt/hpcups/CommonDefinitions.h	2012-04-10 18:32:37.000000000 +1000
++++ hplip-3.12.4/prnt/hpcups/CommonDefinitions.h	2012-05-26 10:21:30.000000000 +1000
 @@ -68,7 +68,7 @@
  #define _STRINGIZE(x) #x
  #define STRINGIZE(x) _STRINGIZE(x)

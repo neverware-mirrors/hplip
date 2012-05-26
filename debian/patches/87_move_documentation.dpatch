@@ -5,10 +5,11 @@
 ## DP: place html documentation under hplip-doc/HTML/
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.1~/Makefile.am hplip-3.11.1/Makefile.am
---- hplip-3.11.1~/Makefile.am	2011-01-19 06:18:26.000000000 +0100
-+++ hplip-3.11.1/Makefile.am	2011-01-23 23:57:36.905046314 +0100
-@@ -23,11 +23,11 @@
+Index: hplip-3.12.4/Makefile.am
+===================================================================
+--- hplip-3.12.4.orig/Makefile.am	2012-05-26 10:21:29.000000000 +1000
++++ hplip-3.12.4/Makefile.am	2012-05-26 10:21:29.000000000 +1000
+@@ -27,11 +27,11 @@
  
  if DOC_BUILD
  wwwsrc = doc

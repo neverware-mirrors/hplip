@@ -5,9 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.10.5~/prnt/hpcups/LJColor.h hplip-3.10.5/prnt/hpcups/LJColor.h
---- hplip-3.10.5~/prnt/hpcups/LJColor.h	2010-05-13 01:41:08.000000000 +0200
-+++ hplip-3.10.5/prnt/hpcups/LJColor.h	2010-07-18 12:12:11.296937153 +0200
+Index: hplip-3.12.4/prnt/hpcups/LJColor.h
+===================================================================
+--- hplip-3.12.4.orig/prnt/hpcups/LJColor.h	2012-04-10 18:32:37.000000000 +1000
++++ hplip-3.12.4/prnt/hpcups/LJColor.h	2012-05-26 10:21:29.000000000 +1000
 @@ -48,6 +48,7 @@
      DRIVER_ERROR    Configure(Pipeline **pipeline);
      DRIVER_ERROR    EndJob();
