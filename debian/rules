@@ -79,7 +79,7 @@ configure: Makefile.am configure.in
 	dh_testdir
 	touch NEWS README AUTHORS ChangeLog
 	chmod +x debian/autogen.sh
-	debian/autogen.sh
+	dh_autoreconf debian/autogen.sh
 
 # Clean everything up, including everything auto-generated
 # at build time that needs not to be kept around in the Debian diff
