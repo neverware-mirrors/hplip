@@ -7,10 +7,6 @@
 PACKAGE=hplip
 BASEPKG=hplip
 
-# DPatch
-DEB_SOURCE_PACKAGE:=$(PACKAGE)
-include /usr/share/dpatch/dpatch.make
-
 # DebHelper control
 export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
 #export DH_VERBOSE=1
@@ -87,8 +83,7 @@ configure: Makefile.am configure.in
 
 # Clean everything up, including everything auto-generated
 # at build time that needs not to be kept around in the Debian diff
-clean: clean-patched unpatch
-clean-patched: configure
+clean: configure
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
@@ -115,7 +110,7 @@ clean-patched: configure
 ##  Package build
 ##
 
-configure-stamp: patch-stamp configure
+configure-stamp: configure
 	dh_testdir
 
 	ln -sf /usr/share/misc/config.sub .
@@ -432,4 +427,4 @@ binary-arch: install-arch
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean clean-patched binary-indep binary-arch binary install install-arch install-indep
+.PHONY: build clean binary-indep binary-arch binary install install-arch install-indep

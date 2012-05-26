@@ -1,3 +1,16 @@
+hplip (3.12.4-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * Switch to source/format 3.0 (quilt) - drop dpatch
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Apr 2012 14:07:13 +1000
+
+hplip (3.12.2-1ubuntu4) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Apr 2012 13:41:57 +1000
+
 hplip (3.12.2-1ubuntu3) precise; urgency=low
 
   * debian/patches/fax-support-hp-laserjet-m1522nf-mfp.dpatch: Fixed fax
