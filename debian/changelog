@@ -4,6 +4,7 @@ hplip (3.12.4-1) UNRELEASED; urgency=low
   * Switch to source/format 3.0 (quilt) - drop dpatch
   * Refreshed debian/patches
   * dh_autoreconf debian/autogen.sh & set local-options single-debian-patch
+  * Update to debian/compat -> 9
 
  -- Mark Purcell <msp@debian.org>  Sun, 15 Apr 2012 14:07:13 +1000
 
