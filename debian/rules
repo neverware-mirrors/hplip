@@ -387,7 +387,7 @@ binary-indep: install-indep
 binary-arch: install-arch
 	dh_testdir -a
 	dh_testroot
-	dh_bugfiles -A
+	dh_bugfiles
 #	dh_installdebconf -a
 	dh_installdocs -a
 	dh_installexamples -a

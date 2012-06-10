@@ -1,7 +1,8 @@
 hplip (3.12.4-2) unstable; urgency=low
 
-  * hplip-gui Replaces: hplip  (<< 3.12.4-2)
-    - Fixes "fails to upgrade from 'squeeze'" (Closes: #675307)
+  * Fix "fails to upgrade from 'squeeze'" (Closes: #675307)
+    - hplip-gui Replaces: hplip  (<< 3.12.4-2)
+    - Add specific package.bug-script files
 
  -- Mark Purcell <msp@debian.org>  Sun, 10 Jun 2012 22:59:08 +1000
 
