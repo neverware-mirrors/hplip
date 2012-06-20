@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/ui4/systemtray.py
-===================================================================
---- hplip-3.12.4.orig/ui4/systemtray.py	2012-04-10 18:33:09.000000000 +1000
-+++ hplip-3.12.4/ui4/systemtray.py	2012-05-26 10:23:18.000000000 +1000
-@@ -405,29 +405,11 @@
+--- a/ui4/systemtray.py
++++ b/ui4/systemtray.py
+@@ -416,29 +416,11 @@
      def setMenu(self):
          self.menu = QMenu()
  

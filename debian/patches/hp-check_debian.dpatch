@@ -1,33 +1,25 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## hp-check_debian.dpatch by  <msp@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets check there too
-
-@DPATCH@
-Index: hplip-3.12.4/check.py
-===================================================================
---- hplip-3.12.4.orig/check.py	2012-05-26 10:21:29.000000000 +1000
-+++ hplip-3.12.4/check.py	2012-05-26 10:21:29.000000000 +1000
-@@ -740,6 +740,21 @@
-                     if hpaiomatched:
-                         found = True
+--- a/installer/core_install.py
++++ b/installer/core_install.py
+@@ -1160,6 +1160,22 @@
+                 if hpaiomatched:
+                     found = True
+                     break
++
++        # Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets check there too
++        if not found:
++            log.debug("Checking for 'hpaio' in '/etc/sane.d/dll.d/hplip'...")
++            try:
++                f = file('/etc/sane.d/dll.d/hplip', 'r')
++            except IOError:
++                log.error("'/etc/sane.d/dll.d/hplip' not found.")
++            else:
++                for line in f:
++                    lineNoSpace = re.sub(r'\s', '', line) 
++                    hpaiomatched=re.match('hpaio',lineNoSpace)
++                    if hpaiomatched:
++                        found = True
++                        break
++
+         return found
  
-+		# Debian/ Ubuntu place hpaio in /etc/sane.d/dll.d/hplip, so lets check there too
-+
-+		if not found:
-+		    log.info(log.bold("'hpaio' in '/etc/sane.d/dll.d/hplip'..."))
-+		    try:
-+                       f = file('/etc/sane.d/dll.d/hplip', 'r')
-+                    except IOError:
-+                       log.error("'/etc/sane.d/dll.d/hplip' not found.")
-+                       num_errors += 1
-+                    else:
-+                        found = False
-+                        for line in f:
-+                            if 'hpaio' in line:
-+                                found = True
-+
-                 if found:
-                     log.info("OK, found. SANE backend 'hpaio' is properly set up.")
-                 else:
+     def update_hpaio(self):

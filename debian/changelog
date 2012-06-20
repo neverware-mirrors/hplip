@@ -1,3 +1,32 @@
+hplip (3.12.6-0ubuntu1) quantal; urgency=low
+
+  * New upstream release
+     o Added PIN to PRINT support for HP Color LaserJet CM4540 MFP
+     o libusb-1.0 support added
+     o Added support for: HP DeskJet Ink Advantage 2510, 3525, 4610, 4620,
+       5525, 2510, 3520, OfficeJet 4610, 4620, Photosmart 5520, LaserJet 400
+       M401, 400 MFP M425, LaserJet Enterprise 500 MFP M525, 500 Color MFP
+       M575, LaserJet Professional P 1102w, P1107w, P1107, P1109w, P1109,
+       M1137, M1138, M1139, P1567, P1568, P1569, P1607dn, P1608dn, P1609dn
+  * debian/patches/hp-check-groups.dpatch: Removed, problem solved upstream.
+  * debian/patches/fax-support-hp-laserjet-m1522nf-mfp.dpatch: Removed,
+    applied upstream.
+  * debian/patches/hp-check_debian.dpatch,
+    debian/patches/hpaio-option-duplex.diff: Updated.
+  * debian/patches/simple-scan-as-default.dpatch,
+    debian/patches/make-commafy-correctly-work-with-python-2.dpatch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
+    Refreshed with quilt.
+  * debian/control: Switch over to libusb 1.0.x.
+  * debian/control: Added build dependency on dh_autoreconf.
+  * debian/rules, debian/printer-driver-hpcups.install,
+    debian/printer-driver-postscript-hp.install,
+    debian/printer-driver-hpijs.install, debian/hpijs-ppds.install: Install
+    ppd-updater files with .ppd-updater extension, as the other packages do.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 20 Jun 2012 20:19:00 +0200
+
 hplip (3.12.4-2) unstable; urgency=low
 
   * Fix "fails to upgrade from 'squeeze'" (Closes: #675307)
