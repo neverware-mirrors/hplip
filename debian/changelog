@@ -1,3 +1,12 @@
+hplip (3.12.6-1) unstable; urgency=low
+
+  * New Upstream Release
+    - Fixes "print fails to HP Color LJ 3600, err=26" (Closes: #529884)
+    - Fixes "UnicodeDecodeError: 'ascii' codec"   (Closes: #635128)
+    - Fixes "hp-setup: should allow input any characters" (Closes: #470201)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 23 Jun 2012 10:28:22 +1000
+
 hplip (3.12.6-0ubuntu1) quantal; urgency=low
 
   * New upstream release

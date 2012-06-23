@@ -26,7 +26,7 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
-SF_MIRRORS:= optusnet ovh puzzle superb-east
+SF_MIRRORS:= ovh puzzle superb-east
 -include /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
 
 # Version information
