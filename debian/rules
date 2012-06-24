@@ -58,7 +58,7 @@ endif
 ifeq ($(DEB_HOST_ARCH_OS), linux)
   CONFFLAGS += --enable-pp-build
 else
-  CONFFLAGS += --disable-pp-build
+  CONFFLAGS += --disable-pp-build --enable-libusb01_build
 endif
 
 CFLAGS:=-Wall -pipe

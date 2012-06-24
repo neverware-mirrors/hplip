@@ -1,3 +1,9 @@
+hplip (3.12.6-3) unstable; urgency=low
+
+  * [!linux-any] --enable-libusb01_build
+
+ -- Mark Purcell <msp@debian.org>  Sun, 24 Jun 2012 16:49:41 +1000
+
 hplip (3.12.6-2) unstable; urgency=low
 
   * Build-Depends: libusb-1.0-0-dev [linux-any], libusb-dev [!linux-any]
