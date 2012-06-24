@@ -1,3 +1,11 @@
+hplip (3.12.6-2) unstable; urgency=low
+
+  * Build-Depends: libusb-1.0-0-dev [linux-any], libusb-dev [!linux-any]
+  * Update to Standards-Version: 3.9.3
+  * Fix debhelper-but-no-misc-depends
+
+ -- Mark Purcell <msp@debian.org>  Sun, 24 Jun 2012 13:53:48 +1000
+
 hplip (3.12.6-1) unstable; urgency=low
 
   * New Upstream Release
