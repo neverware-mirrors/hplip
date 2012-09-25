@@ -1,3 +1,10 @@
+hplip (3.12.6-3ubuntu3) quantal; urgency=low
+
+  * debian/hplip.dirs: Create empty /var/lib/hp/ directory when installing so
+    that HPLIP can annotate that it installed the plugin (LP: #1055521).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 18:37:00 +0200
+
 hplip (3.12.6-3ubuntu2) quantal; urgency=low
 
   * debian/rules: Made HPLIP build with CUPS 1.6.1 and later by overriding a
