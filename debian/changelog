@@ -1,3 +1,12 @@
+hplip (3.12.6-3ubuntu2) quantal; urgency=low
+
+  * debian/rules: Made HPLIP build with CUPS 1.6.1 and later by overriding a
+    new conditional to hide the private ipp_t data structure in cups/ipp.h by
+    adding "-D_IPP_PRIVATE_STRUCTURES=1" to CFLAGS (Problem reported upstream
+    to HPLIP as LP: #1056214).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 15:49:00 +0200
+
 hplip (3.12.6-3ubuntu1) quantal; urgency=low
 
   * debian/control: Let hplip recommend printer-driver-postscript-hp

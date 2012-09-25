@@ -61,7 +61,7 @@ else
   CONFFLAGS += --disable-pp-build --enable-libusb01_build
 endif
 
-CFLAGS:=-Wall -pipe
+CFLAGS:=-Wall -pipe -D_IPP_PRIVATE_STRUCTURES=1
 CFLAGS += `dpkg-buildflags --get CFLAGS`
 CXXFLAGS:=$(CFLAGS)
 LDFLAGS = `dpkg-buildflags --get LDFLAGS`
