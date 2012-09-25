@@ -1,25 +1,15 @@
-hplip (3.12.6-3ubuntu4) quantal; urgency=low
+hplip (3.12.6-3ubuntu2) quantal; urgency=low
 
   * debian/rules: Removed dependency of the "clean" rule on the "configure"
     rule. This prevented from a clean source package being generated.
-
- -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 20:58:00 +0200
-
-hplip (3.12.6-3ubuntu3) quantal; urgency=low
-
   * debian/hplip.dirs: Create empty /var/lib/hp/ directory when installing so
     that HPLIP can annotate that it installed the plugin (LP: #1055521).
-
- -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 18:37:00 +0200
-
-hplip (3.12.6-3ubuntu2) quantal; urgency=low
-
   * debian/rules: Made HPLIP build with CUPS 1.6.1 and later by overriding a
     new conditional to hide the private ipp_t data structure in cups/ipp.h by
     adding "-D_IPP_PRIVATE_STRUCTURES=1" to CFLAGS (Problem reported upstream
     to HPLIP as LP: #1056214).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 15:49:00 +0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 20:58:00 +0200
 
 hplip (3.12.6-3ubuntu1) quantal; urgency=low
 
