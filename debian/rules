@@ -73,13 +73,13 @@ CPPFLAGS = `dpkg-buildflags --get CPPFLAGS`
 
 configure: Makefile.am configure.in
 	dh_testdir
-	touch NEWS README AUTHORS ChangeLog
+	touch NEWS README AUTHORS ChangeLog INSTALL
 	chmod +x debian/autogen.sh
 	dh_autoreconf debian/autogen.sh
 
 # Clean everything up, including everything auto-generated
 # at build time that needs not to be kept around in the Debian diff
-clean: configure
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
@@ -98,7 +98,7 @@ clean: configure
 	# We prefer to regenerate these using pyuic
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-	rm -f NEWS README AUTHORS ChangeLog
+	rm -f NEWS README AUTHORS ChangeLog INSTALL
 
 	dh_clean
 

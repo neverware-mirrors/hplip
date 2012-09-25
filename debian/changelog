@@ -1,3 +1,10 @@
+hplip (3.12.6-3ubuntu4) quantal; urgency=low
+
+  * debian/rules: Removed dependency of the "clean" rule on the "configure"
+    rule. This prevented from a clean source package being generated.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 20:58:00 +0200
+
 hplip (3.12.6-3ubuntu3) quantal; urgency=low
 
   * debian/hplip.dirs: Create empty /var/lib/hp/ directory when installing so
