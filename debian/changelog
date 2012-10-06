@@ -1,3 +1,12 @@
+hplip (3.12.10-1) experimental; urgency=low
+
+  * New upstream release
+    - Fixes "Network scanning fails (Closes: #683033)
+  * quilt refresh hplip-syslog-fix-debug-messages-to-error.dpatch
+  * Fix "error in clean build env" updated debian/rules (Closes: #687129)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 06 Oct 2012 15:03:44 +1000
+
 hplip (3.12.6-3ubuntu2) quantal; urgency=low
 
   * debian/rules: Removed dependency of the "clean" rule on the "configure"

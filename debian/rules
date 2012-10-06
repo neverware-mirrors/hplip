@@ -248,7 +248,7 @@ install-stamp: build-stamp
 		   [ $$file != hpssd.py ] && [ $$file != dat2drv.py ] && \
 		   [ $$file != __init__.py ]; then \
 		    dest=hp-$${file%.py}; \
-		    ln -s /usr/share/hplip/$$file \
+		    ln -s ../../usr/share/hplip/$$file \
 			../../bin/$$dest 2>/dev/null || :; \
 		    PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
 			LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
