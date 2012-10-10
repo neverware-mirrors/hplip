@@ -4,6 +4,7 @@ usr/bin/hp-align
 usr/bin/hp-check
 usr/bin/hp-clean
 usr/bin/hp-colorcal
+usr/bin/hp-config_usb_printer
 usr/bin/hp-firmware
 usr/bin/hp-hpdio
 usr/bin/hp-info
@@ -19,6 +20,7 @@ usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
 usr/bin/hp-unload
+usr/bin/hp-upgrade
 usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/pstotiff

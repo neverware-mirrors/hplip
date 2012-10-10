@@ -1,3 +1,13 @@
+hplip (3.12.10a-1) UNRELEASED; urgency=low
+
+  * New upstream release
+    - Fixed crash in HP Device Manager and System Tray due to ValueError
+      exception in HPLIP upgrade functionality (LP: #1064889).
+  * debian/hplip.install, debian/hplip-gui.install: Added some missing program
+    file links.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 10 Oct 2012 20:32:00 +0200
+
 hplip (3.12.10-1) experimental; urgency=low
 
   * New upstream release
