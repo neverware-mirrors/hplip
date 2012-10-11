@@ -1,0 +1,11 @@
+--- a/io/hpmud/pp.c
++++ b/io/hpmud/pp.c
+@@ -1240,6 +1240,8 @@
+                if (ma.support != HPMUD_SUPPORT_TYPE_HPLIP)
+                {
+                   BUG("ignoring %s support=%d\n", dev, ma.support);
++                  release_pp(fd);
++                  close(fd);
+                   continue;           /* ignor, not supported */
+                }
+ 

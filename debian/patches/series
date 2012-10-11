@@ -25,3 +25,4 @@ hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
 hp-mkuri-libnotify-so-4-support.dpatch
 hpaio-option-duplex.diff
+hplip-release-parport.patch

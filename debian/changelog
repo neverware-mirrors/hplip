@@ -5,8 +5,11 @@ hplip (3.12.10a-1) UNRELEASED; urgency=low
       exception in HPLIP upgrade functionality (LP: #1064889).
   * debian/hplip.install, debian/hplip-gui.install: Added some missing program
     file links.
+  * debian/patches/hplip-release-parport.patch: libsane-hpaio does not close
+    /dev/parport* after checking for a scanner (LP: #1065582, Red Hat bug
+    #1065582).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 10 Oct 2012 20:32:00 +0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Oct 2012 00:10:00 +0200
 
 hplip (3.12.10-1) experimental; urgency=low
 
