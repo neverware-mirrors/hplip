@@ -1,5 +1,6 @@
-hplip (3.12.10a-1) UNRELEASED; urgency=low
+hplip (3.12.10a-1) experimental; urgency=low
 
+  [ Till Kamppeter ]
   * New upstream release
     - Fixed crash in HP Device Manager and System Tray due to ValueError
       exception in HPLIP upgrade functionality (LP: #1064889).
@@ -9,7 +10,10 @@ hplip (3.12.10a-1) UNRELEASED; urgency=low
     /dev/parport* after checking for a scanner (LP: #1065582, Red Hat bug
     #1065582).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 12 Oct 2012 00:10:00 +0200
+  [ Mark Purcell ]
+  * debian/bug-script: Fix bashism (Closes: #690625, #687243) 
+
+ -- Mark Purcell <msp@debian.org>  Sat, 27 Oct 2012 16:03:17 +1100
 
 hplip (3.12.10-1) experimental; urgency=low
 
