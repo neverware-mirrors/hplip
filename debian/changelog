@@ -1,3 +1,101 @@
+hplip (3.12.10a-1) experimental; urgency=low
+
+  [ Till Kamppeter ]
+  * New upstream release
+    - Fixed crash in HP Device Manager and System Tray due to ValueError
+      exception in HPLIP upgrade functionality (LP: #1064889).
+  * debian/hplip.install, debian/hplip-gui.install: Added some missing program
+    file links.
+  * debian/patches/hplip-release-parport.patch: libsane-hpaio does not close
+    /dev/parport* after checking for a scanner (LP: #1065582, Red Hat bug
+    #1065582).
+
+  [ Mark Purcell ]
+  * debian/bug-script: Fix bashism (Closes: #690625, #687243) 
+
+ -- Mark Purcell <msp@debian.org>  Sat, 27 Oct 2012 16:03:17 +1100
+
+hplip (3.12.10-1) experimental; urgency=low
+
+  * New upstream release
+    - Fixes "Network scanning fails (Closes: #683033)
+  * quilt refresh hplip-syslog-fix-debug-messages-to-error.dpatch
+  * Fix "error in clean build env" updated debian/rules (Closes: #687129)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 06 Oct 2012 15:03:44 +1000
+
+hplip (3.12.6-3ubuntu2) quantal; urgency=low
+
+  * debian/rules: Removed dependency of the "clean" rule on the "configure"
+    rule. This prevented from a clean source package being generated.
+  * debian/hplip.dirs: Create empty /var/lib/hp/ directory when installing so
+    that HPLIP can annotate that it installed the plugin (LP: #1055521).
+  * debian/rules: Made HPLIP build with CUPS 1.6.1 and later by overriding a
+    new conditional to hide the private ipp_t data structure in cups/ipp.h by
+    adding "-D_IPP_PRIVATE_STRUCTURES=1" to CFLAGS (Problem reported upstream
+    to HPLIP as LP: #1056214).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 25 Sep 2012 20:58:00 +0200
+
+hplip (3.12.6-3ubuntu1) quantal; urgency=low
+
+  * debian/control: Let hplip recommend printer-driver-postscript-hp
+    (LP: #1014478).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 26 Jun 2012 20:55:00 +0200
+
+hplip (3.12.6-3) unstable; urgency=low
+
+  * [!linux-any] --enable-libusb01_build
+
+ -- Mark Purcell <msp@debian.org>  Sun, 24 Jun 2012 16:49:41 +1000
+
+hplip (3.12.6-2) unstable; urgency=low
+
+  * Build-Depends: libusb-1.0-0-dev [linux-any], libusb-dev [!linux-any]
+  * Update to Standards-Version: 3.9.3
+  * Fix debhelper-but-no-misc-depends
+
+ -- Mark Purcell <msp@debian.org>  Sun, 24 Jun 2012 13:53:48 +1000
+
+hplip (3.12.6-1) unstable; urgency=low
+
+  * New Upstream Release
+    - Fixes "print fails to HP Color LJ 3600, err=26" (Closes: #529884)
+    - Fixes "UnicodeDecodeError: 'ascii' codec"   (Closes: #635128)
+    - Fixes "hp-setup: should allow input any characters" (Closes: #470201)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 23 Jun 2012 10:28:22 +1000
+
+hplip (3.12.6-0ubuntu1) quantal; urgency=low
+
+  * New upstream release
+     o Added PIN to PRINT support for HP Color LaserJet CM4540 MFP
+     o libusb-1.0 support added
+     o Added support for: HP DeskJet Ink Advantage 2510, 3525, 4610, 4620,
+       5525, 2510, 3520, OfficeJet 4610, 4620, Photosmart 5520, LaserJet 400
+       M401, 400 MFP M425, LaserJet Enterprise 500 MFP M525, 500 Color MFP
+       M575, LaserJet Professional P 1102w, P1107w, P1107, P1109w, P1109,
+       M1137, M1138, M1139, P1567, P1568, P1569, P1607dn, P1608dn, P1609dn
+  * debian/patches/hp-check-groups.dpatch: Removed, problem solved upstream.
+  * debian/patches/fax-support-hp-laserjet-m1522nf-mfp.dpatch: Removed,
+    applied upstream.
+  * debian/patches/hp-check_debian.dpatch,
+    debian/patches/hpaio-option-duplex.diff: Updated.
+  * debian/patches/simple-scan-as-default.dpatch,
+    debian/patches/make-commafy-correctly-work-with-python-2.dpatch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
+    Refreshed with quilt.
+  * debian/control: Switch over to libusb 1.0.x.
+  * debian/control: Added build dependency on dh_autoreconf.
+  * debian/rules, debian/printer-driver-hpcups.install,
+    debian/printer-driver-postscript-hp.install,
+    debian/printer-driver-hpijs.install, debian/hpijs-ppds.install: Install
+    ppd-updater files with .ppd-updater extension, as the other packages do.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 20 Jun 2012 20:19:00 +0200
+
 hplip (3.12.4-2) unstable; urgency=low
 
   * Fix "fails to upgrade from 'squeeze'" (Closes: #675307)

@@ -627,6 +627,11 @@ SANE_Status soap_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
                   break;
                }
             }
+            if (stat != SANE_STATUS_GOOD)
+            {
+                ps->currentResolution = ps->resolutionList[1];
+                stat = SANE_STATUS_GOOD;
+            }
          }
          else
          {  /* Set default. */
@@ -645,9 +650,13 @@ SANE_Status soap_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
             if (*int_value >= SOAP_CONTRAST_MIN && *int_value <= SOAP_CONTRAST_MAX)
             {
                ps->currentContrast = *int_value;
-               stat = SANE_STATUS_GOOD;
-               break;
             }
+            else
+            {
+               ps->currentContrast = SOAP_CONTRAST_DEFAULT;
+            }
+            mset_result |= SANE_INFO_RELOAD_PARAMS;
+            stat = SANE_STATUS_GOOD;
          }
          else
          {  /* Set default. */

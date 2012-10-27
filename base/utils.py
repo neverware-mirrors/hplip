@@ -38,10 +38,25 @@ import fcntl
 import errno
 import stat
 import string
+import glob
 import commands # TODO: Replace with subprocess (commands is deprecated in Python 3.0)
 import cStringIO
 import re
-import xml.parsers.expat as expat
+from base.g import *
+try:
+   import xml.parsers.expat as expat
+except ImportError,e:
+   log.info("\n")
+   log.error("Failed to import xml.parsers.expat(%s).\nThis may be due to the incompatible version of python-xml package.\n"%(e))
+   if "undefined symbol" in str(e):
+       log.info(log.blue("Please re-install compatible version (other than 2.7.2-7.14.1) due to bug reported at 'https://bugzilla.novell.com/show_bug.cgi?id=766778'."))
+       log.info(log.blue("\n        Run the following commands in root mode to change the python-xml package.(i.e Installing 2.7.2-7.1.2)"))
+       log.info(log.blue("\n        Using zypper:\n        'zypper remove python-xml'\n        'zypper install python-xml-2.7.2-7.1.2'"))
+       log.info(log.blue("\n        Using apt-get:\n        'apt-get remove python-xml'\n        'apt-get install python-xml-2.7.2-7.1.2'"))
+       log.info(log.blue("\n        Using yum:\n        'yum remove python-xml'\n        'yum install python-xml-2.7.2-7.1.2'"))
+
+   sys.exit(1)
+
 import getpass
 import locale
 import htmlentitydefs
@@ -53,6 +68,15 @@ try:
 except ImportError:
     platform_avail = False
 
+try:
+    import dbus
+    from dbus import SystemBus, lowlevel
+    dbus_avail=True
+except ImportError:
+    dbus_avail=False
+
+
+
 # Local
 from g import *
 from codes import *
@@ -60,6 +84,8 @@ import pexpect
 
 BIG_ENDIAN = 0
 LITTLE_ENDIAN = 1
+DBUS_SERVICE='com.hplip.StatusService'
+HPLIP_WEB_SITE ="http://hplipopensource.com/hplip-web/index.html"
 
 def addgroup():
     lis = []
@@ -855,14 +881,15 @@ def all(S,f=lambda x:x):
         if not f(x): return False
     return True
 
-
-BROWSERS = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone'] # in preferred order
-BROWSER_OPTS = {'firefox': '-new-window', 'mozilla' : '', 'konqueror': '', 'galeon': '-w', 'skipstone': ''}
+BROWSERS = ['firefox', 'mozilla', 'konqueror', 'epiphany', 'skipstone'] # in preferred order
+BROWSER_OPTS = {'firefox': '-new-tab', 'mozilla': '', 'konqueror': '', 'epiphany': '--new-tab', 'skipstone': ''}
 
 
 def find_browser():
     if platform_avail and platform.system() == 'Darwin':
         return "open"
+    elif which("xdg-open"):
+        return "xdg-open"
     else:
         for b in BROWSERS:
             if which(b):
@@ -876,11 +903,14 @@ def openURL(url, use_browser_opts=True):
         cmd = 'open "%s"' % url
         log.debug(cmd)
         os.system(cmd)
+    elif which("xdg-open"):
+        cmd = 'xdg-open "%s"' % url
+        log.debug(cmd)
+        os.system(cmd)
     else:
         for b in BROWSERS:
-            bb = which(b)
+            bb = which(b, return_full_path='True')
             if bb:
-                bb = os.path.join(bb, b)
                 if use_browser_opts:
                     cmd = """%s %s "%s" &""" % (bb, BROWSER_OPTS[b], url)
                 else:
@@ -989,9 +1019,112 @@ class XMLToDictParser:
         parser = expat.ParserCreate()
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
-        parser.CharacterDataHandler = self.charData
-        parser.Parse(text.encode('utf-8'), True)
+        parser.CharacterDataHandler = self.charData        
+        try:
+            parser.Parse(text.encode('utf-8'), True)
+        except UnicodeDecodeError:
+            log.error("Received Unicode error in xml= %s "%text)
         return self.data
+
+
+
+class Element:
+    def __init__(self,name,attributes):
+        self.name = name
+        self.attributes = attributes
+        self.chardata = ''
+        self.children = []
+        
+    def AddChild(self,element):
+        self.children.append(element)
+        
+    def getAttribute(self,key):
+        return self.attributes.get(key)
+    
+    def getData(self):
+        return self.chardata
+        
+    def getElementsByTagName(self,name='',ElementNode=None):
+        if ElementNode:
+            Children_list = ElementNode.children
+        else:
+            Children_list = self.children
+        if not name:
+            return self.children
+        else:
+            elements = []
+            for element in Children_list:
+                if element.name == name:
+                    elements.append(element)
+                
+                rec_elements = self.getElementsByTagName (name,element)
+                for a in rec_elements:
+                    elements.append(a)
+            return elements
+    
+    def getChildElements(self,name=''):
+        if not name:
+            return self.children
+        else:
+            elements = []
+            for element in self.children:
+                if element.name == name:
+                    elements.append(element)
+            return elements
+
+    def toString(self, level=0):
+        retval = " " * level
+        retval += "<%s" % self.name
+        for attribute in self.attributes:
+            retval += " %s=\"%s\"" % (attribute, self.attributes[attribute])
+        c = ""
+        for child in self.children:
+            c += child.toString(level+1)
+        if c == "":
+            if self.chardata:
+                retval += ">"+self.chardata + ("</%s>" % self.name)                
+            else:
+                retval += "/>"
+        else:
+            retval += ">" + c + ("</%s>" % self.name)
+        return retval
+        
+class  extendedExpat:
+    def __init__(self):
+        self.root = None
+        self.nodeStack = []
+        
+    def StartElement_EE(self,name,attributes):
+        element = Element(name.encode(),attributes)
+        
+        if len(self.nodeStack) > 0:
+            parent = self.nodeStack[-1]
+            parent.AddChild(element)
+        else:
+            self.root = element
+        self.nodeStack.append(element)
+        
+    def EndElement_EE(self,name):
+        self.nodeStack = self.nodeStack[:-1]
+
+    def charData_EE(self,data):        
+        if string.strip(data):
+            data = data.encode()
+            element = self.nodeStack[-1]
+            element.chardata += data
+            return
+
+    def Parse(self,xmlString):
+        Parser = expat.ParserCreate()
+
+        Parser.StartElementHandler = self.StartElement_EE
+        Parser.EndElementHandler = self.EndElement_EE
+        Parser.CharacterDataHandler = self.charData_EE
+
+        Parser.Parse(xmlString.encode('utf-8'), True)
+        
+        return self.root
+
 
 
 def dquote(s):
@@ -1791,18 +1924,50 @@ def Is_HPLIP_older_version(installed_version, available_version):
     log.debug("HPLIP Installed_version=%s  Available_version=%s"%(installed_version,available_version))
     cnt = 0
     Is_older = False
-    while cnt <len(installed_array) and cnt <len(available_array):
-        if(int(installed_array[cnt]) < int(available_array[cnt])):
-            Is_older = True
-            break
-        elif(int(installed_array[cnt]) > int(available_array[cnt])):
-            log.debug("Already new verison is installed")
-            return False
-        cnt += 1
+    pat=re.compile('''(\d{1,})([a-z]{1,})''')
+    try:
+        while cnt <len(installed_array) and cnt <len(available_array):
 
-    # To check internal version is installed.
-    if Is_older is False and len(installed_array) >len(available_array):
-        Is_older = True
+            installed_ver_dig=0
+            installed_ver_alph=' '     
+            available_ver_dig=0
+            available_ver_alph=' '     
+            if pat.search(installed_array[cnt]):
+                installed_ver_dig = int(pat.search(installed_array[cnt]).group(1))
+                installed_ver_alph = pat.search(installed_array[cnt]).group(2)
+            else:
+                installed_ver_dig = int(installed_array[cnt])
+
+            if pat.search(available_array[cnt]):
+                available_ver_dig = int(pat.search(available_array[cnt]).group(1))
+                available_ver_alph = pat.search(available_array[cnt]).group(2)
+            else:
+                available_ver_dig = int(available_array[cnt])
+            
+            if (installed_ver_dig < available_ver_dig):
+                Is_older = True
+                break
+            elif (installed_ver_dig > available_ver_dig):
+                log.debug("Already new verison is installed")
+                return False
+            #checking sub minor versions .. e.g "3.12.10a" vs "3.12.10".... "3.12.10a" --> latest
+            else:
+                if (installed_ver_alph.lower() < available_ver_alph.lower()):
+                    Is_older = True
+                    break
+                elif (installed_ver_alph.lower() > available_ver_alph.lower()):
+                    log.debug("Already new verison is installed")
+                    return False
+                        
+            cnt += 1
+
+        # To check version is installed. e.g. "3.12.10" vs "3.12.10.1".... "3.12.10.1"-->latest
+        if Is_older is False and len(installed_array) < len(available_array):
+            Is_older = True
+
+    except:
+        log.error("Failed to get the latest version. Check out %s for manually installing latest version of HPLIP."%HPLIP_WEB_SITE)
+        return False
 
     return Is_older
 
@@ -1869,3 +2034,62 @@ class Sync_Lock:
 
     def __del__(self):
         self.handler.close()
+
+def sendEvent(event_code,device_uri, printer_name, username="", job_id=0, title="", pipe_name=''):
+    
+    if not dbus_avail:
+        log.debug("Failed to import dbus, lowlevel")
+        return
+        
+    log.debug("send_message() entered")
+    args = [device_uri, printer_name, event_code, username, job_id, title, pipe_name]
+    msg = lowlevel.SignalMessage('/', DBUS_SERVICE, 'Event')
+    msg.append(signature='ssisiss', *args)
+    SystemBus().send_message(msg)
+    log.debug("send_message() returning")
+
+def expand_list(File_exp):
+   File_list = glob.glob(File_exp)
+   if File_list:
+      File_list_str = ' '.join(File_list)
+      return File_list, File_list_str
+   else:
+      return [],""
+
+
+
+def unchunck_xml_data(src_data):
+    index = 0
+    dst_data=""
+    # src_data contains HTTP data + xmlpayload. delimter is '\r\n\r\n'.
+    if src_data.find('\r\n\r\n') != -1:
+        src_data = src_data.split('\r\n\r\n', 1)[1]
+    else:
+        return dst_data
+    
+    if len(src_data) <= 0:
+        return dst_data
+
+    #If xmlpayload doesn't have chuncksize embedded, returning same xml.
+    if src_data[index] == '<':
+        dst_data = src_data
+    else:  # Removing chunck size from xmlpayload
+        try:
+           while index < len(src_data):
+             buf_len = 0
+             while src_data[index] == ' ' or src_data[index] == '\r' or src_data[index] == '\n':
+               index = index +1
+             while src_data[index] != '\n' and src_data[index] != '\r':
+               buf_len = buf_len *16 + int(src_data[index], 16)
+               index = index +1
+             
+             if buf_len == 0:
+                 break;
+
+             dst_data = dst_data+ src_data[index:buf_len+index+2]
+
+             index = buf_len + index + 2  # 2 for after size '\r\n' chars.
+        except IndexError:
+            pass
+    return dst_data
+

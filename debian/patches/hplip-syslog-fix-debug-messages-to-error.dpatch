@@ -5,10 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/prnt/hpcups/CommonDefinitions.h
+Index: hplip-3.12.10/prnt/hpcups/CommonDefinitions.h
 ===================================================================
---- hplip-3.12.4.orig/prnt/hpcups/CommonDefinitions.h	2012-04-10 18:32:37.000000000 +1000
-+++ hplip-3.12.4/prnt/hpcups/CommonDefinitions.h	2012-05-26 10:21:30.000000000 +1000
+--- hplip-3.12.10.orig/prnt/hpcups/CommonDefinitions.h	2012-10-04 15:29:39.000000000 +1000
++++ hplip-3.12.10/prnt/hpcups/CommonDefinitions.h	2012-10-06 11:49:04.000000000 +1000
 @@ -68,7 +68,7 @@
  #define _STRINGIZE(x) #x
  #define STRINGIZE(x) _STRINGIZE(x)

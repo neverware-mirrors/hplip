@@ -244,7 +244,9 @@ else:
         input_fd = 0
 
     # REVISIT:
-    tmp_dir = '/tmp'
+    tmp_dir = '/var/log/hp/tmp'
+
+
     pipe_name = os.path.join(tmp_dir, "hpfax-pipe-%d" % job_id)
 
     # Create the named pipe. Make sure it exists before sending
@@ -253,7 +255,7 @@ else:
     try:
         os.mkfifo(pipe_name)
     except OSError:
-        os.unlink(pipe_name)
+        os.unlink(pipe_name)      
         os.mkfifo(pipe_name)
 
     # Send dbus event to hpssd

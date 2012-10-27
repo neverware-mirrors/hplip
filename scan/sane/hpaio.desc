@@ -124,6 +124,12 @@
 :model "HP Photosmart d110 Series Printer"
 :status :good
 
+:model "HP Envy 120 E-all-in-one"
+:status :good
+
+:model "HP Envy 121 E-all-in-one"
+:status :good
+
 :model "HP Officejet d125xi All-in-one Printer"
 :status :good
 
@@ -139,7 +145,13 @@
 :model "HP Officejet d145 All-in-one Printer"
 :status :good
 
+:model "HP Officejet 150 Mobile All-in-one"
+:status :good
+
 :model "HP Officejet d155xi All-in-one Printer"
+:status :good
+
+:model "HP LaserJet Pro 200 Color MFP m276n"
 :status :good
 
 :model "HP LaserJet 200 Color MFP m275nw"
@@ -152,6 +164,39 @@
 :status :good
 
 :model "HP LaserJet 200 Color MFP m275u"
+:status :good
+
+:model "HP LaserJet Pro 200 Color MFP m276nw"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276j"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276b"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276e"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276g"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276k"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276p"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276q"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276r"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276u"
+:status :good
+
+:model "HP LaserJet 200 Colormfp m276v"
 :status :good
 
 :model "HP Deskjet Ink Advantage k209a All-in-one Printer"
@@ -233,6 +278,12 @@
 :status :good
 
 :model "HP Deskjet f394 All-in-one Printer"
+:status :good
+
+:model "HP LaserJet 400 MFP m425dw"
+:status :good
+
+:model "HP LaserJet 400 MFP m425dn"
 :status :good
 
 :model "HP LaserJet 400 Color MFP m475dw"
@@ -385,6 +436,15 @@
 :model "HP LaserJet Professional m1136 Multifunction Printer"
 :status :good
 
+:model "HP LaserJet Professional m1137 Multifunction Printer"
+:status :good
+
+:model "HP LaserJet Professional m1138 Multifunction Printer"
+:status :good
+
+:model "HP LaserJet Professional m1139 Multifunction Printer"
+:status :good
+
 :model "HP Officejet Pro 1150c All-in-one Printer"
 :status :good
 
@@ -424,6 +484,9 @@
 :model "HP PSC 1210v All-in-one Printer"
 :status :good
 
+:model "HP LaserJet m1210 MFP Series"
+:status :good
+
 :model "HP PSC 1210 All-in-one Printer"
 :status :good
 
@@ -457,7 +520,16 @@
 :model "HP PSC 1218 All-in-one Printer"
 :status :good
 
+:model "HP Hotspot LaserJet Pro m1218nfs MFP"
+:status :good
+
+:model "HP LaserJet Professional m1219nfs MFP"
+:status :good
+
 :model "HP LaserJet Professional m1219nf MFP"
+:status :good
+
+:model "HP LaserJet Professional m1219nfg MFP"
 :status :good
 
 :model "HP PSC 1219 All-in-one Printer"
@@ -790,10 +862,10 @@
 :model "HP PSC 2310 All-in-one Printer"
 :status :good
 
-:model "HP Color LaserJet cm2320n Multifunction Printer"
+:model "HP Color LaserJet cm2320nf Multifunction Printer"
 :status :good
 
-:model "HP Color LaserJet cm2320nf Multifunction Printer"
+:model "HP Color LaserJet cm2320n Multifunction Printer"
 :status :good
 
 :model "HP Color LaserJet cm2320fxi Multifunction Printer"
@@ -889,10 +961,34 @@
 :model "HP PSC 2500 Photosmart All-in-one Printer"
 :status :good
 
+:model "HP Deskjet 2510 All-in-one Printer"
+:status :good
+
 :model "HP PSC 2510 Photosmart All-in-one Printer"
 :status :good
 
 :model "HP PSC 2510xi Photosmart All-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 2510 All-in-one"
+:status :good
+
+:model "HP Deskjet 2511 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet 2512 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet 2514 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 2515 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 2516 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 2520hc All-in-one"
 :status :good
 
 :model "HP PSC 2550 Photosmart All-in-one Printer"
@@ -1007,6 +1103,15 @@
 :status :good
 
 :model "HP LaserJet 3055 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet 3055a E-all-in-one Printer j611n"
+:status :good
+
+:model "HP Deskjet 3057a E-all-in-one Printer j611n"
+:status :good
+
+:model "HP Deskjet 3059a E-all-in-one Printer j611n"
 :status :good
 
 :model "HP Deskjet 3070 b611 Series"
@@ -1148,6 +1253,36 @@
 :status :good
 
 :model "HP Officejet j3508 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet 3510 E-all-in-one"
+:status :good
+
+:model "HP Deskjet 3511 E-all-in-one"
+:status :good
+
+:model "HP Deskjet 3512 E-all-in-one"
+:status :good
+
+:model "HP Deskjet Ink Advantage 3515 E-all-in-one"
+:status :good
+
+:model "HP Deskjet Ink Advantage 3516 E-all-in-one"
+:status :good
+
+:model "HP Deskjet 3520 E-all-in-one Series"
+:status :good
+
+:model "HP Deskjet 3521 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet 3522 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet 3524 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 3525 E-all-in-one"
 :status :good
 
 :model "HP Officejet j3608 All-in-one Printer"
@@ -1441,6 +1576,9 @@
 :model "HP LaserJet m4345 Multifunction Printer"
 :status :good
 
+:model "HP LaserJet 4345xs Multifunction Printer"
+:status :good
+
 :model "HP LaserJet 4345xm Multifunction Printer"
 :status :good
 
@@ -1451,9 +1589,6 @@
 :status :good
 
 :model "HP LaserJet m4345xs Multifunction Printer"
-:status :good
-
-:model "HP LaserJet 4345xs Multifunction Printer"
 :status :good
 
 :model "HP LaserJet 4345x Multifunction Printer"
@@ -1585,13 +1720,13 @@
 :model "HP Officejet 4500 All-in-one Printer - g510g"
 :status :good
 
-:model "HP Officejet 4500 All-in-one Printer - g510h"
-:status :good
-
 :model "HP Officejet 4500 g510n-z All-in-one Printer"
 :status :good
 
 :model "HP Officejet 4500 All-in-one Printer - k710"
+:status :good
+
+:model "HP Officejet 4500 All-in-one Printer - g510h"
 :status :good
 
 :model "HP Designjet 4500mfp"
@@ -1675,7 +1810,28 @@
 :model "HP Photosmart c4599 All-in-one Printer"
 :status :good
 
+:model "HP Officejet 4610 All-in-one Printer Series"
+:status :good
+
+:model "HP Deskjet Ink Advantage 4610 All-in-one Printer Series"
+:status :good
+
 :model "HP Photosmart c4610 All-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 4615 All-in-one Printer"
+:status :good
+
+:model "HP Officejet 4620 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 4620 E-all-in-one Printer"
+:status :good
+
+:model "HP Officejet 4622 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 4625 E-all-in-one Printer"
 :status :good
 
 :model "HP Photosmart c4635 All-in-one Printer"
@@ -1723,9 +1879,6 @@
 :model "HP Color LaserJet 4730 Multifunction Printer"
 :status :good
 
-:model "HP Color LaserJet cm4730fsk Multifunction Printer"
-:status :good
-
 :model "HP Color LaserJet cm4730fm Multifunction Printer"
 :status :good
 
@@ -1733,6 +1886,9 @@
 :status :good
 
 :model "HP Color LaserJet 4730xm Multifunction Printer"
+:status :good
+
+:model "HP Color LaserJet cm4730fsk Multifunction Printer"
 :status :good
 
 :model "HP Photosmart c4740 All-in-one Printer"
@@ -1916,6 +2072,21 @@
 :status :good
 
 :model "HP Officejet j5520 All-in-one Printer"
+:status :good
+
+:model "HP Photosmart 5520 E-all-in-one"
+:status :good
+
+:model "HP Photosmart 5522 E-all-in-one Printer"
+:status :good
+
+:model "HP Photosmart 5524 E-all-in-one Printer"
+:status :good
+
+:model "HP Deskjet Ink Advantage 5525 E-all-in-one"
+:status :good
+
+:model "HP Photosmart 5525 E-all-in-one Printer"
 :status :good
 
 :model "HP Photosmart c5540 All-in-one Printer"
@@ -2203,10 +2374,19 @@
 :model "HP Photosmart 6510 E-all-in-one"
 :status :good
 
+:model "HP Photsmart 6520 E All-in-one"
+:status :good
+
+:model "HP Photosmart 6525 E All-in-one"
+:status :good
+
+:model "HP Deskjet Ink Advantage 6525 E-all-in-one"
+:status :good
+
 :model "HP Officejet 6600 E-all-in-one Printer - h711a"
 :status :good
 
-:model "HP Officejet 6700 E-all-in-one Printer - h711n"
+:model "HP Officejet 6700 Premium E-all-in-one printer-h711n"
 :status :good
 
 :model "HP Officejet 7100 All-in-one Printer"
@@ -2332,6 +2512,12 @@
 :model "HP Photosmart 7510 E-all-in-one"
 :status :good
 
+:model "HP Photosmart 7520 E-all-in-one"
+:status :good
+
+:model "HP Photosmart 7525 E-all-in-one"
+:status :good
+
 :model "HP Officejet Pro l7550 All-in-one Printer"
 :status :good
 
@@ -2392,9 +2578,6 @@
 :model "HP Photosmart c8188 All-in-one Printer"
 :status :good
 
-:model "HP Officejet Pro 8500 Premier All-in-one Printer - a909n"
-:status :good
-
 :model "HP Officejet Pro 8500 Wireless All-in-one Printer - a909g"
 :status :good
 
@@ -2402,6 +2585,9 @@
 :status :good
 
 :model "HP Officejet Pro 8500a E-aio Printer - a910a"
+:status :good
+
+:model "HP Officejet Pro 8500 Premier All-in-one Printer - a909n"
 :status :good
 
 :model "HP Officejet Pro 8500a Premium E-aio Printer - a910n"

@@ -5,10 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' hplip-3.11.7~/ui4/systemtray.py hplip-3.11.7/ui4/systemtray.py
---- hplip-3.11.7~/ui4/systemtray.py	2011-09-27 16:36:29.656301152 +0200
-+++ hplip-3.11.7/ui4/systemtray.py	2011-09-27 16:38:47.716834875 +0200
-@@ -473,6 +473,9 @@
+--- a/ui4/systemtray.py
++++ b/ui4/systemtray.py
+@@ -548,6 +548,9 @@
  
          elif reason == QSystemTrayIcon.Trigger:
              #print "single click"

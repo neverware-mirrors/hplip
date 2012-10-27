@@ -6,7 +6,6 @@
 hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
 kde4-kdesudo-support.dpatch
-hp-check-groups.dpatch
 hp-check_debian.dpatch
 hp-setup-prompt-for-custom-PPD.dpatch
 kbsd.dpatch
@@ -25,5 +24,5 @@ hpfax-bug-function-used-before-importing-log.dpatch
 hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
 hp-mkuri-libnotify-so-4-support.dpatch
-fax-support-hp-laserjet-m1522nf-mfp.dpatch
 hpaio-option-duplex.diff
+hplip-release-parport.patch

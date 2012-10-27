@@ -699,6 +699,11 @@ SANE_Status soapht_control_option(SANE_Handle handle, SANE_Int option, SANE_Acti
                   break;
                }
             }
+            if (stat != SANE_STATUS_GOOD)
+            {
+                ps->currentResolution = ps->resolutionList[1];
+                stat = SANE_STATUS_GOOD;
+            }
          }
          else
          {  /* Set default. */
@@ -717,9 +722,13 @@ SANE_Status soapht_control_option(SANE_Handle handle, SANE_Int option, SANE_Acti
             if (*int_value >= SOAP_CONTRAST_MIN && *int_value <= SOAP_CONTRAST_MAX)
             {
                ps->currentContrast = *int_value;
-               stat = SANE_STATUS_GOOD;
-               break;
             }
+            else
+            {
+               ps->currentContrast = SOAP_CONTRAST_DEFAULT;
+            }
+            mset_result |= SANE_INFO_RELOAD_PARAMS;
+            stat = SANE_STATUS_GOOD;
          }
          else
          {  /* Set default. */
@@ -1144,8 +1153,4 @@ void soapht_cancel(SANE_Handle handle)
    }
    ps->bb_end_scan(ps, 0);
 } /* soapht_cancel */
-
-
-
-
 

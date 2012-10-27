@@ -26,7 +26,7 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
-SF_MIRRORS:= optusnet ovh puzzle superb-east
+SF_MIRRORS:= ovh puzzle superb-east
 -include /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
 
 # Version information
@@ -58,10 +58,10 @@ endif
 ifeq ($(DEB_HOST_ARCH_OS), linux)
   CONFFLAGS += --enable-pp-build
 else
-  CONFFLAGS += --disable-pp-build
+  CONFFLAGS += --disable-pp-build --enable-libusb01_build
 endif
 
-CFLAGS:=-Wall -pipe
+CFLAGS:=-Wall -pipe -D_IPP_PRIVATE_STRUCTURES=1
 CFLAGS += `dpkg-buildflags --get CFLAGS`
 CXXFLAGS:=$(CFLAGS)
 LDFLAGS = `dpkg-buildflags --get LDFLAGS`
@@ -73,13 +73,13 @@ CPPFLAGS = `dpkg-buildflags --get CPPFLAGS`
 
 configure: Makefile.am configure.in
 	dh_testdir
-	touch NEWS README AUTHORS ChangeLog
+	touch NEWS README AUTHORS ChangeLog INSTALL
 	chmod +x debian/autogen.sh
 	dh_autoreconf debian/autogen.sh
 
 # Clean everything up, including everything auto-generated
 # at build time that needs not to be kept around in the Debian diff
-clean: configure
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
@@ -98,7 +98,7 @@ clean: configure
 	# We prefer to regenerate these using pyuic
 	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
-	rm -f NEWS README AUTHORS ChangeLog
+	rm -f NEWS README AUTHORS ChangeLog INSTALL
 
 	dh_clean
 
@@ -190,10 +190,10 @@ install-stamp: build-stamp
 	# Install the ppd updater data files so that CUPS can update the
 	# PPDs of the already existing queue after each update of HPLIP's
 	# printer driver/PPD packages
-	install -D -m 644 debian/printer-driver-postscript-hp.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-postscript-hp
-	install -D -m 644 debian/printer-driver-hpcups.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpcups
-	install -D -m 644 debian/printer-driver-hpijs.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpijs
-	install -D -m 644 debian/hpijs-ppds.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hpijs-ppds
+	install -D -m 644 debian/printer-driver-postscript-hp.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-postscript-hp.ppd-updater
+	install -D -m 644 debian/printer-driver-hpcups.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpcups.ppd-updater
+	install -D -m 644 debian/printer-driver-hpijs.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpijs.ppd-updater
+	install -D -m 644 debian/hpijs-ppds.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hpijs-ppds.ppd-updater
 
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
@@ -248,7 +248,7 @@ install-stamp: build-stamp
 		   [ $$file != hpssd.py ] && [ $$file != dat2drv.py ] && \
 		   [ $$file != __init__.py ]; then \
 		    dest=hp-$${file%.py}; \
-		    ln -s /usr/share/hplip/$$file \
+		    ln -s ../../usr/share/hplip/$$file \
 			../../bin/$$dest 2>/dev/null || :; \
 		    PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
 			LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \

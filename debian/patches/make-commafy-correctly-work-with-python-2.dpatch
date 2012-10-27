@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/base/utils.py
-===================================================================
---- hplip-3.12.4.orig/base/utils.py	2012-05-26 10:21:29.000000000 +1000
-+++ hplip-3.12.4/base/utils.py	2012-05-26 10:21:29.000000000 +1000
-@@ -392,7 +392,7 @@
+--- a/base/utils.py
++++ b/base/utils.py
+@@ -416,7 +416,7 @@
  
  
  def commafy(val):
