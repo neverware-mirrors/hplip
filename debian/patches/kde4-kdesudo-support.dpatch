@@ -13,10 +13,10 @@ Index: hplip-3.12.4/base/utils.py
      if which('kdesu'):
          su_sudo_str = 'kdesu -- %s'
  
-+    elif utils.which('/usr/lib/kde4/libexec/kdesu'):
++    elif os.path.isfile('/usr/lib/kde4/libexec/kdesu'):
 +        su_sudo_str = '/usr/lib/kde4/libexec/kdesu -- %s'
 +
-+    elif utils.which('kdesudo'):
++    elif which('kdesudo'):
 +        su_sudo_str = 'kdesudo -- %s'
 +
      elif which('gnomesu'):

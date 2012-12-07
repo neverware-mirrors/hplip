@@ -1,3 +1,28 @@
+hplip (3.12.11-1) experimental; urgency=low
+
+  * New Upstream Release 
+
+ -- Mark Purcell <msp@debian.org>  Sat, 08 Dec 2012 08:51:39 +1100
+
+hplip (3.12.11-0ubuntu1) raring-proposed; urgency=low
+
+  [ Till Kamppeter ]
+  * New upstream release
+     o Added support for: HP LaserJet Pro 500 color MFP M570dw,
+       Pro 500 color MFP M570dn, LaserJet Enterprise flow MFP M525,
+       color flow MFP M575, 700 M712n, 700 M712dn, 700 M712xh,
+       700 color MFP M775dn, 700 color MFP M775f, 700 color MFP M775z,
+       700 color MFP M775z+
+     o Secure Printing support for HP LaserJet P3010 Series
+     o Job storage support with postscript finishing filter
+  * debian/patches/hplip-release-parport.patch: Removed, fixed upstream.
+
+  [ Dmitry Shachnev ]
+  * debian/patches/kde4-kdesudo-support.dpatch: Use "which" instead of
+    "utils.which", to fix a NameError (LP: #1069324).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 30 Nov 2012 11:34:00 +0100
+
 hplip (3.12.10a-1) experimental; urgency=low
 
   [ Till Kamppeter ]
