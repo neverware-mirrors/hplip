@@ -1,3 +1,12 @@
+hplip (3.12.6-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * debian/patches/CVE-2013-0200.patch: Fix CVE-2013-0200 by applying the
+    patch from Red Hat. Additionally increase the buffers to mitigate an
+    regression and a buffer overflow. (Closes: #701185)
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Fri, 01 Mar 2013 18:21:48 +0100
+
 hplip (3.12.6-3) unstable; urgency=low
 
   * [!linux-any] --enable-libusb01_build
