@@ -5,11 +5,9 @@
 ## DP: place html documentation under hplip-doc/HTML/
 
 @DPATCH@
-Index: hplip-3.12.4/Makefile.am
-===================================================================
---- hplip-3.12.4.orig/Makefile.am	2012-05-26 10:21:29.000000000 +1000
-+++ hplip-3.12.4/Makefile.am	2012-05-26 10:21:29.000000000 +1000
-@@ -27,11 +27,11 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -29,11 +29,11 @@
  
  if DOC_BUILD
  wwwsrc = doc

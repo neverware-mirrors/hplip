@@ -5,10 +5,12 @@ usr/bin/hp-check
 usr/bin/hp-clean
 usr/bin/hp-colorcal
 usr/bin/hp-config_usb_printer
+usr/bin/hp-doctor
 usr/bin/hp-firmware
 usr/bin/hp-hpdio
 usr/bin/hp-info
 usr/bin/hp-levels
+usr/bin/hp-logcapture
 usr/bin/hp-makeuri
 usr/bin/hp-mkuri
 usr/bin/hp-pkservice

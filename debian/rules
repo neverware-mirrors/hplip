@@ -241,6 +241,7 @@ install-stamp: build-stamp
 
 	# Link all executables to /usr/bin and generate the corresponding
 	# man pages
+	chmod 755 ./debian/tmp/usr/share/hplip/check-plugin.py
 	export HPLIP_BUILD=1; \
 	( cd ./debian/tmp/usr/share/hplip/; \
 	    for file in *.py; do \

@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/prnt/drv/hpcups.drv.in
-===================================================================
---- hplip-3.12.4.orig/prnt/drv/hpcups.drv.in	2012-04-10 18:38:29.000000000 +1000
-+++ hplip-3.12.4/prnt/drv/hpcups.drv.in	2012-05-26 10:21:29.000000000 +1000
-@@ -1672,14 +1672,6 @@
+--- a/prnt/drv/hpcups.drv.in
++++ b/prnt/drv/hpcups.drv.in
+@@ -1678,14 +1678,6 @@
        Attribute "Product" "" "(HP Photosmart 1315 Printer)"
      }
      {
@@ -24,7 +22,7 @@ Index: hplip-3.12.4/prnt/drv/hpcups.drv.in
        ModelName "HP PSC 2100 Series"
        Attribute "NickName" "" "HP PSC 2100 Series, $Version"
        Attribute "ShortNickName" "" "HP PSC 2100 Series"
-@@ -1787,11 +1779,11 @@
+@@ -1793,11 +1785,11 @@
  
      // <%DJ9xxVIP:LargeFormatSuperB%>
      {
@@ -41,10 +39,8 @@ Index: hplip-3.12.4/prnt/drv/hpcups.drv.in
        Attribute "Product" "" "(HP Color Inkjet cp1700 Printer)"
        Attribute "Product" "" "(HP Color Inkjet cp1700ps Printer)"
        Attribute "Product" "" "(HP Color Inkjet cp1700d Printer)"
-Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
-===================================================================
---- hplip-3.12.4.orig/prnt/drv/hpijs.drv.in	2012-04-10 18:38:30.000000000 +1000
-+++ hplip-3.12.4/prnt/drv/hpijs.drv.in	2012-05-26 10:23:43.000000000 +1000
+--- a/prnt/drv/hpijs.drv.in
++++ b/prnt/drv/hpijs.drv.in
 @@ -1745,14 +1745,6 @@
      Attribute "Product" "" "(HP Photosmart 1315 Printer)"
    }

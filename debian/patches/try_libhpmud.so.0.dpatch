@@ -6,60 +6,60 @@
 
 @DPATCH@
 
-Index: hplip-3.12.4/scan/sane/marvell.c
-===================================================================
---- hplip-3.12.4.orig/scan/sane/marvell.c	2012-04-10 18:34:05.000000000 +1000
-+++ hplip-3.12.4/scan/sane/marvell.c	2012-05-26 10:21:29.000000000 +1000
-@@ -63,8 +63,11 @@
-    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
-    if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-    {
--      BUG("unable to load restricted library: %s\n", dlerror());
--      goto bugout;
-+      if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-+      {
-+         BUG("unable to load restricted library: %s\n", dlerror());
-+         goto bugout;
-+      }
-    } 
- 
-    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
-Index: hplip-3.12.4/scan/sane/soap.c
-===================================================================
---- hplip-3.12.4.orig/scan/sane/soap.c	2012-04-10 18:34:05.000000000 +1000
-+++ hplip-3.12.4/scan/sane/soap.c	2012-05-26 10:21:29.000000000 +1000
-@@ -71,8 +71,11 @@
-    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
-    if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-    {
--      BUG("unable to load restricted library: %s\n", dlerror());
--      goto bugout;
-+      if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-+      {
-+         BUG("unable to load restricted library: %s\n", dlerror());
-+         goto bugout;
-+      }
-    } 
- 
-    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
-Index: hplip-3.12.4/scan/sane/soapht.c
-===================================================================
---- hplip-3.12.4.orig/scan/sane/soapht.c	2012-04-10 18:34:05.000000000 +1000
-+++ hplip-3.12.4/scan/sane/soapht.c	2012-05-26 10:21:29.000000000 +1000
-@@ -63,10 +63,13 @@
+--- a/scan/sane/marvell.c
++++ b/scan/sane/marvell.c
+@@ -60,8 +60,14 @@
     int stat=1;
  
     /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
--   if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-+   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-    {
--      BUG("unable to load restricted library: %s\n", dlerror());
+-   if ((ps->hpmud_handle = load_library("libhpmud.so")) == NULL)
 -      goto bugout;
-+      if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-+      {
-+         BUG("unable to load restricted library: %s\n", dlerror());
-+         goto bugout;
-+      }
-    } 
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++   {
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
++   } 
  
     /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
+    if ((ps->math_handle = load_library("libm.so")) == NULL)
+--- a/scan/sane/soap.c
++++ b/scan/sane/soap.c
+@@ -68,8 +68,14 @@
+    int stat=1;
+ 
+    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
+-   if ((ps->hpmud_handle = load_library("libhpmud.so")) == NULL)
+-      goto bugout;
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++   {
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
++   } 
+ 
+    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
+    if ((ps->math_handle = load_library("libm.so")) == NULL)
+--- a/scan/sane/soapht.c
++++ b/scan/sane/soapht.c
+@@ -62,8 +62,14 @@
+    int stat=1;
+ 
+    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
+-   if ((ps->hpmud_handle = load_library("libhpmud.so.0")) == NULL)
+-      goto bugout;
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++   {
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
++   } 
+ 
+    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
+    if ((ps->math_handle = load_library("libm.so")) == NULL)

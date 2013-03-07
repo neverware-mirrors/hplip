@@ -7,7 +7,7 @@
 @DPATCH@
 --- a/ui4/systemtray.py
 +++ b/ui4/systemtray.py
-@@ -416,29 +416,11 @@
+@@ -418,29 +418,11 @@
      def setMenu(self):
          self.menu = QMenu()
  
