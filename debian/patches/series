@@ -5,7 +5,6 @@
 87_move_documentation.dpatch
 hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
-kde4-kdesudo-support.dpatch
 hp-check_debian.dpatch
 hp-setup-prompt-for-custom-PPD.dpatch
 kbsd.dpatch
@@ -19,7 +18,6 @@ black-stripes-on-pcl5c-printouts.dpatch
 try_libhpmud.so.0.dpatch
 add-lidil-two-cartridge-modes.dpatch
 CVE-2010-4267.dpatch
-hplip-syslog-fix-debug-messages-to-error.dpatch
 hpfax-bug-function-used-before-importing-log.dpatch
 hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch

@@ -8,20 +8,9 @@
 . /usr/share/dpatch/dpatch-run
 
 @DPATCH@
-Index: hplip-3.12.4/io/hpmud/hp-mkuri.c
-===================================================================
---- hplip-3.12.4.orig/io/hpmud/hp-mkuri.c	2012-05-26 10:21:29.000000000 +1000
-+++ hplip-3.12.4/io/hpmud/hp-mkuri.c	2012-05-26 10:23:15.000000000 +1000
-@@ -355,6 +355,8 @@
-    if (hpmud_get_key_value(datfile, model, "fax-type", value, sizeof(value)) != HPMUD_R_OK)
-       goto bugout;
-    fax = strtol(value, NULL, 10);
-+   if (hpmud_get_key_value(datfile, model, "model1", m, sizeof(m)) != HPMUD_R_OK)
-+      goto bugout;
- 
-    /* See if device is supported by hplip. */
-    if (support == HPMUD_SUPPORT_TYPE_NONE)
-@@ -372,12 +374,12 @@
+--- a/io/hpmud/hp-mkuri.c
++++ b/io/hpmud/hp-mkuri.c
+@@ -364,12 +364,12 @@
        switch (plugin)
        {
           case HPMUD_PLUGIN_TYPE_REQUIRED:

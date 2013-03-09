@@ -5,26 +5,23 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/Makefile.am
-===================================================================
---- hplip-3.12.4.orig/Makefile.am	2012-04-10 18:35:14.000000000 +1000
-+++ hplip-3.12.4/Makefile.am	2012-05-26 10:24:02.000000000 +1000
-@@ -4,6 +4,10 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -3,6 +3,11 @@
+ #
  #  (c) 2004-2015 Copyright Hewlett-Packard Development Company, LP
  #  Author: David Suffield, Naga Samrat Chowdary Narla, Sarbeswar Meher
- 
++
 +# Generic rules
 +%.py: %.ui
 +	$(PYUIC4) -x -o $@ $<
 +
- INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs
- 
- hplipdir = $(datadir)/hplip
-Index: hplip-3.12.4/configure.in
-===================================================================
---- hplip-3.12.4.orig/configure.in	2012-04-10 18:38:27.000000000 +1000
-+++ hplip-3.12.4/configure.in	2012-05-26 10:21:29.000000000 +1000
-@@ -508,6 +508,8 @@
+ INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs -Icommon/
+ CFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
+ CXXFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
+--- a/configure.in
++++ b/configure.in
+@@ -536,6 +536,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])

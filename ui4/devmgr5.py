@@ -28,10 +28,11 @@ import os
 import gzip
 import select
 import struct
+import signal
 
 # Local
 from base.g import *
-from base import device, utils, pml, maint, models, pkit
+from base import device, utils, pml, maint, models, pkit, os_utils
 from prnt import cups
 from base.codes import *
 from ui_utils import *
@@ -83,6 +84,8 @@ from aboutdialog import AboutDialog
 from settingsdialog import SettingsDialog
 from printsettingstoolbox import PrintSettingsToolbox
 
+
+from base import os_utils
 
 # all in seconds
 MIN_AUTO_REFRESH_RATE = 5
@@ -167,7 +170,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
         log.debug("Initializing toolbox UI (Qt4)...")
         log.debug("HPLIP Version: %s" % prop.installed_version)
 
-        
+
         self.toolbox_version = toolbox_version
         self.initial_device_uri = initial_device_uri
         self.device_vars = {}
@@ -193,7 +196,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             self.setupUi(self,"",self.Is_autoInstaller_distro)
         else:
             self.setupUi(self, self.user_settings.latest_available_version,self.Is_autoInstaller_distro)
-            
+
         # Other initialization
         self.initDBus()
         self.initPixmaps()
@@ -268,9 +271,12 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
 
         self.PreferencesAction.setIcon(QIcon(load_pixmap('settings', '16x16')))
         self.connect(self.PreferencesAction, SIGNAL("triggered()"), self.PreferencesAction_activated)
-        
+
         self.DiagnoseQueueAction.setIcon(QIcon(load_pixmap('warning', '16x16')))
         self.connect(self.DiagnoseQueueAction, SIGNAL("triggered()"), self.DiagnoseQueue_activated)
+
+        self.DiagnoseHPLIPAction.setIcon(QIcon(load_pixmap('troubleshoot', '16x16')))
+        self.connect(self.DiagnoseHPLIPAction, SIGNAL("triggered()"), self.DiagnoseHPLIP_activated)
 
         self.ContentsAction.setIcon(QIcon(load_pixmap("help", "16x16")))
         self.connect(self.ContentsAction, SIGNAL("triggered()"), self.helpContents)
@@ -282,6 +288,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
 
         self.connect(self.PrintControlPrinterNameCombo, SIGNAL("activated(const QString &)"), self.PrintControlPrinterNameCombo_activated)
         self.connect(self.PrintSettingsPrinterNameCombo, SIGNAL("activated(const QString &)"), self.PrintSettingsPrinterNameCombo_activated)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
          # Init tabs/controls
@@ -685,7 +692,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
                 # sending Event to remove this device from hp-systray
                 if removed_device:
                     utils.sendEvent(EVENT_CUPS_QUEUES_CHANGED,removed_device, "")
-                
+
                 if len(device_list):
                     for tab in self.TabIndex:
                         self.Tabs.setTabEnabled(tab, True)
@@ -753,6 +760,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
 
             if self.cur_device is not None:
                 self.RemoveDeviceAction.setEnabled(True)
+                self.DiagnoseQueueAction.setEnabled(True)
 
                 self.statusBar().showMessage(self.cur_device_uri)
                 self.updateWindowTitle()
@@ -792,6 +800,12 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             self.updatePrinterCombos()
             self.updateCurrentTab()
             self.statusBar().showMessage(self.cur_device_uri)
+            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
+                self.Tabs.setTabText(self.Tabs.indexOf(self.Settings), QApplication.translate("MainWindow", "Print Settings", None, QApplication.UnicodeUTF8))
+                self.Tabs.setTabText(self.Tabs.indexOf(self.Control), QApplication.translate("MainWindow", "Printer Control", None, QApplication.UnicodeUTF8))
+            else:
+                self.Tabs.setTabText(self.Tabs.indexOf(self.Settings), QApplication.translate("MainWindow", "Fax Settings", None, QApplication.UnicodeUTF8))
+                self.Tabs.setTabText(self.Tabs.indexOf(self.Control), QApplication.translate("MainWindow", "Fax Control", None, QApplication.UnicodeUTF8))
 
 
     def DeviceList_currentChanged(self, i,  j):
@@ -1163,7 +1177,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
                     "plugin",
                     x,
                     lambda : PluginInstall(self, d.plugin, plugin_installed)),
-                    
+
                     # EWS
 
                     (lambda : printer and d.embedded_server_type > EWS_NONE and bus == 'net',
@@ -1757,8 +1771,8 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
     def initUpgradeTab(self):
         self.connect(self.InstallLatestButton, SIGNAL("clicked()"), self.InstallLatestButton_clicked)
         self.InstallLatestButton_lock = False
-        
-       
+
+
     def InstallLatestButton_clicked(self):
         if self.InstallLatestButton_lock is True:
             return
@@ -1767,8 +1781,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             terminal_cmd = utils.get_terminal()
             if terminal_cmd is not None and utils.which("hp-upgrade"):
                 cmd = terminal_cmd + " 'hp-upgrade -w'"
-                log.debug("cmd = %s " %cmd)
-                os.system(cmd)
+                os_utils.execute(cmd)
             else:
                 log.error("Failed to run hp-upgrade command from terminal =%s "%terminal_cmd)
             self.InstallLatestButton.setEnabled(True)
@@ -1798,14 +1811,16 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
     def  updateHPLIPupgrade(self):
         self.initUpgradeTab()
 
-        
-        
-        
+
+
+
     def updatePrintControlTab(self):
         if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
             self.PrintControlPrinterNameLabel.setText(self.__tr("Printer Name:"))
+            self.groupBox.setTitle(QApplication.translate("MainWindow", "Printer Queue Control", None, QApplication.UnicodeUTF8))
         else:
             self.PrintControlPrinterNameLabel.setText(self.__tr("Fax Name:"))
+            self.groupBox.setTitle(QApplication.translate("MainWindow", "Fax Queue Control", None, QApplication.UnicodeUTF8))
 
         self.JobTable.clear()
         self.JobTable.setRowCount(0)
@@ -1862,18 +1877,23 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
     def updatePrintController(self):
         # default printer
         self.SetDefaultButton.setText(self.__tr("Set as Default"))
-
+        
         default_printer = cups.getDefaultPrinter()
         if default_printer is not None:
             default_printer = default_printer.decode('utf8')
+            
+        if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
+            device_string = "Printer"
+        else:
+            device_string = "Fax"
 
         if default_printer == self.cur_printer:
-            self.SetDefaultLabel.setText(self.__tr("Default Printer"))
+            self.SetDefaultLabel.setText(self.__tr("Default %s"%device_string))
             self.SetDefaultIcon.setPixmap(load_pixmap("ok", "16x16"))
             self.SetDefaultButton.setEnabled(False)
 
         else:
-            self.SetDefaultLabel.setText(self.__tr("Not Default Printer"))
+            self.SetDefaultLabel.setText(self.__tr("Not Default %s"%device_string))
             self.SetDefaultIcon.setPixmap(load_pixmap("info", "16x16"))
             self.SetDefaultButton.setEnabled(True)
 
@@ -1883,31 +1903,18 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
         if self.printer_state == cups.IPP_PRINTER_STATE_IDLE:
             self.StartStopLabel.setText(self.__tr("Started/Idle"))
             self.StartStopIcon.setPixmap(load_pixmap("idle", "16x16"))
+            self.StartStopButton.setText(self.__tr("Stop %s"%device_string))
 
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.StartStopButton.setText(self.__tr("Stop Printer"))
-
-            else:
-                self.StartStopButton.setText(self.__tr("Stop Fax"))
 
         elif self.printer_state == cups.IPP_PRINTER_STATE_PROCESSING:
             self.StartStopLabel.setText(self.__tr("Started/Processing"))
             self.StartStopIcon.setPixmap(load_pixmap("busy", "16x16"))
+            self.StartStopButton.setText(self.__tr("Stop %s"%device_string))
 
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.StartStopButton.setText(self.__tr("Stop Printer"))
-
-            else:
-                self.StartStopButton.setText(self.__tr("Stop Fax"))
         else:
             self.StartStopLabel.setText(self.__tr("Stopped"))
             self.StartStopIcon.setPixmap(load_pixmap("warning", "16x16"))
-
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.StartStopButton.setText(self.__tr("Start Printer"))
-
-            else:
-                self.StartStopButton.setText(self.__tr("Start Fax"))
+            self.StartStopButton.setText(self.__tr("Start %s"%device_string))
 
         # reject/accept
         if self.printer_accepting:
@@ -1945,8 +1952,8 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
                 self.updatePrintController()
                 self.cur_device.sendEvent(e, self.cur_printer)
             else:
-                if os.geteuid!=0 and utils.addgroup()!=[]:
-                    FailureUI(self, self.__tr("<b>Start/Stop printer queue operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.addgroup())))
+                if os.geteuid!=0 and utils.get_cups_systemgroup_list()!=[]:
+                    FailureUI(self, self.__tr("<b>Start/Stop printer queue operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.get_cups_systemgroup_list())))
 
         finally:
             endWaitCursor()
@@ -1975,9 +1982,9 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             if result:
                 self.updatePrintController()
                 self.cur_device.sendEvent(e, self.cur_printer)
-            else:  
-                if os.geteuid!=0 and utils.addgroup()!=[]:
-                    FailureUI(self, self.__tr("<b>Accept/Reject printer queue operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.addgroup())))
+            else:
+                if os.geteuid!=0 and utils.get_cups_systemgroup_list()!=[]:
+                    FailureUI(self, self.__tr("<b>Accept/Reject printer queue operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.get_cups_systemgroup_list())))
 
         finally:
             endWaitCursor()
@@ -1989,8 +1996,8 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
         try:
             result = cups.setDefaultPrinter(self.cur_printer.encode('utf8'))
             if not result:
-                if os.geteuid!=0 and utils.addgroup()!=[]:
-                    FailureUI(self, self.__tr("<b>Set printer queue as default operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.addgroup())))
+                if os.geteuid!=0 and utils.get_cups_systemgroup_list()!=[]:
+                    FailureUI(self, self.__tr("<b>Set printer queue as default operation fails. Could not connect to CUPS Server</b><p>Is user added to %s group(s)" %utils.list_to_string(utils.get_cups_systemgroup_list())))
             else:
                 self.updatePrintController()
                 if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
@@ -2089,7 +2096,7 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             cmd = 'python ./setup.py --gui'
 
         log.debug(cmd)
-        utils.run(cmd, log_output=True, password_func=None, timeout=1)
+        utils.run(cmd)
         self.rescanDevices()
         self.updatePrinterCombos()
 
@@ -2104,17 +2111,31 @@ class DevMgr5(QMainWindow,  Ui_MainWindow):
             cmd += ' --device=%s' % self.cur_device_uri
 
         log.debug(cmd)
-        utils.run(cmd, log_output=True, password_func=None, timeout=1)
+        utils.run(cmd)
         self.rescanDevices()
         self.updatePrinterCombos()
 
+
     def DiagnoseQueue_activated(self):
         if utils.which('hp-diagnose_queues'):
-            cmd= 'hp-diagnose_queues'
+            cmd= 'hp-diagnose_queues --gui'
         else:
-            cmd= 'python ./diagnose_queues.py'
-        log.debug(cmd) 
-        ok, output = utils.run(cmd)
+            cmd= 'python ./diagnose_queues.py --gui'
+        log.debug(cmd)
+#        ok, output = utils.run(cmd)
+        os_utils.execute(cmd)
+
+
+    def DiagnoseHPLIP_activated(self):
+        if utils.which('hp-doctor'):
+            cmd = 'hp-doctor -i -w'
+        else:
+            cmd = 'python ./doctor.py -i -w'
+
+        terminal_cmd = utils.get_terminal()
+        if terminal_cmd:
+            cmd = terminal_cmd + " '%s'"%cmd
+            os_utils.execute(cmd)
 
 
 

@@ -1,3 +1,53 @@
+hplip (3.13.3-1) experimental; urgency=low
+
+  * New Upstream Release 
+    - Fixes CVE-2013-0200 (Closes: #701185)
+    - Fixes "hp-check does not find installed Xsane" (Closes: #690362)
+  * Ack NMU - Thanks Sebastian Ramacher
+
+ -- Mark Purcell <msp@debian.org>  Sat, 09 Mar 2013 11:29:44 +1100
+
+hplip (3.13.2-0ubuntu1) raring; urgency=low
+
+  * New upstream release
+     o Added support for: HP Officejet Pro X451dw, X451dn, X476dn, X476dw MFP,
+       X551dn, X551dw, X576dn, X576dw, Officejet 7110 Wide Format ePrinter,
+       LaserJet 400 M401dne
+     o Secure Printing Support for HP LaserJet 5500 and Hp LaserJet 8150
+     o Updated Media Types for HP Color LaserJet CP5520 Series
+     o Bug fixes
+  * debian/patches/85_rebuild_python_ui.dpatch,
+    debian/patches/try_libhpmud.so.0.dpatch,
+    debian/patches/hp-mkuri-libnotify-so-4-support.dpatch: Manually updated to
+    apply to the new upstream source code.
+  * debian/patches/87_move_documentation.dpatch,
+    debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/ubuntu-hp-mkuri-notification-text.dpatch,
+    debian/patches/simple-scan-as-default.dpatch,
+    debian/patches/make-commafy-correctly-work-with-python-2.dpatch,
+    debian/patches/remove-duplicate-entry-for-cp1700-in-drv-files.dpatch,
+    debian/patches/CVE-2010-4267.dpatch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch: Refreshed with Quilt.
+  * debian/patches/kde4-kdesudo-support.dpatch: Removed, not applicable any
+    more.
+  * debian/patches/hplip-syslog-fix-debug-messages-to-error.dpatch: Removed,
+    applied upstream.
+  * debian/rules: Make /usr/share/hplip/check-plugin.py executable.
+  * debian/hplip.install: Added installation of new utilities hp-doctor and
+    hp-logcapture.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  7 Mar 2013 22:52:00 +0100
+
+hplip (3.12.6-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * debian/patches/CVE-2013-0200.patch: Fix CVE-2013-0200 by applying the
+    patch from Red Hat. Additionally increase the buffers to mitigate an
+    regression and a buffer overflow. (Closes: #701185)
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Fri, 01 Mar 2013 18:21:48 +0100
+
 hplip (3.12.11-1) experimental; urgency=low
 
   * New Upstream Release 

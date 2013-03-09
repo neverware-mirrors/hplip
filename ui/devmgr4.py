@@ -30,10 +30,11 @@ import select
 import struct
 import threading
 import Queue
+import signal
 
 # Local
 from base.g import *
-from base import device, utils, pml, maint, pkit
+from base import device, utils, pml, maint, pkit, os_utils
 from prnt import cups
 from base.codes import *
 from ui_utils import load_pixmap
@@ -583,7 +584,7 @@ class DevMgr4(DevMgr4_base):
 
         # Resize the splitter so that the device list starts as a single column
         self.splitter2.setSizes([120, 700])
-
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
     def InitMisc(self):
@@ -1036,7 +1037,13 @@ class DevMgr4(DevMgr4_base):
         if dev is self.cur_device and update_tab:
             self.UpdatePrinterCombos()
             self.TabIndex[self.Tabs.currentPage()]()
-
+            
+            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
+                self.Tabs.changeTab(self.PrintSettingsTab,self.__tr("Print Settings"))
+                self.Tabs.changeTab(self.PrintJobsTab,self.__tr("Print Control"))
+            else:
+                self.Tabs.changeTab(self.PrintSettingsTab,self.__tr("Fax Settings"))
+                self.Tabs.changeTab(self.PrintJobsTab,self.__tr("Fax Control"))
         qApp.processEvents()
 
 
@@ -2442,9 +2449,11 @@ class DevMgr4(DevMgr4_base):
 
         if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
             self.printerTextLabel.setText(self.__tr("Printer Name:"))
+            self.groupBox1.setTitle(self.__tr("Printer Queue Control"))
 
         else:
             self.printerTextLabel.setText(self.__tr("Fax Name:"))
+            self.groupBox1.setTitle(self.__tr("Fax Queue Control"))
 
         self.jobList.clear()
         self.UpdatePrintController()
@@ -2531,7 +2540,13 @@ class DevMgr4(DevMgr4_base):
     def UpdatePrintController(self):
         # default printer
         self.defaultPushButton.setText(self.__tr("Set as Default"))
+        
+        if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
+            device_string = "Printer"
+        else:
+            device_string = "Fax"
 
+        
         default_printer = cups.getDefaultPrinter()
         if default_printer is not None:
             default_printer = default_printer.decode('utf8')
@@ -2544,11 +2559,8 @@ class DevMgr4(DevMgr4_base):
             s = self.__tr("NOT SET AS DEFAULT")
             self.defaultPushButton.setEnabled(True)
 
-        if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-            QToolTip.add(self.defaultPushButton, self.__tr("The printer is currently: %1").arg(s))
+        QToolTip.add(self.defaultPushButton, self.__tr("The %2 is currently: %1").arg(s,device_string))
 
-        else:
-            QToolTip.add(self.defaultPushButton, self.__tr("The fax is currently: %1").arg(s))
 
         self.printer_state = cups.IPP_PRINTER_STATE_IDLE
 
@@ -2563,35 +2575,17 @@ class DevMgr4(DevMgr4_base):
         # start/stop
         if self.printer_state == cups.IPP_PRINTER_STATE_IDLE:
             s = self.__tr("IDLE")
-
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.stopstartPushButton.setText(self.__tr("Stop Printer"))
-
-            else:
-                self.stopstartPushButton.setText(self.__tr("Stop Fax"))
+            self.stopstartPushButton.setText(self.__tr("Stop %s"%device_string))
 
         elif self.printer_state == cups.IPP_PRINTER_STATE_PROCESSING:
             s = self.__tr("PROCESSING")
+            self.stopstartPushButton.setText(self.__tr("Stop %s"%device_string))
 
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.stopstartPushButton.setText(self.__tr("Stop Printer"))
-
-            else:
-                self.stopstartPushButton.setText(self.__tr("Stop Fax"))
         else:
             s = self.__tr("STOPPED")
+            self.stopstartPushButton.setText(self.__tr("Start %s"%device_string))
 
-            if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-                self.stopstartPushButton.setText(self.__tr("Start Printer"))
-
-            else:
-                self.stopstartPushButton.setText(self.__tr("Start Fax"))
-
-        if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-            QToolTip.add(self.stopstartPushButton, self.__tr("The printer is currently: %1").arg(s))
-
-        else:
-            QToolTip.add(self.stopstartPushButton, self.__tr("The fax is currently: %1").arg(s))
+        QToolTip.add(self.stopstartPushButton, self.__tr("The %2 is currently: %1").arg(s,device_string))
 
         # reject/accept
         if self.printer_accepting:
@@ -2602,11 +2596,8 @@ class DevMgr4(DevMgr4_base):
             s = self.__tr("REJECTING JOBS")
             self.rejectacceptPushButton.setText(self.__tr("Accept Jobs"))
 
-        if self.cur_device.device_type == DEVICE_TYPE_PRINTER:
-            QToolTip.add(self.rejectacceptPushButton, self.__tr("The printer is currently: %1").arg(s))
+        QToolTip.add(self.rejectacceptPushButton, self.__tr("The %2 is currently: %1").arg(s,device_string))
 
-        else:
-            QToolTip.add(self.rejectacceptPushButton, self.__tr("The fax is currently: %1").arg(s))
 
 
     def stopstartPushButton_clicked(self):
@@ -2717,8 +2708,7 @@ class DevMgr4(DevMgr4_base):
             terminal_cmd = utils.get_terminal()
             if terminal_cmd is not None and utils.which("hp-upgrade"):
                 cmd = terminal_cmd + " 'hp-upgrade -w'"
-                log.debug("cmd = %s " %cmd)
-                os.system(cmd)
+                os_utils.execute(cmd)
             else:
                 log.error("Failed to run hp-upgrade command from terminal =%s "%terminal_cmd)
             self.InstallPushButton.setEnabled(True)
@@ -2814,7 +2804,7 @@ class DevMgr4(DevMgr4_base):
             cmd = 'python ./setup.py --gui'
 
         log.debug(cmd)
-        utils.run(cmd, log_output=True, password_func=None, timeout=1)
+        utils.run(cmd)
         self.RescanDevices()
 
 

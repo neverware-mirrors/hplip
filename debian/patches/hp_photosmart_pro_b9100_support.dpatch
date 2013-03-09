@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/data/models/models.dat
-===================================================================
---- hplip-3.12.4.orig/data/models/models.dat	2012-04-10 18:34:07.000000000 +1000
-+++ hplip-3.12.4/data/models/models.dat	2012-05-26 10:23:07.000000000 +1000
-@@ -48076,9 +48076,9 @@
+--- a/data/models/models.dat
++++ b/data/models/models.dat
+@@ -52626,9 +52626,9 @@
  status-type=2
  support-released=True
  support-subtype=219b2b
