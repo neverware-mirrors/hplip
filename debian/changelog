@@ -1,3 +1,12 @@
+hplip (3.13.3-1) experimental; urgency=low
+
+  * New Upstream Release 
+    - Fixes CVE-2013-0200 (Closes: #701185)
+    - Fixes "hp-check does not find installed Xsane" (Closes: #690362)
+  * Ack NMU - Thanks Sebastian Ramacher
+
+ -- Mark Purcell <msp@debian.org>  Sat, 09 Mar 2013 11:29:44 +1100
+
 hplip (3.13.2-0ubuntu1) raring; urgency=low
 
   * New upstream release
@@ -29,6 +38,15 @@ hplip (3.13.2-0ubuntu1) raring; urgency=low
     hp-logcapture.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  7 Mar 2013 22:52:00 +0100
+
+hplip (3.12.6-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * debian/patches/CVE-2013-0200.patch: Fix CVE-2013-0200 by applying the
+    patch from Red Hat. Additionally increase the buffers to mitigate an
+    regression and a buffer overflow. (Closes: #701185)
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Fri, 01 Mar 2013 18:21:48 +0100
 
 hplip (3.12.11-1) experimental; urgency=low
 
