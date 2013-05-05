@@ -1,2 +1,3 @@
 version=3
-http://sf.net/hplip/hplip-(.+)\.tar\.gz debian svn-upgrade
+http://sf.net/hplip/hplip-(\d.*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz)) debian svn-upgrade
+# Bart Martens <bartm@debian.org>  Sun, 17 Feb 2013 09:49:23 +0000

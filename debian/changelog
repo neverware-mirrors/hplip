@@ -1,3 +1,11 @@
+hplip (3.13.4-1) unstable; urgency=low
+
+  * New upstream release
+  * Removed "KDE from long description." (Closes: #706269)
+  * Clarified "[hpijs] short description" (Closes: #706057)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 05 May 2013 21:09:24 +1000
+
 hplip (3.13.3-1) experimental; urgency=low
 
   * New Upstream Release 
