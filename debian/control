@@ -14,7 +14,7 @@ X-Python-Version: >= 2.5
 Standards-Version: 3.9.3
 Homepage: http://hplipopensource.com/hplip-web/index.html
 Vcs-Svn: svn://svn.debian.org/pkg-hpijs/hplip/trunk/
-Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
+#Vcs-Browser: http://svn.debian.org/wsvn/pkg-hpijs/hplip/?op=log
 
 Package: hplip
 Architecture: any
@@ -85,8 +85,8 @@ Description: HP Linux Printing and Imaging - GUI utilities (Qt-based)
  This package contains utilities with graphical user interface (GUI) for
  HPLIP: HP Toolbox, HP Fax, ...
  .
- Note that all GUI utilities are based on the Qt (KDE) GUI environment. There
- are currently no equivalent utilities based on GTK (GNOME).
+ Note that all GUI utilities are based on the Qt GUI environment. There
+ are currently no equivalent utilities based on GTK.
 
 Package: hplip-dbg
 Architecture: any
@@ -145,7 +145,7 @@ Recommends: ghostscript, cups (>= 1.4.0) | cupsddk | hpijs-ppds, foomatic-filter
 Suggests: hplip, hpijs-ppds, hplip-doc
 Replaces: hpijs (<< 3.11.10-1ubuntu2)
 Breaks: hpijs (<< 3.11.10-1ubuntu2)
-Description: HP Linux Printing and Imaging - gs IJS driver (hpijs)
+Description: HP Linux Printing and Imaging - printer driver (hpijs)
  This package contains an IJS printer driver for Ghostscript, which
  adds support for most inkjet printers and some LaserJet printers
  manufactured by HP.  It is also required for HPLIP fax support.
