@@ -6,6 +6,7 @@ hplip (3.13.5-1) UNRELEASED; urgency=low
     - removed 56-hpmud_support.rules suspend udev-rules-hp-mkuri-call-fix.dpatch
     - added 56-hpmud.rules update create_hal_global_fdi_from_hpmud_rules.sh 
     - update hplip.preinst
+  * Drop obsolete transitional dummy packages
 
  -- Mark Purcell <msp@debian.org>  Sat, 22 Jun 2013 11:50:49 +1000
 

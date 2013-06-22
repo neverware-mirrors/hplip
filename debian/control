@@ -128,15 +128,6 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
  a given printer.  See http://www.openprinting.org/ for the latest
  version of the PPDs (which are not guaranteed to work well).
 
-Package: hpijs
-Architecture: all
-Section: oldlibs
-Priority: extra
-Depends: ${misc:Depends}, printer-driver-hpijs
-Description: transitional dummy package for hpijs printer driver
- This is a transitional dummy package to transition to uniformly named
- printer-driver-hpijs.
-
 Package: printer-driver-hpijs
 Architecture: any
 Section: text
@@ -167,15 +158,6 @@ Description: HP Linux Printing and Imaging - printer driver (hpijs)
  .
  HPIJS is meant to be used through the foomatic system (see the
  foomatic-filters package).
-
-Package: hplip-cups
-Architecture: all
-Section: oldlibs
-Priority: extra
-Depends: ${misc:Depends}, printer-driver-hpcups
-Description: transitional dummy package for hpcups printer driver
- This is a transitional dummy package to transition to uniformly named
- printer-driver-hpcups.
 
 Package: printer-driver-hpcups
 Architecture: any
