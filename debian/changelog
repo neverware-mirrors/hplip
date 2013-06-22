@@ -1,4 +1,7 @@
-hplip (3.13.5-1) unstable; urgency=low
+hplip (3.13.5-1) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+    - TODO refactor create_hal_global_fdi_from_hpmud_rules.sh
 
   * New upstream release
   * Upstream removed 56-hpmud_support.rules - suspend
