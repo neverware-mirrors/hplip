@@ -17,7 +17,7 @@ MY_NAME=${0##*/}
 TMP_DATA=$(mktemp -u /tmp/$MY_NAME.XXXXXX)
 
 touch $TMP_DATA
-for CLASS in `cat data/rules/55-hpmud.rules | grep 'SYSFS{idVendor}=="03f0"' | cut -d ' ' -f 2 | cut -d '"' -f 2 | cut -d '?' -f3`; do
+for CLASS in `cat data/rules/56-hpmud.rules | grep 'SYSFS{idVendor}=="03f0"' | cut -d ' ' -f 2 | cut -d '"' -f 2 | cut -d '?' -f3`; do
     IDS=''
     for A in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do
 	for B in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do
