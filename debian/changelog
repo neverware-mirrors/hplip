@@ -1,4 +1,4 @@
-hplip (3.13.5-1) UNRELEASED; urgency=low
+hplip (3.13.6-1) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -8,7 +8,7 @@ hplip (3.13.5-1) UNRELEASED; urgency=low
     - update hplip.preinst
   * Drop obsolete transitional dummy packages
 
- -- Mark Purcell <msp@debian.org>  Sat, 22 Jun 2013 11:50:49 +1000
+ -- Mark Purcell <msp@debian.org>  Sat, 06 Jul 2013 12:01:55 +1000
 
 hplip (3.13.4-1) unstable; urgency=low
 
