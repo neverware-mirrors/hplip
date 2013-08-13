@@ -1,14 +1,52 @@
-hplip (3.13.7-1) UNRELEASED; urgency=low
+hplip (3.13.8-0ubuntu1) saucy; urgency=low
 
-  * NOT RELEASED YET
-
+  [ Till Kamppeter ]
   * New upstream release
-    - removed 56-hpmud_support.rules suspend udev-rules-hp-mkuri-call-fix.dpatch
-    - added 56-hpmud.rules update create_hal_global_fdi_from_hpmud_rules.sh 
-    - update hplip.preinst
+     o Added support for: HP LaserJet Enterprise MFP M725/M725dn/M725dn/M725fw/
+       M725z/M725z+, DesignJet T920/T1500 Postscript, Envy 4500/4502/5530/5535
+       e-All-in-One, Deskjet 1010/1012, 1510/1512/1513/2540/2542 All-in-One,
+       Deskjet Ink Advantage 1010/1015, 1510/1515/1516 All-in-One, 3540/3545/
+       3546 e-All-in-One, Officejet Pro 3610/3620 Black and White e-All-in-One,
+       Officejet 7610 Wide Format e-All-in-One
+     o Added support for Avahi network printer browsing
+     o Using SLP protocol by default to browse printer in hp-setup
+     o Added 56-hpmud.rules and removed 56-hpmud_support, 86-hpmud_plugin,
+       56-hpmud_add_printer, 55-hpmud and 40-hplip rules
+     o Fixes:
+	+ LP: #233393  - Smart install disable popup is coming for HP pen drive
+	  and HP CD/DVD ROM
+	+ LP: #746814  - CVE-2010-4267 Remote Stack Overflow Vulnerability
+	+ LP: #1157701 - soapfax.py:139:setStationName:UnicodeEncodeError:
+	  'ascii' codec can't encode characters in position 0-3: ordinal not in
+	  range(128)
+	+ LP: #1163339 - hplip online documentation: manual tarball
+	  installation shows package dependancies which are out-of-date
+	+ LP: #1176470 - hp-setup fails with the message "ethernet cable is
+	  plugged in" - But it isn't
+	+ LP: #1179433 - cupsext/getPrinter leaks server connection on each call
+	+ LP: #1179454 - Cannot set filename when scanning with hp-scan from ADF
+	+ LP: #1186411 - Fix for firmware download during plug and play
+	+ LP: #1185866 - hp-config_usb_printer hangs in loop
+	+ LP: #1189333 - Fixed hplip markup documentation errors
+	+ LP: #1195221 - Unable to install plugin for network printer Laserjet
+	  2600n
+	+ LP: #1196335 - HPLIP 3.13.6 stop working after shutting down/rebooting
+	  the computer
+	+ LP: #1197306 - HP laserjet 1020 not printing on Ubuntu12.10 after
+	  power cycle the printer
+  * debian/control: printer-driver-hpcups: Replaced dependency on
+    ghostscript-cups by "cups-filters (>= 1.0.36) | ghostscript-cups" as
+    Ghostscript's CUPS filters moved to cups-filters from cups-filters
+    1.0.36/Ghostscript 9.08 on.
+  * debian/patches/CVE-2010-4267.dpatch: Removed, included upstream.
+
+  [ Mark Purcell ]
+  * Removed 56-hpmud_support.rules suspend udev-rules-hp-mkuri-call-fix.dpatch
+  * Added 56-hpmud.rules update create_hal_global_fdi_from_hpmud_rules.sh
+  * Update hplip.preinst
   * Drop obsolete transitional dummy packages
 
- -- Mark Purcell <msp@debian.org>  Sat, 27 Jul 2013 09:07:21 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 13 Aug 2013 18:58:00 +0200
 
 hplip (3.13.4-1) unstable; urgency=low
 

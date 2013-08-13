@@ -163,7 +163,7 @@ Package: printer-driver-hpcups
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends},
- ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups
+ cups-filters (>= 1.0.36) | ghostscript-cups, cups (>= 1.4.0) | cupsddk, cups
 Suggests: hplip-doc, hplip (= ${hplip:binary:Version})
 Replaces: hplip-cups (<< 3.11.10-1ubuntu2)
 Breaks: hplip-cups (<< 3.11.10-1ubuntu2)
