@@ -3,6 +3,7 @@ hplip (3.13.8-1) UNRELEASED; urgency=low
   * New Upstream Release 
   * Update Vcs: header
   * Fixup field "section" in package hpijs-ppds
+  * Update libhpmud-dev Description: - duplicate-long-description
 
  -- Mark Purcell <msp@debian.org>  Sat, 17 Aug 2013 09:57:27 +1000
 
