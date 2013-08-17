@@ -1,4 +1,4 @@
-hplip (3.13.8-1) UNRELEASED; urgency=low
+hplip (3.13.8-1) unstable; urgency=low
 
   * New Upstream Release 
   * Update Vcs: header
@@ -7,7 +7,7 @@ hplip (3.13.8-1) UNRELEASED; urgency=low
   * Update debian/copyright - fixes copyright-refers-to-symlink-license
   * Update Description: - fixes extended-description-is-probably-too-short
 
- -- Mark Purcell <msp@debian.org>  Sat, 17 Aug 2013 09:57:27 +1000
+ -- Mark Purcell <msp@debian.org>  Sat, 17 Aug 2013 12:27:56 +1000
 
 hplip (3.13.8-0ubuntu1) saucy; urgency=low
 

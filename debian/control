@@ -101,7 +101,7 @@ Description: HP Linux Printing and Imaging - GUI utilities (Qt-based)
  HPLIP: HP Toolbox, HP Fax, ...
  .
  Note that all GUI utilities are based on the Qt GUI environment. There
- are currently no equivalent utilities based on GTK.
+ are currently no equivalent utilities based on GTK+.
 
 Package: hplip-dbg
 Architecture: any
