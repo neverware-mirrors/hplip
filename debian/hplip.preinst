@@ -55,6 +55,9 @@ case "$1" in
 	rm_udevrule hplip /etc/udev/rules.d/024_hpmud.rules
 	rm_udevrule hplip /etc/udev/rules.d/56-hpmud_support.rules
 	rm_udevrule hplip /etc/udev/rules.d/z60_hplip.rules
+	rm_udevrule hplip /etc/udev/rules.d/86-hpmud_plugin.rules
+	rm_udevrule hplip /etc/udev/rules.d/56-hpmud_add_printer.rules
+	rm_udevrule hplip /etc/udev/rules.d/40-hplip.rules
 
     ;;
 
