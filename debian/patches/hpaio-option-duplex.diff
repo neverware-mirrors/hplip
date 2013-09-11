@@ -1,6 +1,6 @@
 --- a/scan/sane/sclpml.c
 +++ b/scan/sane/sclpml.c
-@@ -1063,20 +1063,17 @@
+@@ -1083,20 +1083,17 @@
      hpaio->option[OPTION_ADF_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
      hpaio->option[OPTION_ADF_MODE].constraint.string_list = hpaio->adfModeList;
  

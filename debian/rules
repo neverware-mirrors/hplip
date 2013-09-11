@@ -292,9 +292,6 @@ install-arch-stamp: install-stamp
 	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
 	install -m 644 debian/$(BASEPKG).sane "$(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)"
 
-	mkdir -p "$(PKGTMP)/usr/lib/cups/filter/"
-	install -m 755 hplipjs "$(PKGTMP)/usr/lib/cups/filter/"
-
 	# Fax PPDs, install to destdir directly
 	mkdir -p "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/hplip/HP"
 	mkdir -p "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP"

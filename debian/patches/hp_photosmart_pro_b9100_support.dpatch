@@ -7,7 +7,7 @@
 @DPATCH@
 --- a/data/models/models.dat
 +++ b/data/models/models.dat
-@@ -52626,9 +52626,9 @@
+@@ -53546,9 +53546,9 @@
  status-type=2
  support-released=True
  support-subtype=219b2b

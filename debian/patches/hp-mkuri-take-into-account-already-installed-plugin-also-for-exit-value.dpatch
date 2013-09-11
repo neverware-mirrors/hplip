@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/io/hpmud/hp-mkuri.c
-===================================================================
---- hplip-3.12.4.orig/io/hpmud/hp-mkuri.c	2012-04-10 18:35:06.000000000 +1000
-+++ hplip-3.12.4/io/hpmud/hp-mkuri.c	2012-05-26 10:23:52.000000000 +1000
-@@ -385,17 +385,23 @@
+--- a/io/hpmud/hp-mkuri.c
++++ b/io/hpmud/hp-mkuri.c
+@@ -377,17 +377,23 @@
     }
  
     ret = 0;
