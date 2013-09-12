@@ -50,6 +50,16 @@ case "$1" in
 		fi
 	done
 
+	# Adjust permissions and ownerships of the /var/log/hp/tmp (fax spool)
+	# directory (https://bugs.launchpad.net/bugs/1187132)
+	for i in /var/log/hp/tmp
+	do
+		if ! dpkg-statoverride --list $i > /dev/null
+		then
+			dpkg-statoverride --update --add root lp 775 $i
+		fi
+	done
+
 
 	# Remove shutdown and reboot links; this init script does not need them.
 	if dpkg --compare-versions "$2" lt "1.7.3-0ubuntu4"; then

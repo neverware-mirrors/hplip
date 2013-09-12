@@ -50,11 +50,12 @@ case "$1" in
 	purge)
 		kill_python_crappage
 
-		for i in /var/run/hplip ; do
+		for i in /var/run/hplip /var/log/hp/tmp; do
 			dpkg-statoverride --remove $i || true
 		done
 
     		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
+		[ -d /var/log/hp/tmp ] && rm -fr /var/log/hp/tmp
 	;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2

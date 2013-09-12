@@ -198,11 +198,6 @@ install-stamp: build-stamp
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
-	# Remove files we are not to ship from the install tree
-	@echo Removing non-shipped files, see debian/non-shipped-files.txt
-	@cat debian/non-shipped-files.txt | \
-		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
-
 	# Uncompress PPDs, this makes the package smaller for distribution
 	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
 
@@ -268,6 +263,11 @@ install-stamp: build-stamp
 	# package
 	find ./debian/tmp/ -name '*.pyc' -print0 | xargs -0 rm -f
 
+	# Remove files we are not to ship from the install tree
+	@echo Removing non-shipped files, see debian/non-shipped-files.txt
+	@cat debian/non-shipped-files.txt | \
+		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
+
 	touch install-stamp
 
 # install arch-dependent packages specific files
@@ -312,9 +312,9 @@ install-arch-stamp: install-stamp
 	# HPLIP-supported devices (also without scanner), so that permissions
 	# get automatically set so that always the user logged in on the
 	# system's desktop has full access to the device.
-	install -d -m 755 $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/
-	sh debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh \
-	> $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi
+	#install -d -m 755 $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/
+	#sh debian/local/scripts/create_hal_global_fdi_from_hpmud_rules.sh \
+	#> $(PKGTMP)/usr/share/hal/fdi/preprobe/10osvendor/20-hplip-devices.fdi
 
 	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )

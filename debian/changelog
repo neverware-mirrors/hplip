@@ -1,4 +1,4 @@
-hplip (3.13.9-1) UNRELEASED; urgency=low
+hplip (3.13.9-0ubuntu1) saucy; urgency=low
 
   [ Till Kamppeter ]
   * New upstream release
@@ -30,8 +30,14 @@ hplip (3.13.9-1) UNRELEASED; urgency=low
     to the new source code.
   * debian/hplip.install, debian/rules: Removed hplipjs and hpcac filters, they
     are removed from HPLIP.
-  * debian/hplip.dirs: Added /var/log/hp/tmp/, needed by hp-sendfax
-    (LP: #1187132).
+  * debian/hplip.dirs, debian/hplip.postinst, debian/hplip.postrm: Added
+    /var/log/hp/tmp/ (775 root.lp), needed by hp-sendfax (LP: #1187132).
+  * debian/printer-driver-postscript-hp.install: Some DesignJet PPDs do not
+    have "ps" in their names and therefore did not get packaged.
+  * debian/non-shipped-files.txt: Updated.
+  * debian/rules: Remove the non-shipped files in the end of the install-stamp
+    rule, as some of them get created after "make install" by this rule.
+  * debian/rules: Do not create HAL .fdi file.
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 11 Sep 2013 21:36:00 +0200
 
