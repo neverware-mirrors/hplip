@@ -1,3 +1,11 @@
+hplip (3.13.9-1) UNRELEASED; urgency=low
+
+  * New upstream release 
+  * Fix CVE-2013-4325 hplip: Insecure calling of polkit
+    - Apply Redhat patch (Closes: #723716)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 21 Sep 2013 08:12:44 +1000
+
 hplip (3.13.9-0ubuntu1) saucy; urgency=low
 
   [ Till Kamppeter ]
