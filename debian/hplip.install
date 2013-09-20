@@ -26,8 +26,6 @@ usr/bin/hp-upgrade
 usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/pstotiff
-usr/lib/cups/filter/hplipjs
-usr/lib/cups/filter/hpcac
 usr/lib/cups/filter/hpps
 usr/lib/python*
 usr/share/cups/mime/*.types

@@ -1,2 +1,4 @@
 usr/share/ppd/hplip/*/*ps.ppd*
+usr/share/ppd/hplip/*/*postscript.ppd*
+usr/share/ppd/hplip/*/hp-designjet*.ppd*
 usr/share/cups/ppd-updaters/printer-driver-postscript-hp.ppd-updater

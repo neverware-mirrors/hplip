@@ -1,6 +1,59 @@
+hplip (3.13.9-1) unstable; urgency=medium
+
+  * New upstream release 
+  * Fix CVE-2013-4325 hplip: Insecure calling of polkit
+    - Apply Redhat patch (Closes: #723716)
+    - Urgency medium
+  * Fix "Rebuild against pyppd 1.0.1" patch from OdyX (Closes: #722695)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 21 Sep 2013 08:24:35 +1000
+
+hplip (3.13.9-0ubuntu1) saucy; urgency=low
+
+  [ Till Kamppeter ]
+  * New upstream release
+     o Bug fixes and added hardware support
+     o Added support for: HP Designjet Z5400 44-in PostScript ePrinter,
+       Deskjet Ink Advantage 1018 Printer, 1518/2540/2545/2546 All-in-One
+       Printer, 4515/4518 e-All-in-One Printer, Envy 4504 e-All-in-One,
+       LaserJet Pro MFP M435nw, Officejet 4630/4632/4635 e-All-in-One Printer,
+       OfficeJet Pro 8600 Premium e-AiO N911n, Photosmart 5521 e-All-in-One
+       Printer
+     o HP OfficeJet G55 is not detecting through USB (LP: #1209339)
+     o Collate broken under hplip-3.13.7 as hpps sends SET COPIES (LP: #1209352)
+     o Fix for plugin (firmware) installation and test page in 'hp-setup -i'
+  * debian/patches/10_shebang_fixes.dpatch,
+    debian/patches/hp-setup-prompt-for-custom-PPD.dpatch,
+    debian/patches/kbsd.dpatch,
+    debian/patches/make-commafy-correctly-work-with-python-2.dpatch,
+    debian/patches/black-stripes-on-pcl5c-printouts.dpatch: Removed, applied
+    upstream.
+  * debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/hp-check_debian.dpatch
+    debian/patches/hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch,
+    debian/patches/simple-scan-as-default.dpatch,
+    debian/patches/add-lidil-two-cartridge-modes.dpatch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch,
+    debian/patches/hpaio-option-duplex.diff: Refreshed with quilt.
+  * debian/patches/ubuntu-hp-mkuri-notification-text.dpatch: Manually adapted
+    to the new source code.
+  * debian/hplip.install, debian/rules: Removed hplipjs and hpcac filters, they
+    are removed from HPLIP.
+  * debian/hplip.dirs, debian/hplip.postinst, debian/hplip.postrm: Added
+    /var/log/hp/tmp/ (775 root.lp), needed by hp-sendfax (LP: #1187132).
+  * debian/printer-driver-postscript-hp.install: Some DesignJet PPDs do not
+    have "ps" in their names and therefore did not get packaged.
+  * debian/non-shipped-files.txt: Updated.
+  * debian/rules: Remove the non-shipped files in the end of the install-stamp
+    rule, as some of them get created after "make install" by this rule.
+  * debian/rules: Do not create HAL .fdi file.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 11 Sep 2013 21:36:00 +0200
+
 hplip (3.13.8-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
   * Update Vcs: header
   * Fixup field "section" in package hpijs-ppds
   * Update libhpmud-dev Description: - duplicate-long-description

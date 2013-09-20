@@ -5,11 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
-===================================================================
---- hplip-3.12.4.orig/prnt/drv/hpijs.drv.in	2012-05-26 10:21:29.000000000 +1000
-+++ hplip-3.12.4/prnt/drv/hpijs.drv.in	2012-05-26 10:21:29.000000000 +1000
-@@ -4376,16 +4376,16 @@
+--- a/prnt/drv/hpijs.drv.in
++++ b/prnt/drv/hpijs.drv.in
+@@ -4384,16 +4384,16 @@
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3320&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -30,7 +28,7 @@ Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
    Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
    Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
  dDEVICEHEIGHTPOINTS=792"
-@@ -4844,13 +4844,13 @@
+@@ -4852,13 +4852,13 @@
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3600&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -47,7 +45,7 @@ Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=High.Gray" "Quality=600Grayscal&&
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
-@@ -5312,13 +5312,13 @@
+@@ -5320,13 +5320,13 @@
  "
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftColorCM&&
@@ -64,10 +62,8 @@ Index: hplip-3.12.4/prnt/drv/hpijs.drv.in
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=High.Gray" "Quality=600Grayscal&&
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
-Index: hplip-3.12.4/prnt/drv/hpijs.drv.in.template
-===================================================================
---- hplip-3.12.4.orig/prnt/drv/hpijs.drv.in.template	2012-04-10 18:32:37.000000000 +1000
-+++ hplip-3.12.4/prnt/drv/hpijs.drv.in.template	2012-05-26 10:21:29.000000000 +1000
+--- a/prnt/drv/hpijs.drv.in.template
++++ b/prnt/drv/hpijs.drv.in.template
 @@ -2221,16 +2221,16 @@
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3320&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"

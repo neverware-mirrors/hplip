@@ -7,7 +7,7 @@
 @DPATCH@
 --- a/base/utils.py
 +++ b/base/utils.py
-@@ -550,18 +550,21 @@
+@@ -556,18 +556,21 @@
  
          # Scan
          self.cmd_scan = ''
