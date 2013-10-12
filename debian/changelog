@@ -1,3 +1,10 @@
+hplip (3.13.9-2) UNRELEASED; urgency=low
+
+  * Build-Depends: libusb2-dev [kfreebsd-any] - Thks Petr
+    - Fixes "no longer buildable on kfreebsd-*" (Closes: #725616)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 12 Oct 2013 22:09:45 +1100
+
 hplip (3.13.9-1) unstable; urgency=medium
 
   * New upstream release 
