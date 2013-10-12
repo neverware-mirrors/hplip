@@ -10,7 +10,7 @@ Build-Depends: libcups2-dev, libcupsimage2-dev, libsane-dev, libsnmp-dev, libjpe
  python-dev, python-all-dev (>= 2.6.6-3~), python-qt4, pyqt4-dev-tools,
  python-dbus (>= 0.80), python-qt4-dbus, libdbus-1-dev, libudev-dev [linux-any], policykit-1,
  fdupes, lsb-release, pyppd (>= 1.0.1), dh-autoreconf
-X-Python-Version: >= 2.5
+X-Python-Version: >= 2.7.5
 Standards-Version: 3.9.4
 Homepage: http://hplipopensource.com/hplip-web/index.html
 Vcs-Svn: svn://anonscm.debian.org/pkg-hpijs/hplip/trunk/
