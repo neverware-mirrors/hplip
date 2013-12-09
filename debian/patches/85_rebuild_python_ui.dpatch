@@ -5,8 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
---- a/Makefile.am
-+++ b/Makefile.am
+Index: hplip-3.13.10/Makefile.am
+===================================================================
+--- hplip-3.13.10.orig/Makefile.am	2013-10-11 20:40:14.000000000 +1100
++++ hplip-3.13.10/Makefile.am	2013-11-09 14:29:21.000000000 +1100
 @@ -3,6 +3,11 @@
  #
  #  (c) 2004-2015 Copyright Hewlett-Packard Development Company, LP
@@ -19,9 +21,11 @@
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs -Icommon/
  CFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
  CXXFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
---- a/configure.in
-+++ b/configure.in
-@@ -536,6 +536,8 @@
+Index: hplip-3.13.10/configure.in
+===================================================================
+--- hplip-3.13.10.orig/configure.in	2013-10-11 20:40:26.000000000 +1100
++++ hplip-3.13.10/configure.in	2013-11-09 14:29:21.000000000 +1100
+@@ -538,6 +538,8 @@
     AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
     AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
     AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])

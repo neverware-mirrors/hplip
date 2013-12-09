@@ -1,10 +1,10 @@
 01_rss.dpatch
 14_charsign_fixes.dpatch
 85_rebuild_python_ui.dpatch
-87_move_documentation.dpatch
+#87_move_documentation.dpatch
 hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
-hp-check_debian.dpatch
+#hp-check_debian.dpatch
 #udev-rules-hp-mkuri-call-fix.dpatch
 hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
 ubuntu-hp-mkuri-notification-text.dpatch

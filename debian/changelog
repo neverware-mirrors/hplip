@@ -1,3 +1,14 @@
+hplip (3.13.11-1) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+  * New upstream release
+    - Fix for CVE-2013-4325:Insecure Polkit use (Closes: #723716)
+    - Drop debian/patches/CVE-2013-4325.patch
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sat, 07 Dec 2013 14:38:47 +1100
+
 hplip (3.13.9-2) unstable; urgency=low
 
   * Build-Depends: libusb2-dev [kfreebsd-any] - Thks Petr
