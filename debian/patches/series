@@ -27,3 +27,4 @@ hp-mkuri-libnotify-so-4-support.dpatch
 hpaio-option-duplex.diff
 debian-changes
 CVE-2013-0200.patch
+CVE-2013-4325.patch
