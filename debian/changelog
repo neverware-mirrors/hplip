@@ -9,6 +9,7 @@ hplip (3.13.11-1) UNRELEASED; urgency=low
   * Drop hp-mkuri-take-into-account-already-installed-plugin-also-for-
     exit-value.dpatch & ubuntu-hp-mkuri-notification-text.dpatch
   * quilt refresh
+  * hplip-doc.install -> hplip-doc.docs
 
  -- Mark Purcell <msp@debian.org>  Sat, 07 Dec 2013 14:38:47 +1100
 
