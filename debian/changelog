@@ -3,9 +3,12 @@ hplip (3.13.11-1) UNRELEASED; urgency=low
   * NOT RELEASED YET
 
   * New upstream release
-    - Fix for CVE-2013-4325:Insecure Polkit use (Closes: #723716)
+    - Includes fix for CVE-2013-4325:Insecure Polkit use (Closes: #723716)
     - Drop debian/patches/CVE-2013-4325.patch
-  * New upstream release
+    - hp-mkuri no longer ships
+  * Drop hp-mkuri-take-into-account-already-installed-plugin-also-for-
+    exit-value.dpatch & ubuntu-hp-mkuri-notification-text.dpatch
+  * quilt refresh
 
  -- Mark Purcell <msp@debian.org>  Sat, 07 Dec 2013 14:38:47 +1100
 

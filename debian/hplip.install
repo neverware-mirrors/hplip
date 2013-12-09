@@ -12,7 +12,7 @@ usr/bin/hp-info
 usr/bin/hp-levels
 usr/bin/hp-logcapture
 usr/bin/hp-makeuri
-usr/bin/hp-mkuri
+#usr/bin/hp-mkuri
 usr/bin/hp-pkservice
 usr/bin/hp-plugin
 usr/bin/hp-probe
