@@ -1,3 +1,9 @@
+hplip (3.12.6-3.1+deb7u1) stable-security; urgency=low
+
+  * CVE-2013-4325 CVE-2013-6402 CVE-2013-6427
+
+ -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 10 Dec 2013 00:04:01 +0100
+
 hplip (3.12.6-3.1) unstable; urgency=high
 
   * Non-maintainer upload.
