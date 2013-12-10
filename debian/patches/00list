@@ -20,3 +20,6 @@ remove-duplicate-entry-for-cp1700-in-drv-files.dpatch
 black-stripes-on-pcl5c-printouts.dpatch
 try_libhpmud.so.0.dpatch
 CVE-2010-4267.dpatch
+CVE-2013-0200.dpatch
+CVE-2013-4325.dpatch
+CVE-2013-6402.dpatch

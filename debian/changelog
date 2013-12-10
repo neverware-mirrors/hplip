@@ -1,3 +1,9 @@
+hplip (3.10.6-2+squeeze2) oldstable-security; urgency=low
+
+  * CVE-2013-0200 CVE-2013-4325 CVE-2013-6402
+
+ -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 10 Dec 2013 16:02:40 +0000
+
 hplip (3.10.6-2+squeeze1) stable; urgency=low
 
   * Fix "Insecure tempfile handling" CVE-2011-2722 by backporting from
