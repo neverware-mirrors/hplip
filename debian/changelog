@@ -1,6 +1,4 @@
-hplip (3.13.11-1) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+hplip (3.13.11-1) unstable; urgency=low
 
   * New upstream release
     - Includes fix for CVE-2013-4325:Insecure Polkit use (Closes: #723716)
@@ -11,7 +9,7 @@ hplip (3.13.11-1) UNRELEASED; urgency=low
   * quilt refresh
   * hplip-doc.install -> hplip-doc.docs
 
- -- Mark Purcell <msp@debian.org>  Sat, 07 Dec 2013 14:38:47 +1100
+ -- Mark Purcell <msp@debian.org>  Wed, 11 Dec 2013 06:12:48 +1100
 
 hplip (3.13.9-2) unstable; urgency=low
 
