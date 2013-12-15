@@ -1,3 +1,12 @@
+hplip (3.13.11-2) unstable; urgency=medium
+
+  * Urgency medium for CVE fix
+  * Sync with ubuntu - thks ~marc.deslauriers
+    - Fixes "CVE-2013-6427: insecure (undocumented) auto update feature"
+    (Closes: #731480)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Dec 2013 18:13:44 +1100
+
 hplip (3.13.11-1ubuntu1) trusty; urgency=low
 
   * debian/non-shipped-files.txt, debian/hplip.install: don't ship
