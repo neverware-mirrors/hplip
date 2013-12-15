@@ -1,13 +1,13 @@
 01_rss.dpatch
 14_charsign_fixes.dpatch
 85_rebuild_python_ui.dpatch
-87_move_documentation.dpatch
+#87_move_documentation.dpatch
 hp_photosmart_pro_b9100_support.dpatch
 pjl-duplex-binding.dpatch
-hp-check_debian.dpatch
+#hp-check_debian.dpatch
 #udev-rules-hp-mkuri-call-fix.dpatch
-hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
-ubuntu-hp-mkuri-notification-text.dpatch
+#hp-mkuri-take-into-account-already-installed-plugin-also-for-exit-value.dpatch
+#ubuntu-hp-mkuri-notification-text.dpatch
 simple-scan-as-default.dpatch
 #remove-duplicate-entry-for-cp1700-in-drv-files.dpatch
 try_libhpmud.so.0.dpatch
@@ -15,6 +15,5 @@ add-lidil-two-cartridge-modes.dpatch
 hpfax-bug-function-used-before-importing-log.dpatch
 hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
 hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
-hp-mkuri-libnotify-so-4-support.dpatch
+#hp-mkuri-libnotify-so-4-support.dpatch
 hpaio-option-duplex.diff
-CVE-2013-4325.patch

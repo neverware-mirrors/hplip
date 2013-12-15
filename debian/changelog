@@ -1,3 +1,34 @@
+hplip (3.13.11-2) unstable; urgency=medium
+
+  * Urgency medium for CVE fix
+  * Sync with ubuntu - thks ~marc.deslauriers
+    - Fixes "CVE-2013-6427: insecure (undocumented) auto update feature"
+    (Closes: #731480)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Dec 2013 18:13:44 +1100
+
+hplip (3.13.11-1ubuntu1) trusty; urgency=low
+
+  * debian/non-shipped-files.txt, debian/hplip.install: don't ship
+    hp-upgrade and upgrade.py, as we want to use proper packaging, and want
+    to prevent security issues.
+    - CVE-2013-6427
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 12 Dec 2013 14:42:33 -0500
+
+hplip (3.13.11-1) unstable; urgency=low
+
+  * New upstream release
+    - Includes fix for CVE-2013-4325:Insecure Polkit use (Closes: #723716)
+    - Drop debian/patches/CVE-2013-4325.patch
+    - hp-mkuri no longer ships
+  * Drop hp-mkuri-take-into-account-already-installed-plugin-also-for-
+    exit-value.dpatch & ubuntu-hp-mkuri-notification-text.dpatch
+  * quilt refresh
+  * hplip-doc.install -> hplip-doc.docs
+
+ -- Mark Purcell <msp@debian.org>  Wed, 11 Dec 2013 06:12:48 +1100
+
 hplip (3.13.9-2) unstable; urgency=low
 
   * Build-Depends: libusb2-dev [kfreebsd-any] - Thks Petr

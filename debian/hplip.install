@@ -12,7 +12,7 @@ usr/bin/hp-info
 usr/bin/hp-levels
 usr/bin/hp-logcapture
 usr/bin/hp-makeuri
-usr/bin/hp-mkuri
+#usr/bin/hp-mkuri
 usr/bin/hp-pkservice
 usr/bin/hp-plugin
 usr/bin/hp-probe
@@ -22,7 +22,6 @@ usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
 usr/bin/hp-unload
-usr/bin/hp-upgrade
 usr/sbin/hpssd
 usr/lib/cups/backend
 usr/lib/cups/filter/pstotiff

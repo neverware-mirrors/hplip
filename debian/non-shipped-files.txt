@@ -1,6 +1,7 @@
 etc/sane.d/dll.conf
 usr/share/hplip/check
 usr/share/hplip/install.py
+usr/share/hplip/upgrade.py
 usr/share/doc/hplip/README_LIBJPG
 usr/share/doc/hplip/hpijs_readme.html
 usr/share/doc/hplip/gs_hpijs.png
@@ -16,4 +17,5 @@ usr/lib/libhpmud.la
 usr/lib/libhpip.la
 usr/lib/systemd/system/hplip-printer@.service
 usr/bin/hp-uninstall
+usr/bin/hp-upgrade
 usr/share/ppd/hplip/HP/hp-color_inkjet_cp1700-hpijs.ppd.gz
