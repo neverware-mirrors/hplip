@@ -1,3 +1,12 @@
+hplip (3.13.11-1ubuntu1) trusty; urgency=low
+
+  * debian/non-shipped-files.txt, debian/hplip.install: don't ship
+    hp-upgrade and upgrade.py, as we want to use proper packaging, and want
+    to prevent security issues.
+    - CVE-2013-6427
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 12 Dec 2013 14:42:33 -0500
+
 hplip (3.13.11-1) unstable; urgency=low
 
   * New upstream release
