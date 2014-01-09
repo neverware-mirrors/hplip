@@ -141,7 +141,7 @@ Architecture: all
 Provides: hplip-ppds
 Replaces: hplip-ppds
 Breaks: hplip-ppds, foomatic-filters-ppds (>> 20000101)
-Depends: ${misc:Depends}, printer-driver-hpijs (>= ${hpijs:source:Version}), foomatic-filters (>= 3.0.2)
+Depends: ${misc:Depends}, printer-driver-hpijs (>= ${hpijs:source:Version}), cups-filters (>= 1.0.42) | foomatic-filters (>= 3.0.2)
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
  printers supported through the HP Linux Printing and Imaging
@@ -156,7 +156,7 @@ Package: printer-driver-hpijs
 Architecture: any
 Section: text
 Depends: ${shlibs:Depends}, ${misc:Depends}, libhpmud0 (= ${hplip:binary:Version})
-Recommends: ghostscript, cups (>= 1.4.0) | cupsddk | hpijs-ppds, foomatic-filters
+Recommends: ghostscript, cups (>= 1.4.0) | cupsddk | hpijs-ppds, cups-filters (>= 1.0.42) | foomatic-filters
 Suggests: hplip, hpijs-ppds, hplip-doc
 Replaces: hpijs (<< 3.11.10-1ubuntu2)
 Breaks: hpijs (<< 3.11.10-1ubuntu2)
@@ -181,7 +181,7 @@ Description: HP Linux Printing and Imaging - printer driver (hpijs)
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
  HPIJS is meant to be used through the foomatic system (see the
- foomatic-filters package).
+ foomatic-filters package or foomatic-rip in the cups-filters package).
 
 Package: printer-driver-hpcups
 Architecture: any

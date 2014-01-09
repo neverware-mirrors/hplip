@@ -1,3 +1,11 @@
+hplip (3.13.11-3) UNRELEASED; urgency=low
+
+  * debian/control: Changed Depends/Recommends on foomatic-filters to
+    "cups-filters (>= 1.0.42) | foomatic-filters" as foomatic-rip has
+    moved to cups-filters from version 1.0.42 on (Closes: #734140).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  9 Jan 2014 20:57:00 +0100
+
 hplip (3.13.11-2) unstable; urgency=medium
 
   * Urgency medium for CVE fix
