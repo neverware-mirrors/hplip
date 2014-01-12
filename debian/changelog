@@ -1,3 +1,13 @@
+hplip (3.13.11-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add CVE-2013-6402.patch patch.
+    CVE-2013-6402: Fix insecure temporary files handling in pkit.py.
+    (Closes: #725876)
+  * Add missing dh_bugfiles invocation in binary-indep target
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 12 Jan 2014 10:59:12 +0100
+
 hplip (3.13.11-2) unstable; urgency=medium
 
   * Urgency medium for CVE fix

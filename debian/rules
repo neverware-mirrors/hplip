@@ -349,6 +349,7 @@ install-indep-stamp: install-stamp install-arch-stamp
 binary-indep: install-indep
 	dh_testdir -i
 	dh_testroot
+	dh_bugfiles
 #	dh_installdebconf -i
 	dh_installdocs -i
 	dh_installexamples -i
