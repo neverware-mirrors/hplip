@@ -1,10 +1,24 @@
 hplip (3.13.11-3) UNRELEASED; urgency=low
 
+  [ Till Kamppeter ]
   * debian/control: Changed Depends/Recommends on foomatic-filters to
     "cups-filters (>= 1.0.42) | foomatic-filters" as foomatic-rip has
     moved to cups-filters from version 1.0.42 on (Closes: #734140).
 
+  [ Mark Purcell ]
+  * Ack NMU - thanks ~carnil
+
  -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  9 Jan 2014 20:57:00 +0100
+
+hplip (3.13.11-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add CVE-2013-6402.patch patch.
+    CVE-2013-6402: Fix insecure temporary files handling in pkit.py.
+    (Closes: #725876)
+  * Add missing dh_bugfiles invocation in binary-indep target
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 12 Jan 2014 10:59:12 +0100
 
 hplip (3.13.11-2) unstable; urgency=medium
 
