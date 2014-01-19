@@ -1,4 +1,8 @@
-hplip (3.13.11-3) UNRELEASED; urgency=low
+hplip (3.14.1-1) unstable; urgency=low
+
+  * New upstream release 
+    - CVE-2013-6427: hplip: insecure auto update feature
+    - CVE-2013-6402: hplip: insecure temporary file handling in pkit.py
 
   [ Till Kamppeter ]
   * debian/control: Changed Depends/Recommends on foomatic-filters to
@@ -7,8 +11,9 @@ hplip (3.13.11-3) UNRELEASED; urgency=low
 
   [ Mark Purcell ]
   * Ack NMU - thanks ~carnil
+  * Drop CVE-2013-6402.patch - addressed upstream
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Thu,  9 Jan 2014 20:57:00 +0100
+ -- Mark Purcell <msp@debian.org>  Sun, 19 Jan 2014 13:56:10 +1100
 
 hplip (3.13.11-2.1) unstable; urgency=medium
 
