@@ -1,6 +1,31 @@
+hplip (3.14.3-0ubuntu1) trusty; urgency=low
+
+  * New upstream release
+    - Added support for: HP Deskjet Ink Advantage 4640/4645/4646/4648
+      e-All-in-One Printer, HP LaserJet Pro MFP M125/M126/M127 series.
+    - printer name changes when power cycled (LP: #1273905).
+    - hp-config_usb_printer is trying to configure HP keyboard and mouse
+      (LP: #1266704).
+    - "HP Device Manager" deletes other queues (LP: #1253432).
+    - hpcups filter crash fix (LP: #1250806).
+    - Error with 'hp-setup' (LP: #1273043).
+    - Should run hp-firmware from udev separately (LP: #1255033).
+    - Do not put static printer-independent strings like "Automatically setup
+      by HPLIP" into the description field of a CUPS queue, remote clients use
+      the description to identify network printers (LP: #1266011).
+    - Fixed align functionality issue with HP OfficeJet 6100
+    - Systray notification does not pop-up after configuring the device using
+      'hp-setup' command
+    - Unable to configure second fax queue in interactive mode
+    - Fixed missing 'No 6 3/4 Envelope' media size for HP OfficeJet 7619 Series
+    - Printer name does not change when navigate back and forward to change
+      the printer queue
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 11 Mar 2014 22:36:00 +0100
+
 hplip (3.14.1-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
     - CVE-2013-6427: hplip: insecure auto update feature
     - CVE-2013-6402: hplip: insecure temporary file handling in pkit.py
 
