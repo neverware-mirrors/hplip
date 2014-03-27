@@ -1,3 +1,13 @@
+hplip (3.14.3-0ubuntu2) trusty; urgency=low
+
+  * debian/local/HP-LaserJet_4000-PostScript-PPD.patch, debian/rules: Patch
+    PPD file for the HP LaserJet 4000 to use the same JobPatchFile as the
+    LaserJet 4050. It seems that the 4000 has the same PS interpreter bug to
+    work around. Note that it is not possible to use the standard mechanisms
+    for patches as HP ships all PPDs compressed (Closed: #742766).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 27 Mar 2014 17:20:00 +0100
+
 hplip (3.14.3-0ubuntu1) trusty; urgency=low
 
   * New upstream release
