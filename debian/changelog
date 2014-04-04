@@ -1,3 +1,13 @@
+hplip (3.14.3-0ubuntu3) trusty; urgency=low
+
+  * debian/patches/musb-c-do-not-crash-on-usb-failure.patch: Make sure that
+    the HPLIP components which access the USB (especially the CUPS backends
+    "hp" and "hpfax") do not crash when libusb fails to connect to the USB,
+    for example on machines without USB or with the USB kernel modules not
+    loaded (LP: #1302437).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri,  4 Apr 2014 17:00:00 +0200
+
 hplip (3.14.3-0ubuntu2) trusty; urgency=low
 
   * debian/local/HP-LaserJet_4000-PostScript-PPD.patch, debian/rules: Patch
