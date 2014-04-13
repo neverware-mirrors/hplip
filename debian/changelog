@@ -1,3 +1,9 @@
+hplip (3.14.4-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sun, 13 Apr 2014 15:48:00 +1000
+
 hplip (3.14.3-0ubuntu3) trusty; urgency=low
 
   * debian/patches/musb-c-do-not-crash-on-usb-failure.patch: Make sure that
