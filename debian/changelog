@@ -1,8 +1,10 @@
-hplip (3.14.4-1) unstable; urgency=low
+hplip (3.14.3-0ubuntu4) utopic; urgency=low
 
-  * New upstream release
+  * debian/rules: Remove hpcups support for the HP Officejet Pro K550 as it is
+    known to not work. This way hpijs (which works) will be used (LP: #981473,
+    LP: #1311697).
 
- -- Mark Purcell <msp@debian.org>  Sun, 13 Apr 2014 15:48:00 +1000
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 29 Apr 2014 12:06:00 +0200
 
 hplip (3.14.3-0ubuntu3) trusty; urgency=low
 
