@@ -1,3 +1,10 @@
+hplip (3.14.3-0ubuntu5) utopic; urgency=low
+
+  * debian/rules: Corrected copy-and-paste error in previous release which
+    deactivated hpcups printer support completely (LP: #1315864, LP: #1311697).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  7 May 2014 12:40:00 +0200
+
 hplip (3.14.3-0ubuntu4) utopic; urgency=low
 
   * debian/rules: Remove hpcups support for the HP Officejet Pro K550 as it is

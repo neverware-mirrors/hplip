@@ -179,7 +179,7 @@ install-stamp: build-stamp
 	# Remove hpcups support for the HP Officejet Pro K550 as it is known
 	# to not work. This way hpijs (which works) will be used (Ubuntu bugs
 	# #981473, #1311697)
-	perl -e '$$content = join("", <>); $$content =~ s:^\s*\{[^\n]*?\n[^\n]*?pro.k550.*?\}\s*\n::ism; print $$content' /usr/share/cups/drv/hpcups.drv > $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new
+	perl -e '$$content = join("", <>); $$content =~ s:^\s*\{[^\n]*?\n[^\n]*?pro.k550.*?\}\s*\n::ism; print $$content' $(PKGTMP)/usr/share/cups/drv/hpcups.drv > $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new
 	rm $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 	mv $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 
