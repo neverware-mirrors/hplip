@@ -1,3 +1,14 @@
+hplip (3.14.6-1) unstable; urgency=low
+
+  * New upstream release
+    - Fixed Device Communication Error on launching HP Device Manager
+    - Unable to add/remove file in 'hp-sendfax' wizard
+    - Fax cover page does not get changed after changing recipient second time
+    - Improved scan performance for 'hp-scan' utility
+    - Fixes "hplip is outdated in jessie : please upgrade" (Closes: #748132)
+
+ -- Mark Purcell <msp@debian.org>  Sun, 15 Jun 2014 16:42:46 +1000
+
 hplip (3.14.3-0ubuntu5) utopic; urgency=low
 
   * debian/rules: Corrected copy-and-paste error in previous release which
