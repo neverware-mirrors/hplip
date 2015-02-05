@@ -12,10 +12,8 @@ hplip (3.15.2-0ubuntu1) vivid; urgency=low
   * debian/patches/hp_photosmart_pro_b9100_support.dpatch,
     debian/patches/simple-scan-as-default.dpatch,
     debian/patches/hpfax-bug-function-used-before-importing-log.dpatch,
-    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
-,
-    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpat
-ch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch,
     debian/patches/hpaio-option-duplex.diff,
     debian/patches/musb-c-do-not-crash-on-usb-failure.patch,
     debian/patches/process-events-for-systray.patch: Refreshed with quilt.
