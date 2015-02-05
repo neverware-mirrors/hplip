@@ -1,3 +1,43 @@
+hplip (3.15.2-0ubuntu1) vivid; urgency=low
+
+  * New upstream release
+    - Python3 support for HPLIP
+    - Doesn't build against libjpeg-turbo 1.3.90 (LP: #1388126)
+    - hpcups crashes if DEVICE_URI not set in environment (LP: #1395676)
+    - Incorrect call to hpmudext.device_open (LP: #1388007)
+    - plugin download fails if python links to python3 (LP: #1187055)
+    - Incorrect IEEE 1284 Device IDs for many models (LP: #802999)
+  * debian/patches/85_rebuild_python_ui.dpatch: Manually updated to apply to new
+    upstream source code.
+  * debian/patches/hp_photosmart_pro_b9100_support.dpatch,
+    debian/patches/simple-scan-as-default.dpatch,
+    debian/patches/hpfax-bug-function-used-before-importing-log.dpatch,
+    debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch
+,
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpat
+ch,
+    debian/patches/hpaio-option-duplex.diff,
+    debian/patches/musb-c-do-not-crash-on-usb-failure.patch,
+    debian/patches/process-events-for-systray.patch: Refreshed with quilt.
+  * debian/rules: Force Python3 build using PYTHON=python3 ./configure option
+  * debian/rules: Use py3versions to get system's Python3 interpreter version
+  * debian/rules: Use relative symlink for /usr/sbin/hpssd, so that shebang
+    correction works.
+  * debian/rules: Make sure that the Python interpreter paths in all executables
+    use python3.
+  * debian/rules: Use dh_python3 instead of dh_python2.
+  * debian/control: Replaced all Python-related dependencies by their
+    Python3 equivalent.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  4 Feb 2015 21:18:00 -0200
+
+hplip (3.14.6-1ubuntu1) utopic; urgency=medium
+
+  * Add process-events-for-systray.patch to enable sni-qt compatiblity to
+    allow hp-systray to continue working in Plasma 5.x workspaces.
+
+ -- Harald Sitter <apachelogger@kubuntu.org>  Tue, 29 Jul 2014 22:51:04 +0200
+
 hplip (3.14.6-1) unstable; urgency=low
 
   * New upstream release

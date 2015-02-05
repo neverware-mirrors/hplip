@@ -7,7 +7,7 @@
 @DPATCH@
 --- a/base/utils.py
 +++ b/base/utils.py
-@@ -556,18 +556,21 @@
+@@ -566,18 +566,21 @@
  
          # Scan
          self.cmd_scan = ''
@@ -38,8 +38,8 @@
          path = which('hp-unload')
 --- a/ui4/ui_utils.py
 +++ b/ui4/ui_utils.py
-@@ -141,7 +141,7 @@
- 
+@@ -182,7 +182,7 @@
+         return ''
  
      def loadDefaults(self):
 -        self.cmd_scan = self.__setup(['xsane -V %SANE_URI%', 'kooka', 'xscanimage'])

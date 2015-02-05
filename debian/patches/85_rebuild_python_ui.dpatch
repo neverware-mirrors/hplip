@@ -5,10 +5,8 @@
 ## DP: No description.
 
 @DPATCH@
-Index: hplip-3.13.10/Makefile.am
-===================================================================
---- hplip-3.13.10.orig/Makefile.am	2013-10-11 20:40:14.000000000 +1100
-+++ hplip-3.13.10/Makefile.am	2013-11-09 14:29:21.000000000 +1100
+--- a/Makefile.am
++++ b/Makefile.am
 @@ -3,6 +3,11 @@
  #
  #  (c) 2004-2015 Copyright Hewlett-Packard Development Company, LP
@@ -21,14 +19,12 @@ Index: hplip-3.13.10/Makefile.am
  INCLUDES = -Iip -Iio/hpmud -Iscan/sane -Iprnt/hpijs -Icommon/
  CFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
  CXXFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
-Index: hplip-3.13.10/configure.in
-===================================================================
---- hplip-3.13.10.orig/configure.in	2013-10-11 20:40:26.000000000 +1100
-+++ hplip-3.13.10/configure.in	2013-11-09 14:29:21.000000000 +1100
-@@ -538,6 +538,8 @@
-    AC_MSG_RESULT("using $PYTHONINCLUDEDIR")
-    AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
-    AC_CHECK_HEADERS(python$PYTHON_VERSION/Python.h, ,[AC_MSG_ERROR([cannot find python-devel support], 6)])
+--- a/configure.in
++++ b/configure.in
+@@ -531,6 +531,8 @@
+           [FOUND_HEADER=yes; break;])
+    AS_IF([test "x$FOUND_HEADER" != "xyes"],
+           [AC_MSG_ERROR([cannot find python-devel support], 6)])
 +   AC_ARG_VAR([PYUIC4], [PyQT pyuic4 .ui to .py compiler command])
 +   AC_CHECK_TOOLS([PYUIC4], [pyuic4])
  fi

@@ -7,7 +7,7 @@
 @DPATCH@
 --- a/ui4/systemtray.py
 +++ b/ui4/systemtray.py
-@@ -566,6 +566,9 @@
+@@ -569,6 +569,9 @@
  
          elif reason == QSystemTrayIcon.Trigger:
              #print "single click"

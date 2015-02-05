@@ -11,14 +11,19 @@ BASEPKG=hplip
 export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
 #export DH_VERBOSE=1
 
--include /usr/share/python/python.mk
- ifeq (,$(py_sitename))
+-include /usr/share/python3/python.mk
+ifeq (,$(py_sitename))
    py_sitename = site-packages
    py_libdir = /usr/lib/python$(subst python,,$(1))/site-packages
    py_sitename_sh = $(py_sitename)
    py_libdir_sh = $(py_libdir)
 endif
-PYTHON_DEFAULT_VERSION:=$(shell pyversions -dv)
+
+# Override py_sitename as the python.mk module gives the wrong "dist-packages"
+py_sitename = site-packages
+
+PYTHON=python3
+PYTHON_DEFAULT_VERSION:=$(shell py3versions -dv)
 PYTHON_SITENAME:=$(call py_sitename, $(PYTHON_DEFAULT_VERSION))
 
 
@@ -114,6 +119,7 @@ configure-stamp: configure
 	rm -f config.cache
 
 	./configure CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"\
+		PYTHON="$(PYTHON)" \
 		HPLIP_PPD_PATH=/usr/share/ppd \
 		$(CONFFLAGS) \
 	 	--config-cache \
@@ -261,17 +267,26 @@ install-stamp: build-stamp
 		    dest=hp-$${file%.py}; \
 		    ln -s ../../usr/share/hplip/$$file \
 			../../bin/$$dest 2>/dev/null || :; \
+		    if true; then \
 		    PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
-			LD_LIBRARY_PATH=../../lib/ ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
+			LD_LIBRARY_PATH=../../lib/ python3 ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
+		    else \
+		    touch $(CURDIR)/$$dest.1; \
+		    fi; \
 		fi; \
 	    done \
 	)
 	install -d ./debian/tmp/usr/sbin/
-	ln -s /usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
+	ln -s ../../usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
 	# Correct Python interpreter path in all executables
 	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/sbin/* ./debian/tmp/usr/lib/cups/*/*; do \
-	    perl -p -i -e 's:^\s*\#\!/usr/bin/env\s+python.*:#!/usr/bin/python:' `readlink -f $$file`; \
+	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/env\s+python.*:#!/usr/bin/python:' `readlink -f $$file`; \
+	done
+
+	# "Upgrade" Python interpreter path to Python3
+	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/sbin/* ./debian/tmp/usr/lib/cups/*/*; do \
+	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/python\b:#!/usr/bin/python3:' `readlink -f $$file`; \
 	done
 
 	# Remove all *.pyc files, they do not need to be shipped with the
@@ -383,7 +398,7 @@ binary-indep: install-indep
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
-	dh_python2 -i /usr/share/hplip
+	dh_python3 -i /usr/share/hplip --no-shebang-rewrite
 #	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i --dpkg-shlibdeps-params=--ignore-missing-info
@@ -414,7 +429,7 @@ binary-arch: install-arch
 	dh_installman -a
 #	dh_installinfo -a
 	dh_installchangelogs -a $(CHANGELOG)
-	# must come after dh_pysupport and dh_python, or the postinst
+	# must come after dh_pysupport and dh_python3, or the postinst
 	# ordering will be screwed up and break.
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
 	dh_installudev
@@ -423,7 +438,7 @@ binary-arch: install-arch
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
-	dh_python2 -a --no-guessing-versions
+	dh_python3 -a --no-shebang-rewrite
 	dh_installdeb -a
 	dh_shlibdeps -a --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol -a -- \

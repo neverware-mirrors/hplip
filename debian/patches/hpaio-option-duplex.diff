@@ -1,8 +1,6 @@
-Index: hplip-3.13.11/scan/sane/sclpml.c
-===================================================================
---- hplip-3.13.11.orig/scan/sane/sclpml.c	2013-10-31 22:45:07.000000000 +1100
-+++ hplip-3.13.11/scan/sane/sclpml.c	2013-12-10 05:21:16.000000000 +1100
-@@ -1083,20 +1083,17 @@
+--- a/scan/sane/sclpml.c
++++ b/scan/sane/sclpml.c
+@@ -1084,20 +1084,17 @@
      hpaio->option[OPTION_ADF_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
      hpaio->option[OPTION_ADF_MODE].constraint.string_list = hpaio->adfModeList;
  
