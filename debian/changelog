@@ -1,3 +1,16 @@
+hplip (3.15.2-0ubuntu2) vivid; urgency=low
+
+  * debian/patches/pcardext-python3-workaround-upstream.patch: Workaround
+    patch for missing Python3 transition of the old (pre-USB-storage) photo
+    memory card support (pcardext) as this part builds in Python3 environments
+    but with pointer-related warnings which are fatal errors for Ubuntu's build
+    servers. The patch silences the warnings but the memory card support is
+    dropped in Python3 environments. This patch is supplied by the HPLIP
+    upstream developers and will be replaced by a more proper solution in the
+    next upstream release of HPLIP (see LP: #1275353).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  6 Feb 2015 11:18:00 -0200
+
 hplip (3.15.2-0ubuntu1) vivid; urgency=low
 
   * New upstream release
