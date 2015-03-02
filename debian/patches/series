@@ -19,3 +19,4 @@ hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
 hpaio-option-duplex.diff
 musb-c-do-not-crash-on-usb-failure.patch
 pcardext-python3-workaround-upstream.patch
+hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch

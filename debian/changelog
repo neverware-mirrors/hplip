@@ -1,3 +1,11 @@
+hplip (3.15.2-0ubuntu3) vivid; urgency=low
+
+  * debian/patches/hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch:
+    Allow non-JPEG scanning on the HP DeskJet 3520 All-in-One and similar
+    devices. Thanks to Lubos Dolezel for the patch (LP: #1245578).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  2 Mar 2015 17:48:00 +0100
+
 hplip (3.15.2-0ubuntu2) vivid; urgency=low
 
   * debian/patches/pcardext-python3-workaround-upstream.patch: Workaround
