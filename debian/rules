@@ -289,6 +289,12 @@ install-stamp: build-stamp
 	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/python\b:#!/usr/bin/python3:' `readlink -f $$file`; \
 	done
 
+	# Remove unneeded explicit calls of the Python interpreter to let the
+	# (upgraded) shebangs rule
+	for file in ./debian/tmp/*/udev/rules.d/*.rules; do \
+	    perl -p -i -e 's:/usr/bin/python\b\s*::' `readlink -f $$file`; \
+	done
+
 	# Remove all *.pyc files, they do not need to be shipped with the
 	# package
 	find ./debian/tmp/ -name '*.pyc' -print0 | xargs -0 rm -f

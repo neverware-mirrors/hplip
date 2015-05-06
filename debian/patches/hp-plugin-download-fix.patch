@@ -1,0 +1,42 @@
+--- a/base/pkit.py
++++ b/base/pkit.py
+@@ -35,9 +35,12 @@
+ import dbus.service
+ 
+ if PY3:
+-    from gi import _gobject as gobject
++    try:
++        from gi._gobject import MainLoop
++    except:
++        from gi.repository.GLib import MainLoop
+ else:
+-    import gobject
++    from gobject import MainLoop
+ 
+ import warnings
+ # Ignore: .../dbus/connection.py:242: DeprecationWarning: object.__init__() takes no parameters
+@@ -207,7 +210,7 @@
+             super(BackendService, self).__init__(connection, path)
+ 
+             self.name = dbus.service.BusName(self.SERVICE_NAME, connection)
+-            self.loop = gobject.MainLoop()
++            self.loop = MainLoop()
+             self.version = 0
+             log.set_level("debug")
+ 
+--- a/installer/pluginhandler.py
++++ b/installer/pluginhandler.py
+@@ -345,10 +345,11 @@
+         cwd = os.getcwd()
+         os.chdir(self.__plugin_path)
+ 
++        exec_str = sys.executable
+         if mode == GUI_MODE:
+-            cmd = "sh %s --keep --nox11 -- -u" % plugin_file
++            cmd = "sh %s --keep --nox11 -- -u %s" % (plugin_file, exec_str)
+         else:
+-            cmd = "sh %s --keep --nox11 -- -i" % plugin_file
++            cmd = "sh %s --keep --nox11 -- -i %s" % (plugin_file, exec_str)
+ 
+         if os_utils.execute(cmd) == 0:
+             result = True

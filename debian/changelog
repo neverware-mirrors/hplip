@@ -1,3 +1,18 @@
+hplip (3.15.2-0ubuntu5) wily; urgency=low
+
+  * debian/patches/hp-plugin-download-fix.patch: Fix download and installation
+    of HP's proprietary plug-in in Python3 environments (LP: #1422004).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  6 May 2015 16:50:00 -0300
+
+hplip (3.15.2-0ubuntu4) vivid; urgency=low
+
+  * debian/rules: Remove explicit call of /usr/bin/python when calling the
+    /usr/bin/hp-config_usb_printer script so that the shebang does not get
+    overridden (LP: #1425812).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 17 Mar 2015 16:04:00 +0100
+
 hplip (3.15.2-0ubuntu3) vivid; urgency=low
 
   * debian/patches/hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch:
