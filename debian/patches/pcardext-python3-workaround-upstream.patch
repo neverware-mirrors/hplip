@@ -1,6 +1,8 @@
---- a/pcard/pcardext/pcardext.c
-+++ b/pcard/pcardext/pcardext.c
-@@ -20,7 +20,7 @@
+Index: hplip-3.15.6/pcard/pcardext/pcardext.c
+===================================================================
+--- hplip-3.15.6.orig/pcard/pcardext/pcardext.c
++++ hplip-3.15.6/pcard/pcardext/pcardext.c
+@@ -20,7 +20,7 @@ pcardext - Python extension for HP photo
  Requires:
  Python 2.2+
  
@@ -9,7 +11,7 @@
  
  \*****************************************************************************/
  
-@@ -38,9 +38,37 @@
+@@ -38,9 +38,37 @@ typedef int Py_ssize_t;
  
  int verbose=0;
  
@@ -47,7 +49,7 @@
  int ReadSector(int sector, int nsector, void *buf, int size)
  {
      PyObject * result;
-@@ -56,9 +84,13 @@
+@@ -56,9 +84,13 @@ int ReadSector(int sector, int nsector,
          if( result )
          {
              Py_ssize_t len = 0;
@@ -63,7 +65,7 @@
              {
                  goto abort;
              }
-@@ -205,7 +237,9 @@
+@@ -205,7 +237,9 @@ PyObject * pcardext_read( PyObject * sel
      
      if( FatReadFileExt( name, offset, len, buffer ) == len )
      {
@@ -74,7 +76,7 @@
      }
      else
      {
-@@ -233,14 +267,15 @@
+@@ -233,14 +267,15 @@ static PyMethodDef pcardext_methods[] =
  
  static char pcardext_documentation[] = "Python extension for HP photocard services";
  
@@ -98,9 +100,11 @@
  }
  
  
---- a/pcard/photocard.py
-+++ b/pcard/photocard.py
-@@ -30,7 +30,7 @@
+Index: hplip-3.15.6/pcard/photocard.py
+===================================================================
+--- hplip-3.15.6.orig/pcard/photocard.py
++++ hplip-3.15.6/pcard/photocard.py
+@@ -30,7 +30,7 @@ from base.codes import *
  from base import device, utils, exif
  
  try:
@@ -109,9 +113,11 @@
  except ImportError:
      if not os.getenv("HPLIP_BUILD"):
          log.error("PCARDEXT could not be loaded. Please check HPLIP installation.")
---- a/unload.py
-+++ b/unload.py
-@@ -44,11 +44,17 @@
+Index: hplip-3.15.6/unload.py
+===================================================================
+--- hplip-3.15.6.orig/unload.py
++++ hplip-3.15.6/unload.py
+@@ -44,6 +44,11 @@ except ImportError:
  
  # Local
  from base.g import *
@@ -122,10 +128,4 @@
 +
  from base import device, utils, tui, module
  from prnt import cups
- from pcard import photocard
  
- 
-+
- # Console class (from ASPN Python Cookbook)
- # Author:   James Thiele
- # Date:     27 April 2004

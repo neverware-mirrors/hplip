@@ -24,19 +24,3 @@
              self.version = 0
              log.set_level("debug")
  
---- a/installer/pluginhandler.py
-+++ b/installer/pluginhandler.py
-@@ -345,10 +345,11 @@
-         cwd = os.getcwd()
-         os.chdir(self.__plugin_path)
- 
-+        exec_str = sys.executable
-         if mode == GUI_MODE:
--            cmd = "sh %s --keep --nox11 -- -u" % plugin_file
-+            cmd = "sh %s --keep --nox11 -- -u %s" % (plugin_file, exec_str)
-         else:
--            cmd = "sh %s --keep --nox11 -- -i" % plugin_file
-+            cmd = "sh %s --keep --nox11 -- -i %s" % (plugin_file, exec_str)
- 
-         if os_utils.execute(cmd) == 0:
-             result = True

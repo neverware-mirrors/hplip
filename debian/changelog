@@ -1,3 +1,20 @@
+hplip (3.15.6-0ubuntu1) wily; urgency=low
+
+  * New upstream release
+     - Added support for HP DeskJet 2130/2132/2546B/2546P/2546R/3630/3632
+       All-in-One printer, HP OfficeJet 57444 e-All-in-One
+     - Fixed: Error message is displayed while running "hp-diagnose_queues"
+       in a terminal.
+     - Fixed: UDEV rules wrongly match on monitor hub, wrong invocation of
+       systemd unti, changes confi files in UDEV rules (LP: #1433557).
+     - Fixed: hp-setup creates spurious cupsd process (LP: #1438456).
+  * debian/patches/musb-c-do-not-crash-on-usb-failure.patch,
+    debian/patches/pcardext-python3-workaround-upstream.patch,
+    debian/patches/hp-plugin-download-fix.patch: Updated for new upstream
+    code.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 11 Jun 2015 19:08:00 -0300
+
 hplip (3.15.2-0ubuntu5) wily; urgency=low
 
   * debian/patches/hp-plugin-download-fix.patch: Fix download and installation
