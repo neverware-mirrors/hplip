@@ -1,3 +1,21 @@
+hplip (3.15.7-0ubuntu1) wily; urgency=low
+
+  * New upstream release
+     - Added support for HP Deskjet 1110, 1111, 1112 Printer, HP DeskJet
+       2131 All-in-One Printer, HP Deskjet Ink Advantage 1110, 1115, 1118
+       Printer, HP DeskJet Ink Advantage 2130, 2135, 2138, 3630, 3635, 3636,
+       3638, 3830, 3835 All-in-One Printer, HP OfficeJet 3830, 3832, 3834
+       All-in-One Printer, HP Officejet 7510 Wide Format All-in-One Printer
+     - Removed the duplicate collate option from HP Device Manager
+     - Fixed: Traceback error occurs when trying to configure a queue of same
+       name
+       but with different IO type
+     - Fixed: HPLIP installer prompts to set up printers, even when printers are
+       already set up (LP: #1464013).
+     - Fixed: Insecure binary driver verification (CVE-2015-0839, LP: #1432516).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 19 Aug 2015 13:56:00 -0300
+
 hplip (3.15.6-0ubuntu1) wily; urgency=low
 
   * New upstream release
