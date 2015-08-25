@@ -229,7 +229,8 @@ install-stamp: build-stamp
 	# We cannot use the usual mechanisms for patches, as the PPD files get
 	# shipped compressed by upstream
 	( cd $(PPDDIR)/hplip/HP/; \
-	  patch	-p0 < $(CURDIR)/debian/local/HP-LaserJet_4000-PostScript-PPD.patch \
+	  patch	-p0 < $(CURDIR)/debian/local/HP-LaserJet_4000-PostScript-PPD.patch; \
+	  rm *.orig \
 	)
 
 	# Edit the generated hplip.conf
@@ -337,8 +338,8 @@ install-arch-stamp: install-stamp
 	   "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP/"
 
 	# Uncompress PPDs, this makes the package smaller for distribution
-	-find "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
-	-find "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	#-find "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	#-find "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
 
 	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
 	# coomand line option. This makes rendering the pages much faster

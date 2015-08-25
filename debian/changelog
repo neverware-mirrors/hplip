@@ -1,3 +1,13 @@
+hplip (3.15.7-0ubuntu2) wily; urgency=low
+
+  * debian/rules: Do not do the PPD file uncompression twice, especially
+    do not uncompress the fax PPDs, as hp-setup accesses them directly
+    instead of getting them through CUPS (LP: #1470300).
+  * debian/rules: When patching the PPD files, remove the *.orig files so
+    that they do not get shipped with the binary packages.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Mon, 24 Aug 2015 22:33:00 -0300
+
 hplip (3.15.7-0ubuntu1) wily; urgency=low
 
   * New upstream release
