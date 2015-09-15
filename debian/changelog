@@ -1,3 +1,11 @@
+hplip (3.15.7-0ubuntu3) wily; urgency=low
+
+  * debian/patches/common-definitions-h-fix.patch: Fixed hpcups crash,
+    patch backported from HPLIP 3.15.9 (LP: #1475022, LP: #1476920,
+    LP: #1480332, LP: #1483073).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 15 Sep 2015 14:03:00 -0300
+
 hplip (3.15.7-0ubuntu2) wily; urgency=low
 
   * debian/rules: Do not do the PPD file uncompression twice, especially
