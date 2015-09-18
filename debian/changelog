@@ -1,3 +1,10 @@
+hplip (3.15.7-0ubuntu4) wily; urgency=low
+
+  * debian/local/scripts/hp-plugin-ubuntu: Use pkexec instead of
+    gksu (LP: #1496980).
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 17 Sep 2015 21:24:00 -0300
+
 hplip (3.15.7-0ubuntu3) wily; urgency=low
 
   * debian/patches/common-definitions-h-fix.patch: Fixed hpcups crash,
