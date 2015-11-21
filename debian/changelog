@@ -1,3 +1,30 @@
+hplip (3.15.11-0ubuntu1) xenial; urgency=low
+
+  * New upstream release
+     - Added support for HP Color LaserJet Pro MFP M274n, HP LaserJet
+       Enterprise M506, M506n, M506dn, M506x, M506dh series, HP Color Laserjet
+       Pro M452dn, M452dw, M452nw, HP Laserjet Pro MFP M426fdn, M426fdw,
+       M427dn, M427fdw, M426dw, M427dw, HP Laserjet Enterprise MFP M527dn,
+       M527f, HP Laserjet Enterprise Flow MFP M527c, M527z, HP Color LaserJet
+       Enterprise MFP M577, MFP M577dn, MFP M577f, HP Color LaserJet Enterprise
+       Flow MFP M577z, M577c, HP LaserJet Pro M402-M403, M402-M403 n-dn,
+       M402dw, M402n, M402dn, M402d, M403n, M403dw, M403dn, M403d, HP Color
+       Laserjet Pro MFP M477fnw, M477fdn, M477fdw, HP Envy 5543, 5544, 5546,
+       All-in-One Printer, HP Envy 5542 e-All-in-One Printer, HP DeskJet 2134,
+       3633, 3634 All-in-One Printer, HP OfficeJet 4654 All-in-One Printer,
+       HP ENVY 4524, 4523, 4520 All-in-One Printer, HP DeskJet Ink Advantage
+       Ultra 4720, 4729 All-in-One Printer series, HP DeskJet Ink Advantage
+       5640, 5645, 4675, 4676, 4535, 4536, 5570, 5575 All-in-One, HP Scanjet
+       Pro 3500 f1 Flatbed Scanner, HP ENVY 5531, 5532, 5534, 5536, 5539
+       e-All-in-One Printer
+     - Provided custom AppArmor profiles.
+     - Supported auto-discovery of network scanners.
+  * debian/patches/common-definitions-h-fix.patch: Removed, included
+	upstream.
+  * debian/patches/85_rebuild_python_ui.dpatch: Refreshed with quilt.
+
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 20 Sep 2015 22:05:00 -0200
+
 hplip (3.15.7-0ubuntu4) wily; urgency=low
 
   * debian/local/scripts/hp-plugin-ubuntu: Use pkexec instead of

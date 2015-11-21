@@ -9,7 +9,7 @@
 +++ b/Makefile.am
 @@ -3,6 +3,11 @@
  #
- #  (c) 2004-2015 Copyright Hewlett-Packard Development Company, LP
+ #  (c) 2004-2015 Copyright HP Development Company, LP
  #  Author: David Suffield, Naga Samrat Chowdary Narla, Sarbeswar Meher
 +
 +# Generic rules
@@ -21,7 +21,7 @@
  CXXFLAGS+= -DCONFDIR=\"$(hplip_confdir)\"
 --- a/configure.in
 +++ b/configure.in
-@@ -531,6 +531,8 @@
+@@ -558,6 +558,8 @@
            [FOUND_HEADER=yes; break;])
     AS_IF([test "x$FOUND_HEADER" != "xyes"],
            [AC_MSG_ERROR([cannot find python-devel support], 6)])
