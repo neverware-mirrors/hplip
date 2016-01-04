@@ -107,7 +107,6 @@ if os.getenv("HPLIP_DEBUG"):
     log.set_level('debug')
 
 for o, a in opts:
-    #print o, a
     if o in ('-h', '--help'):
         usage()
 
@@ -247,16 +246,7 @@ utils.log_title(__title__, __version__)
 os.umask (0037)
 
 if mode == GUI_MODE:
-    if not prop.gui_build:
-        log.warn("GUI mode disabled in build. Reverting to non-interactive mode.")
-        mode = NON_INTERACTIVE_MODE
-    
-    elif not os.getenv('DISPLAY'):
-        log.warn("No display found. Reverting to non-interactive mode.")
-        mode = NON_INTERACTIVE_MODE
-
-    elif not utils.checkPyQtImport():
-        log.warn("PyQt init failed. Reverting to non-interactive mode.")
+    if not utils.canEnterGUIMode():
         mode = NON_INTERACTIVE_MODE
         
 if mode == GUI_MODE:
@@ -274,8 +264,6 @@ if mode == GUI_MODE:
 
     log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
     
-   
-
     # create the main application object
     app = QApplication(sys.argv)
     
@@ -284,11 +272,18 @@ if mode == GUI_MODE:
         if loc.lower() == 'system':
             loc = str(QTextCodec.locale())
             log.debug("Using system locale: %s" % loc)
-    
+
     if loc.lower() != 'c':
         log.debug("Trying to load .qm file for %s locale." % loc)
         trans = QTranslator(None)
-        qm_file = 'hplip_%s.qm' % loc
+        
+        try:
+            l, e = loc.split('.')
+        except ValueError:
+            l = loc
+            e = 'utf8'
+        
+        qm_file = 'hplip_%s.qm' % l
         log.debug("Name of .qm file: %s" % qm_file)
         loaded = trans.load(qm_file, prop.localization_dir)
         
@@ -296,18 +291,17 @@ if mode == GUI_MODE:
             app.installTranslator(trans)
         else:
             loc = 'c'
-    
+
     if loc == 'c':
         log.debug("Using default 'C' locale")
     else:
         log.debug("Using locale: %s" % loc)
-
         QLocale.setDefault(QLocale(loc))
+        prop.locale = loc
         try:
-            locale.setlocale(locale.LC_ALL, locale.normalize(loc+".utf8"))
-            prop.locale = loc
+            locale.setlocale(locale.LC_ALL, locale.normalize(loc))
         except locale.Error:
-            log.error("Invalid locale: %s" % (loc+".utf8"))
+            pass
     
     makecopiesdlg = MakeCopiesForm(hpssd_sock, bus, device_uri, printer_name, 
                                    num_copies, contrast, quality, reduction, fit_to_page)

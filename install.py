@@ -20,7 +20,7 @@
 # Author: Don Welch
 #
 
-__version__ = '3.0'
+__version__ = '3.1'
 __title__ = 'HPLIP Installer'
 __doc__ = "Installer for HPLIP tarball."
 
@@ -32,6 +32,7 @@ import os.path
 import sys
 import time
 import re
+import platform
 
 # Local
 from base.g import *
@@ -42,13 +43,13 @@ USAGE = [(__doc__, "", "name", True),
          ("Usage: sh ./hplip-install [MODE] [OPTIONS]", "", "summary", True),
          utils.USAGE_SPACE,
          ("[MODE]", "", "header", False),
-         #("Enter browser (web) GUI mode:", "-u or --gui or -w or --web or --browser", "option", False),
+         ("Enter browser (web) GUI mode:", "-u or --gui or -w or --web or --browser", "option", False),
          ("Run in interactive (text) mode:", "-t or --text or -i or  --interactive (Default)", "option", False),
          utils.USAGE_SPACE,
          utils.USAGE_OPTIONS,
-         ("Automatic mode (chooses the most common options):", "-a or --auto", "option", False),
-         ("Force install of all dependencies (FOR TESTING ONLY):", "-x", "option", False),
-         ("Unknown distro mode (FOR TESTING ONLY):", "-d", "option", False),
+         ("Automatic mode (chooses the most common options):", "-a or --auto (text mode only)", "option", False),
+         ("Force install of all dependencies (FOR TESTING ONLY):", "-x (text mode only)", "option", False),
+         ("Unknown distro mode (FOR TESTING ONLY):", "-d (text mode only)", "option", False),
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
          utils.USAGE_HELP,
          utils.USAGE_SPACE,
@@ -66,7 +67,7 @@ def usage(typ='text'):
 log.set_module("hplip-install")
 
 log.debug("euid = %d" % os.geteuid())
-mode = INTERACTIVE_MODE
+mode = INTERACTIVE_MODE #INTERACTIVE_MODE   #BROWSER_MODE
 auto = False
 test_depends = False
 test_unknown = False
@@ -126,7 +127,9 @@ for o, a in opts:
     elif o == '-d':
         log.warn("Unknown distro (-d) is for TESTING ONLY")
         test_unknown = True
-
+        
+        
+    
 log_file = os.path.normpath('./hplip-install_%s.log' % time.strftime("%a-%d-%b-%Y_%H:%M:%S"))
 
 if os.path.exists(log_file):
@@ -157,6 +160,16 @@ log.info("Installer log saved in: %s" % log.bold(log_file))
 log.info("")
 
 if mode == BROWSER_MODE:
+    if platform.system() != 'Darwin':
+        if not os.getenv('DISPLAY'):
+            log.warn("No display found.")
+            mode = INTERACTIVE_MODE
+        
+    if utils.find_browser() is None:
+        log.warn("No browser found.")
+        mode = INTERACTIVE_MODE
+
+if mode == BROWSER_MODE:
     if test_depends or test_unknown:
         log.error("Test modes -x and -d are not implemented with GUI mode.")
     from installer import web_install
@@ -166,7 +179,7 @@ if mode == BROWSER_MODE:
 elif mode == INTERACTIVE_MODE:
     from installer import text_install
     log.debug("Starting text installer...")
-    text_install.start(auto, test_depends, test_unknown)
+    text_install.start(language, auto, test_depends, test_unknown)
 
 else:
     log.error("Invalid mode. Please use '-i', '-t', '-u' or '-w' to select the mode.")

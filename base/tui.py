@@ -98,10 +98,14 @@ def enter_choice(question, choices, default_value=None):
         user_input = raw_input(log.bold(question)).lower().strip()
 
         if (not user_input and default_value) or user_input == default_value:
-            return True, default_value
+            if default_value == 'q':
+                return False, default_value
+            else:
+                return True, default_value
 
+        print user_input
         if user_input == 'q':
-            return False, default_value
+            return False, user_input
 
         if user_input in choices:
             return True, user_input
@@ -179,28 +183,29 @@ class ProgressMeter(object):
         self.prev_length = 0
         self.spinner = "\|/-\|/-*"
         self.spinner_pos = 0
+        self.max_size = ttysize()[1] - len(prompt) - 25
         self.update(0)
         
     def update(self, progress, msg=''): # progress in %
         self.progress = progress
         
-        if self.progress > 100:
-            self.progress = 100
-        elif self.progress < 0:
-            self.progress = 0
+        x = self.progress * self.max_size / 100
+        if x > self.max_size: x = self.max_size
         
-        if self.progress == 100:
+        if self.progress >= 100:
             self.spinner_pos = 8
+            self.progress = 100
             
         sys.stdout.write("\b" * self.prev_length)
         
-        x = "%s [%s%s%s] %d%%  %s   " % \
-            (self.prompt, '*'*(self.progress-1), self.spinner[self.spinner_pos], 
-             ' '*(100-self.progress), self.progress, msg)
+        y = "%s [%s%s%s] %d%%  %s   " % \
+            (self.prompt, '*'*(x-1), self.spinner[self.spinner_pos], 
+             ' '*(self.max_size-x), self.progress, msg)
             
-        sys.stdout.write(x)
+        sys.stdout.write(y)
+            
         sys.stdout.flush()
-        self.prev_length = len(x)
+        self.prev_length = len(y)
         self.spinner_pos = (self.spinner_pos + 1) % 8
         
 

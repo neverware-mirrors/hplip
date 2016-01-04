@@ -26,7 +26,6 @@ import sys, struct
 from g import *
 from base.utils import unprintable
 
-
 # Request codes
 GET_REQUEST = 0x00
 GET_NEXT_REQUEST = 0x01
@@ -289,6 +288,7 @@ def parsePMLPacket(p, expected_data_type=TYPE_UNKNOWN):
     return data, data_type, error_code
 
 
+
 def HPToSNMP(oid): # 1.
     return '.'.join(['1.3.6.1.4.1.11.2.3.9.4.2', oid, '0'])
 
@@ -319,6 +319,9 @@ def PMLToSNMP(oid):
 #
 # OIDs
 #
+
+OID_DEVICE_ID = ('0.1.3.6.1.4.1.11.2.3.9.1.1.7.0', TYPE_STRING) # network/SNMP only (undocumented)
+
 OID_DEVICE_SUPPORTED_FUNCTIONS = ('1.1.2.67', TYPE_COLLECTION)
 DEVICE_SUPPORTED_FUNCTIONS_SCAN =                 0x00002
 DEVICE_SUPPORTED_FUNCTIONS_SCAN_SIMPLEX =         0x00004
@@ -506,6 +509,15 @@ POWER_MODE_BATTERY = 0x02
 POWER_MODE_CHARGING = 0x04
 POWER_MODE_DISCHARGING = 0x08
 POWER_MODE_BATTERY_LEVEL_KNOWN = 0x10
+
+OID_POWER_SETTINGS = ('1.1.2.118', TYPE_ENUMERATION)
+OID_POWER_SETTINGS_15MIN = 1
+OID_POWER_SETTINGS_30MIN = 2
+OID_POWER_SETTINGS_45MIN = 3
+OID_POWER_SETTINGS_1HR = 4
+OID_POWER_SETTINGS_2HR = 5
+OID_POWER_SETTINGS_3HR = 6
+OID_POWER_SETTINGS_NEVER = 999
 
 #
 # Fax
