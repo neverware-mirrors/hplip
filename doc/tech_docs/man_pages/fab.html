@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="../../styles/default.css" type="text/css" /> 
        <meta name="author" content="" />
        <meta name="email" content="" />
+  <META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+  <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
  </head>
 
  <body>
@@ -58,10 +60,9 @@
                 <menu compact="compact">
                     <li><a href="../../tech_docs/index.html" title="">Technical Documentation</a></li> 
                     <li><a href="http://sourceforge.net/projects/hplip/" title="Our project page on Sourceforge.net">Sourceforge Project Page</a></li> 
-                    <li><a href="../../license.html" title="Software License">Software License</a></li> 
-                    <li><a href="http://www.hp.com/" title="HP is a technology solutions provider to consumers, businesses and institutions globally.">www.hp.com</a></li> 
-                    <li><a href="http://www.linuxprinting.org/" title="Resources to help with printing under free operating systems like GNU/Linux">www.linuxprinting.org</a></li> 
-                    <li><a href="http://www.cups.org/" title="Common UNIX Printing System">www.cups.org</a></li> 
+                    <li><a href="../../license.html" title="Software License">Software License</a></li>
+                    <li><a a href="../../other_support.html" title="Other Support Information">Other Support Information</a></li>
+                    <li><a a href="../../about.html" title="About">About HPLIP</a></li>
                     <li><a href="../../contacts.html" title="Contacts">Contacts</a></li>
                 </menu>
             </td>
@@ -73,12 +74,27 @@
         <td align="left" valign="top" class="content">
         <div class="document">
 <p>A simple fax address book for HPLIP.</p>
-<p><strong>Usage: hp-fab [OPTIONS]</strong></p>
+<p><strong>Usage: hp-fab [MODE] [OPTIONS]</strong></p>
+<p><strong>[MODE]</strong></p>
+<table border="1" class="borderless docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><em>Enter interactive mode:</em></td>
+<td>-i or --interactive (see Note 1)</td>
+</tr>
+<tr><td><em>Enter graphical UI mode:</em></td>
+<td>-u or --gui (Default)</td>
+</tr>
+</tbody>
+</table>
 <p><strong>[OPTIONS]</strong></p>
 <table border="1" class="borderless docutils">
 <colgroup>
-<col width="32%" />
-<col width="68%" />
+<col width="64%" />
+<col width="36%" />
 </colgroup>
 <tbody valign="top">
 <tr><td><em>Set the logging level:</em></td>
@@ -95,11 +111,25 @@
 </tr>
 </tbody>
 </table>
+<p><strong>Notes:</strong></p>
+<table border="1" class="borderless docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr><td colspan="2"><ol class="first last arabic simple">
+<li>Use 'help' command at the fab &gt; prompt for command help (interactive mode (-i) only).</li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
 <p><strong>See Also:</strong></p>
 <table border="1" class="borderless docutils">
 <colgroup>
-<col width="32%" />
-<col width="68%" />
+<col width="64%" />
+<col width="36%" />
 </colgroup>
 <tbody valign="top">
 <tr><td><a class="reference" href="sendfax.html">hp-sendfax</a></td>
@@ -111,7 +141,7 @@
 
 
         <hr size="1"/>
-        <small>Last update: Tue May  9 11:19:00 2006</small>
+        <small>Last update: Tue Aug  1 13:42:00 2006</small>
 
         <!-- FOOTER -->
     </table>
@@ -126,7 +156,7 @@
             <td class="footer"><a href="mailto:hplip@hp.com">Contact Site Maintainer</a></td>
         </tr>
         <tr>
-            <td colspan="3" class="footer"><a href="http://sourceforge.net/" alt="Hosted by Sourceforge.net"><img src="../../images/sflogo.png"/></a></td>
+            <td colspan="3" class="footer"><a href="http://sourceforge.net/" alt="Hosted by Sourceforge.net"><img src="../../images/sflogo.png" border="0"></a></td>
         </tr>
     
     </table>
