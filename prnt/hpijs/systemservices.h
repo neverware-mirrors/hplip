@@ -310,7 +310,7 @@ protected:
     DeviceRegistry* DR;
 
     char strModel[DevIDBuffSize]; // to contain the MODEL (MDL) from the DevID
-    char strPens[64];   // to contain the VSTATUS penID from the DevID
+    char strPens[132];   // to contain the VSTATUS penID from the DevID
     int  VIPVersion;    // VIP version from the DevID
 
     // for internal use

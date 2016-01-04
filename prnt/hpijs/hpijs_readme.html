@@ -108,9 +108,11 @@ includes an automake/autoconf makefile. This portable build procedure requires a
 This version of HPIJS supports both the new IJS interface and the old HPIJS interface. 
 HPIJS requires Ghostscript to support one of these two interfaces. 
 <p>
+HPIJS 2.1 and higher requires libjpeg and libjpeg-devel support.
+<p>
 HPIJS emits standard file output. The output can be directed to a file or to the actual device via the parallel or USB port. Some all-in-one devices, such as OfficeJets require the <A HREF="http://hpoj.sourceforge.net">HP Linux OfficeJet Driver</A> (HPOJ). In this case HPIJS output is sent to HPOJ and then the data is passed to the actual device. 
 <p>
-Many platforms (Red Hat, Mandrake, SuSE, Yellow Dog, FreeBSD, Debian, HPUX, AIX, etc) have been confirmed to work, please see those sites for more information.
+Many platforms (Red Hat, Mandrake, SUSE, Yellow Dog, FreeBSD, Debian, HPUX, AIX, etc) have been confirmed to work, please see those sites for more information.
 <hr>
 <H2><a name="Device"></a>4 Driver Support</H2>
 There are currently more than 230 HP printer models supported with HPIJS. HP printer support is defined by the current Hewlett Packard Appliance Printing Development Kit APDK. 
@@ -150,7 +152,7 @@ PenSet Definitions
   color_pen: only color pen in the printer
   both_pens: black & color pens in printer
   mdl_pen: photo pen in the printer
-  mdl_both: color pin and photo pen in printer
+  mdl_both: color pen and photo pen in printer
 </pre>
 Note, there are defaults for all optional commands. 
 PenSet default is defined by each device class.  
@@ -818,6 +820,41 @@ The following options can be selected with Ghostscript commands.
      Quality=0 ColorMode=2 MediaType=0 PenSet=2
    <b>Best Color</b>
      Quality=2 ColorMode=2 MediaType=0 PenSet=2
+</pre>
+<li>
+<b>LaserJet Monochrome series (LJFastRaster)</b> - 
+This device class provides host based monochrome support (pseudo PCL) for HP LaserJets.
+<p>
+Only Resolution setting 600x600 is available.
+<p>
+The following options can be selected with Ghostscript commands. 
+<pre>
+   <b>DeviceModel</b>
+     hp LaserJet 1010
+     hp LaserJet 1012
+     hp LaserJet 1015
+
+   <b>Draft</b>
+     Quality=1 ColorMode=0 MediaType=0 PenSet=0
+   <b>Normal</b> (default)
+     Quality=0 ColorMode=0 MediaType=0 PenSet=0
+</pre>
+<li>
+<b>LaserJet Color series (LJJetReady)</b> - This device class provides host based color support (pseudo PCL) for HP LaserJets. 
+The LJJetReady device class requires libjpeg for compression.
+<p>
+Only Resolution setting 600x600 is available.
+<p>
+The following options can be selected with Ghostscript commands. 
+<pre>
+   <b>DeviceModel</b>
+     hp color LaserJet 3500
+     hp color LaserJet 3550
+
+   <b>Normal Grayscale</b> 
+     Quality=0 ColorMode=0 MediaType=0 PenSet=2
+   <b>Normal Color</b> (default)
+     Quality=0 ColorMode=2 MediaType=0 PenSet=2
 </pre>
 </ul>
 Note, the DeviceModel parameters listed above for each device class are not the full Model string returned
@@ -3229,6 +3266,50 @@ Left edge, Top edge, Width and Height values are in inches. "n/a" means option i
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPIJS 2.1.1</b> - This release has the following changes.
+<pre>
+   1. Fixed bi-di support issue for Business Inkjet 1100/1200.
+   2. Added PPD files for the following printers.
+
+      HP LaserJet 4240
+      HP LaserJet 9040
+      hp color LaserJet 4610
+      HP LaserJet 1022
+      HP Business Inkjet 1000
+</pre>
+<p>
+<li>
+<b>HPIJS 2.1</b> - This release has the following changes.
+<pre>
+   1. Added two new device classes - LJFastRaster and LJJetReady. LJFastRaster will replace the pxl1010 driver.
+   2. Fixed some HP-UX compile issues.
+   3. Added HP postscript PPD files to the hpijs package. This will allow postscript printing instead of printing via hpijs. 
+   4. Fixed input tray issue with Business Inkjet 1100/1200. The option was missing.
+   5. Changed default quality setting from 300 to 600 dpi for DJ9xxVIP.
+   6. Replaced gdevijs-krgb-1.0.patch with gdevijs-krgb-1.1.patch. This patch fixes as segfault issue with 1-bit color space IJS drivers (ie: epsonepl). 
+   7. Fixed a issue with DJ3600 photo pen printing. 
+
+   8. Added PPD files for the following printers.
+
+      LJFastRaster:
+      LaserJet 1010/1012/1015
+
+      LJJetReady:
+      Color LaserJet 3500/3550
+
+      DJGenericVIP:
+      HP Photosmart 8750
+      HP Deskjet 6600
+      HP Deskjet 9800 Series
+</pre>
+<p>
+<li>
+<b>HPIJS 2.0.2</b> - This release has the following changes.
+<pre>
+   1. Fixed a 64 bit compiler issue with ljmono.cpp and ljcolor.cpp.
+</pre>
+<p>
+<li>
 <b>HPIJS 2.0.1</b> - This release has the following changes.
 <pre>
    1. Fixed a issue with the max setting for input trays in APDK.
@@ -3944,7 +4025,7 @@ $ gs -sDEVICE=ijs -sIjsServer=hpijs -dIjsUseOutputFD -sDeviceManufacturer="HEWLE
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
 &#169 2001-2005 Hewlett-Packard Company<br>
-HPIJS 2.0.1, last updated January 12, 2005
+HPIJS 2.1.1, last updated April 1, 2005
 </font>
  </BODY>
 </HTML>

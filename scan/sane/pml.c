@@ -26,9 +26,7 @@
 
 \************************************************************************************/
 
-#include "system.h"
 #include "hpaio.h"
-//#include "pml.h"
 
 int PmlSetID( PmlObject_t obj, char * oid )
 {
@@ -425,93 +423,24 @@ int PmlReadReply( /*ptalDevice_t dev,*/
 int PmlRequestSet( int deviceid, int channelid, PmlObject_t obj )
 {
     unsigned char data[PML_MAX_DATALEN];
-    int i, datalen = 0, request = PML_REQUEST_SET, r;
+    int datalen=0, status=ERROR, type, pml_result;
 
     DBG( 0,  "PmlRequestSet(obj=0x%8.8X)\n", obj );
-    PmlSetStatus( obj, PML_OK );
 
-    /*if( obj->dev->provider->pmlSet )
-    {
-        return obj->dev->provider->pmlSet( obj );
-    }*/
-    /*if( !obj->dev->pmlChannel )
-    {
-        return ERROR;
-    }*/
+    PmlSetStatus(obj, PML_ERROR);
+                
+    datalen = PmlGetValue(obj, &type, data, sizeof(data));
 
-    /* Default SET implementation: */
-    data[datalen++] = request;
-    data[datalen++] = PML_TYPE_OBJECT_IDENTIFIER;
-    r = strlen( obj->oid );
-    data[datalen++] = r;
-    memcpy( data + datalen, obj->oid, r );
-    datalen += r;
+    datalen = SetPml(deviceid, channelid, obj->oid, type, data, datalen, &pml_result); 
 
-    r = PmlGetValue( obj,
-                     &i,
-                     data + datalen + 2,
-                     PML_MAX_DATALEN - datalen - 2 );
-    if( r == ERROR )
+    if (datalen > 0)
     {
-        return ERROR;
-    }
-    data[datalen++] = i | ( r >> 8 );
-    data[datalen++] = r;
-    datalen += r;
-
-    //r = ptalChannelWrite( obj->dev->pmlChannel, data, datalen );
-    
-    DBG( 0, "Write...\n" );
-    DBG_DUMP( data, datalen );
-    
-    r = WriteChannel( deviceid, channelid, data, datalen );
-    
-    if( r != datalen )
-    {
-        return ERROR;
+        PmlSetStatus(obj, pml_result);
+        status = OK;
     }
 
-    //datalen = PmlReadReply( deviceid, channelid, data, PML_MAX_DATALEN, request );
-    datalen = ReadChannel( deviceid, channelid, data, PML_MAX_DATALEN, -1 );
-    
-    DBG( 0, "Read...\n" );
-    DBG_DUMP( data, datalen );
-    
-    if( datalen == 0 )
-    {
-        return ERROR;
-    }
-
-    i = 0;
-    r = data[i++];  /* Read command. */
-    if( r != ( request | PML_COMMAND_REPLY ) )
-    {
-        return ERROR;
-    }
-
-    r = data[i++];  /* Read execution outcome. */
-    if( PmlSetStatus( obj, r ) & PML_ERROR )
-    {
-        return ERROR;
-    }
-
-    r = data[i++];  /* Read data type. */
-    
-    if( r == PML_TYPE_ERROR_CODE )
-    {
-        r = data[i++];  /* Read length (should be 1). */
-        r = data[i++];  /* Read error code. */
-        PmlSetStatus( obj, r );
-        if( r & PML_ERROR || i >= datalen )
-        {
-            return ERROR;
-        }
-        r = data[i++];  /* Read data type. */
-    }
-
-    /* TODO: Validate OID, copy value back in. */
-
-    return OK;
+bugout:
+    return status;
 }
 
 int PmlRequestSetRetry( int deviceid, int channelid, PmlObject_t obj, int count, int delay )
@@ -545,118 +474,22 @@ int PmlRequestSetRetry( int deviceid, int channelid, PmlObject_t obj, int count,
 int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj ) 
 {
     unsigned char data[PML_MAX_DATALEN];
-    int i, datalen = 0, request = PML_REQUEST_GET, r;
+    int datalen=0, status=ERROR, type, pml_result;
 
     DBG( 0,  "PmlRequestGet(obj=0x%8.8X)\n", obj );
-                    
-    PmlSetStatus( obj, PML_OK );
-
-    /*if( obj->dev->provider->pmlGet )
-    {
-        return obj->dev->provider->pmlGet( obj, next );
-    }*/
-    /*if( !obj->dev->pmlChannel )
-    {
-        return ERROR;
-    }*/
-
-    /* Default GET/GETNEXT implementation: */
-    /*if( next )
-    {
-        request = PML_REQUEST_GETNEXT;
-    }*/
-    data[datalen++] = request;
-    data[datalen++] = PML_TYPE_OBJECT_IDENTIFIER;
-    r = strlen( obj->oid );
-    data[datalen++] = r;
-    memcpy( data + datalen, obj->oid, r );
-    datalen += r;
-
     
-    //r = ptalChannelWrite( obj->dev->pmlChannel, data, datalen );
-    DBG( 0, "Write...\n" );
-    DBG_DUMP( data, datalen );
-    
-    r = WriteChannel( deviceid, channelid, data, datalen );
-    
-    if( r != datalen )
+    PmlSetStatus(obj, PML_ERROR);
+                
+    datalen = GetPml(deviceid, channelid, obj->oid, data, sizeof(data), &type, &pml_result); 
+
+    if (datalen > 0)
     {
-        return ERROR;
+        PmlSetStatus(obj, pml_result);
+        PmlSetValue(obj, type, data, datalen);
+        status = OK;
     }
 
-    //datalen = PmlReadReply( deviceid, channelid, data, PML_MAX_DATALEN, request );
-    datalen = ReadChannel( deviceid, channelid, data, PML_MAX_DATALEN, -1 );
-
-    DBG( 0, "Read...\n" );
-    DBG_DUMP( data, datalen );
-    
-    
-    if( datalen == ERROR )
-    {
-        return ERROR;
-    }
-
-    i = 0;
-    r = data[i++];  /* Read command. */
-    
-    if( r != ( request | PML_COMMAND_REPLY ) )
-    {
-        return ERROR;
-    }
-
-    r = data[i++];  /* Read execution outcome. */
-    
-    if( PmlSetStatus( obj, r ) & PML_ERROR )
-    {
-        return ERROR;
-    }
-
-    r = data[i++];  /* Read data type. */
-    
-    if( r == PML_TYPE_ERROR_CODE )
-    {
-        r = data[i++];  /* Read length (should be 1). */
-        r = data[i++];  /* Read error code. */
-        PmlSetStatus( obj, r );
-        if( r & PML_ERROR || i >= datalen )
-        {
-            return ERROR;
-        }
-        r = data[i++];  /* Read data type. */
-    }
-
-    if( r != PML_TYPE_OBJECT_IDENTIFIER )
-    {
-        return ERROR;
-    }
-    r = data[i++];  /* Read length. */
-    /* For GET, make sure it's the same OID. */
-    /*if( !next )
-    {
-    }
-    else*/
-    //{
-        //obj = next;
-        
-        /*if( PmlSetID( obj, data + i ) == ERROR )
-        {
-            return ERROR;
-        }*/
-    //}
-    i += r;
-
-    r = data[i] & PML_TYPE_MASK;   /* Read data type. */
-    datalen = ( ( data[i] & ( ~PML_TYPE_MASK ) ) << 8 ) | data[i + 1];
-    //datalen = data[i+1]
-    //if( datalen == 0 )
-    //{
-    //}
-    
-    if( PmlSetValue( obj, r, data + i + 2, datalen ) == ERROR )
-    {
-        return ERROR;
-    }
-
-    return OK;
+bugout:
+    return status;
 }
 

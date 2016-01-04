@@ -20,15 +20,16 @@
 #
 
 from base.g import *
-from base import utils
+from base.codes import *
+from base import utils, service
 from qt import *
 from settingsdialog_base import SettingsDialog_base
 
 class SettingsDialog(SettingsDialog_base):
-    def __init__(self, cleaning_level, parent = None,name = None,modal = 0,fl = 0):
+    def __init__(self, parent = None,name = None,modal = 0,fl = 0):
         SettingsDialog_base.__init__(self,parent,name,modal,fl)
-        self.cleaning_level = cleaning_level
-        self.CleaningLevel.setButton( self.cleaning_level )
+        #self.cleaning_level = cleaning_level
+        #self.CleaningLevel.setButton( self.cleaning_level )
         self.DefaultsButton.setEnabled( False )
         
     def PrintCmdChangeButton_clicked(self):
@@ -51,8 +52,9 @@ class SettingsDialog(SettingsDialog_base):
         #self.MakeCopiesCommand
         pass
         
-    def CleaningLevel_clicked(self,a0):
-        self.cleaning_level = a0
+    #def CleaningLevel_clicked(self,a0):
+        #self.cleaning_level = a0
+    #    pass
         
     def DefaultsButton_clicked(self):
         cmd_print, cmd_scan, cmd_pcard, cmd_copy, cmd_fax = utils.deviceDefaultFunctions()
@@ -71,7 +73,13 @@ class SettingsDialog(SettingsDialog_base):
             self.DefaultsButton.setEnabled( False )
       
     
-    def EmailTestButton_clicked(self):
-        print "SettingsDialog_base.EmailTestButton_clicked(): Not implemented yet"  
-        
-        
+    def EmailTestButton_clicked(self): 
+        email_address = str( self.EmailAddress.text() )
+        smtp_server = str( self.SMTPServer.text() )
+        s = service.Service()
+        resultCode = s.testEmail(email_address, smtp_server)
+        if resultCode != ERROR_SUCCESS:
+             log.debug( "Failure-Result_Code: %s" % resultCode )
+            # show success/failure dialog
+        log.debug( "Success-Result_Code: %s" % resultCode )
+        s.close()

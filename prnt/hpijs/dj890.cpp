@@ -28,7 +28,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \*****************************************************************************/
 
-
 #if defined(APDK_DJ890)
 
 #include "header.h"
@@ -39,8 +38,8 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVENICE_Binary_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[9 * 9 * 9 ];
+extern uint32_t ulMapDJ895_Binary_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[9 * 9 * 9 ];
 
 DJ890::DJ890(SystemServices* pSS,
                        int numfonts, BOOL proto)
@@ -55,16 +54,16 @@ DJ890::DJ890(SystemServices* pSS,
     else ePen=BOTH_PENS;    // matches default mode
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-    pMode[GRAYMODE_INDEX]      = new VeniceMode5 ();   // Normal Gray K
+    pMode[GRAYMODE_INDEX]      = new DJ895Mode5 ();   // Normal Gray K
 #else
-    pMode[GRAYMODE_INDEX]      = new GrayMode (ulMapVOLTAIRE_CCM_K);   // Normal Gray K
+    pMode[GRAYMODE_INDEX]      = new GrayMode (ulMapDJ600_CCM_K);   // Normal Gray K
 #endif
-    pMode[DEFAULTMODE_INDEX]   = new VeniceMode1 ();   // Normal Color
-    pMode[SPECIALMODE_INDEX] = new VeniceMode3 ();   // Draft Color
-    pMode[SPECIALMODE_INDEX+1] = new VeniceMode4 ();   // Draft Gray K
+    pMode[DEFAULTMODE_INDEX]   = new DJ895Mode1 ();   // Normal Color
+    pMode[SPECIALMODE_INDEX] = new DJ895Mode3 ();   // Draft Color
+    pMode[SPECIALMODE_INDEX+1] = new DJ895Mode4 ();   // Draft Gray K
     ModeCount = 4;
 
-    CMYMap = ulMapVENICE_Binary_KCMY;
+    CMYMap = ulMapDJ895_Binary_KCMY;
 
     DBG1("DJ890 created\n");
 }

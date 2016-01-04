@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/homes/dwelch/lnx/Projects/hplups/ui/form1.ui'
+# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/form1.ui'
 #
-# Created: Mon Nov 3 14:44:17 2003
-#      by: The PyQt User Interface Compiler (pyuic) 3.6
+# Created: Thu Jan 20 09:35:46 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -35,9 +35,12 @@ class Form1(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.tr("hpguid"))
-        self.pushButton1.setText(self.tr("Close"))
+        self.setCaption(self.__tr("hpguid"))
+        self.pushButton1.setText(self.__tr("Close"))
 
+
+    def __tr(self,s,c = None):
+        return qApp.translate("Form1",s,c)
 
 if __name__ == "__main__":
     a = QApplication(sys.argv)

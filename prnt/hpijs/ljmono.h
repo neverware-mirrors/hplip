@@ -85,6 +85,14 @@ public:
     Compressor* CreateCompressor (unsigned int RasterSize);
 
 protected:
+
+#ifdef APDK_HP_UX
+    virtual LJMono & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
     BOOL    m_bJobStarted;
 
 }; // LJMono
@@ -116,8 +124,8 @@ class LJMonoProxy : public PrinterProxy
 public:
     LJMonoProxy() : PrinterProxy(
         "Mono Laser",               // family name
-        "HP LaserJet\0"             // models
-		"hp LaserJet\0"             // LaserJet
+        "HP LaserJet\0"
+		"hp LaserJet\0"
 #ifdef APDK_MLC_PRINTER
 #endif
     ) {m_iPrinterType = eLJMono;}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.13 $ 
-# $Date: 2004/12/06 17:48:53 $
+# $Revision: 1.20 $ 
+# $Date: 2005/03/21 17:22:20 $
 # $Author: dwelch $
 #
 #
@@ -27,7 +27,7 @@
 
 
 from base.g import *
-from base import utils, device, msg
+from base import utils, device, msg, service
 from prnt import cups
 from pcard import photocard
 
@@ -37,68 +37,44 @@ import socket
 
 from qt import *
 
+
 from unloadform_base import UnloadForm_base
 from imagepropertiesdlg import ImagePropertiesDlg
-from unloadprogressdlg import UnloadProgressDlg
 from choosedevicedlg import ChooseDeviceDlg
-from successform import SuccessForm
-from failureform import FailureForm
-
 
 progress_dlg = None
 
 class IconViewItem( QIconViewItem ):
-    def __init__( self, parent, path, pixmap, mime_type, mime_subtype, size, exif_info={} ):
-        dirname, filename=os.path.split( path )
-        QIconViewItem.__init__( self, parent, filename, pixmap )
+    def __init__( self, parent, dirname, fname, path, pixmap, mime_type, mime_subtype, size, exif_info={} ):
+        QIconViewItem.__init__( self, parent, fname, pixmap )
         self.mime_type = mime_type
         self.mime_subtype = mime_subtype
         self.path = path
         self.dirname = dirname
-        self.filename = filename
+        self.filename = fname
         self.exif_info = exif_info
         self.size = size
         self.thumbnail_set = False
-        
+
+
 
 class UnloadForm(UnloadForm_base):
     def __init__(self, bus='usb', device_uri=None, printer_name=None, parent = None,name = None,fl = 0):
         UnloadForm_base.__init__(self,parent,name,fl)
-        
+
         if device_uri and printer_name:
             log.error( "You may not specify both a printer (-p) and a device (-d)." )
             device_uri, printer_name = None, None
-            
+
+        self.s = service.Service()
+
         if not device_uri and not printer_name:
-            timeout = 5
-            ttl = 4
-            format = 'default'
-            hpssd_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-            hpssd_sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
-            
-            fields, data = msg.xmitMessage( hpssd_sock, 
-                                            "ProbeDevicesFiltered",
-                                            None, 
-                                            { 
-                                                'bus' : bus,
-                                                'timeout' : timeout,
-                                                'ttl' : ttl,
-                                                'format' : format,
-                                                'filter' : 'pcard',
-                                                    
-                                            } 
-                                          )
-            
-            hpssd_sock.close()  
-            temp = data.splitlines()            
-            probed_devices = []
-            for t in temp:
-                probed_devices.append( t.split(',')[0] )
+            probed_devices = self.s.probeDevices( bus, 5, 4, 'pcard' )
             cups_printers = cups.getPrinters()
             log.debug( probed_devices )
             log.debug( cups_printers )
             max_deviceid_size, x, devices = 0, 0, {} 
-            
+
             for d in probed_devices:
                 printers = []
                 for p in cups_printers:
@@ -107,66 +83,69 @@ class UnloadForm(UnloadForm_base):
                 devices[x] = ( d, printers )
                 x += 1
                 max_deviceid_size = max( len(d), max_deviceid_size )
-            
+
             if x == 0:
                 from nodevicesform import NoDevicesForm
-                dlg = NoDevicesForm( self )
-                dlg.exec_loop()
-                sys.exit(0)
-                
+                self.failure( self.__tr( "<p><b>No devices found that support photo card access.</b><p>Please make sure your device is properly installed and try again." ) )
+                self.cleanup( EVENT_ERROR_DEVICE_NOT_FOUND )
+
             elif x == 1:
                 log.info( "Using device: %s" % devices[0][0] )
                 device_uri = devices[0][0]
+
             else:                
                 dlg = ChooseDeviceDlg( devices )
                 dlg.exec_loop()
                 device_uri = dlg.device_uri
-        
-        
+
+
         try:
             self.pc = photocard.PhotoCard( None, device_uri, printer_name )
         except Error, e:
             log.error( "An error occured: %s" % e[0] )
-            FailureForm( "Unable to mount photocard. Could not connect to device.", self ).exec_loop()
-            sys.exit(0)
-        
+            self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Could not connect to device." ) )
+            self.cleanup( EVENT_PCARD_UNABLE_TO_MOUNT )
+
         if self.pc.device.device_uri is None and printer_name:
             log.error( "Printer '%s' not found." % printer_name )
-            FailureForm( 'Printer %s not found' % printer_name, self ).exec_loop()
-            sys.exit(0)
-            
+            self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Device not found."  ) )
+            self.cleanup( EVENT_PCARD_JOB_FAIL )
+
         if self.pc.device.device_uri is None and device_uri:
             log.error( "Malformed/invalid device-uri: %s" % device_uri )
-            FailureForm( "Malformed/invalid device-uri: %s" % device_uri, self ).exec_loop()
-            sys.exit(0)
-            
-        
+            self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Malformed/invalid device-uri."  ) )
+            self.cleanup( EVENT_PCARD_JOB_FAIL )
+
+
         try:
             self.pc.mount()
         except Error:
             log.error( "Unable to mount photo card on device. Check that device is powered on and photo card is correctly inserted." )
-            FailureForm( "Unable to mount photo card on <b>%s</b>. Check that device is powered on and photo card is correctly inserted." % device_uri, self ).exec_loop()
+            self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Check that device is powered on and photo card is correctly inserted."  ) )
             self.pc.umount()
-            sys.exit(0)
-            
+            self.cleanup( EVENT_PCARD_UNABLE_TO_MOUNT )
+
+
+        self.s.sendEvent( EVENT_START_PCARD_JOB, 'event', 0, prop.username, self.pc.device.device_uri )
+
         disk_info = self.pc.info()
         self.pc.write_protect = disk_info[8]
-        
+
         if self.pc.write_protect:
             log.warning( "Photo card is write protected." )
-            
+
         log.info( "Photocard on device %s mounted" % self.pc.device_uri )
-        
+
         if not self.pc.write_protect:
             log.info( "DO NOT REMOVE PHOTO CARD UNTIL YOU EXIT THIS PROGRAM" )
-        
+
         self.unload_dir = os.path.normpath( os.path.expanduser( '~' ) )
         os.chdir( self.unload_dir )
         self.UnloadDirectoryEdit.setText( self.unload_dir )
-        
+
         self.unload_list = self.pc.get_unload_list()
         self.DeviceText.setText( self.pc.device.device_uri )
-        
+
         self.image_icon_map = { 'tiff' : 'tif.png',
                                 'bmp'  : 'bmp.png',
                                 'jpeg' : 'jpg.png',
@@ -176,107 +155,202 @@ class UnloadForm(UnloadForm_base):
         self.video_icon_map = { 'unknown' : 'movie.png',
                                 'mpeg'    : 'mpg.png',
                                 }
-                                
+
         self.total_number = 0
         self.total_size = 0
-        
+
         self.removal_option = 0
-        
+
         self.UpdateStatusBar()
-        #self.load_icon_view()
         QTimer.singleShot( 0, self.initialUpdate )
-        
+
         if self.pc.write_protect:
             self.FileRemovalGroup.setEnabled( False )
             self.LeaveAllRadio.setEnabled( False )
             self.RemoveSelectedRadio.setEnabled( False )
             self.RemoveAllRadio.setEnabled( False )
-        
+
+        # Item map disambiguates between files of the same 
+        # name that are on the pcard in more than one location
+        self.item_map = {}
+
+    def CancelButton_clicked(self):
+        self.cleanup()
+
+    def cleanup( self, error=0 ):
+        if error > 0:
+            self.s.sendEvent( error, 'error', 0, prop.username, 
+                              self.pc.device.device_uri )    
+
+        self.s.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
+                              self.pc.device.device_uri )  
+
+        self.s.close()
+        self.close()
+
+    def closeEvent( self, e ):
+        #self.s.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
+        #                  self.pc.device.device_uri )  
+        e.accept()
+    
+    def success( self ):
+        QMessageBox.information( self, 
+                             self.caption(),
+                             self.__tr( "<p><b>The operation completed successfully.</b>" ),
+                              QMessageBox.Ok, 
+                              QMessageBox.NoButton, 
+                              QMessageBox.NoButton )
+
+    def failure( self, error_text ):
+        QMessageBox.critical( self, 
+                             self.caption(),
+                             error_text,
+                              QMessageBox.Ok, 
+                              QMessageBox.NoButton, 
+                              QMessageBox.NoButton )
+
+
     def initialUpdate( self ):
         self.load_icon_view( first_load=True )
-    
+
     def load_icon_view( self, first_load ):
+        self.first_load = first_load
+
         if first_load:
             self.IconView.clear()
-        
-        num_items = len( self.unload_list )
-        pb = QProgressBar( ) 
-        pb.setTotalSteps( num_items )
-        self.statusBar().addWidget( pb )
-        pb.show()
-        item_num = 0
-        
-        for f in self.unload_list:
-            filename = f[0]
-            size = f[1]
-            
-            pb.setProgress( item_num )
-            item_num += 1
-            qApp.processEvents(0)
-            
 
-            typ, subtyp = self.pc.classify_file( filename ).split('/')
-            
-            #if not first_load and typ == 'image' and subtyp in ( 'jpeg', 'tiff' ):
-            if not first_load and typ == 'image' and subtyp == 'jpeg':
-                exif_info = self.pc.get_exif_path( filename )
-            
-                if len(exif_info) > 0:
-                    if 'JPEGThumbnail' in exif_info:
-                        pixmap = QPixmap()
-                        pixmap.loadFromData( exif_info['JPEGThumbnail'], "JPEG" )
-                        del exif_info['JPEGThumbnail']
-                        dname, fname=os.path.split( filename )
+        self.num_items = len( self.unload_list )
+
+        self.pb = QProgressBar( ) 
+        self.pb.setTotalSteps( self.num_items )
+        self.statusBar().addWidget( self.pb )
+        self.pb.show()
+
+        self.item_num = 0
+
+        self.load_timer = QTimer(self, "ScanTimer")
+        self.connect( self.load_timer, SIGNAL('timeout()'), self.continue_load_icon_view )
+        self.load_timer.start( 0 ) 
+
+    def continue_load_icon_view( self ):    
+
+        if self.item_num == self.num_items:
+            self.load_timer.stop()
+            self.disconnect( self.load_timer, SIGNAL('timeout()'), self.continue_load_icon_view )
+            self.load_timer = None
+            del self.load_timer
+
+            self.pb.hide()
+            self.statusBar().removeWidget( self.pb )
+
+            self.IconView.adjustItems()
+
+            return
+
+        f = self.unload_list[ self.item_num ]
+
+        self.item_num += 1
+        path, size = f[0], f[1]
+
+        self.pb.setProgress( self.item_num )
+
+        typ, subtyp = self.pc.classify_file( path ).split('/')
+
+        if not self.first_load and typ == 'image' and subtyp == 'jpeg':
+
+            exif_info = self.pc.get_exif_path( path )
+
+            if len(exif_info) > 0:
+
+                if 'JPEGThumbnail' in exif_info:
+                    pixmap = QPixmap()
+                    pixmap.loadFromData( exif_info['JPEGThumbnail'], "JPEG" )
+
+                    self.resizePixmap( pixmap )
+
+                    del exif_info['JPEGThumbnail']
+                    dname, fname=os.path.split( path )
+                    x = self.item_map[ fname ]
+
+                    if len(x) == 1:
                         item = self.IconView.findItem( fname, 0 )
-                        if item is not None:
-                            item.setPixmap( pixmap )
-                            item.thumbnail_set = True
-                            #self.IconView.adjustItems()
-                            #self.IconView.slotUpdate()
-                            
-                            
-                        continue
-                    
-                    #elif 'TIFFThumbnail' in exif_info: 
-                        # can't handle TIFF in Qt?
-                    #    del exif_info['TIFFThumbnail']
-                    #    if first_load:
-                    #        IconViewItem( self.IconView, filename, 
-                    #                      QPixmap( os.path.join( prop.image_dir, 'tif.png' ) ), 
-                    #                      typ, subtyp, size, exif_info )
-                    #    else:
-                    #        pass
-                            
-                    #    continue
-                        
-                        
-            elif first_load:
-                if typ == 'image':
-                    f = os.path.join( prop.image_dir, self.image_icon_map.get( subtyp, 'unknown.png' ) )
-                elif typ == 'video':
-                    f = os.path.join( prop.image_dir, self.video_icon_map.get( subtyp, 'movie.png' ) )
-                elif typ == 'audio':
-                    f = os.path.join( prop.image_dir, 'sound.png' )
-                else:
-                    f = os.path.join( prop.image_dir, 'unknown.png' )
-                    
-                IconViewItem( self.IconView, filename, QPixmap(f), typ, subtyp, size )
-                #self.IconView.slotUpdate()
+                    else:
+                        i = x.index( path )
+                        if i == 0:
+                            item = self.IconView.findItem( fname, 0 )
+                        else:
+                            item = self.IconView.findItem( fname + " (%d)" % (i+1), 0 )
 
-        
-        pb.hide()
-        self.statusBar().removeWidget( pb )
-        self.IconView.adjustItems()
-        
+                    if item is not None:
+                        item.setPixmap( pixmap )
+                        item.thumbnail_set = True
+
+
+                    return
+
+                #elif 'TIFFThumbnail' in exif_info: 
+                    # can't handle TIFF in Qt?
+                #    del exif_info['TIFFThumbnail']
+                #    if first_load:
+                #        IconViewItem( self.IconView, filename, 
+                #                      QPixmap( os.path.join( prop.image_dir, 'tif.png' ) ), 
+                #                      typ, subtyp, size, exif_info )
+                #    else:
+                #        pass
+
+                #    continue
+
+
+        elif self.first_load:
+            if typ == 'image':
+                f = os.path.join( prop.image_dir, self.image_icon_map.get( subtyp, 'unknown.png' ) )
+            elif typ == 'video':
+                f = os.path.join( prop.image_dir, self.video_icon_map.get( subtyp, 'movie.png' ) )
+            elif typ == 'audio':
+                f = os.path.join( prop.image_dir, 'sound.png' )
+            else:
+                f = os.path.join( prop.image_dir, 'unknown.png' )
+
+            dirname, fname=os.path.split( path ) 
+            num = 1
+            try:
+                self.item_map[ fname ]
+            except:
+                self.item_map[ fname ] = [ path ]
+            else:
+                self.item_map[ fname ].append( path )
+                num = len( self.item_map[ fname ] )    
+
+            if num == 1:
+                IconViewItem( self.IconView, dirname, fname, path, QPixmap(f), 
+                              typ, subtyp, size )
+            else:
+                IconViewItem( self.IconView, dirname, fname + " (%d)" % num, 
+                              path, QPixmap(f), typ, subtyp, size )
+
+
+
+
+    def resizePixmap( self, pixmap ):
+        w, h = pixmap.width(), pixmap.height()
+
+        if h > 128 or w > 128:
+            ww, hh = w - 128, h - 128
+            if ww >= hh:
+                pixmap.resize( 128, int( float((w-ww))/w*h ) )
+            else:
+                pixmap.resize( int(float((h-hh))/h*w), 128 )
+
+
 
     def UpdateStatusBar( self ):
         if self.total_number == 0:
-            self.statusBar().message( "No files selected" )
+            self.statusBar().message( self.__tr( "No files selected" ) )
         elif self.total_number == 1:
-            self.statusBar().message( "1 file selected, %s" % utils.format_bytes( self.total_size, True ) )
+            self.statusBar().message( self.__tr( "1 file selected, %s" % utils.format_bytes( self.total_size, True ) ) )
         else:
-            self.statusBar().message( "%d files selected, %s" % ( self.total_number, utils.format_bytes(self.total_size, True ) ) )
-    
+            self.statusBar().message( self.__tr( "%d files selected, %s" % ( self.total_number, utils.format_bytes(self.total_size, True ) ) ) )
+
     def SelectAllButton_clicked( self ):
         self.IconView.selectAll( 1 )
 
@@ -286,118 +360,149 @@ class UnloadForm(UnloadForm_base):
     def IconView_doubleClicked( self, a0 ):
         #self.Display( a0 )
         pass
-        
+
     def UnloadDirectoryBrowseButton_clicked( self ):
+        old_dir = self.unload_dir
         self.unload_dir = str( QFileDialog.getExistingDirectory( self.unload_dir, self ) )
-        self.UnloadDirectoryEdit.setText( self.unload_dir )
-        os.chdir( self.unload_dir )
-        print os.getcwd()
-        
+
+        if not utils.is_path_writable( self.unload_dir ):
+            self.failure( self.__tr( "<p><b>The unload directory path you entered is not valid.</b><p>The directory must exist and you must have write permissions." ) )
+            self.unload_dir = old_dir
+        else:
+            self.UnloadDirectoryEdit.setText( self.unload_dir )
+            os.chdir( self.unload_dir )
+
     def UnloadButton_clicked( self ):
+        was_cancelled = False
+        self.unload_dir = str( self.UnloadDirectoryEdit.text() )
+        dir_error = False
+        
+        try:
+            os.chdir( self.unload_dir )
+        except OSError:
+            log.error( "Directory not found: %s" % self.unload_dir )
+            dir_error = True
+
+        if dir_error or not utils.is_path_writable( self.unload_dir ):
+            self.failure( self.__tr( "<p><b>The unload directory path is not valid.</b><p>Please enter a new path and try again." ) )
+            return
+
         unload_list = []
         i = self.IconView.firstItem()
         total_size = 0
         while i is not None:
-            
+
             if i.isSelected():
                 unload_list.append( ( i.path, i.size, i.mime_type, i.mime_subtype ) )
                 total_size += i.size
             i = i.nextItem()
 
+        if total_size == 0:
+            self.failure( self.__tr( "<p><b>No files are selected to unload.</b><p>Please select one or more files to unload and try again." ) )
+            return
+
         global progress_dlg
-        progress_dlg = QProgressDialog( "Unloading Files...", "Cancel", total_size, self, 'progress', True )
-        #progress_dlg = UnloadProgressDlg( self, 'UnloadProgress', True )
-        #progress_dlg.ProgressBar.setTotalSteps( total_size )
-        #progress_dlg.setProgress(0)
+        progress_dlg = QProgressDialog( self.__tr( "Unloading Files..." ), self.__tr( "Cancel" ), 
+                                       total_size, self, 'progress', True )
         progress_dlg.setMinimumDuration( 0 )
         progress_dlg.show()
-        #qApp.processEvents(0)
-        
+
         if self.removal_option == 0:
-            self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, True )
+            total_size, total_time, was_cancelled = \
+                self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, True )
+        
         elif self.removal_option == 1: # remove selected
-            self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
+            total_size, total_time, was_cancelled = \
+                self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
+        
         else: # remove all
-            self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
+            total_size, total_time, was_cancelled = \
+                self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
             # TODO: Remove remainder of files
-        
+
         progress_dlg.close()
-        
-        SuccessForm( self ).exec_loop()
-        
-        #self.close()
+
+        self.s.sendEvent( EVENT_PCARD_FILES_TRANSFERED, 'event', 0, prop.username, 
+                          self.pc.device.device_uri )
+
+        if was_cancelled:
+            self.failure( self.__tr( "<b>Unload cancelled at user request.</b>" ) )
+        else:            
+            self.success()
+            
 
     def UpdateUnloadProgressDlg( self, src, trg, size ):
         global progress_dlg
         progress_dlg.setProgress( progress_dlg.progress() + size )
         progress_dlg.setLabelText( src )
-        #progress_dlg.FilenameText.setText( '<b>' + src + '</b>' )
-        #progress_dlg.ProgressBar.setProgress( progress_dlg.ProgressBar.progress() + size )
         qApp.processEvents()
         
-        return progress_dlg.wasCanceled()
-    
+        return progress_dlg.wasCancelled()
+
     def IconView_rightButtonClicked( self, item, pos ):
         popup = QPopupMenu( self )
-        #popup.insertItem( "Display...", self.PopupDisplay ) 
         popup.insertItem( "Properties", self.PopupProperties )
         if item.mime_type == 'image' and item.mime_subtype == 'jpeg' and not item.thumbnail_set:
             popup.insertItem( "Show Thumbnail", self.showThumbNail )
         popup.popup( pos )
-        
-        
+
+
     def PopupDisplay( self ):
         self.Display( self.IconView.currentItem() )
-        
+
     def PopupProperties( self ):
         self.Properties( self.IconView.currentItem() )
-        
+
     def showThumbNail( self ):
         item = self.IconView.currentItem()
-        exif_info = self.pc.get_exif_path( os.path.join( item.dirname, item.filename ) )
-            
+        exif_info = self.pc.get_exif_path( item.path )
+
         if len(exif_info) > 0:
             if 'JPEGThumbnail' in exif_info:
                 pixmap = QPixmap()
                 pixmap.loadFromData( exif_info['JPEGThumbnail'], "JPEG" )
+                self.resizePixmap( pixmap )
                 del exif_info['JPEGThumbnail']
                 item.setPixmap( pixmap )
-        
+
                 self.IconView.adjustItems()
-        
+
+        else:
+            self.failure( self.__tr( "<p><b>No thumbnail found in image.</b>" ) )
+
         item.thumbnail_set = True    
-        
+
     def Display( self, item ):
         pass
         # cp over file (does this even make sense to do this at this point?)
         # display with imagemagick?
-        
+
     def Properties( self, item ):
         if not item.exif_info:
-            item.exif_info = self.pc.get_exif_path( os.path.join( item.dirname, item.filename ) )
-    
+            item.exif_info = self.pc.get_exif_path( item.path )
+
         ImagePropertiesDlg( item.filename, item.dirname, 
                             '/'.join( [ item.mime_type, item.mime_subtype ] ),
                             utils.format_bytes(item.size, True), 
                             item.exif_info, self ).exec_loop()
-        
-        
-        
+
+
+
     def IconView_selectionChanged( self ):
         self.total_number = 0
         self.total_size = 0
         i = self.IconView.firstItem()
-        
+
         while i is not None:
-            
+
             if i.isSelected():
                 self.total_number += 1
                 self.total_size += i.size
-            
+
             i = i.nextItem()
-        
+
         self.UpdateStatusBar()
-    
+
 
     def IconView_clicked(self,a0,a1):
         pass
@@ -407,15 +512,17 @@ class UnloadForm(UnloadForm_base):
 
     def IconView_currentChanged(self,a0):
         pass
-        
+
     def FileRemovalGroup_clicked( self, a0 ):
         self.removal_option = a0
-        
+
     def ShowThumbnailsButton_clicked(self):
         self.ShowThumbnailsButton.setEnabled( False )
         self.load_icon_view( first_load=False )
 
-        
-        
-        
-        
+
+    def __tr(self,s,c = None):
+        return qApp.translate("UnloadForm",s,c)
+
+
+

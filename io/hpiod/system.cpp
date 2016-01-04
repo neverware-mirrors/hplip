@@ -25,7 +25,15 @@
 
 #include "hpiod.h"
 
-const char ERR_MSG[] = "msg=MessageError\nresult-code=%d\n";
+#ifdef HAVE_LIBSNMP
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#include <net-snmp/types.h>
+#endif
+
+static const char ERR_MSG[] = "msg=MessageError\nresult-code=%d\n";
+static const char *SnmpPort[] = { "","public.1","public.2","public.3" };
+const char *kStatusOID = "1.3.6.1.4.1.11.2.3.9.1.1.7.0";            /* device id oid */
 
 System::System()
 {
@@ -306,6 +314,27 @@ int System::IsHP(char *id)
    return 0;   
 }
 
+//System::IsUdev
+//! Given a usb device node, determine if this is a udev node (a non-legacy device node).
+/*!
+******************************************************************************/
+int System::IsUdev(char *dnode)
+{
+   char *p, *tail;
+   int n;
+
+   if ((p = strstr(dnode, "/dev/usb/lp")) == NULL)
+      return 1;
+
+   p+=11;
+
+   n = strtol(p, &tail, 10);
+   if (n < 0 || n > 15)
+     return 1;
+
+   return 0; /* looks like a legacy device node */
+}
+
 //System::GetModel
 //! Parse the model from the IEEE 1284 device id string.
 /*!
@@ -501,20 +530,16 @@ int System::GeneralizeURI(MsgAttributes *ma)
       len = pD->Open(sendBuf, &result);
       if (result == R_AOK)
       {
-         len = pD->GetDeviceID(sendBuf, sizeof(sendBuf), &result);
-         if (result == R_AOK)
-         {
-            id = pD->GetID(); /* use cached copy */
+         id = pD->GetID(); /* use cached copy */
 
-            if (id[0] != 0 && IsHP(id))
+         if (id[0] != 0 && IsHP(id))
+         {
+            GetModel(id, model, sizeof(model));
+            GetSerialNum(id, serial, sizeof(serial));
+            if ((strcmp(model, uriModel)==0) && (strcmp(serial, uriSerial)==0))
             {
-               GetModel(id, model, sizeof(model));
-               GetSerialNum(id, serial, sizeof(serial));
-               if ((strcmp(model, uriModel)==0) && (strcmp(serial, uriSerial)==0))
-               {
-                  sprintf(ma->uri, "hp:/usb/%s?device=/dev/usb/lp%d", model, i);
-                  found = 1;
-               }
+               sprintf(ma->uri, "hp:/usb/%s?device=/dev/usb/lp%d", model, i);
+               found = 1;
             }
          }
       }
@@ -590,6 +615,547 @@ int System::ProbeDevices(char *sendBuf)
    return len;
 }
 
+int System::PmlOidToHex(char *szoid, unsigned char *oid, int oidSize)
+{
+   char *tail;
+   int i=0, val;
+
+   if (szoid[0] == 0)
+      goto bugout;
+
+   val = strtol(szoid, &tail, 10);
+
+   while (i < oidSize)
+   {
+      if (val > 128)
+      {
+         syslog(LOG_ERR, "unable to System::PmlOidToHex: oid=%s\n", szoid);
+         goto bugout;
+      }
+      oid[i++] = (unsigned char)val;
+
+      if (*tail == 0)
+         break;         /* done */
+
+      val = strtol(tail+1, &tail, 10);
+   }
+
+bugout:
+   return i;
+}
+
+int System::SnmpToPml(char *snmp_oid, unsigned char *oid, int oidSize)
+{
+   static const char hp_pml_mib_prefix[] = "1.3.6.1.4.1.11.2.3.9.4.2";
+   static const char standard_printer_mib_prefix[] = "1.3.6.1.2.1.43";
+   static const char host_resource_mib_prefix[] = "1.3.6.1.2.1.25";
+   int len=0;
+
+   if (strncmp(snmp_oid, hp_pml_mib_prefix, sizeof(hp_pml_mib_prefix)-1) == 0)
+   {
+      /* Strip out snmp prefix and convert to hex. */
+      len = 0;
+      len += PmlOidToHex(&snmp_oid[sizeof(hp_pml_mib_prefix)], &oid[0], oidSize);
+      len--; /* remove trailing zero in pml mib */
+   }
+   else if   (strncmp(snmp_oid, standard_printer_mib_prefix, sizeof(standard_printer_mib_prefix)-1) == 0)
+   {
+      /* Replace snmp prefix with 2 and convert to hex. */
+      len = 1;
+      oid[0] = 0x2;
+      len += PmlOidToHex(&snmp_oid[sizeof(standard_printer_mib_prefix)], &oid[1], oidSize);  
+   }
+   else if   (strncmp(snmp_oid, host_resource_mib_prefix, sizeof(host_resource_mib_prefix)-1) == 0)
+   {
+      /* Replace snmp prefix with 3 and convert to hex. */
+      len = 1;
+      oid[0] = 0x3;
+      len += PmlOidToHex(&snmp_oid[sizeof(host_resource_mib_prefix)], &oid[1], oidSize);
+   }
+   else
+      syslog(LOG_ERR, "unable to System::SnmpToPml: snmp oid=%s\n", snmp_oid);
+
+   return len;
+}
+
+#ifdef HAVE_LIBSNMP
+
+int System::SnmpErrorToPml(int snmp_error)
+{
+   int err;
+
+   switch (snmp_error)
+   {
+      case SNMP_ERR_NOERROR:
+         err = PML_EV_OK;
+         break;
+      case SNMP_ERR_TOOBIG:
+         err = PML_EV_ERROR_BUFFER_OVERFLOW;
+         break;
+      case SNMP_ERR_NOSUCHNAME:
+         err = PML_EV_ERROR_UNKNOWN_OBJECT_IDENTIFIER;
+         break;
+      case SNMP_ERR_BADVALUE:
+         err = PML_EV_ERROR_INVALID_OR_UNSUPPORTED_VALUE;
+         break;
+      case SNMP_ERR_READONLY:
+         err = PML_EV_ERROR_OBJECT_DOES_NOT_SUPPORT_REQUESTED_ACTION;
+         break;
+      case SNMP_ERR_GENERR:
+      default:
+         err = PML_EV_ERROR_UNKNOWN_REQUEST;
+         break;
+   }
+
+   return err;
+}
+
+int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result)
+{
+   struct snmp_session session, *ss=NULL;
+   struct snmp_pdu *pdu=NULL;
+   struct snmp_pdu *response=NULL;
+   oid anOID[MAX_OID_LEN];
+   size_t anOID_len = MAX_OID_LEN;
+   int i, len=0;
+   uint32_t val;
+
+   *result = R_IO_ERROR;
+   *pml_result = PML_EV_ERROR_UNKNOWN_REQUEST;
+
+   init_snmp("snmpapp");
+
+   snmp_sess_init(&session );                   /* set up defaults */
+   session.peername = ip;
+   session.version = SNMP_VERSION_1;
+   session.community = (unsigned char *)SnmpPort[port];
+   session.community_len = strlen((const char *)session.community);
+   ss = snmp_open(&session);                     /* establish the session */
+   if (ss == NULL)
+      goto bugout;
+
+   pdu = snmp_pdu_create(SNMP_MSG_SET);
+   read_objid(szoid, anOID, &anOID_len);
+
+   switch (type)
+   {
+      case PML_DT_ENUMERATION:
+      case PML_DT_SIGNED_INTEGER:
+         /* Convert PML big-endian to SNMP little-endian byte stream. */
+         for(i=0, val=0; i<size && i<sizeof(val); i++)    
+            val = ((val << 8) | buffer[i]);
+         snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_INTEGER, (unsigned char *)&val, sizeof(val));
+         break;
+      case PML_DT_REAL:
+      case PML_DT_STRING:
+      case PML_DT_BINARY:
+      case PML_DT_NULL_VALUE:
+      case PML_DT_COLLECTION:
+      default:
+         snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_OCTET_STR, buffer, size);
+         break;
+   }
+
+  
+   /* Send the request and get response. */
+   if (snmp_synch_response(ss, pdu, &response) != STAT_SUCCESS)
+      goto bugout;
+
+   if (response->errstat == SNMP_ERR_NOERROR) 
+   {
+      len = size;
+   }
+
+   *pml_result = SnmpErrorToPml(response->errstat);
+   *result = R_AOK;
+
+bugout:
+   if (response != NULL)
+      snmp_free_pdu(response);
+   if (ss != NULL)
+      snmp_close(ss);
+   return len;
+}
+
+int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result)
+{
+   struct snmp_session session, *ss=NULL;
+   struct snmp_pdu *pdu=NULL;
+   struct snmp_pdu *response=NULL;
+   int i, len=0;
+   oid anOID[MAX_OID_LEN];
+   size_t anOID_len = MAX_OID_LEN;
+   struct variable_list *vars;
+   uint32_t val;
+   unsigned char tmp[sizeof(uint32_t)];
+
+   *result = R_IO_ERROR;
+   *type = PML_DT_NULL_VALUE;
+   *pml_result = PML_EV_ERROR_UNKNOWN_REQUEST;
+
+   init_snmp("snmpapp");
+
+   snmp_sess_init(&session );                   /* set up defaults */
+   session.peername = ip;
+   session.version = SNMP_VERSION_1;
+   session.community = (unsigned char *)SnmpPort[port];
+   session.community_len = strlen((const char *)session.community);
+   ss = snmp_open(&session);                     /* establish the session */
+   if (ss == NULL)
+      goto bugout;
+
+   pdu = snmp_pdu_create(SNMP_MSG_GET);
+   read_objid(szoid, anOID, &anOID_len);
+   snmp_add_null_var(pdu, anOID, anOID_len);
+  
+   /* Send the request and get response. */
+   if (snmp_synch_response(ss, pdu, &response) != STAT_SUCCESS)
+      goto bugout;
+
+   if (response->errstat == SNMP_ERR_NOERROR) 
+   {
+      vars = response->variables;
+      switch (vars->type)
+      {
+         case ASN_INTEGER:
+            *type = PML_DT_SIGNED_INTEGER;
+
+            /* Convert SNMP little-endian to PML big-endian byte stream. */
+            len = (sizeof(uint32_t) < size) ? sizeof(uint32_t) : size;
+            val = *vars->val.integer;
+            for(i=len-1; i>0; i--)
+            {
+               tmp[i] = val & 0xff;
+               val >>= 8;
+            }
+
+            /* Remove any in-significant bytes. */
+            for (; tmp[i]==0 && i<len; i++)
+               ;
+            len -= i;
+
+            memcpy(buffer, tmp+i, len);
+            break;
+         case ASN_NULL:
+            *type = PML_DT_NULL_VALUE;
+            break;
+         case ASN_OCTET_STR:
+            *type = PML_DT_STRING;
+            len = (vars->val_len < size) ? vars->val_len : size;
+            memcpy(buffer, vars->val.string, len);
+            break;
+         default:
+            syslog(LOG_ERR, "unable to System::GetSnmp: data type=%d\n", vars->type);
+            goto bugout;
+            break;
+      }
+   }
+
+   *pml_result = SnmpErrorToPml(response->errstat);
+   *result = R_AOK;
+
+bugout:
+   if (response != NULL)
+      snmp_free_pdu(response);
+   if (ss != NULL)
+      snmp_close(ss);
+   return len;
+}
+
+#else
+
+int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result)
+{
+   syslog(LOG_ERR, "no JetDirect support enabled\n");
+   return 0;
+}
+
+int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result)
+{
+   syslog(LOG_ERR, "no JetDirect support enabled\n");
+   return 0;
+}
+
+#endif /* HAVE_LIBSNMP */
+
+
+//System::SetPml
+//!  Set a PML object in the hp device. 
+/*!
+******************************************************************************/
+int System::SetPml(int device, int channel, char *snmp_oid, int type, unsigned char *data, int dataLen, char *sendBuf)
+{
+   char res[] = "msg=SetPMLResult\nresult-code=%d\n";
+   char message[BUFFER_SIZE];
+   unsigned char oid[LINE_SIZE];
+   unsigned char *p=(unsigned char *)message;
+   int len, dLen, result, reply, status, dt;
+   MsgAttributes ma;
+   Device *pD=pDevice[device];
+
+   if (dataLen > 1024)
+   {
+      syslog(LOG_ERR, "unable to System::SetPml: data size=%d\n", dataLen);
+      len = sprintf(sendBuf, res, R_IO_ERROR);
+      goto bugout;       
+   }   
+      
+   if (strcasestr(pD->GetURI(), "usb/") != NULL)
+   {
+      /* Process pml via local transport. */
+
+      /* Convert snmp oid to pml oid. */
+      dLen = SnmpToPml(snmp_oid, oid, sizeof(oid));
+   
+      *p++ = PML_SET_REQUEST;
+      *p++ = PML_DT_OBJECT_IDENTIFIER;
+      *p++ = dLen;                          /* assume oid length is < 10 bits */
+      memcpy(p, oid, dLen);
+      p+=dLen;
+      *p = type;
+      *p |= dataLen >> 8;                   /* assume data length is 10 bits */
+      *(p+1) = dataLen & 0xff;    
+      p += 2; 
+      memcpy(p, data, dataLen);
+
+      len = pD->WriteData((unsigned char *)message, dLen+dataLen+3+2, channel, message, &result);  
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }    
+
+      len = pD->ReadData(PML_MAX_DATALEN, channel, EXCEPTION_TIMEOUT, message, sizeof(message), &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }    
+
+      ParseMsg(message, len, &ma);
+
+      p = ma.data;
+      reply = *p++;       /* read command reply */
+      status = *p++;      /* read execution outcome */
+
+      if (reply != (PML_SET_REQUEST | 0x80) && status & 0x80)
+      {
+         syslog(LOG_ERR, "unable to execute System::SetPml: reply=%x outcome=%x\n", reply, status);
+         sysdump(p, ma.length-2);
+         len = sprintf(sendBuf, "msg=SetPMLResult\nresult-code=%d\npml-result-code=%d\n", R_IO_ERROR, status); 
+         goto bugout;       
+      }   
+   }
+   else
+   {
+      /* Process pml via snmp. */
+      SetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, type, data, dataLen, &status, &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }
+   }       
+   
+   len = sprintf(sendBuf, "msg=SetPMLResult\nresult-code=%d\npml-result-code=%d\n", R_AOK, status); 
+
+bugout:
+   return len;
+}
+
+//System::GetPml
+//!  Get a PML object from the hp device.
+/*!
+******************************************************************************/
+int System::GetPml(int device, int channel, char *snmp_oid, char *sendBuf)
+{
+   char res[] = "msg=GetPMLResult\nresult-code=%d\n";
+   char message[BUFFER_SIZE];
+   unsigned char oid[LINE_SIZE];
+   //   unsigned char cmd[LINE_SIZE+3];
+   unsigned char *p=(unsigned char *)message;
+   int len, dLen, result, reply, status, dt;
+   MsgAttributes ma;
+   Device *pD=pDevice[device];
+
+   if (strcasestr(pD->GetURI(), "usb/") != NULL)
+   {
+      /* Process pml via local transport. */
+
+      /* Convert snmp oid to pml oid. */
+      dLen = SnmpToPml(snmp_oid, oid, sizeof(oid));
+   
+      *p++ = PML_GET_REQUEST;
+      *p++ = PML_DT_OBJECT_IDENTIFIER;
+      *p++ = dLen;                          /* assume oid length is < 10 bits */
+      memcpy(p, oid, dLen);
+      len = pD->WriteData((unsigned char *)message, dLen+3, channel, message, &result);  
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }    
+
+      len = pD->ReadData(PML_MAX_DATALEN, channel, EXCEPTION_TIMEOUT, message, sizeof(message), &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }    
+
+      ParseMsg(message, len, &ma);
+
+      p = ma.data;
+      reply = *p++;       /* read command reply */
+      status = *p++;      /* read execution outcome */
+
+      if (reply != (PML_GET_REQUEST | 0x80) && status & 0x80)
+      {
+         syslog(LOG_ERR, "unable to execute System::GetPml: reply=%x outcome=%x\n", reply, status);
+         sysdump(p, ma.length-2);
+         len = sprintf(sendBuf, "msg=GetPMLResult\nresult-code=%d\npml-result-code=%d\n", R_IO_ERROR, status); 
+         goto bugout;       
+      }   
+
+      dt = *p++;       /* read data type */
+
+      if (dt == PML_DT_ERROR_CODE)
+      {
+         /* Ok, but invalid data type requested, get new data type. */
+         p += 2;       /* eat length and err code */
+         dt = *p++;  /* read data type */
+      } 
+
+      if (dt != PML_DT_OBJECT_IDENTIFIER)
+      {
+         syslog(LOG_ERR, "invald data type System::GetPml: type=%x\n", dt);
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }   
+
+      dLen = *p++;     /* read oid length */
+      p += dLen;       /* eat oid */
+
+      dt = *p;    /* read data type. */
+      dLen = ((*p & 0x3) << 8 | *(p+1));         /* read 10 bit len from 2 byte field */
+      p += 2;                               /* eat type and length */
+   }
+   else
+   {
+      /* Process pml via snmp. */
+      dLen = GetSnmp(((JetDirectDevice *)pD)->GetIP(), ((JetDirectDevice *)pD)->GetPort(), snmp_oid, (unsigned char *)message, sizeof(message), &dt, &status, &result);
+      if (result != R_AOK)
+      {
+         len = sprintf(sendBuf, res, R_IO_ERROR);
+         goto bugout;       
+      }
+      p = (unsigned char *)message;    
+   }       
+   
+   len = sprintf(sendBuf, "msg=GetPMLResult\nresult-code=%d\npml-result-code=%d\ntype=%d\nlength=%d\ndata:\n", R_AOK, status, dt, dLen); 
+   memcpy(&sendBuf[len], p, dLen);
+   len += dLen; 
+
+bugout:
+   return len;
+}
+
+//System::MakeUriFromIP
+//!  Given an IP address read deviceID and create valid URI.
+/*!
+******************************************************************************/
+int System::MakeUriFromIP(char *ip, int port, char *sendBuf)
+{
+   char res[] = "msg=MakeURIResult\nresult-code=%d\n";
+   int len=0, maxSize, result, dt, status;
+   char devid[1024];
+   char model[128];
+
+   if (ip[0]==0)
+   {
+      syslog(LOG_ERR, "invalid ip %s System::MakeUriFromIP\n", ip);
+      len = sprintf(sendBuf, res, R_INVALID_IP);
+      goto bugout;
+   }
+
+   if ((len = GetSnmp(ip, port, (char *)kStatusOID, (unsigned char *)devid, sizeof(devid), &dt, &status, &result)) == 0)
+   {
+      syslog(LOG_ERR, "unable to read System::MakeUriFromIP\n");
+      len = sprintf(sendBuf, res, R_IO_ERROR);
+      goto bugout;
+   }
+
+   if (IsHP(devid))
+   {
+      GetModel(devid, model, sizeof(model));
+      if (port == 1)
+         len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/net/%s?ip=%s\n", R_AOK, model, ip); 
+      else
+         len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/net/%s?ip=%s&port=%d\n", R_AOK, model, ip, port); 
+   }
+
+bugout:
+   return len;
+}
+
+//System::MakeUriFromDevice
+//!  Given an device node read deviceID and create valid URI.
+/*!
+******************************************************************************/
+int System::MakeUriFromDevice(char *dnode, char *sendBuf)
+{
+   char res[] = "msg=MakeURIResult\nresult-code=%d\n";
+   char dev[255];
+   char model[128];
+   char serial[128];
+   char dummyBuf[2048];
+   char *id;
+   int len, size=0, result;
+   Device *pD=NULL;
+
+   len = sprintf(sendBuf, res, R_INVALID_DEVICE_NODE);
+
+   if (dnode[0]==0)
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      goto bugout;
+   }
+
+   sprintf(dev, "hp:/usb/ANY?device=%s", dnode);  /* dnode = /dev/usb/lpxx or /dev/udev_name */
+
+   pD = NewDevice(dev);
+   pD->Open(dummyBuf, &result);
+   if (result != R_AOK)
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      goto bugout;
+   }
+
+   id = pD->GetID(); /* use cached copy */
+
+   if (!IsHP(id))
+   {
+      syslog(LOG_ERR, "invalid device node %s System::MakeUriFromDevice: line %d\n", dnode, __LINE__);
+      goto bugout;
+   }
+
+   GetModel(id, model, sizeof(model));
+   GetSerialNum(id, serial, sizeof(serial));
+   if ((strcmp(serial, "")==0) || IsUdev(dnode))
+      len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/usb/%s?device=%s\n", R_AOK, model, dnode); 
+   else
+      len = sprintf(sendBuf, "msg=MakeURIResult\nresult-code=%d\ndevice-uri=hp:/usb/%s?serial=%s\n", R_AOK, model, serial); 
+
+bugout:
+   if (pD != NULL)
+   {
+      pD->Close(dummyBuf, &result);
+      DelDevice(pD->GetIndex());
+   }
+
+   return len;
+}
+
 //System::ParseMsg
 //!  Parse and convert all key value pairs in message. Do sanity check on values.
 /*!
@@ -606,6 +1172,10 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
    ma->service[0] = 0;
    ma->io_mode[0] = 0;
    ma->flow_ctl[0] = 0;
+   ma->oid[0] = 0;
+   ma->ip[0] = 0;
+   ma->dnode[0] = 0;
+   ma->type = PML_DT_UNKNOWN;
    ma->descriptor = -1;
    ma->length = 0;
    ma->channel = -1;
@@ -613,6 +1183,7 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
    ma->data = NULL;
    ma->result = -1;
    ma->timeout = EXCEPTION_TIMEOUT;
+   ma->ip_port = 1;
 
    i = GetPair(buf, key, value, &tail);
    if (strcasecmp(key, "msg") != 0)
@@ -707,6 +1278,37 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       {
          strncpy(ma->flow_ctl, value, sizeof(ma->flow_ctl));    /* gusher | miser */
       }
+      else if (strcasecmp(key, "oid") == 0)
+      {
+         strncpy(ma->oid, value, sizeof(ma->oid));
+      }
+      else if (strcasecmp(key, "type") == 0)
+      {
+        //         strncpy(ma->type, value, sizeof(ma->type)); 
+         ma->type = strtol(value, &tail2, 10);
+      }
+      else if (strcasecmp(key, "hostname") == 0)
+      {
+         strncpy(ma->ip, value, sizeof(ma->ip));
+      }
+      else if (strcasecmp(key, "port") == 0)
+      {
+         ma->ip_port = strtol(value, &tail2, 10);
+         if (ma->ip_port < 1 || ma->ip_port > 3)
+         {
+            syslog(LOG_ERR, "invalid ip port:%d\n", ma->ip_port);
+            ret = R_INVALID_IP_PORT;
+            break;
+         }
+      }
+      else if (strcasecmp(key, "type") == 0)
+      {
+         ma->ip_port = strtol(value, &tail2, 10);
+      }
+      else if (strcasecmp(key, "device-file") == 0)
+      {
+         strncpy(ma->dnode, value, sizeof(ma->dnode));
+      }
       else
       {
          /* Unknown keys are ignored (R_AOK). */
@@ -721,14 +1323,24 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
 //!  Client was aborted pre-maturely, close the device.
 /*!
 ******************************************************************************/
-int System::DeviceCleanUp(int index)
+int System::DeviceCleanUp(SessionAttributes *psa)
 {
    char dummyBuf[255];
-   int dummy;
+   int i, dummy;
+   Device *pD = pDevice[psa->descriptor];
 
-   syslog(LOG_INFO, "device cleanup id=%d\n", index);
-   pDevice[index]->Close(dummyBuf, &dummy);
-   DelDevice(index);
+   for (i=0; i<MAX_CHANNEL; i++)
+   {
+      if (psa->channel[i])
+      {
+         syslog(LOG_INFO, "channel cleanup id=%d\n", i);
+         pD->ChannelClose(i, dummyBuf, &dummy);
+      }
+   }
+
+   syslog(LOG_INFO, "device cleanup id=%d\n", psa->descriptor);
+   pD->Close(dummyBuf, &dummy);
+   DelDevice(psa->descriptor);
 
    return 0;
 }
@@ -861,7 +1473,9 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    }
    else
    {
-      syslog(LOG_INFO, "tid:%x %s di=%d ci=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.length);
+      syslog(LOG_INFO, "tid:%x %s di=%d ci=%d oid=%s size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.oid, ma.length);
+      if (ma.length < 64)
+	sysdump(ma.data, ma.length);
    }
 #endif
 
@@ -882,6 +1496,14 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    {
       pD = pDevice[ma.descriptor];
       len = pD->ReadData(ma.readlen, ma.channel, ma.timeout, sendBuf, slen, &ret);       
+   }
+   else if (strcasecmp(ma.cmd, "SetPML") == 0)
+   {
+      len = SetPml(ma.descriptor, ma.channel, ma.oid, ma.type, ma.data, ma.length, sendBuf);       
+   }
+   else if (strcasecmp(ma.cmd, "GetPML") == 0)
+   {
+      len = GetPml(ma.descriptor, ma.channel, ma.oid, sendBuf);       
    }
    else if (strcasecmp(ma.cmd, "DeviceOpen") == 0)
    {
@@ -909,17 +1531,21 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
       pD = pDevice[ma.descriptor];
       len = pD->Close(sendBuf, &ret);
       DelDevice(ma.descriptor);
-      psa->descriptor = -1;  /* mark session as clean */     
+      psa->descriptor = -1;  /*  track device descriptor for session clean up */     
    }
    else if (strcasecmp(ma.cmd, "ChannelOpen") == 0)
    {
+      int channel;
       pD = pDevice[ma.descriptor];
-      len = pD->ChannelOpen(ma.service, ma.io_mode, ma.flow_ctl, sendBuf, &ret);
+      len = pD->ChannelOpen(ma.service, ma.io_mode, ma.flow_ctl, &channel, sendBuf, &ret);
+      if (ret == R_AOK)
+         psa->channel[channel] = 1;   /* track channel descriptor for session clean up */
    }
    else if (strcasecmp(ma.cmd, "ChannelClose") == 0)
    {
       pD = pDevice[ma.descriptor];
       len = pD->ChannelClose(ma.channel, sendBuf, &ret);
+      psa->channel[ma.channel] = 0;   /* track channel descriptor for session clean up */
    }
    else if (strcasecmp(ma.cmd, "ProbeDevices") == 0)
    {
@@ -928,6 +1554,13 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    else if (strcasecmp(ma.cmd, "DeviceFile") == 0)
    {
       len = sprintf(sendBuf, "msg=DeviceFileResult\nresult-code=%d\ndevice-file=%s\n", R_AOK, ma.uri);
+   }
+   else if (strcasecmp(ma.cmd, "MakeURI") == 0)
+   {
+      if (ma.ip[0])
+         len = MakeUriFromIP(ma.ip, ma.ip_port, sendBuf);
+      else 
+         len = MakeUriFromDevice(ma.dnode, sendBuf);     
    }
    else
    {
@@ -945,6 +1578,8 @@ int System::ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *se
    else
    {
       syslog(LOG_INFO, "-tid:%x %s di=%d ci=%d size=%d\n", psa->tid, ma.cmd, ma.descriptor, ma.channel, ma.length);
+      if (ma.length < 64)
+	sysdump(ma.data, ma.length);
    }
 #endif
 

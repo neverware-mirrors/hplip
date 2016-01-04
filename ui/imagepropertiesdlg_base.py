@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/imagepropertiesdlg_base.ui'
+# Form implementation generated from reading ui file '/home/pparks/linux-imaging-and-printing/src/ui/imagepropertiesdlg_base.ui'
 #
-# Created: Tue Aug 24 15:14:17 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.11
+# Created: Thu Mar 10 14:15:39 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.13
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -22,17 +22,6 @@ class ImagePropertiesDlg_base(QDialog):
 
         ImagePropertiesDlg_baseLayout = QGridLayout(self,1,1,11,6,"ImagePropertiesDlg_baseLayout")
 
-        self.line1 = QFrame(self,"line1")
-        self.line1.setFrameShape(QFrame.HLine)
-        self.line1.setFrameShadow(QFrame.Sunken)
-        self.line1.setFrameShape(QFrame.HLine)
-
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.line1,1,1,0,3)
-
-        self.FilenameText = QLabel(self,"FilenameText")
-
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.FilenameText,0,0,0,2)
-
         self.textLabel6 = QLabel(self,"textLabel6")
 
         ImagePropertiesDlg_baseLayout.addWidget(self.textLabel6,3,0)
@@ -45,53 +34,66 @@ class ImagePropertiesDlg_base(QDialog):
 
         ImagePropertiesDlg_baseLayout.addWidget(self.textLabel10,2,0)
 
-        self.pushButton6 = QPushButton(self,"pushButton6")
+        self.EXifDataListView = QListView(self,"EXifDataListView")
+        self.EXifDataListView.addColumn(self.__tr("EXIF Labels"))
+        self.EXifDataListView.header().setResizeEnabled(0,self.EXifDataListView.header().count() - 1)
+        self.EXifDataListView.addColumn(self.__tr("Contents "))
+        self.EXifDataListView.setSizePolicy(QSizePolicy(7,7,0,0,self.EXifDataListView.sizePolicy().hasHeightForWidth()))
+        self.EXifDataListView.setMinimumSize(QSize(400,100))
+        self.EXifDataListView.setFrameShadow(QListView.Sunken)
+        self.EXifDataListView.setResizeMode(QListView.AllColumns)
 
-        ImagePropertiesDlg_baseLayout.addWidget(self.pushButton6,6,3)
-        spacer5 = QSpacerItem(31,130,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        ImagePropertiesDlg_baseLayout.addItem(spacer5,5,2)
-        spacer3 = QSpacerItem(160,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        ImagePropertiesDlg_baseLayout.addItem(spacer3,6,2)
-
-        self.ViewEXIFButton = QPushButton(self,"ViewEXIFButton")
-        self.ViewEXIFButton.setEnabled(0)
-
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.ViewEXIFButton,6,6,0,1)
-        spacer4 = QSpacerItem(20,120,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        ImagePropertiesDlg_baseLayout.addItem(spacer4,5,0)
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.EXifDataListView,5,5,0,2)
 
         self.LocationText = QLabel(self,"LocationText")
 
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.LocationText,2,2,1,3)
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.LocationText,2,2,1,2)
 
         self.MimeTypeText = QLabel(self,"MimeTypeText")
 
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.MimeTypeText,3,3,1,3)
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.MimeTypeText,3,3,1,2)
 
         self.SizeText = QLabel(self,"SizeText")
 
-        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.SizeText,4,4,1,3)
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.SizeText,4,4,1,2)
+
+        self.FilenameText = QLabel(self,"FilenameText")
+
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.FilenameText,0,0,0,2)
+
+        self.line1 = QFrame(self,"line1")
+        self.line1.setFrameShape(QFrame.HLine)
+        self.line1.setFrameShadow(QFrame.Sunken)
+        self.line1.setFrameShape(QFrame.HLine)
+
+        ImagePropertiesDlg_baseLayout.addMultiCellWidget(self.line1,1,1,0,2)
+        spacer3 = QSpacerItem(300,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        ImagePropertiesDlg_baseLayout.addMultiCell(spacer3,6,6,0,1)
+
+        self.pushButton6 = QPushButton(self,"pushButton6")
+
+        ImagePropertiesDlg_baseLayout.addWidget(self.pushButton6,6,2)
 
         self.languageChange()
 
-        self.resize(QSize(375,312).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(431,388).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.pushButton6,SIGNAL("clicked()"),self,SLOT("close()"))
-        self.connect(self.ViewEXIFButton,SIGNAL("clicked()"),self.ViewEXIFButton_clicked)
+        self.connect(self.pushButton6,SIGNAL("clicked()"),self.close)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Properties for"))
-        self.FilenameText.setText(self.__tr("FILENAME"))
         self.textLabel6.setText(self.__tr("MIME Type:"))
         self.textLabel8.setText(self.__tr("Size:"))
         self.textLabel10.setText(self.__tr("Location:"))
-        self.pushButton6.setText(self.__tr("OK"))
-        self.ViewEXIFButton.setText(self.__tr("View EXIF information..."))
+        self.EXifDataListView.header().setLabel(0,self.__tr("EXIF Labels"))
+        self.EXifDataListView.header().setLabel(1,self.__tr("Contents "))
         self.LocationText.setText(self.__tr("LOCATION"))
         self.MimeTypeText.setText(self.__tr("MIME TYPE"))
         self.SizeText.setText(self.__tr("SIZE"))
+        self.FilenameText.setText(self.__tr("FILENAME"))
+        self.pushButton6.setText(self.__tr("OK"))
 
 
     def ViewEXIFButton_clicked(self):

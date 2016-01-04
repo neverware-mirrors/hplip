@@ -427,7 +427,7 @@ DRIVER_ERROR Job::sendrasters(BYTE* BlackImageData, BYTE* ColorImageData)
 		{
 		   CAPy += fcount/1000;
 
-			err = thePrinter->SkipRasters ((fcount / 1000)); // needed for Crossbow
+			err = thePrinter->SkipRasters ((fcount / 1000)); // needed for DJ3320
 			ERRCHECK;
 		    fcount =fcount % 1000;
 		}
@@ -502,7 +502,7 @@ DRIVER_ERROR Job::newpage()
     // reset vertical cursor counter
     if (thePrinter->UseGUIMode(thePrintContext->CurrentMode) &&
         ((int) (thePrintContext->PrintableStartY () * 100)) != 0)
-    // Venice in GUImode doesn't accept top-margin setting, so we use CAP for topmargin
+    // DJ895 in GUImode doesn't accept top-margin setting, so we use CAP for topmargin
     // Start at the top for full-bleed printing - PhotoSmart 100 for now
     {
         CAPy = thePrintContext->GUITopMargin();

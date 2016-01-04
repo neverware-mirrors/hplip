@@ -46,10 +46,6 @@ public:
 
     virtual Header* SelectHeader(PrintContext* pc);
 
-
-protected:
-
-
 }; //DJ350
 
 #ifdef APDK_DJ350

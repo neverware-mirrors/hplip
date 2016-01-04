@@ -292,6 +292,11 @@ Enables support for the JetReady host based Color LaserJets.
 #define APDK_LJJETREADY
 
 /*!
+Enables support for the FastRaster host based LaserJets.
+*/
+#define APDK_LJFASTRASTER
+
+/*!
 Enables support for the hp and non-hp Postscript Printers
 */
 #define APDK_PSCRIPT
@@ -320,6 +325,12 @@ that have low power CPUs.
 
 /*! @} */  //end of Printer Options group
 /*! @} */  //end of Build Options group
+
+/*!
+Enables support for HP-UX specific declarations
+*/
+
+#define APDK_HP_UX
 
 #endif //APDK_INTERNAL_CREATE_DOCUMENTATION
 /*

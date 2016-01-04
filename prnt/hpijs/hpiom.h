@@ -46,7 +46,7 @@ enum RESULT_CODE
    R_INVALID_LENGTH = 8,
    R_IO_ERROR = 12,
    R_INVALID_CHANNEL_ID = 30,
-   R_CHANNEL_BUSY = 31,
+   R_CHANNEL_BUSY = 31
 };
 
 typedef struct

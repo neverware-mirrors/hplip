@@ -43,20 +43,20 @@ APDK_END_NAMESPACE
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapCROSSBOW_K_3x3x1[9 * 9 * 9];
-extern uint32_t ulMapCROSSBOW_K_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapCROSSBOW_CMY_3x3x1[9 * 9 * 9];
-extern uint32_t ulMapCROSSBOW_CMY_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapCROSSBOW_KCMY_3x3x1[9 * 9 * 9];
-extern uint32_t ulMapCROSSBOW_KCMY_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapBROADWAY_Gossimer_Normal_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ3320_K_3x3x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3320_K_6x6x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3320_CMY_3x3x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3320_CMY_6x6x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3320_KCMY_3x3x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3320_KCMY_6x6x1[9 * 9 * 9];
+extern uint32_t ulMapDJ970_Gossimer_Normal_KCMY[ 9 * 9 * 9 ];
 
-extern uint32_t ulMapSpear_KCMY_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapSpear_ClMlxx_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapSpear_KCMY_6x6x2[9 * 9 * 9];
-extern uint32_t ulMapSpear_ClMlxx_6x6x2[9 * 9 * 9];
-extern uint32_t ulMapSpear_KCMY_3x3x1[9 * 9 * 9];
-extern uint32_t ulMapSpear_ClMlxx_3x3x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_KCMY_6x6x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_ClMlxx_6x6x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_KCMY_6x6x2[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_ClMlxx_6x6x2[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_KCMY_3x3x1[9 * 9 * 9];
+extern uint32_t ulMapDJ3600_ClMlxx_3x3x1[9 * 9 * 9];
 
 extern void AsciiHexToBinary(BYTE* dest, char* src, int count);
 
@@ -76,12 +76,12 @@ DJ3320::DJ3320 (SystemServices* pSS, BOOL proto)
         bCheckForCancelButton = TRUE;
         constructor_error = VerifyPenInfo ();
         CERRCHECK;
-        pSS->GetVertAlignFromDevice();
+//        pSS->GetVertAlignFromDevice();
     }
     else
         ePen = BOTH_PENS;    // matches default mode
 
-    CMYMap = ulMapCROSSBOW_CMY_3x3x1;
+    CMYMap = ulMapDJ3320_CMY_3x3x1;
     InitPrintModes ();
 
     if (pSendBuffer)
@@ -96,33 +96,33 @@ void    DJ3320::InitPrintModes ()
 {
     if (ePen == BLACK_PEN || ePen == MDL_PEN)
     {
-        pMode[GRAYMODE_INDEX]    = new CrossBowKDraftMode ();
-        pMode[DEFAULTMODE_INDEX] = new CrossBowGrayMode (ePen);
+        pMode[GRAYMODE_INDEX]    = new DJ3320KDraftMode ();
+        pMode[DEFAULTMODE_INDEX] = new DJ3320GrayMode (ePen);
         ModeCount = 2;
     }
     else if (ePen == BOTH_PENS)
     {
-        pMode[GRAYMODE_INDEX]       = new CrossBowGrayMode (ePen);
-        pMode[DEFAULTMODE_INDEX]    = new CrossBowNormalMode (ePen);
-        pMode[SPECIALMODE_INDEX]    = new CrossBowPhotoMode ();
-        pMode[SPECIALMODE_INDEX+1]  = new CrossBowKDraftMode ();
-        pMode[SPECIALMODE_INDEX+2]  = new CrossBowDraftMode (ePen);
+        pMode[GRAYMODE_INDEX]       = new DJ3320GrayMode (ePen);
+        pMode[DEFAULTMODE_INDEX]    = new DJ3320NormalMode (ePen);
+        pMode[SPECIALMODE_INDEX]    = new DJ3320PhotoMode ();
+        pMode[SPECIALMODE_INDEX+1]  = new DJ3320KDraftMode ();
+        pMode[SPECIALMODE_INDEX+2]  = new DJ3320DraftMode (ePen);
         ModeCount = 5;
     }
 	else if (ePen == MDL_BOTH)
 	{
-		pMode[GRAYMODE_INDEX]       = new CrossBowGrayMode (ePen);
-        pMode[DEFAULTMODE_INDEX]    = new SpearMDLNormalMode ();
-        pMode[SPECIALMODE_INDEX]    = new CrossBowKDraftMode ();
-		pMode[SPECIALMODE_INDEX+1]  = new SpearMDLDraftMode ();
-		pMode[SPECIALMODE_INDEX+2]  = new SpearMDLPhotoMode ();
+		pMode[GRAYMODE_INDEX]       = new DJ3320GrayMode (ePen);
+        pMode[DEFAULTMODE_INDEX]    = new DJ3600MDLNormalMode ();
+        pMode[SPECIALMODE_INDEX]    = new DJ3320KDraftMode ();
+		pMode[SPECIALMODE_INDEX+1]  = new DJ3600MDLDraftMode ();
+		pMode[SPECIALMODE_INDEX+2]  = new DJ3600MDLPhotoMode ();
         ModeCount = 5;
 	}
     else
     {
-        pMode[DEFAULTMODE_INDEX]    = new CrossBowNormalMode (ePen);
-        pMode[SPECIALMODE_INDEX]    = new CrossBowPhotoMode ();
-        pMode[GRAYMODE_INDEX]       = new CrossBowDraftMode (ePen);
+        pMode[DEFAULTMODE_INDEX]    = new DJ3320NormalMode (ePen);
+        pMode[SPECIALMODE_INDEX]    = new DJ3320PhotoMode ();
+        pMode[GRAYMODE_INDEX]       = new DJ3320DraftMode (ePen);
         ModeCount = 3;
     }
 }
@@ -167,11 +167,11 @@ DJ3320::~DJ3320 ()
     pSendBuffer = NULL;
 }
 
-CrossBowGrayMode::CrossBowGrayMode (PEN_TYPE ePen) : PrintMode (ulMapCROSSBOW_K_6x6x1)
+DJ3320GrayMode::DJ3320GrayMode (PEN_TYPE ePen) : PrintMode (ulMapDJ3320_K_6x6x1)
 {
 	if (ePen == MDL_BOTH)
 	{
-		cmap.ulMap2 = ulMapSpear_ClMlxx_6x6x1;
+		cmap.ulMap2 = ulMapDJ3600_ClMlxx_6x6x1;
 	}
 
     ColorDepth[K] = 1;
@@ -192,7 +192,7 @@ CrossBowGrayMode::CrossBowGrayMode (PEN_TYPE ePen) : PrintMode (ulMapCROSSBOW_K_
     Config.bCompress = FALSE;
 }
 
-CrossBowKDraftMode::CrossBowKDraftMode () : GrayMode (ulMapCROSSBOW_K_3x3x1)
+DJ3320KDraftMode::DJ3320KDraftMode () : GrayMode (ulMapDJ3320_K_3x3x1)
 {
     bFontCapable = FALSE;
     Config.bCompress = FALSE;
@@ -202,14 +202,14 @@ CrossBowKDraftMode::CrossBowKDraftMode () : GrayMode (ulMapCROSSBOW_K_3x3x1)
 	CompatiblePens[3] = MDL_PEN;
 }
 
-CrossBowDraftMode::CrossBowDraftMode (PEN_TYPE ePen)
-: PrintMode (ulMapCROSSBOW_KCMY_3x3x1)
+DJ3320DraftMode::DJ3320DraftMode (PEN_TYPE ePen)
+: PrintMode (ulMapDJ3320_KCMY_3x3x1)
 {
 
     if (ePen == COLOR_PEN)
     {
         CompatiblePens[1] = ePen;
-        cmap.ulMap1 = ulMapCROSSBOW_CMY_3x3x1;
+        cmap.ulMap1 = ulMapDJ3320_CMY_3x3x1;
         dyeCount = 3;
     }
 
@@ -230,14 +230,14 @@ CrossBowDraftMode::CrossBowDraftMode (PEN_TYPE ePen)
 //    strcpy(ModeName, "Draft");
 }
 
-CrossBowNormalMode::CrossBowNormalMode (PEN_TYPE ePen)
-: PrintMode (ulMapCROSSBOW_KCMY_6x6x1)
+DJ3320NormalMode::DJ3320NormalMode (PEN_TYPE ePen)
+: PrintMode (ulMapDJ3320_KCMY_6x6x1)
 {
 
     if (ePen == COLOR_PEN)
     {
         CompatiblePens[1] = ePen;
-        cmap.ulMap1 = ulMapCROSSBOW_CMY_6x6x1;
+        cmap.ulMap1 = ulMapDJ3320_CMY_6x6x1;
         dyeCount = 3;
     }
 
@@ -259,8 +259,8 @@ CrossBowNormalMode::CrossBowNormalMode (PEN_TYPE ePen)
 //    strcpy(ModeName, "Normal");
 }
 
-CrossBowPhotoMode::CrossBowPhotoMode ()
-: PrintMode (ulMapBROADWAY_Gossimer_Normal_KCMY)
+DJ3320PhotoMode::DJ3320PhotoMode ()
+: PrintMode (ulMapDJ970_Gossimer_Normal_KCMY)
 {
 
     for (int i = 0; i < 4; i++)
@@ -294,8 +294,8 @@ CrossBowPhotoMode::CrossBowPhotoMode ()
 //
 // Plain Normal Print Mode for Photo and Color Pen
 //
-SpearMDLNormalMode::SpearMDLNormalMode()
-: PrintMode( ulMapSpear_KCMY_6x6x1, ulMapSpear_ClMlxx_6x6x1 )
+DJ3600MDLNormalMode::DJ3600MDLNormalMode()
+: PrintMode( ulMapDJ3600_KCMY_6x6x1, ulMapDJ3600_ClMlxx_6x6x1 )
 {
 	dyeCount=6;
 	CompatiblePens[0] = MDL_BOTH;
@@ -319,8 +319,8 @@ SpearMDLNormalMode::SpearMDLNormalMode()
 //
 // Photo Best Print Mode for Photo and Color Pen
 //
-SpearMDLPhotoMode::SpearMDLPhotoMode()
-: PrintMode( ulMapSpear_KCMY_6x6x2, ulMapSpear_ClMlxx_6x6x2 )
+DJ3600MDLPhotoMode::DJ3600MDLPhotoMode()
+: PrintMode( ulMapDJ3600_KCMY_6x6x2, ulMapDJ3600_ClMlxx_6x6x2 )
 {
 	dyeCount=6;
 	CompatiblePens[0] = MDL_BOTH;
@@ -353,8 +353,8 @@ SpearMDLPhotoMode::SpearMDLPhotoMode()
 //
 // Draft Mode for Photo and Color Pen
 //
-SpearMDLDraftMode::SpearMDLDraftMode()
-: PrintMode( ulMapSpear_KCMY_3x3x1, ulMapSpear_ClMlxx_3x3x1 )
+DJ3600MDLDraftMode::DJ3600MDLDraftMode()
+: PrintMode( ulMapDJ3600_KCMY_3x3x1, ulMapDJ3600_ClMlxx_3x3x1 )
 {
 	dyeCount=6;
 	CompatiblePens[0] = MDL_BOTH;
@@ -1251,12 +1251,12 @@ DRIVER_ERROR DJ3320::CheckInkLevel()
     err = pSS->GetDeviceID(bDevIDBuff, DevIDBuffSize, TRUE);
     if (err!=NO_ERROR)
     {
-        return err;
+        return NO_ERROR;
     }
 
     if ( (pStr=(char *)strstr((const char*)bDevIDBuff+2,";S:")) == NULL )
     {
-        return SYSTEM_ERROR;
+        return NO_ERROR;
     }
 
     pStr += 21;
@@ -1458,7 +1458,7 @@ LDLEncap::LDLEncap (DJ3320 *pPrinter, SystemServices *pSys, PrintContext *pc)
 		 *      To get the printer to do fullbleed printing, move the vertical postion 
 		 *      to cover the overspary. Overspray is needed to take care of
 		 *      skew during paper pick. These values may be mech dependent.
-		 *      Currently, supported only on PhotoSmart 100, Malibu. Spear supports
+		 *      Currently, supported only on PhotoSmart 100, Malibu. DJ3600 supports
 		 *      fullbleed printing also. The current values for overspray are
 		 *      0.059 inch for top, bottom and left edges and 0.079 for right edge.
 		 */
@@ -1748,7 +1748,7 @@ DRIVER_ERROR LDLEncap::SetVerticalSkip (int nBlankRasters)
     }
 #endif
     int     iCount = m_iNumColors * m_iBitDepth;
-    if (m_iBitDepth == 2)
+    if (m_iBitDepth == 2 && m_iNumColors != 6)
         iCount++;
 
     while (nBlankRasters > 0)
@@ -3079,7 +3079,7 @@ DRIVER_ERROR LDLEncap::EndPage ()
 		 *      To get the printer to do fullbleed printing, move the vertical postion 
 		 *      to cover the overspary. Overspray is needed to take care of
 		 *      skew during paper pick. These values may be mech dependent.
-		 *      Currently, supported only on PhotoSmart 100, Malibu. Spear supports
+		 *      Currently, supported only on PhotoSmart 100, Malibu. DJ3600 supports
 		 *      fullbleed printing also. The current values for overspray are
 		 *      0.059 inch for top, bottom and left edges and 0.079 for right edge.
 		 */

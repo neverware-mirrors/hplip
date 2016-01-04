@@ -25,82 +25,15 @@
 
 #include "hpiod.h"
 
-static const char *kStatusOID = "1.3.6.1.4.1.11.2.3.9.1.1.7.0";            /* device id oid */
-static const char *SnmpPort[] = { "","public.1","public.2","public.3" };
-
-#ifdef HAVE_LIBSNMP
-#include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-includes.h>
-#include <net-snmp/types.h>
-
-int JetDirectDevice::GetSnmpStr(char *szoid, char *buffer, int size)
-{
-   struct snmp_session session, *ss=NULL;
-   struct snmp_pdu *pdu=NULL;
-   struct snmp_pdu *response=NULL;
-   int len=0;
-   oid anOID[MAX_OID_LEN];
-   size_t anOID_len = MAX_OID_LEN;
-   struct variable_list *vars;
-   int status;
-   int count=1;
-
-   init_snmp("snmpapp");
-
-   snmp_sess_init(&session );                   /* set up defaults */
-   session.peername = IP;
-   session.version = SNMP_VERSION_1;
-   session.community = (unsigned char *)SnmpPort[Port];
-   session.community_len = strlen((const char *)session.community);
-   SOCK_STARTUP;
-   ss = snmp_open(&session);                     /* establish the session */
-   if (ss == NULL)
-      goto bugout;
-
-   pdu = snmp_pdu_create(SNMP_MSG_GET);
-   read_objid(szoid, anOID, &anOID_len);
-   snmp_add_null_var(pdu, anOID, anOID_len);
-  
-   /* Send the request and get response. */
-   status = snmp_synch_response(ss, pdu, &response);
-
-   if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) 
-   {
-      vars = response->variables;
-      if (vars->type == ASN_OCTET_STR) 
-      {
-         len = (vars->val_len < size) ? vars->val_len : size-1;
-         memcpy(buffer, vars->val.string, len);
-         buffer[len] = 0;
-      }
-   }
-
-bugout:
-   if (response != NULL)
-      snmp_free_pdu(response);
-   if (ss != NULL)
-      snmp_close(ss);
-    SOCK_CLEANUP;
-    return len;
-}
-
-#else
-
-int JetDirectDevice::GetSnmpStr(char *szoid, char *buffer, int size)
-{
-   syslog(LOG_ERR, "no JetDirect support enabled\n");
-   return 0;
-}
-
-#endif
+extern const char *kStatusOID;            /* device id oid */
 
 int JetDirectDevice::DeviceID(char *buffer, int size)
 {
-   int len=0, maxSize;
+   int len=0, maxSize, result, dt, status;
 
    maxSize = (size > 1024) ? 1024 : size;   /* RH8 has a size limit for device id */
 
-   if ((len = GetSnmpStr((char *)kStatusOID, buffer, size)) == 0)
+   if ((len = pSys->GetSnmp(GetIP(), GetPort(), (char *)kStatusOID, (unsigned char *)buffer, maxSize, &dt, &status, &result)) == 0)
       syslog(LOG_ERR, "unable to read JetDirectDevice::DeviceID\n");
 
    return len; /* length does not include zero termination */
@@ -206,7 +139,7 @@ int JetDirectDevice::GetDeviceStatus(char *sendBuf, int *result)
 
    *result = R_AOK;
 
-   len = sprintf(sendBuf, res, *result, status, "NoFault");  /* no 8-bit status */
+   len = sprintf(sendBuf, res, *result, status, "NoFault");  /* there is no 8-bit status, so fake it */
 
    return len;
 }
@@ -256,7 +189,7 @@ rjmp:
 Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *io_mode, char *unused)
 {
    Channel *pC=NULL;
-   int i, n, mode;
+   int i, n;
 
    /* Check for existing name service already open. */
    for (i=1, n=0; i<MAX_CHANNEL && n<ChannelCnt; i++)
@@ -266,8 +199,11 @@ Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *io_mode, char *
          n++;
          if (sockid == pChannel[i]->GetSocketID())
          {
-            pC = pChannel[i];   /* same channel, re-use it */
-            pC->SetClientCnt(pC->GetClientCnt()+1);
+            if (sockid == PML_CHANNEL)
+            {
+               pC = pChannel[i];   /* same channel, re-use it (PML only) */
+               pC->SetClientCnt(pC->GetClientCnt()+1);
+            }
             goto bugout;
          }
       }
@@ -286,7 +222,6 @@ Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *io_mode, char *
          pC->SetSocketID(sockid);
          pChannel[i] = pC;
          ChannelCnt++;
-         ChannelMode = mode;
          break;
       }
    }     

@@ -144,7 +144,7 @@ typedef   signed int   TIFF_SLONG;    /* 32 bits */
 
 /* TIFF file header defines */
 #define INTEL                 0x4949
-#define VERSION               42
+#define TIFF_VERSION          42
 
 /* TIFF field lengths */
 #define TIFFBYTE              1

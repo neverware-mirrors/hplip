@@ -45,12 +45,12 @@ APDK_END_NAMESPACE
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapBROADWAY_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapBROADWAY_KCMY_3x3x2[ 9 * 9 * 9 ];
-extern uint32_t ulMapBROADWAY_Gossimer_Normal_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ970_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ970_KCMY_3x3x2[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ970_Gossimer_Normal_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 extern uint32_t ulMapGRAY_K_6x6x1[9 * 9 * 9];
-extern uint32_t ulMapBROADWAY_Draft_KCMY[9 * 9 * 9];
+extern uint32_t ulMapDJ970_Draft_KCMY[9 * 9 * 9];
 
 extern void AsciiHexToBinary(BYTE* dest, char* src, int count);
 
@@ -66,8 +66,8 @@ DJ9xx::DJ9xx(SystemServices* pSS, BOOL proto)
     else ePen=BOTH_PENS;    // matches default mode
 
 
-    pMode[DEFAULTMODE_INDEX] = new BroadwayMode1();   // Normal Color
-    pMode[SPECIALMODE_INDEX] = new BroadwayMode2();   // Photo
+    pMode[DEFAULTMODE_INDEX] = new DJ970Mode1();   // Normal Color
+    pMode[SPECIALMODE_INDEX] = new DJ970Mode2();   // Photo
 
 #ifdef APDK_AUTODUPLEX
 /*
@@ -79,25 +79,25 @@ DJ9xx::DJ9xx(SystemServices* pSS, BOOL proto)
 #endif
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-    pMode[GRAYMODE_INDEX]      = new BroadwayMode3 ();   // Draft Grayscale K
-    pMode[SPECIALMODE_INDEX+1] = new BroadwayMode4 ();   // Normal Grayscale K
-    pMode[SPECIALMODE_INDEX+2] = new BroadwayMode5 ();   // Draft Color
-    pMode[SPECIALMODE_INDEX+3] = new BroadwayModePres();       // Best Color
-    pMode[SPECIALMODE_INDEX+4] = new BroadwayModePhotoPres();  // HiRes
+    pMode[GRAYMODE_INDEX]      = new DJ970Mode3 ();   // Draft Grayscale K
+    pMode[SPECIALMODE_INDEX+1] = new DJ970Mode4 ();   // Normal Grayscale K
+    pMode[SPECIALMODE_INDEX+2] = new DJ970Mode5 ();   // Draft Color
+    pMode[SPECIALMODE_INDEX+3] = new DJ970ModePres();       // Best Color
+    pMode[SPECIALMODE_INDEX+4] = new DJ970ModePhotoPres();  // HiRes
     ModeCount=7;
 #else
-    pMode[GRAYMODE_INDEX]    = new GrayMode (ulMapVOLTAIRE_CCM_K);
+    pMode[GRAYMODE_INDEX]    = new GrayMode (ulMapDJ600_CCM_K);
     ModeCount=3;
 #endif
 
-    CMYMap = ulMapBROADWAY_KCMY;
+    CMYMap = ulMapDJ970_KCMY;
 }
 
 DJ9xx::~DJ9xx()
 { }
 
-BroadwayMode1::BroadwayMode1()   // Normal Color
-: PrintMode(ulMapBROADWAY_KCMY_3x3x2)
+DJ970Mode1::DJ970Mode1()   // Normal Color
+: PrintMode(ulMapDJ970_KCMY_3x3x2)
 // 600x600x1 K
 // 300x300x2 CMY
 {
@@ -117,8 +117,8 @@ BroadwayMode1::BroadwayMode1()   // Normal Color
     ColorFEDTable = (BYTE*) HT300x3004level970_open;
 }
 
-BroadwayMode2::BroadwayMode2()    // Photo
-: PrintMode(ulMapBROADWAY_Gossimer_Normal_KCMY)
+DJ970Mode2::DJ970Mode2()    // Photo
+: PrintMode(ulMapDJ970_Gossimer_Normal_KCMY)
 // 600x600x1 K
 // 600x600x2 CMY
 {
@@ -149,7 +149,7 @@ BroadwayMode2::BroadwayMode2()    // Photo
 }
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-BroadwayMode3::BroadwayMode3 () : GrayMode (ulMapVOLTAIRE_CCM_K)   // Draft Grayscale K
+DJ970Mode3::DJ970Mode3 () : GrayMode (ulMapDJ600_CCM_K)   // Draft Grayscale K
 {
 #ifdef APDK_AUTODUPLEX
     bDuplexCapable = TRUE;
@@ -158,7 +158,7 @@ BroadwayMode3::BroadwayMode3 () : GrayMode (ulMapVOLTAIRE_CCM_K)   // Draft Gray
     theQuality = qualityDraft;
 }
 
-BroadwayMode4::BroadwayMode4 () : PrintMode (ulMapGRAY_K_6x6x1)    // Normal Grayscale K
+DJ970Mode4::DJ970Mode4 () : PrintMode (ulMapGRAY_K_6x6x1)    // Normal Grayscale K
 {
     bFontCapable = FALSE;
 #ifdef APDK_AUTODUPLEX
@@ -175,8 +175,8 @@ BroadwayMode4::BroadwayMode4 () : PrintMode (ulMapGRAY_K_6x6x1)    // Normal Gra
     pmColor = GREY_K;
 }
 
-BroadwayMode5::BroadwayMode5()    // Draft Color
-: PrintMode(ulMapBROADWAY_Draft_KCMY)
+DJ970Mode5::DJ970Mode5()    // Draft Color
+: PrintMode(ulMapDJ970_Draft_KCMY)
 // 300x300x1 K
 // 300x300x1 CMY
 {
@@ -189,7 +189,7 @@ BroadwayMode5::BroadwayMode5()    // Draft Color
 
 // 2001.06.14 mrb: Added Presentation Mode: 600x600x2 for color,
 //                                          600x600x1 for b/w
-BroadwayModePres::BroadwayModePres() : PrintMode(ulMapBROADWAY_KCMY)
+DJ970ModePres::DJ970ModePres() : PrintMode(ulMapDJ970_KCMY)
 // 600x600x1 K
 // 600x600x2 CMY
 {
@@ -217,8 +217,8 @@ BroadwayModePres::BroadwayModePres() : PrintMode(ulMapBROADWAY_KCMY)
 }
 
 // 2001.06.14 mrb: Added Presentation Photo Mode: 1200x1200x1 for color.
-BroadwayModePhotoPres::BroadwayModePhotoPres() 
-: PrintMode(ulMapBROADWAY_Gossimer_Normal_KCMY) 
+DJ970ModePhotoPres::DJ970ModePhotoPres() 
+: PrintMode(ulMapDJ970_Gossimer_Normal_KCMY) 
 // 1200x1200x1 CMY
 {
     ColorDepth[K]=1;
@@ -567,8 +567,8 @@ DRIVER_ERROR DJ9xx::VerifyPenInfo()
         if (pSS->BusyWait((DWORD)2000) == JOB_CANCELED)
             return JOB_CANCELED;
 
-        DWORD length=sizeof(Venice_Power_On);
-        err = pSS->ToDevice(Venice_Power_On,&length);
+        DWORD length=sizeof(DJ895_Power_On);
+        err = pSS->ToDevice(DJ895_Power_On,&length);
         ERRCHECK;
 
         err = pSS->FlushIO();
@@ -628,7 +628,7 @@ DRIVER_ERROR DJ9xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 
     if (*str != '$')
     {
-		//Escher+ is having Aladdin style devid string.
+		// DeskJet 9300 has DJ990 style devid string.
 		int num_pens = 0;
 		PEN_TYPE temp_pen1 = NO_PEN;
 		BYTE penInfoBits[4];
@@ -653,7 +653,7 @@ DRIVER_ERROR DJ9xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 			return BAD_DEVICE_ID;
 		}
 
-		//  Aladdin style DevID
+		//  DJ990 style DevID
 
 		if (pSS->GetVIPVersion () == 1)
 		{
@@ -667,7 +667,7 @@ DRIVER_ERROR DJ9xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 			penInfoBits[1] &= 0xf8; // mask off ink level trigger bits
 
 			if ((penInfoBits[0] == 0xc1) && (penInfoBits[1] == 0x10))
-			{   // Hobbes
+			{   // black
 				temp_pen1 = BLACK_PEN;
 			}
 			else if (penInfoBits[0] == 0xc0)
@@ -787,9 +787,9 @@ DRIVER_ERROR DJ9xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 	// check pen1, assume it is black, pen2 is color
 	switch (str[1])
 	{
-		case 'H':       // Hobbes
-		case 'L':       // Linus
-		case 'Z':       // Zorro
+		case 'H':
+		case 'L':
+		case 'Z':
 			temp_pen1 = BLACK_PEN;
 			break;
 		case 'X': return UNSUPPORTED_PEN;
@@ -808,7 +808,7 @@ DRIVER_ERROR DJ9xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 	i++;
 
 	// need to be more forgiving of the color pen type because of
-	// the unknown chinookID for broadway
+	// the unknown chinookID for DJ970
 	// we can't guarantee the (F)lash color pen, but we can make sure
 	// the pen is not (X)Undefined, (A)Missing or (M)onet
 	if(str[i]!='X' && str[i]!='A' && str[i]!='M')
@@ -841,7 +841,7 @@ Font* DJ9xx::RealizeFont(const int index,const BYTE bSize,
 
 DRIVER_ERROR DJ9xx::CleanPen()
 {
-    const BYTE Broadway_User_Output_Page[] = {ESC, '%','P','u','i','f','p','.',
+    const BYTE DJ970_User_Output_Page[] = {ESC, '%','P','u','i','f','p','.',
         'm','u','l','t','i','_','b','u','t','t','o','n','_','p','u','s','h',' ','3',';',
         'u','d','w','.','q','u','i','t',';',ESC,'%','-','1','2','3','4','5','X' };
 
@@ -851,8 +851,8 @@ DRIVER_ERROR DJ9xx::CleanPen()
 
     // send this page so that the user sees some output.  If you don't send this, the
     // pens get serviced but nothing prints out.
-    length = sizeof(Broadway_User_Output_Page);
-    return pSS->ToDevice(Broadway_User_Output_Page, &length);
+    length = sizeof(DJ970_User_Output_Page);
+    return pSS->ToDevice(DJ970_User_Output_Page, &length);
 }
 
 APDK_END_NAMESPACE

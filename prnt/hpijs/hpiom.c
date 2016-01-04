@@ -674,7 +674,7 @@ int Synch(int hd, int chan)
                      , gwSynchRefNum
                      );
 
-    bRet = WriteHP(hd, chan, buf, dPacketSize );
+    bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -699,7 +699,7 @@ int SynchComplete(int hd, int chan)
                      , gwSynchCompleteRefNum
                      );
 
-    bRet = WriteHP(hd, chan, buf, dPacketSize );
+    bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -725,7 +725,7 @@ int Reset(int hd, int chan)
                      , gwResetRefNum
                      );
 
-        bRet = WriteHP(hd, chan, buf, dPacketSize );
+        bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -749,7 +749,7 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write alignment query. */
    EncodeCommand(buf, sizeof(buf)
@@ -763,7 +763,7 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -777,10 +777,10 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
  
    /* Read query response. */
-   n = ReadHP(hd, chan, buf, sizeof(buf));
+   n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
    pA = (LDLResponseAlign038 *)buf;
    memset(pG, 0, sizeof(LDLGenAlign));
    if (pA->h.packet_type == 16)
@@ -804,7 +804,7 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
 {
    int n=0;
    int dPacketSize = 0;
-   char buf[256];
+   unsigned char buf[256];
    LDLResponseAlign043 *pA;
 
    /* Enable responses. */
@@ -819,7 +819,7 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write alignment query. */
    EncodeCommand(buf, sizeof(buf)
@@ -833,7 +833,7 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -847,9 +847,9 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
-   n = ReadHP(hd, chan, buf, sizeof(buf));
+   n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
    pA = (LDLResponseAlign043 *)buf;
    memset(pG, 0, sizeof(LDLGenAlign));
    if (pA->h.packet_type == 16)
@@ -864,7 +864,7 @@ uint32_t RetrieveVersion(int hd, int chan)
 {
    int n, version=0;
    int dPacketSize = 0;
-   char buf[256];
+   unsigned char buf[256];
    LDLResponseVersion *pV;
 
    /* Enable responses. */
@@ -879,7 +879,7 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write lidil version query. */
    EncodeCommand(buf, sizeof(buf)
@@ -893,7 +893,7 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan,(char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -907,9 +907,9 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, buf, dPacketSize );
+   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
 
-        n = ReadHP(hd, chan, buf, sizeof(buf));
+        n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
         pV = (LDLResponseVersion *)buf;
         if (pV->h.packet_type == 16)
         {

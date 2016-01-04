@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.8 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.12 $ 
+# $Date: 2005/03/22 19:49:44 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -23,7 +23,7 @@
 # Author: Don Welch
 #
 
-_VERSION = '1.2'
+_VERSION = '1.4'
 
 # Std Lib
 import sys
@@ -44,7 +44,7 @@ def usage():
                 )
             )
 
-    log.info( """\nUsage: colorcal.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
+    log.info( """\nUsage: hp-colorcal [PRINTER|DEVICE-URI] [OPTIONS]\n\n""" )
     
     log.info( formatter.compose( ( "[PRINTER|DEVICE-URI] (**See NOTES)", "" ) ) )
     log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
@@ -56,8 +56,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
 
-    log.info(  """Examples:\n\Calibrate color on CUPS printer named "hp5550":\n   colorcal.py -php5550\n\n""" \
-               """Color calibrate on printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   colorcal.py -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
+    log.info(  """Examples:\n\Calibrate color on CUPS printer named "hp5550":\n   hp-colorcal -php5550\n\n""" \
+               """Color calibrate on printer with URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-colorcal -dhp:/usb/DESKJET_990C?serial=12345\n\n""" \
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
@@ -89,9 +89,15 @@ def enterPaperEdge( maximum ):
                         maximum )
 
 def colorAdj( line, maximum ):
-    return enterNumber( "Enter the numbered box o line %s that is best color matched to the background color (1-%d): " % ( line, maximum ),
+    return enterNumber( "Enter the numbered box on line %s that is best color matched to the background color (1-%d): " % ( line, maximum ),
                         1, 
                         maximum )
+                        
+def colorCal(): 
+    return enterNumber( """Enter the numbered image labeled "1" thru "7" that is best color matched to the image labeled "X""", 1, 7 )
+
+def colorCal2():
+    return enterNumber( """Select the number between 1 and 81 of the numbered patch that best matches the background.""", 1, 81 )
 
 def loadPlainPaper():
     x = raw_input( utils.bold( "An alignment page will be printed.\nPlease load plain paper into the printer. Press <Enter> to contine or 'q' to quit." ) )
@@ -105,6 +111,10 @@ def invalidPen():
 def photoPenRequired():
     log.error( "Photo cartridge not installed.\nPlease install the photo cartridge and try again." )
 
+def photoPenRequired2():
+    log.error( "Photo cartridge or photo blue cartridge not installed.\nPlease install the photo (or photo blue) cartridge and try again." )
+    
+    
     
 utils.log_title( 'Printer Cartridge Color Calibration Utility', _VERSION )
 
@@ -124,7 +134,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'cups,usb'
 log_level = 'info'
 
 for o, a in opts:
@@ -149,9 +159,13 @@ for o, a in opts:
         log_level = a.lower().strip()
         
 
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
     
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
@@ -210,17 +224,26 @@ try:
         log.error( "Color calibration not supported or required by device." )
         raise Error(0)
         
-    elif color_cal_type == 1:
-        maint.colorCalType1( cur_device, loadPlainPaper, colorCal, photoPenRequired, update_spinner )    
+    elif color_cal_type == 1: #450
+        maint.colorCalType1( d, loadPlainPaper, colorCal, photoPenRequired, update_spinner )    
+
+    elif color_cal_type == 2: # BIJ1200, ...
+        ok = maint.colorCalType2( d, loadPlainPaper, colorCal2, invalidPen, update_spinner )
+
+    elif color_cal_type == 3: # PS8750, DJ57xx
+        ok = maint.colorCalType3( d, loadPlainPaper, colorAdj, photoPenRequired2, update_spinner )
 
     else:
         log.error( "Invalid color calibration type.")
         
-finally:    
-    if d is not None:
-        d.close()
-    if s is not None:
-        s.close()
-        
-    log.info( 'Done' )
+except Error:    
+    pass
+    
+
+if d is not None:
+    d.close()
+if s is not None:
+    s.close()
+    
+log.info( 'Done' )
     

@@ -390,6 +390,7 @@ typedef enum                // typedef'ed for C interface
     INDEX_OUT_OF_RANGE   =  0x05,    //!< what it says
     ILLEGAL_RESOLUTION   =  0x06,    //!< tried to set resolution at unacceptable value
     NULL_POINTER         =  0x07,    //!< supplied ptr was null
+    MISSING_PENS         =  0x08,    //!< one or more printhead/pen missing
 
 // build-related
 // (items either absent from current build, or just bad index from client code)
@@ -425,11 +426,14 @@ typedef enum                // typedef'ed for C interface
 	WARN_LOW_INK_COLOR_GREY  =  -15,     //!< sensor says color and grey pens below threshold
 	WARN_LOW_INK_COLOR_GREY_PHOTO  =  -16,     //!< sensor says color, photo, and grey pens below threshold
 	WARN_LOW_INK_COLOR_BLACK_PHOTO  =  -17,     //!< sensor says color, photo, and black pens below threshold
-
+    WARN_LOW_INK_CYAN               = -18,      //!< sensor says cyan ink below threshold
+    WARN_LOW_INK_MAGENTA            = -19,      //!< sensor says magenta ink below threshold
+    WARN_LOW_INK_YELLOW             = -20,      //!< sensor says yellow ink below threshold
+    WARN_LOW_INK_MULTIPLE_PENS      = - 21,     //!< sensor says more than one pen below threshold
     WARN_FULL_BLEED_UNSUPPORTED = -6,//!< device does not support full-bleed printing
     WARN_FULL_BLEED_3SIDES = -7,     //!< full bleed on only 3 sides
-	WARN_FULL_BLEED_PHOTOPAPER_ONLY = -18, //!< device only support full-bleed on photo paper
-	WARN_FULL_BLEED_3SIDES_PHOTOPAPER_ONLY = -19, //!< device only support 3 sided full-bleed on photo paper
+	WARN_FULL_BLEED_PHOTOPAPER_ONLY = -30, //!< device only support full-bleed on photo paper
+	WARN_FULL_BLEED_3SIDES_PHOTOPAPER_ONLY = -31, //!< device only support 3 sided full-bleed on photo paper
     WARN_ILLEGAL_PAPERSIZE = -8,     //!< papersize illegal for given hardware
     ILLEGAL_PAPERSIZE      = -8, 
     WARN_INVALID_MEDIA_SOURCE = -9   //!< media source tray is invalid

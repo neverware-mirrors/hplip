@@ -52,14 +52,21 @@ public:
 		if (ps == A4)
 			fMargins[0] = (float) 0.135;
 		else
-			fMargins[0] = 0.25;			// Left Margin
+			fMargins[0] = (float) 0.25;	// Left Margin
 		fMargins[1] = fMargins[0];		// Right Margin
-		fMargins[2] = 0.125;			// Top Margin
+		fMargins[2] = (float) 0.125;	// Top Margin
 		fMargins[3] = (float) 0.67;		// Bottom Margin
 		return TRUE;
 	}
 
 protected:
+#ifdef APDK_HP_UX
+    virtual DJ6xxPhoto & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
     BOOL PhotoPenOK;
 
 }; //DJ6xxPhoto

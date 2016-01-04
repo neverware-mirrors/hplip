@@ -79,7 +79,10 @@ MAX_VALUE_LEN = 1023
 MAX_OID_LEN = 32
 MAX_DATALEN = 4096
 
-
+# desired_int_sizes
+INT_SIZE_BYTE = struct.calcsize( 'b' )
+INT_SIZE_WORD = struct.calcsize( 'h' )
+INT_SIZE_INT = struct.calcsize( 'i' )
 
 
 def buildPMLGetPacket( oid ): # String dotted notation
@@ -88,16 +91,16 @@ def buildPMLGetPacket( oid ): # String dotted notation
                         GET_REQUEST, 
                         TYPE_OBJECT_IDENTIFIER, 
                         len(oid), oid )
- 
+
 def buildPMLGetPacketEx( oid ): # OID identifier dict
     return buildPMLGetPacket( oid['oid'] )
- 
+
 def buildEmbeddedPMLSetPacket( oid, value, data_type ):
     return ''.join( [ 'PML\x20', buildPMLSetPacket( oid, value, data_type ) ] )
 
 def buildPMLSetPacket( oid, value, data_type ): # String dotted notation
     oid = ''.join( [ chr(int(b.strip())) for b in oid.split( '.' ) ] )
-    
+
     if data_type in ( TYPE_ENUMERATION, TYPE_SIGNED_INTEGER, TYPE_COLLECTION ):
         data = struct.pack( ">i", int(value) )
 
@@ -109,92 +112,163 @@ def buildPMLSetPacket( oid, value, data_type ): # String dotted notation
                 data = data[ 1:]
 
         data = struct.pack( ">BB%ds" % len(data), data_type, len(data), data )
-    
+
     elif data_type == TYPE_REAL:
         data = struct.pack( ">BBf", data_type, struct.calcsize( "f" ), float(value) )
-    
+
     elif data_type == TYPE_STRING:
         data = struct.pack( ">BBBB%ss" % len( value ), data_type, len( value ) + 2, 0x01, 0x15, value )
-    
+
     elif data_type == TYPE_BINARY:
         data = struct.pack( ">BB%ss" % len( value ), data_type, len( value ), ''.join( [ chr(x) for x in value ] ) )
-    
+
     p = struct.pack( '>BBB%ss%ss' % ( len(oid), len(data) ),
                     SET_REQUEST, 
                     TYPE_OBJECT_IDENTIFIER, 
                     len(oid), oid,
                     data )
-    
+
     return p
 
-def buildPMLSetPacketEx( oid, value ): # OID identifier dict
-    return buildPMLSetPacket( oid['oid'], value, oid['type'] )
-    
+def ConvertToPMLDataFormat( value, data_type ):
+    if data_type in ( TYPE_ENUMERATION, TYPE_SIGNED_INTEGER, TYPE_COLLECTION ):
+        data = struct.pack( ">i", int(value) )
+
+        if value > 0: 
+            while len( data ) > 0 and data[0] == '\x00':
+                data = data[ 1:]
+        else:
+            while len(data) > 1 and data[0] == '\xff' and data[1] == '\xff':
+                data = data[ 1:]
+
+        data = struct.pack( ">%ds" % len(data), data )
+
+    elif data_type == TYPE_REAL:
+        data = struct.pack( ">f", float(value) )
+
+    elif data_type == TYPE_STRING:
+        data = struct.pack( ">BB%ss" % len( value ), 0x01, 0x15, value )
+
+    elif data_type == TYPE_BINARY:
+        data = struct.pack( ">%ds" % len( value ), ''.join( [ chr(x) for x in value ] ) )
+
+    return data
+
+def ConvertFromPMLDataFormat( data, data_type, desired_int_size=INT_SIZE_INT ):
+    if data_type in ( TYPE_ENUMERATION, TYPE_SIGNED_INTEGER, TYPE_COLLECTION ):
+
+        if len(data):
+
+            if data[0] == '\xff':
+                while len( data ) < 4:
+                    data = '\xff' + data
+
+            else:
+                while len(data) < 4:
+                    data = '\x00' + data
+
+            if desired_int_size == INT_SIZE_INT:
+                return struct.unpack( ">i", data )[0]
+
+            elif desired_int_size == INT_SIZE_WORD:
+                return struct.unpack( ">h", data[-INT_SIZE_WORD] )[0]
+
+            elif desired_int_size == INT_SIZE_BYTE:
+                print data[-1]
+                return struct.unpack( ">b", data[-INT_SIZE_BYTE] )[0]
+
+            else:
+                raise Error( ERROR_INTERNAL )
+
+        else:
+            return 0
+
+    elif data_type == TYPE_REAL:
+        if len(data) == struct.calcsize( "f" ):
+            return struct.unpack( ">f", data )[0]
+        else:
+            return 0.0
+
+    elif data_type == TYPE_STRING:
+        if len(data) >= 2:
+            if data[:2] == '\x01\x15':
+                return data[2:]
+            else:
+                return data
+        else:
+            return ''
+
+    elif data_type == TYPE_BINARY:
+        return data
+
+    return None
+
+
+##def buildPMLSetPacketEx( oid, value ): # OID identifier dict
+##    return buildPMLSetPacket( oid['oid'], value, oid['type'] )
+
 
 def parsePMLPacket( p, expected_data_type=TYPE_UNKNOWN ):
     pos, state = 0, 1
-    #print "Parser:", repr(p)
+
     data_type = TYPE_UNKNOWN
     error_state = False
     while state:
-        
-        #print repr(p[pos])
-        
+
         if state == 1: # reply and error code
             reply, error_code = struct.unpack( ">BB", p[ pos : pos + 2 ] )
             state, pos = 2, pos + 2
-            
+
             if error_code > ERROR_MAX_OK:
                 error_state = True
-        
+
         elif state == 2: # data type and length
             data_type, length = struct.unpack( ">BB", p[ pos : pos + 2 ] )
             state, pos = 3, pos + 2
-            
+
             if error_state:
-                
+
                 if expected_data_type in ( TYPE_COLLECTION, TYPE_ENUMERATION, 
                                     TYPE_SIGNED_INTEGER, TYPE_BINARY ): 
                     data = 0
-                
+
                 elif expected_data_type == TYPE_REAL: 
                     data = 0.0
-                
+
                 else: 
                     data = ''
-                
+
                 break
-            
-        
+
         elif state == 3: # data
             data = p[pos : pos + length ]
             state, pos = 0, pos + length
-            
+
             if data_type == TYPE_OBJECT_IDENTIFIER:
                 state = 2
                 continue
-            
+
             elif data_type == TYPE_STRING:
                 if length > 0:
                     symbol_set, data = struct.unpack( ">H%ss" % ( length - 2 ), data )
                 else:
                     data = ''
-            
+
             elif data_type == TYPE_BINARY:
                 data = [ ord(b) for b in data ]
-            
+
             elif data_type == TYPE_ENUMERATION:
                 if length > 0:
                     data = struct.unpack( ">i", "%s%s" % ( '\x00' * ( 4 - length ), data )  )[0]
                 else:
                     data = 0
-            
+
             elif data_type == TYPE_REAL:
                 if length > 0:
                     data = struct.unpack( ">f", data )[0]
                 else:
                     data = 0.0
-            
+
             elif data_type ==  TYPE_SIGNED_INTEGER:
                 if length > 0:
                     pad = '\x00'
@@ -208,27 +282,50 @@ def parsePMLPacket( p, expected_data_type=TYPE_UNKNOWN ):
                     data = struct.unpack( ">i", "%s%s" % ( '\x00' * ( 4 - length ), data )  )[0]
                 else:
                     data = 0
-            
+
             elif data_type == TYPE_ERROR_CODE:
                 data = struct.unpack( ">B", data )[0]
-                
+
             elif data_type == TYPE_NULL_VALUE:
                 data = None
-            
-            #state = 0
+
             break
-    
+
     return data, data_type, error_code        
-    
-    
+
+
+def HPToSNMP( oid ): # 1.
+    return '.'.join( [ '1.3.6.1.4.1.11.2.3.9.4.2', oid, '0' ] )
+
+def StdToSNMP( oid ): # 2.
+    return '.'.join( [ '1.3.6.1.2.1.43', oid[2:] ] )
+
+def HRToSNMP( oid ): # 3.
+    return '.'.join( [ '1.3.6.1.2.1.25', oid[2:] ] )
+
+def PMLToSNMP( oid ):
+    assert len(oid) > 2
+
+    if oid[0] == '0': # 0. means its already in SNMP format (will fail for PML)
+        return oid[2:]
+
+    elif oid[0] == '1': # HP MIB
+        return HPToSNMP( oid )
+
+    elif oid[0] == '2': # Std MIB
+        return StdToSNMP( oid )
+
+    elif oid[0] == '3': # Host Resources MIB
+        return HRToSNMP( oid )
+
+    assert False
+
+
 #
 # OIDs
 #
 
-
-
-# Supported funcs
-OID_DEVICE_SUPPORTED_FUNCTIONS = { 'oid' : '1.1.2.67', 'type' : TYPE_COLLECTION }
+OID_DEVICE_SUPPORTED_FUNCTIONS = ( '1.1.2.67', TYPE_COLLECTION )
 DEVICE_SUPPORTED_FUNCTIONS_SCAN =                 0x00002
 DEVICE_SUPPORTED_FUNCTIONS_SCAN_SIMPLEX =         0x00004
 DEVICE_SUPPORTED_FUNCTIONS_SCAN_DUPLEX =          0x00008
@@ -250,89 +347,145 @@ DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_SPEEDDIAL =    0x40000
 DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_GROUPDIAL =    0x80000
 
 
-    
-OID_SERIAL_NUMBER = { "oid" : "1.1.3.3", "type" : TYPE_STRING, "desc" : r"""Identifies the serial number for the device. If theSERIAL-NUMBER object is set by the user, then setting theobject does not need to be protected. If the SERIAL-NUMBERobject is set at the factory, then the SERVICE-PASSWORD objectmust be set correctly before the SERIAL-NUMBER object iswritable. If this is a writable object, the POS should indicatethe maximum supported string length. If possible, encode theserial number in a symbol set (like Roman-8) that matches theASCII character set and limit the characters used to ASCIIcharacters.""", "use" : r"""Allows applications to track assets by serial number. Allows manufacturing lines to program the serial number into NVRAM.""" }
+OID_SERIAL_NUMBER = ( '1.1.3.3', TYPE_STRING )
 
-OID_PrinterDetectedErrorState = { 'oid' : '3.3.5.1.2', 'type' : TYPE_BINARY }
+OID_PRINT_INTERNAL_PAGE = ( '1.1.5.2', TYPE_ENUMERATION )
+PRINT_INTERNAL_PAGE_SUPPLIES_PAGE = 101 
+PRINT_INTERNAL_PAGE_COLOR_CAL = 1102 
 
+# From xojpanel
+OID_SPM_LINE1 = ( '2.16.5.1.2.1.1', TYPE_STRING )
+OID_SPM_LINE2 = ( '2.16.5.1.2.1.2', TYPE_STRING )
 
-OID_DEVICE_STATUS = { 'oid' : '3.3.2.1.5.1', 'type' : TYPE_ENUMERATION }
-OID_PRINTER_STATUS = { 'oid' : '3.3.5.1.1', 'type' : TYPE_ENUMERATION }
-#OID_SLEEP_MODE = { "oid" : "1.1.1.2", "type" : TYPE_ENUMERATION, "desc" : r"""Returns eTrue if the device is in energy saving sleep mode,otherwise returns eFalse. Setting SLEEP-MODE to eFalse causesthe device to wake up, if it is in sleep mode. SettingSLEEP-MODE to eTrue causes the device to go into sleep mode.""", "use" : r"""Used by applications to determine/control device sleep mode.""" }
-
-OID_SLEEP_MODE = { "oid" : "1.1.1.2", "type" : TYPE_ENUMERATION, "desc" : r"""Returns eTrue if the device is in energy saving sleep mode,otherwise returns eFalse. Setting SLEEP-MODE to eFalse causesthe device to wake up, if it is in sleep mode. SettingSLEEP-MODE to eTrue causes the device to go into sleep mode.""", "use" : r"""Used by applications to determine/control device sleep mode.""" }
-
-OID_A2 = { 'oid' : '3.3.2.1.1.1', 'type' : TYPE_SIGNED_INTEGER }
-
-OID_SUPPLIESLEVEL_1 = { 'oid' : '2.11.1.1.9.1.1', 'type' : TYPE_SIGNED_INTEGER }
-OID_SUPPLIESDESC_1 = { 'oid' : '2.11.1.1.6.1.1', 'type' : TYPE_STRING }
-OID_SUPPLIESMAXCAP_1 = { 'oid' : '2.11.1.1.8.1.1', 'type' : TYPE_SIGNED_INTEGER }
-
-OID_TRAY_LEVEL_1 = { 'oid' : '2.8.2.1.10.1.1', 'type' : TYPE_SIGNED_INTEGER }
-OID_TRAY_LEVEL_2 = { 'oid' : '2.8.2.1.10.1.2', 'type' : TYPE_SIGNED_INTEGER }
-OID_TRAY_LEVEL_3 = { 'oid' : '2.8.2.1.10.1.3', 'type' : TYPE_SIGNED_INTEGER }
-
-OID_CONSUMABLE_STATUS_SERIAL_NUMBER = { "oid" : "1.4.1.10.1.1.3.1", "type" : TYPE_STRING, "desc" : r"""This object is used to report the serial number for thisconsumable.""", "use" : r"""This cartridge serial number can be used for inventory andauthentication purposes.""" }
-OID_CONSUMABLE_STATUS_CAPACITY_UNITS = { "oid" : "1.4.1.10.1.1.4.1", "type" : TYPE_ENUMERATION, "desc" : r"""This object is used to report the usage units used by theCONSUMABLE-STATUS-TOTAL-CAPACITY object.""", "use" : r"""""" }
-OID_CONSUMABLE_STATUS_TOTAL_CAPACITY = { "oid" : "1.4.1.10.1.1.5.1", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""This object is used to report the total capacity of a newconsumable of this type. The PML objectCONSUMABLE-STATUS-CAPACITY-UNITS can be used to determine theunits of measure for this PML object.""", "use" : r"""This marking agent capacity value can be used along with otherusage data to estimate the number of pages remaining in areceptacle/cartridge.""" }
+OID_HP_LINE1 = ( '1.1.2.20.2.1.1', TYPE_STRING )
+OID_HP_LINE2 = ( '1.1.2.20.2.2.1', TYPE_STRING )
 
 
-# Alignment/cleaning/color calibration
-OID_ZCA = { 'oid' : '1.4.1.8.5.4.1', 'type' : TYPE_SIGNED_INTEGER }
-OID_AGENT2_VERTICAL_ALIGNMENT = { 'oid' : '1.4.1.5.3.2.5', 'type' : TYPE_SIGNED_INTEGER }
-OID_AGENT2_HORIZONTAL_ALIGNMENT = { 'oid' : '1.4.1.5.3.2.6', 'type' : TYPE_SIGNED_INTEGER }
-OID_AGENT1_BIDIR_ADJUSTMENT = { 'oid' : '1.4.1.5.3.1.7', 'type' : TYPE_SIGNED_INTEGER }
-OID_AGENT2_BIDIR_ADJUSTMENT = { 'oid' : '1.4.1.5.3.2.7', 'type' : TYPE_SIGNED_INTEGER }
-OID_MARKING_AGENTS_INITIALIZED = { 'oid' : '1.4.1.5.1.4', 'type' : TYPE_COLLECTION }
-OID_AUTO_ALIGNMENT = { 'oid' : '1.1.5.2', 'type' : TYPE_ENUMERATION }
-OID_AGENT3_VERTICAL_ALIGNMENT = { "oid" : "1.4.1.5.3.3.5", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""Indicates the distance in centipoints to vertically adjust thethird marking agent relative to the first marking agent.Positive numbers move the second marking agent lower on theprinted page. Negative numbers move the second marking agenthigher on the printed page.""", "use" : r"""Use to align the marking agents in a product with multiplemarking agents.""" }
-OID_AGENT3_HORIZONTAL_ALIGNMENT = { "oid" : "1.4.1.5.3.3.6", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""Indicates the distance in centipoints to horizontally adjustthe third marking agent relative to the first marking agent.Positive numbers move the second marking agent to the right onthe printed page. Negative numbers move the second markingagent to the left on the printed page.""", "use" : r"""Use to align the marking agents in a product with multiplemarking agents.""" }
-OID_AGENT3_BIDIR_ADJUSTMENT = { "oid" : "1.4.1.5.3.3.7", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""Indicates the distance in centipoints to adjust the startingprint position for marking agent 3 when printing in the reversedirection. See AGENT1-BIDIR-ADJUSTMENT for a description.""", "use" : r"""""" }
-OID_COLOR_CALIBRATION_SELECTION = { "oid" : "1.4.1.5.1.9", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""This object is used to select the color calibration printpattern. The driver will provide the color calibration printpattern number based on the user's selection. The selectionaffects the supply drop volumes associated with the markingagents. The selection's effect lasts until the next selectionor change of marking agents. The color calibration is an N x Npattern. The selection must be in the (inclusive) range 1 toN^2 (N-squared). An out-of-range value will be ignored by theprinter and will cause a PML error to be reported""", "use" : r"""This object is expected to be used after the driver hasrequested the printer to print the color calibration pattern.However, the object may be used in isolation too (i.e., thereis no need for the pattern to be printed and there is norestriction on the time-frame when the object can be used). Theselection will take effect at the next job boundary (i.e.,starting from the next job). Caveat: If the printer is powereddown before the selection takes effect, the selection will belost and previous calibration will remain in effect.""" }
+# LaserJet Status (status type 3)
+OID_ON_OFF_LINE = ( '1.1.2.5', TYPE_SIGNED_INTEGER )
+ON_OFF_LINE_ONLINE = 1
+ON_OFF_LINE_OFFLINE = 2
+ON_OFF_LINE_OFFLINE_AT_END_OF_JOB = 3
 
-# Scanning
-OID_DOWNLOAD_TIMEOUT = { 'oid' : '1.1.1.17', 'type' : TYPE_UNKNOWN }
-OID_UPLOAD_TIMEOUT = { 'oid' : '1.1.1.18', 'type' : TYPE_SIGNED_INTEGER }
-OID_SCAN_ABC_THRESHOLDS = { "oid" : "1.2.2.1.14", "type" : TYPE_BINARY, "desc" : r"""A C structure containing the following fields: typedef struct { ubyte ceiling; /* upper threshold */ ubyte floor; /* lower threshold */ } scan_abc_thresholds_t; where ubyte is an unsigned byte (0-255).""", "use" : r"""Used by host to set Automatic Background Control thresholds inthe device.""" }
-OID_SCAN_UPLOAD_ERROR = { "oid" : "1.2.2.1.6", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""Error status of the image scanning upload session.""", "use" : r"""Provides the reason for the premature termination of imagescanning upload activity.""" }
-OID_SCAN_SHARPENING_COEFFICIENT = { "oid" : "1.2.2.1.15", "type" : TYPE_SIGNED_INTEGER, "desc" : r"""Sets the sharpening coefficient used in scanning and imageprocessing. If the device does not support the given value,then it will select the nearest supported value and return<OKNearestLegalValueSubstituted>. The list of supported valuesshould be documented in the device POS.""", "use" : r"""Used by host to set the sharpening coefficient in the device.""" }
-OID_SCAN_NEUTRAL_CLIP_THRESHOLDS = { "oid" : "1.2.2.1.39", "type" : TYPE_BINARY, "desc" : r"""A C structure containing the following fields: typedef struct {ubyte luminance; ubyte chrominance; } scan_neutral_clip_t;where ubyte is an unsigned byte (0-255).""", "use" : r"""Used by host to set neutral clip thresholds in the device on aper job basis.""" }
-OID_SCAN_RESOLUTION = { 'oid' : '1.2.2.1.2', 'type' : TYPE_BINARY }
-OID_SCAN_RESOLUTION_RANGE = { 'oid' : '1.2.2.2.3', 'type' : TYPE_STRING }
+OID_SLEEP_MODE = ( '1.1.1.2', TYPE_SIGNED_INTEGER )
+SLEEP_MODE_FALSE = 1
+SLEEP_MODE_TRUE = 2
 
-OID_SCAN_UPLOAD =       { 'oid' : '1.2.2.1.12', 'type' : TYPE_ENUMERATION }
-UPLOAD_STATE_IDLE       = 1
-UPLOAD_STATE_START      = 2
-UPLOAD_STATE_ACTIVE     = 3
-UPLOAD_STATE_ABORTED    = 4
-UPLOAD_STATE_DONE       = 5
-UPLOAD_STATE_NEWPAGE    = 6
+OID_PRINTER_STATUS = ( '3.3.5.1.1.1', TYPE_SIGNED_INTEGER )
+PRINTER_STATUS_OTHER = 1
+PRINTER_STATUS_UNKNOWN = 2
+PRINTER_STATUS_IDLE = 3
+PRINTER_STATUS_PRINTING = 4
+PRINTER_STATUS_WARMUP = 5
 
-# Scan data type
-OID_SCAN_PIXEL_DATA_TYPE = { 'oid' : '1.2.2.1.3', 'type' : TYPE_ENUMERATION }
-DATA_TYPE_LINEART = 1
-DATA_TYPE_GRAYSCALE = 8
-DATA_TYPE_COLOR = 24
+OID_COVER_STATUS = ( '2.6.1.1.3.1.1', TYPE_SIGNED_INTEGER )
+COVER_STATUS_OPEN = 3
+COVER_STATUS_CLOSED = 4
 
-OID_SCANNER_STATUS = { 'oid' : '1.2.2.2.1', 'type' : TYPE_SIGNED_INTEGER } # OID_NOT_READY_SOURCE_SCANNER
-SCANNER_STATUS_UNKNOWN_ERROR = 0x01
-SCANNER_STATUS_INVALID_MEDIA_SIZE = 0x02
-SCANNER_STATUS_FEEDER_OPEN = 0x04
-SCANNER_STATUS_FEEDER_JAM = 0x08
-SCANNER_STATUS_FEEDER_EMPTY = 0x10
+OID_DETECTED_ERROR_STATE = ( '3.3.5.1.2.1', TYPE_BINARY )
+DETECTED_ERROR_STATE_LOW_PAPER_MASK = 0x80
+DETECTED_ERROR_STATE_NO_PAPER_MASK = 0x40
+DETECTED_ERROR_STATE_LOW_CART_MASK = 0x20
+DETECTED_ERROR_STATE_OUT_CART_MASK = 0x10
+DETECTED_ERROR_STATE_DOOR_OPEN_MASK = 0x08
+DETECTED_ERROR_STATE_JAMMED_MASK = 0x04
+DETECTED_ERROR_STATE_OFFLINE_MASK = 0x02
+DETECTED_ERROR_STATE_SERVICE_REQUEST_MASK = 0x01
+DETECTED_ERROR_STATE_NO_ERROR = 0x00
 
-# Scan compression
-OID_SCAN_COMPRESSION = { 'oid' : '1.2.2.1.4', 'type' : TYPE_ENUMERATION }
-SCAN_COMPRESSION_NONE = 1
-SCAN_COMPRESSION_DEFAULT = 2
-SCAN_COMPRESSION_MH = 3
-SCAN_COMPRESSION_MR = 4
-SCAN_COMPRESSION_MMR = 5
-SCAN_COMPRESSION_JPEG = 6
-SCAN_COMPRESSION_JPEGLS = 7
-OID_SCAN_COMPRESSION_FACTOR = { 'oid' : '1.2.2.1.5', 'type' : TYPE_SIGNED_INTEGER }
+OID_MARKER_SUPPLIES_TYPE_x = '2.11.1.1.5.1.%d'
+OID_MARKER_SUPPLIES_TYPE_x_TYPE = TYPE_ENUMERATION
+OID_MARKER_SUPPLIES_TYPE_OTHER = 1
+OID_MARKER_SUPPLIES_TYPE_UNKNOWN = 2
+OID_MARKER_SUPPLIES_TYPE_TONER = 3
+OID_MARKER_SUPPLIES_TYPE_WASTE_TONER = 4
+OID_MARKER_SUPPLIES_TYPE_INK = 5
+OID_MARKER_SUPPLIES_TYPE_INK_CART = 6
+OID_MARKER_SUPPLIES_TYPE_INK_RIBBON = 7
+OID_MARKER_SUPPLIES_TYPE_WASTE_INK = 8
+OID_MARKER_SUPPLIES_TYPE_OPC = 9
+OID_MARKER_SUPPLIES_TYPE_DEVELOPER = 10
+OID_MARKER_SUPPLIES_TYPE_FUSER_OIL = 11
+OID_MARKER_SUPPLIES_TYPE_SOLID_WAX = 12
+OID_MARKER_SUPPLIES_TYPE_RIBBON_WAX = 13
+OID_MARKER_SUPPLIES_TYPE_WASTE_WAX = 14
+OID_MARKER_SUPPLIES_TYPE_FUSER = 15
+OID_MARKER_SUPPLIES_TYPE_CORONA_WIRE = 16
+OID_MARKER_SUPPLIES_TYPE_FUSER_OIL_WICK = 17
+OID_MARKER_SUPPLIES_TYPE_CLEANER_UNIT = 18
+OID_MARKER_SUPPLIES_TYPE_FUSER_CLEANING_PAD = 19
+OID_MARKER_SUPPLIES_TYPE_TRANSFER_UNIT = 20
+OID_MARKER_SUPPLIES_TYPE_TONER_CART = 21
+OID_MARKER_SUPPLIES_TYPE_FUSER_OILER = 22
+OID_MARKER_SUPPLIES_TYPE_ADF_MAINT_KIT = 23
 
-OID_PAGES_REMAINING = { 'oid' : '1.4.1.10.5.1.1.1', 'type' : TYPE_SIGNED_INTEGER }
-    
-    
+OID_MARKER_SUPPLIES_COLORANT_INDEX_x = '2.11.1.1.3.1.%d'
+OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE = TYPE_SIGNED_INTEGER
 
+OID_MARKER_SUPPLIES_MAX_x = '2.11.1.1.8.1.%d'
+OID_MARKER_SUPPLIES_MAX_x_TYPE = TYPE_SIGNED_INTEGER
+
+OID_MARKER_SUPPLIES_LEVEL_x = '2.11.1.1.9.1.%d'
+OID_MARKER_SUPPLIES_LEVEL_x_TYPE = TYPE_SIGNED_INTEGER
+
+OID_MARKER_COLORANT_VALUE_x = '2.12.1.1.4.1.%d'
+OID_MARKER_COLORANT_VALUE_x_TYPE = TYPE_STRING
+
+OID_MARKER_STATUS_x = '2.10.2.1.15.1.%d'
+OID_MARKER_STATUS_x_TYPE = TYPE_SIGNED_INTEGER
+OID_MARKER_STATUS_OK = 0
+OID_MARKER_STATUS_LOW_TONER_CONT = 8
+OID_MARKER_STATUS_LOW_TONER_STOP = 49
+OID_MARKER_STATUS_MISINSTALLED = 51
+
+OID_DEVICE_STATUS = ( '3.3.2.1.5.1', TYPE_ENUMERATION )
+DEVICE_STATUS_UNKNOWN = 1
+DEVICE_STATUS_RUNNING = 2
+DEVICE_STATUS_WARNING = 3
+DEVICE_STATUS_TESTING = 4
+DEVICE_STATUS_DOWN = 5
+#end
+
+# alignment, cleaning, etc.
+OID_AUTO_ALIGNMENT = ( '1.1.5.2', TYPE_ENUMERATION )
+OID_ZCA = ( '1.4.1.8.5.4.1', TYPE_SIGNED_INTEGER )
+OID_AGENT2_VERTICAL_ALIGNMENT = ( '1.4.1.5.3.2.5', TYPE_SIGNED_INTEGER )
+OID_AGENT2_HORIZONTAL_ALIGNMENT = ( '1.4.1.5.3.2.6', TYPE_SIGNED_INTEGER )
+OID_AGENT1_BIDIR_ADJUSTMENT = ( '1.4.1.5.3.1.7', TYPE_SIGNED_INTEGER )
+OID_AGENT2_BIDIR_ADJUSTMENT = ( '1.4.1.5.3.2.7', TYPE_SIGNED_INTEGER )
+OID_MARKING_AGENTS_INITIALIZED = ( '1.4.1.5.1.4', TYPE_COLLECTION )
+OID_AGENT3_VERTICAL_ALIGNMENT = ( "1.4.1.5.3.3.5", TYPE_SIGNED_INTEGER )
+OID_AGENT3_HORIZONTAL_ALIGNMENT = ( "1.4.1.5.3.3.6", TYPE_SIGNED_INTEGER )
+OID_AGENT3_BIDIR_ADJUSTMENT = ( "1.4.1.5.3.3.7", TYPE_SIGNED_INTEGER )
+OID_COLOR_CALIBRATION_SELECTION = ( "1.4.1.5.1.9", TYPE_SIGNED_INTEGER )
+
+# Supported funcs
+OID_DEVICE_SUPPORTED_FUNCTIONS = ( '1.1.2.67', TYPE_COLLECTION )
+DEVICE_SUPPORTED_FUNCTIONS_SCAN =                 0x00002
+DEVICE_SUPPORTED_FUNCTIONS_SCAN_SIMPLEX =         0x00004
+DEVICE_SUPPORTED_FUNCTIONS_SCAN_DUPLEX =          0x00008
+DEVICE_SUPPORTED_FUNCTIONS_COPY =                 0x00010
+DEVICE_SUPPORTED_FUNCTIONS_COPY_SIMPLEX_SIMPLEX = 0x00020
+DEVICE_SUPPORTED_FUNCTIONS_COPY_SIMPLEX_DUPLEX =  0x00040
+DEVICE_SUPPORTED_FUNCTIONS_COPY_DUPLEX_SIMPLEX =  0x00080
+DEVICE_SUPPORTED_FUNCTIONS_COPY_DUPLEX_DUPLEX =   0x00100
+DEVICE_SUPPORTED_FUNCTIONS_COPY_COLLATION =       0x00200
+DEVICE_SUPPORTED_FUNCTIONS_PRINT =                0x00400
+DEVICE_SUPPORTED_FUNCTIONS_AUTO_FEED_SIMPLEX =    0x00800
+DEVICE_SUPPORTED_FUNCTIONS_AUTO_FEED_DUPLEX =     0x01000
+DEVICE_SUPPORTED_FUNCTIONS_FAX_SEND =             0x02000
+DEVICE_SUPPORTED_FUNCTIONS_FAX_RECV =             0x04000
+DEVICE_SUPPORTED_FUNCTIONS_MASS_STORAGE =         0x08000
+DEVICE_SUPPORTED_FUNCTIONS_STREAMING_SAVE =       0x10000
+DEVICE_SUPPORTED_FUNCTIONS_FAX_CONFIG =           0x20000
+DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_SPEEDDIAL =    0x40000
+DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_GROUPDIAL =    0x80000
+
+
+OID_BATTERY_LEVEL = ( '1.1.2.13', TYPE_SIGNED_INTEGER )
+OID_POWER_MODE = ( '1.1.2.14', TYPE_ENUMERATION )
+POWER_MODE_ADPATER = 0x01
+POWER_MODE_BATTERY = 0x02
+POWER_MODE_CHARGING = 0x04
+POWER_MODE_DISCHARGING = 0x08
+POWER_MODE_BATTERY_LEVEL_KNOWN = 0x10

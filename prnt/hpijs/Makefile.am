@@ -2,7 +2,7 @@ docdir	= $(datadir)/doc/$(distdir)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_8_5
+APDKLABEL=HPLIP-0_9_1
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -29,7 +29,7 @@ uncupshook =
 endif
 
 bin_PROGRAMS = hpijs
-hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c ijs_exec_unix.c models.cpp breaks_open.cpp \
+hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
 	dj9xxvip.cpp dj9xx.cpp capture.cpp colormatch.cpp colormatcher_open.cpp \
 	compression.cpp context.cpp create_so.cpp creator.cpp \
 	dj600.cpp dj630.cpp dj660.cpp dj690.cpp dj6xx.cpp dj8xx.cpp dj600_maps.cpp \
@@ -52,27 +52,32 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c ijs_exec_unix.c models.cpp breaks_o
 	systemservices.h unistd_.h ijs_client.h djgenericvip.h ljmono.h ljmono.cpp \
 	dj3320.cpp dj3320.h dj3320_cmap.cpp dj3600.cpp dj3600.h dj3600_cmap.cpp ldlencap.h \
 	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
-	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h 
+	printerproxy.cpp printerfactory.cpp printerproxy.h printerfactory.h \
+	ljjetready.cpp ljjetready.h jdatadbf.c jccolor.c README_LIBJPG ljfastraster.cpp ljfastraster.h \
+	jinclude.h jpegint.h
 
 doc_DATA	= hpijs_readme.html gs_hpijs.png COPYING
 bin_SCRIPTS = $(rip)
 
-EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.0.patch
+EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.1.patch
 
 install-data-hook: $(foomatichook) $(cupshook)
 uninstall-hook: $(unfoomatichook) $(uncupshook)
 
 install-foomatic:
 	$(mkinstalldirs) $(DESTDIR)$(ppddir)
-	rm -f $(DESTDIR)$(ppddir)/HP*hpijs*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 	$(INSTALL_DATA) ppd/* $(DESTDIR)$(ppddir)
 	gzip -f $(DESTDIR)$(ppddir)/*
 
 uninstall-foomatic:
-	rm -f $(DESTDIR)$(ppddir)/HP*hpijs*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
+	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 
 install-cups:
-	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/HP*hpijs*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/HP*hpijs*.ppd*
+	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/HP*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/HP*.ppd*
+	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/hp*.ppd* $(DESTDIR)$(CUPS_PPD_PATH)/foomatic/HP/hp*.ppd*
 	rm -f $(DESTDIR)$(CUPS_PPD_PATH)/foomatic-ppds
 	$(mkinstalldirs) $(DESTDIR)$(CUPS_PPD_PATH)
 	ln -s $(datadir)/ppd $(DESTDIR)$(CUPS_PPD_PATH)/foomatic-ppds
@@ -85,26 +90,26 @@ uninstall-cups:
 	rm -f $(DESTDIR)$(CUPS_FILTER_PATH)/foomatic-rip
 
 get-apdk: 
-	rm -rf slimhost
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co -r $(APDKLABEL) $(APDKCOMMON)
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co -r $(APDKLABEL) $(APDKOPEN)
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co -r $(APDKLABEL) $(APDKDEBUG)
-	cp -f $(APDKCOMMON)/*.cpp $(APDKCOMMON)/*.h ./
+	cp -f $(APDKCOMMON)/*.cpp $(APDKCOMMON)/*.h $(APDKCOMMON)/*.c $(APDKCOMMON)/README_LIBJPG ./
 	cp -f $(APDKOPEN)/*.cpp $(APDKOPEN)/*.h ./
 	cp -f $(APDKDEBUG)/*.cpp $(APDKDEBUG)/*.h ./
+	rm -rf slimhost
 
 get-apdk-tip: 
-	rm -rf slimhost
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co $(APDKCOMMON)
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co $(APDKOPEN)
 	cvs -z3 -d:pserver:$(USER)@elkhorn1.boi.hp.com:/shared/data/ccvs/repository co $(APDKDEBUG)
-	cp -f $(APDKCOMMON)/*.cpp $(APDKCOMMON)/*.h ./
+	cp -f $(APDKCOMMON)/*.cpp $(APDKCOMMON)/*.h $(APDKCOMMON)/*.c $(APDKCOMMON)/README_LIBJPG ./
 	cp -f $(APDKOPEN)/*.cpp $(APDKOPEN)/*.h ./
 	cp -f $(APDKDEBUG)/*.cpp $(APDKDEBUG)/*.h ./
+	rm -rf slimhost
 
-get-ppd:
-	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-engine
-	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-filters
+get-ppd: 
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-filters
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-hpijs
 	cd foomatic-db-hpijs; \
@@ -125,6 +130,17 @@ get-ppd:
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/designjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
+	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/designjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
+	rm -fr www.linuxprinting.org
 
 get-ppd-tip:
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-engine
@@ -149,6 +165,39 @@ get-ppd-tip:
 	rm -rf foomatic-filters
 	rm -rf foomatic-db
 	rm -rf foomatic-db-hpijs
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/designjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
+	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/designjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
+	rm -fr www.linuxprinting.org
+
+get-foomatic:
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-filters
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db
+	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-hpijs
+
+test-ppd:
+	cd foomatic-db-hpijs; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-filters; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-db-engine; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	./hpijs-ppd
+	cp foomatic-filters/foomatic-rip ./
 
 copy:
 #	cp -r $(DIST_SOURCES) $(EXTRA_DIST) $(DIST_COMMON) $(COPY_DEST)

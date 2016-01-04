@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/aboutdlg_base.ui'
 #
-# Created: Wed Nov 17 11:17:37 2004
+# Created: Thu Jan 20 09:35:49 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

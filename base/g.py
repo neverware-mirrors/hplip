@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.19 $ 
-# $Date: 2004/12/21 19:19:24 $
+# $Revision: 1.22 $ 
+# $Date: 2005/03/14 22:48:35 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -122,7 +122,7 @@ prop.i18n_dir = os.path.join( prop.home_dir, 'data', 'qm' )
 prop.image_dir = os.path.join( prop.home_dir, 'data', 'images' )
 prop.html_dir = os.path.join( prop.home_dir, 'data', 'html', prop.lang_code )
 
-prop.max_message_len = 8192
+prop.max_message_len = 65536
 prop.ppd_search_path = '/usr/share;/usr/local/share;/usr/lib;/usr/local/lib;/usr/libexec;/opt'
 prop.ppd_search_pattern = 'HP-*.ppd.*'
 prop.ppd_download_url = 'http://www.linuxprinting.org/ppd-o-matic.cgi'
@@ -147,6 +147,58 @@ def update_spinner():
 
 # Internal/messaging errors
 
+ERROR_STRINGS = {  
+                ERROR_SUCCESS : 'No error',
+                ERROR_UNKNOWN_ERROR : 'Unknown error',
+                ERROR_DEVICE_NOT_FOUND : 'Device not found',
+                ERROR_INVALID_DEVICE_ID : 'Unknown/invalid device-id field',
+                ERROR_INVALID_DEVICE_URI : 'Unknown/invalid device-uri field',
+                ERROR_INVALID_MSG_TYPE : 'Unknown message type',
+                ERROR_INVALID_DATA_ENCODING : 'Unknown data encoding',
+                ERROR_INVALID_CHAR_ENCODING : 'Unknown character encoding',
+                ERROR_DATA_LENGTH_EXCEEDS_MAX : 'Data length exceeds maximum',
+                ERROR_DATA_LENGTH_MISMATCH : "Data length doesn't match length field",
+                ERROR_DATA_DIGEST_MISMATCH : "Digest of data doesn't match digest field",
+                ERROR_INVALID_JOB_ID : 'Invalid job-id',
+                ERROR_DEVICE_IO_ERROR : 'Device I/O error',
+                ERROR_STRING_QUERY_FAILED : 'String/error query failed',
+                ERROR_QUERY_FAILED : 'Query failed',
+                ERROR_GUI_NOT_AVAILABLE : 'hpguid not running',
+                ERROR_NO_CUPS_DEVICES_FOUND : 'No CUPS devices found (deprecated)',
+                ERROR_NO_PROBED_DEVICES_FOUND : 'No probed devices found',
+                ERROR_INVALID_BUS_TYPE : 'Invalid bus type',
+                ERROR_BUS_TYPE_CANNOT_BE_PROBED : 'Bus cannot be probed',
+                ERROR_DEVICE_BUSY : 'Device busy',
+                ERROR_NO_DATA_AVAILABLE : 'No data avaiable',
+                ERROR_INVALID_DEVICEID : 'Invalid/missing DeviceID',
+                ERROR_INVALID_CUPS_VERSION : 'Invlaid CUPS version',
+                ERROR_CUPS_NOT_RUNNING : 'CUPS not running',
+                ERROR_DEVICE_STATUS_NOT_AVAILABLE : 'DeviceStatus not available',
+                ERROR_DATA_IN_SHORT_READ: 'ChannelDataIn short read',
+                ERROR_INVALID_SERVICE_NAME : 'Invalid service name',
+                ERROR_INVALID_USER_ERROR_CODE : 'Invalid user level error code',
+                ERROR_ERROR_INVALID_CHANNEL_ID : 'Invalid channel-id',
+                ERROR_CHANNEL_BUSY : 'Channel busy/in-use',
+                ERROR_CHANNEL_CLOSE_FAILED : 'ChannelClose failed. Channel not open',
+                ERROR_UNSUPPORTED_BUS_TYPE : 'Unsupported bus type',
+                ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION : 'Device does not support operation',
+                ERROR_INTERNAL : 'Unknown internal error',
+                ERROR_DEVICE_NOT_OPEN : 'Device not open',
+                ERROR_UNABLE_TO_CONTACT_SERVICE : 'Unable to contact service',
+                ERROR_UNABLE_TO_BIND_SOCKET : 'Unable to bind to socket',
+                ERROR_DEVICEOPEN_FAILED_ONE_DEVICE_ONLY : 'Device open failed - 1 open per session allowed',
+                ERROR_DEVICEOPEN_FAILED_DEV_NODE_MOVED : 'Device open failed - device node moved',
+                ERROR_TEST_EMAIL_FAILED : "Email test failed",
+                ERROR_SMTP_CONNECT_ERROR : "SMTP server connect error",
+                ERROR_SMTP_RECIPIENTS_REFUSED : "SMTP recipients refused",
+                ERROR_SMTP_HELO_ERROR : "SMTP HELO error",
+                ERROR_SMTP_SENDER_REFUSED : "STMP sender refused",
+                ERROR_SMTP_DATA_ERROR : "SMTP data error",
+                ERROR_INVALID_HOSTNAME : "Invalid hostname ip address",
+                ERROR_INVALID_PORT_NUMBER : "Invalid JetDirect port number",
+                ERROR_INTERFACE_BUSY : "Interface busy",
+               }
+
 class Error( Exception ):
     def __init__( self, opt=ERROR_INTERNAL ):
         self.opt = opt
@@ -158,7 +210,7 @@ class Error( Exception ):
 # Make sure True and False are avail. in pre-2.2 versions
 try:
     True
-except:
+except NameError:
     True = (1==1)
     False = not True
 

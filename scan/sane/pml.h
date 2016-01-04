@@ -33,7 +33,7 @@
 
 #define PML_MAX_OID_VALUES 2
 #define PML_MAX_VALUE_LEN       1023
-#define PML_MAX_OID_LEN     32
+#define PML_MAX_OID_LEN     128
 #define PML_MAX_DATALEN     4096
 
 #define PML_TYPE_MASK           0xFC
@@ -88,7 +88,7 @@ struct PmlObject_s
         //struct hpaioScanner_s *          dev;
         struct PmlObject_s *          prev;
         struct PmlObject_s *          next;
-        char                    oid[ PML_MAX_OID_LEN + 1 ];  /* binary, null terminated */
+        char                    oid[ PML_MAX_OID_LEN + 1 ];  /* ascii, null terminated */
         int                     indexOfLastValue;
         int                     numberOfValidValues;
         struct PmlValue_s       value[ PML_MAX_OID_VALUES ];

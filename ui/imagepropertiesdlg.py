@@ -32,12 +32,10 @@ class ImagePropertiesDlg(ImagePropertiesDlg_base):
         self.LocationText.setText( location )
         self.MimeTypeText.setText( mimetype )
         self.SizeText.setText( size )
+        if exif_info:
+            for k in exif_info:
+                QListViewItem(self.EXifDataListView, k, str( exif_info[k]) )
         
-        if len( exif_info ) > 0:
-            self.ViewEXIFButton.setEnabled( 1 )
+        
+        
 
-        # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        self.ViewEXIFButton.setEnabled( 0 )            
-            
-    def ViewEXIFButton_clicked(self):
-        print "ImagePropertiesDlg_base.ViewEXIFButton_clicked(): Not implemented yet"

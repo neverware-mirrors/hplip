@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.49 $ 
-# $Date: 2005/01/07 23:19:57 $
+
+# $Revision: 1.75 $ 
+# $Date: 2005/03/29 21:06:48 $
 # $Author: dwelch $
+
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
 #
@@ -20,15 +22,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# Author: Don Welch
+# Authors: Don Welch, Pete Parks
 #
-
+# Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
+#
 
 # Remove in 2.3
 from __future__ import generators
 
-_VERSION = '3.0'
-
+_VERSION = '4.1'
 
 # Std Lib
 import sys
@@ -36,15 +38,10 @@ import socket
 import os, os.path
 import signal
 import getopt
-import time
-import pwd
-import ConfigParser
 import smtplib
 import threading
 import atexit
 import gettext
-
-
 
 # Local
 from base.g import *
@@ -58,65 +55,39 @@ from prnt import cups
 # Device support
 from base import device
 
-
-
-AGENT_types = { status.AGENT_TYPE_NONE        : 'invalid',
-                status.AGENT_TYPE_BLACK       : 'black',
-                status.AGENT_TYPE_CMY         : 'cmy',
-                status.AGENT_TYPE_KCM         : 'kcm',
-                status.AGENT_TYPE_CYAN        : 'cyan',
-                status.AGENT_TYPE_MAGENTA     : 'magenta',
-                status.AGENT_TYPE_YELLOW      : 'yellow',
-                status.AGENT_TYPE_CYAN_LOW    : 'photo_cyan',
-                status.AGENT_TYPE_MAGENTA_LOW : 'photo_magenta',
-                status.AGENT_TYPE_YELLOW_LOW  : 'photo_yellow',
-                status.AGENT_TYPE_GGK         : 'photo_gray',
-                status.AGENT_TYPE_BLUE        : 'photo_blue',
-            }
-
-AGENT_kinds = { status.AGENT_KIND_NONE            : 'invalid',
-                status.AGENT_KIND_HEAD            : 'head',
-                status.AGENT_KIND_SUPPLY          : 'supply',
-                status.AGENT_KIND_HEAD_AND_SUPPLY : 'cartridge',
-            }
-            
-AGENT_healths = { status.AGENT_HEALTH_OK           : 'ok',
-                  status.AGENT_HEALTH_MISINSTALLED : 'misinstalled',
-                  status.AGENT_HEALTH_INCORRECT    : 'incorrect',
-                  status.AGENT_HEALTH_FAILED       : 'failed',
-                }
-
+device_r_cache = {} # { 'uri' : ( r_value, r_value_str, rg, rr ), ... }
+device_panel_cache = {} # { 'uri' : ( load_panel_strings ), ... }
 
 class hpssd_server( async.dispatcher ):
 
     def __init__( self, ip, port ):
         self.ip = ip
-        
+
         if port != 0:
             self.port = port
         else:
             self.port = socket.htons(0)
-        
+
         async.dispatcher.__init__( self )
         self.create_socket( socket.AF_INET, socket.SOCK_STREAM )
         self.set_reuse_addr()
-        
+
         try:
             self.bind( ( ip, port ) )
-        except socket.error, e:
+        except socket.error:
             raise Error( ERROR_UNABLE_TO_BIND_SOCKET )
-        
+
         prop.hpssd_port = self.port = self.socket.getsockname()[1]
 
         self.listen( 5 )
-       
-        
+
+
     def writable( self ):
         return False
-        
+
     def readable( self ):
         return self.accepting
-        
+
     def handle_accept( self ):
         try:
             conn, addr = self.accept()
@@ -128,41 +99,14 @@ class hpssd_server( async.dispatcher ):
             return
         handler = hpssd_handler( conn, addr, self )
         log.debug( str(handler) )
-        
-        
+
+
     def __str__( self ):
         return "<hpssd_server listening on %s:%d (fd=%d)>" % \
                 ( self.ip, self.port, self._fileno )
-        
+
     def handle_close( self ):
         async.dispatcher.handle_close( self )
-
-
-        
-def _getHpguid( username ):
-    try:
-        gui = database.guis[ username ]
-        gui_host = gui[ 'host' ]
-        gui_port = int( gui[ 'port' ] )
-    except:
-        log.warning( "Unable to find GUI for username %s." % username )
-        raise Error( ERROR_GUI_NOT_AVAILABLE )
-    
-    return gui_host, gui_port
-
-def _getUsername( job_id ):
-    if job_id is None or job_id == 0:
-        prop.username
-    
-    elif job_id is not None:
-        jobs = cups.getAllJobs() 
-        
-        for j in jobs:
-            if j.id == job_id:
-                return j.user
-        
-    return prop.username
-
 
 
 # This handler takes care of all conversations with
@@ -180,33 +124,33 @@ class hpssd_handler( async.dispatcher ):
         self.fields = {}
         self.payload = ""
         self.signal_exit = False
-        
-        self.device_r_cache = {} # { 'model' : ( r_value, r_value_str, rg, rr ), ... }
-        
+
         # handlers for all the messages we expect to receive
         self.handlers = { 
-                            # Primary Request/Reply Messages
-                            'stringquery'          : self.handle_stringquery,
-                            'errorstringquery'     : self.handle_errorstringquery,
-                            'modelquery'           : self.handle_modelquery,
-                            'historyquery'         : self.handle_historyquery,
-                            'probedevicesfiltered' : self.handle_probedevicesfiltered,
-                            'setalerts'            : self.handle_setalerts,
-                             #'getalerts'            : self.handle_getalerts,
-                            'getgui'               : self.handle_getgui,
-                            'devicequery'          : self.handle_device_query,
-                            
-                            # Primary Event Messages
-                            'event'                : self.handle_event,
-                            'registerguievent'     : self.handle_registerguievent,
-                            'unregisterguievent'   : self.handle_unregisterguievent,
-                            
-                            # Misc
-                            'unknown'              : self.handle_unknown,
-                            'ping'                  : self.handle_ping,
-                            
-                            # undocumented Events
-                            'exitevent'            : self.handle_exit,
+            # Primary Request/Reply Messages
+            'stringquery'          : self.handle_stringquery,
+            'errorstringquery'     : self.handle_errorstringquery,
+            'modelquery'           : self.handle_modelquery,
+            'historyquery'         : self.handle_historyquery,
+            'probedevicesfiltered' : self.handle_probedevicesfiltered,
+            'setalerts'            : self.handle_setalerts,
+            'testemail'            : self.handle_test_email,
+
+            #'getalerts'            : self.handle_getalerts,
+            'getgui'               : self.handle_getgui,
+            'devicequery'          : self.handle_device_query,
+
+            # Primary Event Messages
+            'event'                : self.handle_event,
+            'registerguievent'     : self.handle_registerguievent,
+            'unregisterguievent'   : self.handle_unregisterguievent,
+
+            # Misc
+            'unknown'              : self.handle_unknown,
+            'ping'                  : self.handle_ping,
+
+            # undocumented Events
+            'exitevent'            : self.handle_exit,
                         }        
 
     def __str__( self ):
@@ -216,10 +160,10 @@ class hpssd_handler( async.dispatcher ):
     def handle_read( self ):
         log.debug( "Reading data on channel (%d)" % self._fileno )
         self.in_buffer = self.recv( prop.max_message_len << 2 )
-        
+
         if self.in_buffer == '':
             return False
-        
+
         try:
             self.fields, self.payload = parseMessage( self.in_buffer )
         except Error, e:
@@ -229,436 +173,411 @@ class hpssd_handler( async.dispatcher ):
             self.out_buffer = self.handle_unknown( err )
             log.debug( self.out_buffer )
             return True
-            
+
         msg_type = self.fields.get( 'msg', 'unknown' )
-        log.debug( "%s %s %s" % ("*"*40, msg_type, "*"*40 ) ) 
+        log.debug( "%s %s %s" % ("*"*60, msg_type, "*"*60 ) )
         log.debug( repr(self.in_buffer) )
-        
+
         try:
             self.out_buffer = self.handlers.get( msg_type, self.handle_unknown )()
         except Error:
             log.error( "Unhandled exception during processing" )
-        
+
         return True
-        
+
     def handle_unknown( self, err=ERROR_INVALID_MSG_TYPE ):
         return buildResultMessage( 'MessageError', None, err )
-        
-        
+
+
     def handle_write( self ):
         log.debug( "Sending data on channel (%d)" % self._fileno )
         log.debug( repr(self.out_buffer) )
         sent = self.send( self.out_buffer )
         self.out_buffer = self.out_buffer[ sent: ]
-        
+
         if self.signal_exit:
             self.handle_close()
 
+
     def handle_device_query( self ):
-        fields, result_code, = {}, ERROR_SUCCESS
-        device_state = 'unknown'
-        d = None
-        #try:
-        if 1:
-            device_uri = self.fields[ 'device-uri' ]
-            prev_device_state = self.fields[ 'device-state-previous' ]
-            make_history = self.fields[ 'make-history' ]
-            
-            d = device.Device( hpiod_sock, device_uri )
-            
-            device_state = d.determineIOState( force=False, leave_open=True, 
-                                               do_ping=True, prev_device_state=prev_device_state )
-            
-            fields[ 'device-state' ] = device_state
-            
-            if not database.checkHistory( device_uri ) or make_history:
-                
-                if device_state == device.DEVICE_STATE_NOT_FOUND and \
-                    prev_device_state in ( device.DEVICE_STATE_FOUND, device.DEVICE_STATE_JUST_FOUND ): 
-                    
-                    database.createNotFoundHistory( device_uri )
-            
-                elif device_state == device.DEVICE_STATE_JUST_FOUND: 
-                    database.createIdleHistory( device_uri )
-                
-            
-            try:
-                mq = database.queryModels( d.model )
-                fields.update( mq )
-            except Error, e:
-                log.warn( "ModelQuery failed: %s (%d)" % ( e.msg, e.opt ) )
-                mq = {}
+        dq, result_code, = {}, ERROR_SUCCESS
+        device_uri = self.fields[ 'device-uri' ]
+        prev_device_state = self.fields[ 'device-state-previous' ]
+        make_history = self.fields[ 'make-history' ]
+        prev_status_code = self.fields[ 'status-code-previous' ]
 
-            status_type = int( mq.get( 'status-type', 0 ) )
-            
-            log.debug( "status-type=%d" % status_type )
-            log.debug( "io-state=%d" % d.io_state )
-            
-            if d.io_state == device.IO_STATE_HP_OPEN:
-               
-                fields[ 'serial-number' ] = d.serialNumber() 
-                fields[ 'dev-file' ] = d.devFile()
-                code, name = d.threeBitStatus()
-                fields[ 'status-code' ] = code
-                fields[ 'status-name' ] = name
-                parsed, raw = d.ID()
-                fields[ 'deviceid' ] = raw
-                agents = []
-                
-                status_code, status_name = d.threeBitStatus()
-                fields[ 'status-code' ] = status_code 
-                fields[ 'status-name' ] = status_name 
+        r_values = device_r_cache.get( device_uri, None )
+        panel_check = device_panel_cache.get( device_uri, True )
+        
+        d = device.Device( hpiod_sock, device_uri )
 
-                if status_type == 0:
-                    log.warn( "No status available for device." )
-                    
-                elif status_type in [1,2]:
-                    log.debug( "Using S: or VSTATUS:" )
-                    if 'S' in parsed or 'VSTATUS' in parsed:
-                        status_block = status.parseStatus( parsed )
-                        fields.update( status_block )
-                        if 'agents' in fields:
-                            del fields[ 'agents' ]
-                        agents = status_block[ 'agents' ]
-                        
-                        
-                elif status_type == 3:
-                    log.warn( "Unimpletemented status type." )
-                
-                elif status_type == 4:
-                    log.warn( "Unimpletemented status type." )
+        dq, r_values, panel_check = \
+              d.deviceQuery( prev_device_state, 
+              prev_status_code, database.queryStrings,
+              database.queryModels, r_values, 
+              panel_check )
 
-                elif status_type == 5:
-                    log.warn( "Unimpletemented status type." )
+        d.close()
+        
+        device_panel_cache[ device_uri ] = panel_check
+        device_r_cache[ device_uri ] = r_values
 
-                elif status_type == 6:
-                    log.warn( "Unimpletemented status type." )
-                
-                r_value, rg, rr, r_value_str = 0, '000', '000000', '000000000'
-                r_type = int( mq.get( 'r-type', '0' ) )
-                
-                if r_type > 0:
-                    if d.model not in self.device_r_cache:
-                        try:
-                            r_value = d.getDynamicCounter( 140 )
-                            r_value_str = str( r_value )
-                            r_value_str = ''.join( [ '0'*(9 - len(r_value_str)), r_value_str ] )
-                            rg = r_value_str[:3]
-                            rr = r_value_str[3:]
-                            r_value = int( rr )
-                        except:
-                            pass
-                        else:
-                            self.device_r_cache[ d.model ] =  ( r_value, r_value_str, rg, rr )
-                        
-                    else:
-                        r_value, r_value_str, rg, rr = self.device_r_cache[ d.model ]
-                
-                fields[ 'r' ] = r_value
-                fields[ 'rs' ] = r_value_str
-                fields[ 'rg' ] = rg
-                fields[ 'rr' ] = rr
-                
-                a = 1
-                while True:
-                    mq_agent_kind = int( mq.get( 'r%d-agent%d-kind' % ( r_value, a ), '0' ) )
-                    
-                    if mq_agent_kind == 0:
-                        break
-                    
-                    mq_agent_type = int( mq.get( 'r%d-agent%d-type' % ( r_value, a ), '0' ) )
-                    mq_agent_sku =       mq.get( 'r%d-agent%d-sku' % ( r_value, a ), '???' )
+        device_state = dq[ 'device-state' ]
+        status_code = dq[ 'status-code' ]
 
-                    found = False
-                    for agent in agents:
-                        agent_kind = agent['kind']
-                        agent_type = agent['type']
-                        
-                        if agent_kind == mq_agent_kind and \
-                           agent_type == mq_agent_type:
-                           found = True
-                           break
-                    
-                    if found:
-                        fields[ 'agent%d-kind' % a ] = agent_kind
-                        fields[ 'agent%d-type' % a ] = agent_type
-                        fields[ 'agent%d-level' % a ] = agent.get('level', 0 )
-                        fields[ 'agent%d-ack' % a ] = agent.get( 'ack', False )
-                        fields[ 'agent%d-hp-ink' % a ] = agent.get('hp-ink', True )
-                        fields[ 'agent%d-dvc' % a ] = agent.get( 'dvc', 0 )
-                        fields[ 'agent%d-level-trigger' % a ] = agent.get( 'level-trigger', 0 )
-                        fields[ 'agent%d-virgin' % a ] = agent.get( 'virgin', True )
-                        agent_health = agent.get( 'health', 0 )
-                        fields[ 'agent%d-health' % a ] = agent_health
-                        fields[ 'agent%d-known' % a ] = agent.get( 'known', True )
-                        fields[ 'agent%d-sku' % a ] = mq_agent_sku
-                        
-                    else:
-                        fields[ 'agent%d-kind' % a ] = mq_agent_kind
-                        agent_kind = mq_agent_kind
-                        fields[ 'agent%d-type' % a ] = mq_agent_type
-                        agent_type = mq_agent_type
-                        fields[ 'agent%d-sku' % a ]  = mq_agent_sku
-                        fields[ 'agent%d-level' % a ] = 0
-                        agent_health = status.AGENT_HEALTH_MISINSTALLED
-                        fields[ 'agent%d-health' % a ] = agent_health
-                        fields[ 'agent%d-ack' % a ] = False
-                        fields[ 'agent%d-hp-ink' % a ] = False
-                        fields[ 'agent%d-dvc' % a ] = 0
-                        fields[ 'agent%d-level-trigger' % a ] = 0
-                        fields[ 'agent%d-virgin' % a ] = False
-                        fields[ 'agent%d-known' % a ] = False
-                        
-                    string_query = 'agent_%s_%s' % ( AGENT_types.get( agent_type, 'unknown' ), 
-                                                     AGENT_kinds.get( agent_kind, 'unknown' ) )
-                    
-                    fields[ 'agent%d-desc' % a ] = database.queryStrings( string_query )
-                    
-                    string_query = 'agent_health_%s' % AGENT_healths.get( agent_health, 'unknown' )
-                    fields[ 'agent%d-health-desc' % a ] = database.queryStrings( string_query )
-                    
+        log.debug( "Device state = %d (was %d)" % ( device_state, prev_device_state ) )
+        log.debug( "Status code = %d (was %d)" % ( status_code, prev_status_code ) )
 
-                    a += 1
-                
-   
-                            
-        #finally:
-        if 1:
-            if d is not None:
-                d.close()
-            return buildResultMessage( 'DeviceQueryResult', None, result_code, fields )
-            
-            
+        if make_history:
+
+            non_idle_status = False
+
+            #if device_state == DEVICE_STATE_NOT_FOUND and \
+            #  prev_device_state in ( DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND ): 
+            if device_state == DEVICE_STATE_NOT_FOUND:
+                database.createNotFoundHistory( device_uri )
+                non_idle_status = True
+
+            elif device_state == DEVICE_STATE_JUST_FOUND:
+                database.createHistory( device_uri, status_code )
+
+            if device_state == DEVICE_STATE_FOUND and status_code != STATUS_PRINTER_IDLE:
+                #if status_code != prev_status_code:
+                if 1:
+                    database.createHistory( device_uri, status_code )
+                    non_idle_status = True
+
+            if non_idle_status:
+                # check for low supplies        
+                if device_state in ( DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND ):
+                    tech_type = dq.get( 'tech-type' , TECH_TYPE_NONE )
+                    tech_type = 2
+                    if tech_type != TECH_TYPE_NONE:
+
+                        if tech_type in ( TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK ):
+                            base = STATUS_PRINTER_LOW_INK_BASE
+
+                        elif tech_type in ( TECH_TYPE_MONO_LASER, TECH_TYPE_COLOR_LASER ):
+                            base = STATUS_PRINTER_LOW_TONER_BASE
+
+                        a = 1
+                        while True:
+                            try:
+                                agent_type = int( dq[ 'agent%d-type' % a ] )
+                            except KeyError:
+                                break
+                            else:
+                                agent_level_trigger = int( dq[ 'agent%d-level-trigger' % a ] )
+                                agent_health = int( dq[ 'agent%d-health' % a ] )
+
+                                if agent_health == AGENT_HEALTH_OK:
+
+                                    if agent_level_trigger in ( AGENT_LEVEL_TRIGGER_MAY_BE_LOW,
+                                                                AGENT_LEVEL_TRIGGER_PROBABLY_OUT,
+                                                                AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT ):
+
+                                        code = agent_type+base 
+                                        database.createHistory( device_uri, code  )
+                                        non_idle_status = True
+
+
+                            a += 1
+
+            if not non_idle_status: # and status_code != prev_status_code:
+                error_state = STATUS_TO_ERROR_STATE_MAP.get( prev_status_code, ERROR_STATE_CLEAR )
+                if error_state != ERROR_STATE_BUSY:
+                    database.createHistory( device_uri, STATUS_PRINTER_IDLE )
+
+
+
+        return buildResultMessage( 'DeviceQueryResult', None, result_code, dq )
+
+
     def handle_ping( self ):
         delay, fields, result_code, = -1.0, {}, ERROR_SUCCESS
-        if 1:
-            host = self.fields[ 'host' ]
-            timeout = self.fields.get( 'timeout', 1 )
+        host = self.fields.get( 'host', '' )
+        timeout = self.fields.get( 'timeout', 1 )
+        try:
             delay = utils.ping( host, timeout )
-        if 1:
-            return buildResultMessage( 'PingResult', '%f\n' % delay, result_code, fields )
-            
-    
+        except Error:
+            utils.log_exception()
+            result_code = ERROR_INTERNAL
+
+        return buildResultMessage( 'PingResult', '%f\n' % delay, result_code, fields )
+
+
     def handle_modelquery( self ):
         fields, result_code, = {}, ERROR_SUCCESS
-        #try:
-        if 1:
-            model = self.fields[ 'model' ]
-            log.debug( "ModelQuery: %s" % model )
-            
-            try:
-                fields = database.queryModels( model )
-                log.debug( "MQ result:\n%s" % fields )
-            except Error, e:
-                log.warn( "ModelQuery failed: %s (%d)" % ( e.msg, e.opt ) )
-                result_code = ERROR_QUERY_FAILED
-        #finally:
-        if 1:
-            return buildResultMessage( 'ModelQueryResult', None, result_code, fields )
-    
+        model = self.fields[ 'model' ]
+        log.debug( "ModelQuery: %s" % model )
+
+        try:
+            fields = database.queryModels( model )
+            #log.debug( "MQ result:\n%s" % fields )
+        except Error, e:
+            log.warn( "ModelQuery failed: %s (%d)" % ( e.msg, e.opt ) )
+            result_code = ERROR_QUERY_FAILED
+
+        return buildResultMessage( 'ModelQueryResult', None, result_code, fields )
+
 
     def handle_historyquery( self ):
         result_code, payload = ERROR_SUCCESS, ''
-        ##try:
-        if 1:
-            device_uri = self.fields[ 'device-uri' ]
-            log.debug( "HistoryQuery: %s" % device_uri )
-            
-            try:
-                hist = database.devices_hist[ device_uri ].get()
-            
-            except KeyError:
-                log.warn( "HistoryQuery failed: Initializing..." ) 
-                hist = database.initHistory( device_uri, hpiod_sock )
+        device_uri = self.fields.get( 'device-uri', '' )
+        log.debug( "HistoryQuery: %s" % device_uri )
 
-            for h in hist:
-                payload = '\n'.join( [ payload, ','.join( [ str(x) for x in h ] ) ] ) 
-        ##finally:
-        if 1:
-            return buildResultMessage( 'HistoryQueryResult', payload, result_code )
+        try:
+            hist = database.devices_hist[ device_uri ].get()
+
+        except KeyError:
+            log.warn( "HistoryQuery failed: Initializing..." ) 
+            database.initHistory( device_uri, hpiod_sock )
+            hist = database.devices_hist[ device_uri ].get()
+
+        for h in hist:
+            payload = '\n'.join( [ payload, ','.join( [ str(x) for x in h ] ) ] ) 
+
+        return buildResultMessage( 'HistoryQueryResult', payload, result_code )
 
 
-    
-    
     def handle_setalerts( self ):
         result_code = ERROR_SUCCESS
-        try:
-            username = self.fields.get( 'username', '' )
-            email_alerts = self.fields.get( 'email-alerts', False )
-            email_address = self.fields.get( 'email-address', '' )
-            smtp_server = self.fields.get( 'smtp-server', '' )
-            popup_alerts = self.fields.get( 'popup-alerts', True )
-            
-            database.alerts[ username ] = { 'email-alerts'  : email_alerts,
-                                            'email-address' : email_address,
-                                            'smtp-server'   : smtp_server,
-                                            'popup-alerts'  : popup_alerts }
+        username = self.fields.get( 'username', '' )
+        email_alerts = self.fields.get( 'email-alerts', False )
+        email_address = self.fields.get( 'email-address', '' )
+        smtp_server = self.fields.get( 'smtp-server', '' )
+        popup_alerts = self.fields.get( 'popup-alerts', True )
 
-        finally:
-            return buildResultMessage( 'SetAlertsResult', None, result_code )
-    
+        database.alerts[ username ] = { 'email-alerts'  : email_alerts,
+                                        'email-address' : email_address,
+                                        'smtp-server'   : smtp_server,
+                                        'popup-alerts'  : popup_alerts }
+
+        return buildResultMessage( 'SetAlertsResult', None, result_code )
+
     # EVENT
     def handle_registerguievent( self ):
-        try:
-            username = self.fields.get( 'username', '' )
-            admin_flag = self.fields.get( 'admin-flag', 0 )
-            host = self.fields.get( 'hostname', 'localhost' )
-            port = self.fields.get( 'port', 0 )
-            pid = self.fields.get( 'pid', 0 )
-            
-            log.debug( "Registering GUI: %s %d %s:%d %d" % ( username, admin_flag, host, port, pid ) )
-            
-            database.guis[ username ] = { 'admin_flag'    : admin_flag, 
-                                          'host'          : host, 
-                                          'port'          : port,
-                                        }
-                                        
-            if pid != 0:
-                os.umask( 0133 )
-                pid_file = '/var/run/hpguid-%s.pid' % username
-                file( pid_file, 'w').write( '%d\n' % pid )
-                log.debug( 'Wrote PID %d to %s' % ( pid, pid_file ) )
+        username = self.fields.get( 'username', '' )
+        admin_flag = self.fields.get( 'admin-flag', 0 )
+        host = self.fields.get( 'hostname', 'localhost' )
+        port = self.fields.get( 'port', 0 )
+        pid = self.fields.get( 'pid', 0 )
 
-            
-        finally:
-            return ''
-    
+        log.debug( "Registering GUI: %s %d %s:%d %d" % ( username, admin_flag, host, port, pid ) )
+
+        database.guis[ username ] = { 'admin_flag'    : admin_flag, 
+                                      'host'          : host, 
+                                      'port'          : port,
+                                    }
+
+        if pid != 0:
+            os.umask( 0133 )
+            pid_file = '/var/run/hpguid-%s.pid' % username
+            file( pid_file, 'w').write( '%d\n' % pid )
+            os.umask( 0077 )
+            log.debug( 'Wrote PID %d to %s' % ( pid, pid_file ) )
+
+
+        return ''
+
     # EVENT
     def handle_unregisterguievent( self ):
+        username = self.fields.get( 'username', '' )
         try:
-            username = self.fields.get( 'username', '' )
-            pid = self.fields.get( 'pid', 0 )
-            
-            try:
-                del database.guis[ username ]
-            except KeyError:
-                log.error( "UnRegister GUI error. Invalid username %s." % username )
-            
-            pid_file = '/var/run/hpguid-%s.pid' % username                
-            log.debug( "Removing file %s" % pid_file )
-            
-            try:
-                os.remove( pid_file )
-            except:
-                pass
-            
-        finally:
-            return ''
-    
-    
+            del database.guis[ username ]
+        except KeyError:
+            log.error( "UnRegister GUI error. Invalid username %s." % username )
+
+        pid_file = '/var/run/hpguid-%s.pid' % username                
+        log.debug( "Removing file %s" % pid_file )
+
+        try:
+            os.remove( pid_file )
+        except:
+            pass
+
+        return ''
+
+
     def handle_getgui( self ):
         result_code, port, host = ERROR_SUCCESS, 0, ''
+        username = self.fields.get( 'username', '' )
+
         try:
-            username = self.fields[ 'username' ]
+            host, port = self.get_guid( username )
+        except Error, e:
+            result_code = ERROR_GUI_NOT_AVAILABLE
+            host, port = '', 0
+        else:   
             try:
-                port = database.guis[ username ][ 'port' ]
-                host = database.guis[ username ][ 'host' ]
-            except KeyError:
+                s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+                s.connect( ( host, port ) )
+            except socket.error:
                 result_code = ERROR_GUI_NOT_AVAILABLE
                 host, port = '', 0
-            else:   
                 try:
-                    s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-                    s.connect( ( host, port ) )
-                except socket.error:
-                    result_code = ERROR_GUI_NOT_AVAILABLE
-                    host, port = '', 0
-                    try:
-                        del database.guis[ username ]
-                    except KeyError:
-                        pass
-                else:
-                    s.close()
+                    del database.guis[ username ]
+                except KeyError:
+                    pass
+            else:
+                s.close()
 
-        finally:        
-            return buildResultMessage( 'GetGUIResult', None, 
-                           result_code, { 'port' : port,
-                                          'hostname' : host 
-                                        } )
-    
-    
+        return buildResultMessage( 'GetGUIResult', None, 
+                                   result_code, { 'port' : port,
+                                                  'hostname' : host 
+                                                } )
+
+
+    def handle_test_email( self ): 
+        result_code = ERROR_SUCCESS
+        try:
+            to_address = self.fields[ 'email-address' ]
+            smtp_server = self.fields[ 'smtp-server' ] 
+            username = self.fields[ 'username' ]
+            server_pass = self.fields[ 'server-pass' ] 
+            from_address = '@localhost.com'
+            #log.debug( "########  HOST: %s" % from_address )
+
+            try:
+                if username and server_pass:
+                    from_address = username + "@" + smtp_server
+                else:
+                    stringName = socket.gethostname()
+                    from_address = stringName + from_address
+                log.debug( "Return address: %s" % from_address )
+            except Error:
+                log.debug( "Can't open socket" )
+                result_code = ERROR_TEST_EMAIL_FAILED
+                raise Error( ERROR_TEST_EMAIL_FAILED )
+
+            msg = "From: %s\r\nTo: %s\r\n" % ( from_address, to_address )
+            try:
+                subject_string = database.queryStrings(  'email_test_subject' )
+                log.debug( "Subject (%s)" % subject_string )
+            except Error: 
+                subject_string = None
+                result_code = ERROR_TEST_EMAIL_FAILED
+                raise Error( ERROR_TEST_EMAIL_FAILED )
+
+            try:
+                message_string = database.queryStrings( 'email_test_message' )
+                log.debug( "Message (%s)" % message_string )
+            except Error: 
+                message_string = None
+                result_code = ERROR_TEST_EMAIL_FAILED
+                raise Error( ERROR_TEST_EMAIL_FAILED )
+
+            msg = ''.join( [ msg, subject_string, '\r\n\r\n', message_string ] )
+
+            try:
+                mt = MailThread( msg, smtp_server, from_address, to_address, username, server_pass )
+                mt.start() 
+                mt.join() # wait for thread to finish
+                result_code = mt.result # get the result
+                log.debug( "MailThread had an exception (%s)" %  str(result_code) )
+            except Error: 
+                log.debug( "MailThread TRY: had an exception (%s)" %  str(result_code) )
+                result_code = ERROR_TEST_EMAIL_FAILED
+                raise Error( ERROR_TEST_EMAIL_FAILED )
+
+        except Error, e:
+            log.error( "Error: %d", e.opt )
+
+        log.debug("hpssd.py::handle_email_test::Current error code: %s" % str(result_code))
+        return buildResultMessage( 'TestEmailResult', None, result_code )    
+
+
     def handle_stringquery( self ): 
         payload, result_code = '', ERROR_SUCCESS
+        string_id = self.fields[ 'string-id' ]
+
         try:
-            string_id = self.fields[ 'string-id' ]
-            try:
-                payload = database.queryStrings( string_id )
-            except Error: 
-                payload = None
-                result_code = ERROR_STRING_QUERY_FAILED
-        finally:
-            return buildResultMessage( 'StringQueryResult', payload, result_code )
-            
+            payload = database.queryStrings( string_id )
+        except Error: 
+            #utils.log_exception()
+            log.error( "String query failed for id %s" % string_id )
+            payload = None
+            result_code = ERROR_STRING_QUERY_FAILED
+
+        return buildResultMessage( 'StringQueryResult', payload, result_code )
+
     def handle_errorstringquery( self ):
         payload, result_code = '', ERROR_STRING_QUERY_FAILED
         try:
             error_code = self.fields[ 'error-code' ]
             payload = database.queryStrings( str( error_code ) )
             result_code = ERROR_SUCCESS
-        finally:
-            return buildResultMessage( 'ErrorStringQueryResult', payload, result_code )
-  
-    
+        except Error:
+            utils.log_exception()
+            result_code = ERROR_STRING_QUERY_FAILED
+
+        return buildResultMessage( 'ErrorStringQueryResult', payload, result_code )
+
+
     # EVENT
     def handle_event( self ):
-        if 1:
         #try:
+        if 1:
             gui_port, gui_host = None, None
-            
+
             event_code = self.fields[ 'event-code' ]
             event_type = self.fields[ 'event-type' ]
-            
+
             log.debug( "code (type): %d (%s)" % ( event_code, event_type ) )
-            
+
             try:
                 error_string_short = database.queryStrings( str( event_code ), 0 )
             except Error:
                 error_string_short = ''
-                
+
             try:
                 error_string_long = database.queryStrings( str( event_code ), 1 )
             except Error:
                 error_string_long = ''
-                
+
             log.debug( "short: %s" % error_string_short )
             log.debug( "long: %s" % error_string_long )
 
             job_id = self.fields.get( 'job-id', 0 )
+
             try:
                 username = self.fields[ 'username' ]
             except KeyError:
-                username = _getUsername( job_id )
-            
+                if job_id == 0:
+                    username = prop.username
+                else:
+                    jobs = cups.getAllJobs() 
+
+                    for j in jobs:
+                        if j.id == job_id:
+                            username = j.user
+                            break
+                    else:
+                        username = prop.username
+
+
             no_fwd = self.fields.get( 'no-fwd', False )
-            
+
             log.debug( "username (jobid): %s (%d)" % ( username, job_id ) )
-            
+
             retry_timeout = self.fields.get( 'retry-timeout', 0 )
             device_uri = self.fields.get( 'device-uri', '' )
-            
-            try:
-                database.devices_hist[ device_uri ]
-            except KeyError:
-                database.devices_hist[ device_uri ] = utils.RingBuffer( prop.history_size )
 
-            database.devices_hist[ device_uri ].append( tuple( time.localtime() ) + 
-                                                        ( job_id, username, event_code, 
-                                                          error_string_short, 
-                                                          error_string_long ) )
-                                                          
+            database.createHistory( device_uri, event_code, job_id, username )
+
             try:
-                gui_host, gui_port = _getHpguid( username )
+                gui_host, gui_port = self.get_guid( username )
             except Error, e:
-                log.error( "No GUI available. (%d)" % e.opt )
+                log.warn( "No GUI available. (%d)" % e.opt )
                 raise Error( e.opt )
 
             log.debug( "%s:%d" % ( gui_host, gui_port ) )
-            
+
             user_alerts = database.alerts.get( username, {} )
-            
+
             if not no_fwd:
                 if gui_host is not None and gui_port is not None:
-                    
+
                     log.debug( "Sending to GUI..." )
                     try:
                         s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
@@ -679,44 +598,42 @@ class hpssd_handler( async.dispatcher ):
                                         )
                         except Error,e:
                             log.error( "Error sending event to GUI. (%d)" % e.opt )
-                        
+
                         s.close()
-                    
+
                     # TODO: also send msg to all admin guid's???
-        
+
                 else: # gui not registered or user no longer logged on
-                    log.error( "Unable to find GUI to display error" )
+                    log.warn( "Unable to find GUI to display error" )
             else:
-                    log.debug( "Not sending to GUI, no_fwd=True" )
-                
+                log.debug( "Not sending to GUI, no_fwd=True" )
+
 
             if user_alerts.get( 'email-alerts', False ) and event_type == 'error':
-                
+
                 fromaddr = prop.username + '@localhost'
                 toaddrs = user_alerts.get( 'email-address', 'root@localhost' ).split()
                 smtp_server = user_alerts.get( 'smtp-server', 'localhost' )
                 msg = "From: %s\r\nTo: %s\r\n\r\n" % ( fromaddr, ', '.join(toaddrs) )
                 msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % ( device_uri, event_code, error_string_short )
-                
+
                 mt = MailThread( msg, 
                                  smtp_server, 
                                  fromaddr, 
                                  toaddrs )
                 mt.start()
-                    
-                
-                
-                
+
         #finally:
-        if 1:
-            return ''
-   
+        #    utils.log_exception()
+
+        return ''
+
     # EVENT
     def handle_exituievent( self ):
         try:
             username = self.fields[ 'username' ]
             try:
-                gui_host, gui_port = _getHpguid( username )
+                gui_host, gui_port = self.get_guid( username )
             except Error, e:
                 log.error( "No GUI available. (%d)" % e.opt )
                 raise Error( e.opt )
@@ -724,58 +641,65 @@ class hpssd_handler( async.dispatcher ):
             log.debug( "Sending to GUI..." )
             s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
             s.connect( ( gui_host, gui_port ) )
-            
+
             try:
                 sendEvent( s, 'ExitGUIEvent' )
             except Error, e:
                 log.error( "Error sending event to GUI. (%d)" % e.opt )
             s.close()
-            
+
         finally:
-            return ''
-    
+            utils.log_exception()
+
+        return ''
+
     # EVENT    
     def handle_showuievent( self ):
         try:
             ui_id = self.fields[ 'ui-id' ]
             username = self.fields[ 'username' ]
-            
+
             log.debug( "ShowUI: %s %s" % ( ui_id, username ) )
             try:
-                gui_host, gui_port = _getHpguid( username )
+                gui_host, gui_port = self.get_guid( username )
             except Error, e:
-                log.error( "No GUI available. (%d)" % e.opt )
+                log.warning( "No GUI available. (%d)" % e.opt )
                 raise Error( e.opt )
-    
+
             log.debug( "Sending to GUI..." )
             s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
             s.connect( ( gui_host, gui_port ) )
-            
+
             try:
                 sendEvent( s, 'ShowGUIEvent', None, 
                            { 'ui-id' : ui_id, 
                             'username' : username } )
             except Error, e:
-                log.error( "Error sending event to GUI. (%d)" % e.opt )
-            
+                log.warning( "Error sending event to GUI. (%d)" % e.opt )
+                raise Error( e.opt )
+
             s.close()
-            
+
         finally:
-            return ''
- 
-       
+            utils.log_exception()
+
+        return ''
+
+
     def handle_probedevicesfiltered( self ):
         payload, result_code = '', ERROR_SUCCESS
-        num_devices = 0
-        #try:
-        if 1:
-            bus = self.fields.get( 'bus', 'usb' )
-            format = self.fields.get( 'format', 'default' )
-            
+        num_devices, ret_devices = 0, {}
+
+        buses = self.fields.get( 'bus', 'cups,usb' )
+        buses = buses.split(',')
+        format = self.fields.get( 'format', 'default' )
+
+        for b in buses:
+            bus = b.lower().strip()
             if bus == 'net':
                 ttl = int( self.fields.get( 'ttl', 4 ) )
                 timeout = int( self.fields.get( 'timeout', 5 ) )
-                
+
                 try:
                     devices = slp.detectNetworkDevices( '224.0.1.60', 427, ttl, timeout )  
                 except Error:
@@ -785,58 +709,69 @@ class hpssd_handler( async.dispatcher ):
                         hn = devices[ip].get( 'hn', '?UNKNOWN?' )
                         num_devices_on_jd = devices[ip].get( 'num_devices', 0 )
                         num_ports_on_jd = devices[ip].get( 'num_ports', 1 )
-                        
+
                         if num_devices_on_jd > 0:
                             for port in range( num_ports_on_jd ):
                                 dev = devices[ip].get( 'device%d' % (port+1), '0' )
-                                
+
                                 if dev is not None and dev != '0':
-                                    product_id = devices[ip].get( 'product_id', '?UNKNOWN?' )
                                     device_id = device.parseDeviceID( dev )
                                     model = device_id.get( 'MDL', '?UNKNOWN?' ).replace( ' ', '_' ).replace( '/', '_' )
-                                    
+
                                     if num_ports_on_jd == 1:
                                         device_uri = 'hp:/net/%s?ip=%s' % ( model, ip )
                                     else:  
                                         device_uri = 'hp:/net/%s?ip=%s&port=%d' % ( model, ip, (port+1) )
-                                
-                                    filter = self.fields.get( 'filter', 'none' )
-                
-                                    if filter in ( 'none', 'print' ):
+
+                                    device_filter = self.fields.get( 'filter', 'none' )
+
+                                    if device_filter in ( 'none', 'print' ):
                                         include = True
                                     else:
                                         include = True
-                
+
                                         try:
                                             fields = database.queryModels( model )
                                         except Error:
                                             continue
-                
-                                        for f in filter.split(','):
+
+                                        for f in device_filter.split(','):
                                             filter_type = int( fields.get( '%s-type' % f.lower().strip(), 0 ) )
                                             if filter_type == 0:
                                                 include = False
                                                 break
-                
+
                                     if include:
-                                        num_devices += 1
-                                        if format == 'default':
-                                            payload = ''.join( [ payload, device_uri, ',', model, '\n' ] )
-                                        else:
-                                            payload = ''.join( [ payload, 'direct ', device_uri, ' "', hn, '" ', '"HP ', model, '"\n' ] )
-                
-                    
-            else:
-                devices = device.probeDevices( bus, hpiod_sock )
+                                        ret_devices[ device_uri ] = ( model, hn )
+
+
+            elif bus == 'usb': 
+                try:
+                    fields, data = xmitMessage( hpiod_sock, 
+                                                "ProbeDevices", 
+                                                 None, 
+                                                 { 
+                                                    'bus' : 'usb' 
+                                                 } 
+                                              )                
+                except Error:
+                    devices = []
+                else:
+                    devices = [ x.split(' ')[1] for x in data.splitlines() ]
 
                 for d in devices:
-                    back_end, is_hp, bus, model, serial, dev_file, host, port = device.parseDeviceURI( d )
-    
+                    try:
+                        back_end, is_hp, bus, model, serial, dev_file, host, port = \
+                            device.parseDeviceURI( d )
+                    except Error:
+                        log.warning( "Inrecognized URI: %s" % d )
+                        continue
+
                     if is_hp:
-    
-                        filter = self.fields.get( 'filter', 'none' )
-    
-                        if filter in ( 'none', 'print' ):
+
+                        device_filter = self.fields.get( 'filter', 'none' )
+
+                        if device_filter in ( 'none', 'print' ):
                             include = True
                         else:
                             include = True
@@ -846,24 +781,72 @@ class hpssd_handler( async.dispatcher ):
                             except Error:
                                 continue
 
-                            for f in filter.split(','):
+                            for f in device_filter.split(','):
                                 filter_type = int( fields.get( '%s-type' % f.lower().strip(), 0 ) )
                                 if filter_type == 0:
                                     include = False
                                     break
-    
+
                         if include:
-                            num_devices += 1
-                            if format == 'default':
-                                payload = ''.join( [ payload, d, ',', model, '\n' ] )
-                            else:
-                                payload = ''.join( [ payload, 'direct ', d, ' "HP ', model, '" "', d, '"\n' ] )
-        #finally:
-        if 1:
-            return buildResultMessage( 'ProbeDevicesFilteredResult', payload, 
-                                       result_code, { 'num-devices' : num_devices } )
-    
-    
+                            ret_devices[ d ] = ( model, '' )
+
+            elif bus == 'cups':
+
+                cups_devices = {}
+                cups_printers = cups.getPrinters()
+                x = len( cups_printers )
+
+                for p in cups_printers:
+                    device_uri = p.device_uri
+
+                    if p.device_uri != '':
+
+                        device_filter = self.fields.get( 'filter', 'none' )
+
+                        try:
+                            back_end, is_hp, bs, model, serial, dev_file, host, port = \
+                                device.parseDeviceURI( device_uri )
+                        except Error:
+                            log.warning( "Inrecognized URI: %s" % device_uri )
+                            continue
+
+
+                        if device_filter in ( 'none', 'print' ):
+                            include = True
+                        else:
+                            include = True
+
+                            try:
+                                fields = database.queryModels( model )
+                            except Error:
+                                continue
+
+                            for f in device_filter.split(','):
+                                filter_type = int( fields.get( '%s-type' % f.lower().strip(), 0 ) )
+                                if filter_type == 0:
+                                    include = False
+                                    break
+
+                        if include:
+                            ret_devices[ device_uri ] = ( model, '' )
+
+
+        for d in ret_devices:
+            num_devices += 1
+
+            if format == 'default':
+                payload = ''.join( [ payload, d, ',', ret_devices[d][0], '\n' ] )
+            else:
+                if ret_devices[d][1] != '':
+                    payload = ''.join( [ payload, 'direct ', d, ' "HP ', ret_devices[d][0], '" "', ret_devices[d][1], '"\n' ] )
+                else:
+                    payload = ''.join( [ payload, 'direct ', d, ' "HP ', ret_devices[d][0], '" "', d, '"\n' ] )
+
+
+        return buildResultMessage( 'ProbeDevicesFilteredResult', payload, 
+                                   result_code, { 'num-devices' : num_devices } )
+
+
     # EVENT
     def handle_exit( self ):
         self.signal_exit = True
@@ -875,53 +858,79 @@ class hpssd_handler( async.dispatcher ):
     def writable( self ):
         return not ( ( len( self.out_buffer ) == 0 ) 
                      and self.connected )
-        
+
 
     def handle_close( self ):
         log.debug( "closing channel (%d)" % self._fileno )
         self.connected = False
         self.close()
-    
- 
+
+    def get_guid( self, username ):
+        try:
+            gui = database.guis[ username ]
+            gui_host = gui[ 'host' ]
+            gui_port = int( gui[ 'port' ] )
+        except:
+            raise Error( ERROR_GUI_NOT_AVAILABLE )
+
+        return gui_host, gui_port
 
 class MailThread( threading.Thread ):
-    def __init__( self, message, smtp_server, from_addr, to_addr_list ):
+    def __init__( self, message, smtp_server, from_addr, to_addr_list, username, server_pass ):
         threading.Thread.__init__( self )
         self.message = message
         self.smtp_server = smtp_server
         self.to_addr_list = to_addr_list
         self.from_addr = from_addr
-    
+        self.result = ERROR_SUCCESS
+        self.username = username
+        self.server_pass = server_pass
+
     def run( self ):
         log.debug( "Starting Mail Thread" )
         try:
-            server = smtplib.SMTP( self.smtp_server ) 
+            server = smtplib.SMTP( self.smtp_server, smtplib.SMTP_PORT, 'localhost' ) 
+            server.set_debuglevel(True)
+            if self.username and self.server_pass:
+                try:
+                    server.starttls();
+                    server.login(self.username, self.server_pass)
+                except (smtplib.SMTPHeloError, smtplib.SMTPException), e:
+                    log.error( "SMTP Server Login Error: Unable to connect to server: %s" % e )
+                    self.result = ERROR_SMTP_LOGIN_HELO_ERROR
+
+                except (smtplib.SMTPAuthenticationError), e:
+                    log.error( "SMTP Server Login Error: Unable to authenicate with server: %s" % e )
+                    self.result = ERROR_SMTP_AUTHENTICATION_ERROR
         except smtplib.SMTPConnectError, e:
             log.error( "SMTP Error: Unable to connect to server: %s" % e )
+            self.result = ERROR_SMTP_CONNECT_ERROR
 
-        else:
-            try:
-                server.sendmail( self.from_addr, self.to_addr_list, self.message )
-            except smtplib.SMTPRecipientsRefused, e:
-                log.error( "SMTP Errror: All recepients refused: %s" % e )
-            except smtplib.SMTPHeloError, e:
-                log.error( "SMTP Errror: Invalid server response to HELO command: %s" % e )
-            except smtplib.SMTPSenderRefused, e:
-                log.error( "SMTP Errror: Recepient refused: %s" % e )
-            except smtplib.SMTPDataError, e:
-                log.error( "SMTP Errror: Unknown error: %s" % e )
-            
-            server.quit()
-        
+        try:
+            server.sendmail( self.from_addr, self.to_addr_list, self.message )
+            log.debug("hpssd.py::MailThread::Current error code: %s" % str(self.result))
+        except smtplib.SMTPRecipientsRefused, e:
+            log.error( "SMTP Errror: All recepients refused: %s" % e )
+            self.result = ERROR_SMTP_RECIPIENTS_REFUSED
+        except smtplib.SMTPHeloError, e:
+            log.error( "SMTP Errror: Invalid server response to HELO command: %s" % e )
+            self.result = ERROR_SMTP_HELO_ERROR
+        except smtplib.SMTPSenderRefused, e:
+            log.error( "SMTP Errror: Recepient refused: %s" % e )
+            self.result = ERROR_SMTP_SENDER_REFUSED
+        except smtplib.SMTPDataError, e:
+            log.error( "SMTP Errror: Unknown error: %s" % e )
+            self.result = ERROR_SMTP_DATA_ERROR
+
+        server.quit()
         log.debug( "Exiting mail thread" )
 
 
-
-
 def reInit():    
-    database.initDatabases( hpiod_sock )
-    #TODO: Reset connections, devices, etc.
-    
+    database.initModels()
+    database.initStrings()
+    #device_r_cache.update( database.initHistories( hpiod_sock ) )
+
 def handleSIGHUP( signo, frame ):
     log.info( "SIGHUP" )
     reInit()
@@ -947,13 +956,13 @@ def exitAllGUIs():
                     sendEvent( s, 'ExitGUIEvent', None, {} )
                 except Error,e:
                     log.warning( "Unable to send event to GUI (%s:%s). (%d)" % ( gui_host, gui_port, e.opt ) )
-                
-                s.close()
-            
-        
-        
 
-    
+                s.close()
+
+
+
+
+
 def usage():
     formatter = utils.TextFormatter( 
                 (
@@ -963,46 +972,43 @@ def usage():
             )
 
     log.info( utils.TextFormatter.bold( """\nUsage: hpssd.py [OPTIONS]\n\n""" ) )
-    
+
     log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"), "" ) ) )
-    
+
     log.info( formatter.compose( ( "Set the logging level:",   "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                         "<level>: none, info*, error, warn, debug (*default)" ) ) )
     log.info( formatter.compose( ( "Disable daemonize:",       "-x" ) ) )
     log.info( formatter.compose( ( "This help information:",   "-h or --help" ), True ) )
 
-        
-        
 hpiod_sock = None
 
-    
 def main( args ):
-    
+
     prop.prog = sys.argv[0]        
     prop.daemonize = True
     log.set_module( 'hpssd' )
-    
+
     utils.log_title( 'Services and Status Daemon', _VERSION )
 
     try:
         opts, args = getopt.getopt( sys.argv[1:], 'l:xhp:', [ 'level=', 'help', 'port=' ] ) 
-              
+
     except getopt.GetoptError:
         usage()
         sys.exit(1)
-        
+
     for o, a in opts:
         if o in ( '-l', '--logging' ):
             log_level = a.lower().strip()
             log.set_level( log_level )
-        
+
         elif o in ( '-x', ):
             prop.daemonize = False
 
         elif o in ( '-h', '--help' ):
             usage()
             sys.exit(1)
-            
+
         elif o in ( '-p', '--port' ):
             try:
                 prop.hpssd_cfg_port = int( a )
@@ -1011,16 +1017,21 @@ def main( args ):
                 sys.exit(1)
 
 
-    prop.history_size = 20
+    prop.history_size = 32
 
     # Lock pidfile before we muck around with system state
     # Patch by Henrique M. Holschuh <hmh@debian.org>
     utils.get_pidfile_lock('/var/run/hpssd.pid')
 
+    # Spawn child right away so that boot up sequence
+    # is as fast as possible
+    if prop.daemonize:
+        utils.daemonize()
+
     # configure the various data stores
     gettext.install( 'hplip' )
     reInit()
-    
+
     # hpssd server dispatcher object
     try:
         server = hpssd_server( prop.hpssd_host, prop.hpssd_cfg_port )
@@ -1031,9 +1042,10 @@ def main( args ):
 
     os.umask( 0133 )
     file( '/var/run/hpssd.port', 'w' ).write( '%d\n' % prop.hpssd_port )
+    os.umask (0077 )
     log.debug( 'port=%d' % prop.hpssd_port )
     log.info( "Listening on %s port %d" % ( prop.hpssd_host, prop.hpssd_port ) )
-    
+
     global hpiod_sock
     try:
         hpiod_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
@@ -1041,15 +1053,10 @@ def main( args ):
     except socket.error:
         log.error( "Unable to connect to hpiod." )
         sys.exit(-1)
-    
-        
-    if prop.daemonize:
-        utils.daemonize()
-        
+
     atexit.register( exitAllGUIs )        
     signal.signal( signal.SIGHUP, handleSIGHUP )
-    #signal.signal( signal.SIGPIPE, signal.SIG_IGN )
-        
+
     try:
         log.debug( "Starting async loop..." )
         try:
@@ -1060,7 +1067,7 @@ def main( args ):
             log.warn( "Exit message received, exiting..." )
         except Exception:
             utils.log_exception()
-            
+
         log.debug( "Cleaning up..." )
     finally:
         os.remove( '/var/run/hpssd.pid' )
@@ -1070,5 +1077,5 @@ def main( args ):
 
 if __name__ == "__main__":
     sys.exit( main( sys.argv[1:] ) )
-    
-    
+
+

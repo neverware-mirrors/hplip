@@ -1,8 +1,16 @@
 #! /bin/bash
 #
 # Startup/shutdown script for HPLIP 
+#
+# Note, this script file must start before cupsd.
+#
+# For chkconfig the HPLIP priority (ie: 50) must be less the cupsd 
+# priority (ie: 55).
+#
+# For LSB install_initd the cups script file should have "hplip" in the
+# Should-Start field.
 # 
-#   chkconfig: 2345 90 10
+#   chkconfig: 2345 50 10
 #   description: Start/stop script for HP Linux Imaging and Printing (HPLIP).
 #
 # (c) 2004 Copyright Hewlett-Packard Development Company, LP
@@ -11,6 +19,8 @@
 # Provides: hplip
 # Required-Start:
 # Required-Stop:
+# Should-Start:
+# Should-Stop:
 # Default-Start: 3 5
 # Default-Stop: 
 # Description: Start/stop script for HP Linux Imaging and Printing (HPLIP)
@@ -31,17 +41,20 @@ daemon() {
 
 killproc() {
    pid=`su - root -c "pidof -s $1"`
+   pidfile=/var/run/${1}.pid
    if [ -z $pid ]; then
-      pidfile=/var/run/${1}.pid
       if [ -f $pidfile ]; then
          read pid < $pidfile
          kill $pid
-         rm $pidfile
       fi      
    else
       kill $pid
    fi
-   if [ $? -eq 0 ]; then
+   retval=$?
+   if [ -f $pidfile ]; then
+      rm $pidfile
+   fi      
+   if [ $retval -eq 0 ]; then
       echo -ne "                                           [  OK  ]\r"
    else
       echo -ne "                                           [FAILED]\r"
@@ -79,14 +92,14 @@ start() {
         daemon ./hpiod
         RETVAL=$?
         echo
-        [ $RETVAL = 0 ] && touch /var/lock/subsys/hpiod
+        [ $RETVAL = 0 ] && [ -d /var/lock/subsys ] && touch /var/lock/subsys/hpiod
         echo -n $"Starting hpssd: "
         cd $HPSSDDIR
         daemon ./hpssd.py
         RETVAL=$?
         echo
-        [ $RETVAL = 0 ] && touch /var/lock/subsys/hpssd.py
-        killall -HUP cupsd
+        [ $RETVAL = 0 ] && [ -d /var/lock/subsys ] && touch /var/lock/subsys/hpssd.py
+#        killall -HUP cupsd
         return $RETVAL
 }
 

@@ -52,6 +52,14 @@ public:
 
     Header* SelectHeader(PrintContext* pc);
     virtual DRIVER_ERROR Send (const BYTE *pWriteBuff, DWORD dwWriteLen);
+
+#ifdef APDK_HP_UX
+    virtual DRIVER_ERROR Send (const BYTE *pWriteBuff)
+    {
+        return Send (pWriteBuff, strlen ((const char *) pWriteBuff));
+    }
+#endif
+
     virtual DRIVER_ERROR Encapsulate (const RASTERDATA *pRasterData, BOOL bLastPlane);
     DRIVER_ERROR VerifyPenInfo ();
     virtual DRIVER_ERROR ParsePenInfo (PEN_TYPE& ePen, BOOL QueryPrinter = TRUE);
@@ -62,64 +70,83 @@ public:
 	virtual DRIVER_ERROR CheckInkLevel();
 
     DISPLAY_STATUS ParseError (BYTE byStatusReg);
+    
+	inline virtual BOOL SupportSeparateBlack (PrintMode *pCurrentMode)
+    {
+        if (pCurrentMode->ColorDepth[1] == 2)
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+    
 
     LDLEncap    *pLDLEncap;
 
 protected:
     DISPLAY_STATUS m_dsCurrentStatus;
     virtual void InitPrintModes ();
-};
 
-class CrossBowGrayMode : public PrintMode
-{
-public:
-    CrossBowGrayMode (PEN_TYPE ePen);
-};
-
-class CrossBowKDraftMode : public GrayMode
-{
-public:
-    CrossBowKDraftMode ();
-};
-
-class CrossBowDraftMode : public PrintMode
-{
-public:
-    CrossBowDraftMode (PEN_TYPE ePen);
+#ifdef APDK_HP_UX
+protected:
+    virtual DJ3320& operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
 
 };
 
-class CrossBowNormalMode : public PrintMode
+class DJ3320GrayMode : public PrintMode
 {
 public:
-    CrossBowNormalMode (PEN_TYPE ePen);
+    DJ3320GrayMode (PEN_TYPE ePen);
+};
+
+class DJ3320KDraftMode : public GrayMode
+{
+public:
+    DJ3320KDraftMode ();
+};
+
+class DJ3320DraftMode : public PrintMode
+{
+public:
+    DJ3320DraftMode (PEN_TYPE ePen);
 
 };
 
-class CrossBowPhotoMode : public PrintMode
+class DJ3320NormalMode : public PrintMode
 {
 public:
-    CrossBowPhotoMode ();
-};
-
-class SpearMDLNormalMode : public PrintMode
-{
-public:
-    SpearMDLNormalMode ();
-};
-
-
-class SpearMDLDraftMode : public PrintMode
-{
-public:
-    SpearMDLDraftMode ();
+    DJ3320NormalMode (PEN_TYPE ePen);
 
 };
 
-class SpearMDLPhotoMode : public PrintMode
+class DJ3320PhotoMode : public PrintMode
 {
 public:
-    SpearMDLPhotoMode ();
+    DJ3320PhotoMode ();
+};
+
+class DJ3600MDLNormalMode : public PrintMode
+{
+public:
+    DJ3600MDLNormalMode ();
+};
+
+
+class DJ3600MDLDraftMode : public PrintMode
+{
+public:
+    DJ3600MDLDraftMode ();
+
+};
+
+class DJ3600MDLPhotoMode : public PrintMode
+{
+public:
+    DJ3600MDLPhotoMode ();
 
 };
 
@@ -133,17 +160,17 @@ class DJ3320Proxy : public PrinterProxy
 public:
     DJ3320Proxy() : PrinterProxy(
         "DJ3320",                   // family name
-        "deskjet 3320\0"                        // DeskJet 3320 - crossbow
-        "deskjet 3420\0"                        // DeskJet 3420 - crossbow
-		"deskjet 3325\0"                        // DeskJet 3325 - crossbow
-		"deskjet 3500\0"                        // DeskJet 3500 - stiletto/dagger
-		"Deskjet 3740\0"                        // Deskjet 3740 - Blade
+        "deskjet 3320\0"                        // DeskJet 3320 - DJ3320
+        "deskjet 3420\0"                        // DeskJet 3420 - DJ3320
+		"deskjet 3325\0"                        // DeskJet 3325 - DJ3320
+		"deskjet 3500\0"                        // DeskJet 3500
+		"Deskjet 3740\0"                        // Deskjet 3740
 #ifdef APDK_MLC_PRINTER
-		"psc 1100\0"                            // homer
-		"psc 1200\0"                            // homer
-		"officejet 4100\0"                      // Maui
-		"officejet 4105\0"                      // Maui Light
-		"officejet 4200\0"                      // Bering
+		"psc 1100\0"
+		"psc 1200\0"
+		"officejet 4100\0"
+		"officejet 4105\0"
+		"officejet 4200\0"
 #endif
     ) {m_iPrinterType = eDJ3320;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ3320(pSS); }
@@ -180,7 +207,7 @@ typedef enum
   IN_NOT,
   IN_FIRST,
   IN_IMAGE,
-  IN_COPY,
+  IN_COPY
 } LDLCOMPMODE;
 
 class comp_ptrs_t

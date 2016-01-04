@@ -389,7 +389,8 @@ FUNC_STATUS WORD jpgFix_getHeaderBufSize (
 \*****************************************************************************/
 
 
-#define MYLOCATE(p) (void *)(p)=(g->headerBuffer+lenAddedHeader)
+//#define MYLOCATE(p) (void *)(p)=(g->headerBuffer+lenAddedHeader)
+#define MYLOCATE(p) (p)=(void *)(g->headerBuffer+lenAddedHeader)
 #define MYWRITE(p) lenAddedHeader+=sizeof(*(p))
 #define MYWRITEBUF(data,datalen) \
     do { \

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/nodevicesform_base.ui'
 #
-# Created: Tue Nov 16 13:49:43 2004
+# Created: Thu Jan 20 09:35:48 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

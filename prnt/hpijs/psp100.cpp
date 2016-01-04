@@ -37,8 +37,6 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-
 // PhotoSmart 100 - AtomAnt
 PSP100::PSP100 (SystemServices* pSS, BOOL proto)
     : DJ9xxVIP (pSS, proto)

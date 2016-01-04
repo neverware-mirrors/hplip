@@ -38,6 +38,8 @@
 
 APDK_BEGIN_NAMESPACE
 
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+
 /*
  *  All VIP printers that are released after the APDK release.
  *  This subclass is mainly there to allow any combination of
@@ -66,6 +68,7 @@ DJGenericVIP::DJGenericVIP (SystemServices* pSS, BOOL proto)
  */
 
     pMode[ModeCount++] = new VIPFastDraftMode ();        // Fast Draft
+    pMode[ModeCount++] = new VIPGrayFastDraftMode ();    // Grayscale Fast Draft
 
     for (int i = 0; i < (int) ModeCount; i++)
     {
@@ -89,10 +92,33 @@ VIPFastDraftMode::VIPFastDraftMode () : PrintMode (NULL)
 
    Config.bColorImage = FALSE;
 
-    medium = mediaAuto;
+    medium = mediaPlain;
     theQuality = qualityFastDraft;
     pmQuality = QUALITY_FASTDRAFT;
+    pmMediaType   = MEDIA_PLAIN;
 } // VIPFastDraftMode
+
+VIPGrayFastDraftMode::VIPGrayFastDraftMode () : GrayMode (ulMapDJ600_CCM_K)
+{
+    bFontCapable = FALSE;
+
+#if defined(APDK_VIP_COLORFILTERING)
+    Config.bErnie = TRUE;
+#endif
+
+    Config.bColorImage = FALSE;
+
+#ifdef APDK_AUTODUPLEX
+    bDuplexCapable = TRUE;
+#endif
+
+    dyeCount    = 1;
+    medium      = mediaAuto;
+    theQuality  = qualityFastDraft;
+    pmQuality   = QUALITY_FASTDRAFT;
+    pmMediaType = MEDIA_PLAIN;
+    pmColor     = GREY_K;
+}
 
 BOOL DJGenericVIP::UseGUIMode (PrintMode* pPrintMode)
 {
@@ -354,14 +380,14 @@ DRIVER_ERROR DJGenericVIP::VerifyPenInfo ()
     if(err == UNSUPPORTED_PEN) // probably Power Off - pens couldn't be read
     {
 
-        // have to delay for Broadway or the POWER ON will be ignored
+        // have to delay or the POWER ON will be ignored
         if (pSS->BusyWait ((DWORD) 2000) == JOB_CANCELED)
         {
             return JOB_CANCELED;
         }
 
-        DWORD length = sizeof (Venice_Power_On);
-        err = pSS->ToDevice (Venice_Power_On, &length);
+        DWORD length = sizeof (DJ895_Power_On);
+        err = pSS->ToDevice (DJ895_Power_On, &length);
         ERRCHECK;
 
         err = pSS->FlushIO ();

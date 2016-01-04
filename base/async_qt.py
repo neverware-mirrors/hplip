@@ -25,8 +25,8 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # ======================================================================
 #
-# $Revision: 1.8 $ 
-# $Date: 2004/12/15 18:19:24 $
+# $Revision: 1.9 $ 
+# $Date: 2005/02/02 21:54:48 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -83,10 +83,11 @@ import sys
 import time
 import os
 from qt import *
+from g import *
 
 
 from errno import EALREADY, EINPROGRESS, EWOULDBLOCK, ECONNRESET, \
-     ENOTCONN, ESHUTDOWN, EINTR, EISCONN
+     ENOTCONN, ESHUTDOWN, EINTR, EISCONN, EAGAIN
 
 
 class ExitNow( Exception ):

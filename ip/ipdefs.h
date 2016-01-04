@@ -71,7 +71,8 @@ do {                                                        \
 do {                                                            \
     /* the weirdness below is equivalent to a type cast */      \
     /* the 12 below is buffer-overrun allowance */              \
-    *(void**)&(ptr_macpar) = (void*) malloc(nBytes_macpar+12);  \
+/*    *(void**)&(ptr_macpar) = (void*) malloc(nBytes_macpar+12); */ \
+    (ptr_macpar) = malloc(nBytes_macpar+12);  \
     INSURE (ptr_macpar != NULL);                                \
 } while (0)
 
@@ -99,11 +100,13 @@ do {                                                        \
  * discards the low 32 bits, giving you the high 32 bits.  The way
  * this is done is compiler-dependent.
  */
-#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {    \
-    __int64 prod64;                                            \
-    prod64 = (__int64)(firstpar) * (secondpar);                \
-    hihalfresult = ((int*)&prod64)[1];                        \
-    /* above, use a [0] for big endian */                    \
+//#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {    \
+//    __int64 prod64;                                            \
+//    prod64 = (__int64)(firstpar) * (secondpar);                \
+//    hihalfresult = ((int*)&prod64)[1];                        \
+//    /* above, use a [0] for big endian */                    \
+#define MUL32HIHALF(firstpar, secondpar, hihalfresult) {       \
+    hihalfresult = ((__int64)(firstpar) * (secondpar)) >> 32;  \
 }
 
 #endif

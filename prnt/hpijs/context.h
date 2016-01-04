@@ -64,7 +64,7 @@ class PrintContext
 friend class Job;         // access to private (non-instrumented) versions of routines
 friend class Header;      // access to private (non-instrumented) versions of routines
 friend class RasterSender;    // access to current printmode
-friend class HeaderAladdin;  // to use GUITopMargin
+friend class HeaderDJ990;  // to use GUITopMargin
 friend class Header895;
 friend class Tester;
 friend class Header850;

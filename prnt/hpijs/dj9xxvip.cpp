@@ -42,7 +42,7 @@ APDK_BEGIN_NAMESPACE
 #define OUR_PJL_JOBNAME "_PJL_pjl_PJL_pjl_" // this can be anything we want it to be
 #define DRIVERWARE_JOBNAME  "NEWDRIVERWARE" // don't change this - it is defined in firmware!
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 
 const char GrayscaleSeq[]= {ESC, '*', 'o', '5', 'W', 0x0B, 0x01, 0x00, 0x00, 0x02};
 extern BYTE EscAmplCopy(BYTE *dest, int num, char end);
@@ -70,9 +70,9 @@ DJ9xxVIP::DJ9xxVIP
     PCL3acceptsDriverware = IsPCL3DriverwareAvailable();
 
     ModeCount = 0;
-    pMode[ModeCount++] = new GrayModeAladdin(ulMapVOLTAIRE_CCM_K,PCL3acceptsDriverware);  // Grayscale K
-    pMode[ModeCount++] = new AladdinMode();           // Automatic Color
-    pMode[ModeCount++] = new AladdinCMYGrayMode();    // Automatic Grayscale CMY
+    pMode[ModeCount++] = new GrayModeDJ990(ulMapDJ600_CCM_K,PCL3acceptsDriverware);  // Grayscale K
+    pMode[ModeCount++] = new DJ990Mode();           // Automatic Color
+    pMode[ModeCount++] = new DJ990CMYGrayMode();    // Automatic Grayscale CMY
 
 #ifdef APDK_AUTODUPLEX
 
@@ -85,15 +85,15 @@ DJ9xxVIP::DJ9xxVIP
 #endif 
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-    pMode[ModeCount++] = new AladdinKGrayMode ();        // Normal Grayscale K
-    pMode[ModeCount++] = new Aladdin2400Mode ();         // HiRes
-    pMode[ModeCount++] = new AladdinDraftMode ();        // Draft Color
+    pMode[ModeCount++] = new DJ990KGrayMode ();        // Normal Grayscale K
+    pMode[ModeCount++] = new DJ9902400Mode ();         // HiRes
+    pMode[ModeCount++] = new DJ990DraftMode ();        // Draft Color
 #endif
-    pMode[ModeCount++] = new AladdinBestMode ();        // Photo Best
+    pMode[ModeCount++] = new DJ990BestMode ();        // Photo Best
 
 }
 
-GrayModeAladdin::GrayModeAladdin
+GrayModeDJ990::GrayModeDJ990
 (
     uint32_t *map,
     BOOL PCL3OK
@@ -120,7 +120,7 @@ GrayModeAladdin::GrayModeAladdin
 #endif
 }
 
-AladdinMode::AladdinMode()
+DJ990Mode::DJ990Mode()
 : PrintMode(NULL)
 {
 
@@ -147,10 +147,10 @@ AladdinMode::AladdinMode()
 #ifdef APDK_AUTODUPLEX
     bDuplexCapable = TRUE;
 #endif
-} //AladdinMode
+} //DJ990Mode
 
 
-AladdinCMYGrayMode::AladdinCMYGrayMode()
+DJ990CMYGrayMode::DJ990CMYGrayMode()
 : PrintMode(NULL)
 {
 
@@ -173,10 +173,10 @@ AladdinCMYGrayMode::AladdinCMYGrayMode()
 #endif
     pmColor = GREY_CMY;
     bFontCapable = FALSE;
-} //AladdinCMYGrayMode
+} //DJ990CMYGrayMode
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-AladdinKGrayMode::AladdinKGrayMode () : PrintMode (NULL)
+DJ990KGrayMode::DJ990KGrayMode () : PrintMode (NULL)
 {
 
 /*
@@ -197,9 +197,9 @@ AladdinKGrayMode::AladdinKGrayMode () : PrintMode (NULL)
     pmColor = GREY_K;
     bFontCapable = FALSE;
     dyeCount = 1;
-} //AladdinKGrayMode
+} //DJ990KGrayMode
 
-Aladdin2400Mode::Aladdin2400Mode () : PrintMode (NULL)
+DJ9902400Mode::DJ9902400Mode () : PrintMode (NULL)
 {
     BaseResX =
     BaseResY = 1200;
@@ -219,9 +219,9 @@ Aladdin2400Mode::Aladdin2400Mode () : PrintMode (NULL)
     theQuality = qualityPresentation;
     pmMediaType = MEDIA_PHOTO;
     pmQuality = QUALITY_HIGHRES_PHOTO;
-} // Aladdin2400Mode
+} // DJ9902400Mode
 
-AladdinDraftMode::AladdinDraftMode () : PrintMode (NULL)
+DJ990DraftMode::DJ990DraftMode () : PrintMode (NULL)
 {
     bFontCapable = FALSE;
 #ifdef APDK_AUTODUPLEX
@@ -236,7 +236,7 @@ AladdinDraftMode::AladdinDraftMode () : PrintMode (NULL)
     medium = mediaAuto;
     theQuality = qualityDraft;
     pmQuality = QUALITY_DRAFT;
-} // AladdinDraftMode
+} // DJ990DraftMode
 
 #endif  // APDK_EXTENDED_MEDIASIZE
 
@@ -245,7 +245,7 @@ AladdinDraftMode::AladdinDraftMode () : PrintMode (NULL)
  *  selection of Photo/Best mode for these printers, use this mode.
  */
 
-AladdinBestMode::AladdinBestMode () : PrintMode (NULL)
+DJ990BestMode::DJ990BestMode () : PrintMode (NULL)
 {
     BaseResX = BaseResY = ResolutionX[0] = ResolutionY[0] = VIP_BASE_RES;
 
@@ -265,7 +265,7 @@ AladdinBestMode::AladdinBestMode () : PrintMode (NULL)
 	theQuality  = qualityPresentation;
 	pmQuality   = QUALITY_BEST;
     pmMediaType = MEDIA_PHOTO;
-} // AladdinBestMode
+} // DJ990BestMode
 
 BOOL DJ9xxVIP::UseGUIMode
 (
@@ -357,18 +357,18 @@ Compressor* DJ9xxVIP::CreateCompressor(unsigned int RasterSize)
 
 Header* DJ9xxVIP::SelectHeader(PrintContext* pc)
 {
-    return new HeaderAladdin(this,pc);
+    return new HeaderDJ990(this,pc);
 }
 
 
-HeaderAladdin::HeaderAladdin(Printer* p,PrintContext* pc)
+HeaderDJ990::HeaderDJ990(Printer* p,PrintContext* pc)
     : Header(p,pc)
 {
     SetMediaSource(pc->GetMediaSource());
 }
 
 
-DRIVER_ERROR HeaderAladdin::ConfigureRasterData()
+DRIVER_ERROR HeaderDJ990::ConfigureRasterData()
 // This is the more sophisticated way of setting color and resolution info.
 //
 // NOTE: Will need to be overridden for DJ5xx.
@@ -439,7 +439,7 @@ DRIVER_ERROR HeaderAladdin::ConfigureRasterData()
 } //ConfigureRasterData
 
 
-DRIVER_ERROR HeaderAladdin::ConfigureImageData()
+DRIVER_ERROR HeaderDJ990::ConfigureImageData()
 {
     DRIVER_ERROR err = thePrinter->Send((const BYTE*)cidStart, sizeof(cidStart));
     ERRCHECK;
@@ -462,8 +462,8 @@ DRIVER_ERROR HeaderAladdin::ConfigureImageData()
 } //ConfigureImageData
 
 
-DRIVER_ERROR HeaderAladdin::Send()
-/// ASSUMES COMPRESSION ALWAYS ON -- required by aladdin
+DRIVER_ERROR HeaderDJ990::Send()
+/// ASSUMES COMPRESSION ALWAYS ON -- required by DJ990
 {
     DRIVER_ERROR err;
 //    PRINTMODE_VALUES    *pPMV;
@@ -506,7 +506,7 @@ DRIVER_ERROR HeaderAladdin::Send()
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    // unit-of-measure command --- seems to be need in aladdin PCL3 mode
+    // unit-of-measure command --- seems to be need in DJ990 PCL3 mode
     char uom[10];
     sprintf(uom,"%c%c%c%d%c",ESC,'&','u',thePrintMode->ResolutionX[K],'D');
     err = thePrinter->Send((const BYTE*)uom, strlen (uom));
@@ -591,7 +591,7 @@ DRIVER_ERROR HeaderAladdin::Send()
 } //Send
 
 
-DRIVER_ERROR HeaderAladdin::StartSend()
+DRIVER_ERROR HeaderDJ990::StartSend()
 {
     DRIVER_ERROR err;
 
@@ -641,7 +641,7 @@ DRIVER_ERROR HeaderAladdin::StartSend()
 } //StartSend
 
 /* This could replace Header::SetMediaSource in header.cpp. des 8/5/02 */
-void HeaderAladdin::SetMediaSource(MediaSource msource)
+void HeaderDJ990::SetMediaSource(MediaSource msource)
 // Sets value of PCL::mediasource and associated counter msrccount
 {
     msrccount=EscAmplCopy((BYTE*)mediasource,msource,'H');
@@ -659,14 +659,14 @@ DRIVER_ERROR DJ9xxVIP::VerifyPenInfo()
     {
         DBG1("DJ9xxVIP::Need to do a POWER ON to get penIDs\n");
 
-        // have to delay for Broadway or the POWER ON will be ignored
+        // have to delay or the POWER ON will be ignored
         if (pSS->BusyWait((DWORD)2000) == JOB_CANCELED)
         {
             return JOB_CANCELED;
         }
 
-        DWORD length = sizeof(Venice_Power_On);
-        err = pSS->ToDevice(Venice_Power_On,&length);
+        DWORD length = sizeof(DJ895_Power_On);
+        err = pSS->ToDevice(DJ895_Power_On,&length);
         ERRCHECK;
 
         err = pSS->FlushIO();
@@ -732,6 +732,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
     int num_pens = 0;
     PEN_TYPE temp_pen1 = NO_PEN;
     BYTE penInfoBits[4];
+    int     i;
 
 /*
  *  First check if this printer's firmware version is one I know about. Currently
@@ -747,7 +748,6 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 
     DRIVER_ERROR err = SetPenInfo (str, QueryPrinter);
     ERRCHECK;
-
     iNumMissingPens = 0;
 
     // the first byte indicates how many pens are supported
@@ -769,7 +769,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
         return BAD_DEVICE_ID;
     }
 
-//  Aladdin style DevID
+//  DJ990 style DevID
 
     if (pSS->GetVIPVersion () == 1)
     {
@@ -783,7 +783,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
         penInfoBits[1] &= 0xf8; // mask off ink level trigger bits
 
         if ((penInfoBits[0] == 0xc1) && (penInfoBits[1] == 0x10))
-        {   // Hobbes
+        {
             temp_pen1 = BLACK_PEN;
         }
         else if (penInfoBits[0] == 0xc0)
@@ -848,44 +848,89 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
 
     Bits 29 .. 24 (6 bits) describes the pen/supply type:
 
-    0 = none
-    1 = black
-    2 = CMY
-    3 = KCM
-    4 = Cyan
-    5 = Meganta
-    6 = Yellow
-	7 = Cyan - low dye load 
-    8 = Magenta - low dye load 
-    9 = Yellow - low dye load (may never be used, but reserve space anyway) [def added Jun 3, 2002]
+    0  = none
+    1  = black
+    2  = CMY
+    3  = KCM
+    4  = Cyan
+    5  = Meganta
+    6  = Yellow
+	7  = Cyan - low dye load 
+    8  = Magenta - low dye load 
+    9  = Yellow - low dye load (may never be used, but reserve space anyway) [def added Jun 3, 2002]
     10 = gGK - two shades of grey plus black; g=light grey, G=medium Grey, K=black  [added Sep 12, 02]
-    11 .. 62 = reserved for future use
-    63=Unknown
+    11 = Blue Pen
+    12 .. 62 = reserved for future use
+    63 = Unknown
 
     Bits 23 .. 19 (5 bits) describes the pen/supply id:
 
     0 = none
-    1 = Chinook (Formerly N)
-    2 = Hobbes (Formerly H)
+    1 = color (Formerly N)
+    2 = black (Formerly H)
     3 = Flash (Formerly F)
-    4 = Robinhood (Formerly R -- only 6xx family)
-    5 = Candide (Formerly C -- only 6xx family)
-    6 = Little John (Formerly M -- only for 6xx family)
-    7 = Cyclone (Jupiter Pen)
+    4 = (Formerly R -- only 6xx family)
+    5 = (Formerly C -- only 6xx family)
+    6 = (Formerly M -- only for 6xx family)
+    7 = (Cp1160 Pen)
     8 = Europa (Jupiter Ink)
     9 = Wax (pen/ink combo; k)  
-    10 = Pele (pen/ink combo; cmy)  
-    11 = Iris (pen/ink combo; kcm) 
-    12 = Zorro (pen/ink combo; k)    [def added Jun 27, 2002]
-    13 = Linus (k)  [def added Jun 27, 2002]
-    14 = Ash pen/ink combo; gGK)  [added Sep 12, 02] 
+    10 = (pen/ink combo; cmy)  
+    11 = (pen/ink combo; kcm) 
+    12 = (pen/ink combo; k)    [def added Jun 27, 2002]
+    13 = (k)  [def added Jun 27, 2002]
+    14 = pen/ink combo; gGK)  [added Sep 12, 02] 
     15 .. 30 = reserved for future use    [def added Jun 27, 2002]
     31 = Other/Unknown  [def added Jun 27, 2002]
  */
 
     ePen = NO_PEN;
 
-    for (int i = 0; i < num_pens; i++, p += 8)
+    if (pSS->GetVIPVersion () == 3)
+    {
+        for (i = 0; i < num_pens; i++, p += 4)
+        {
+            if (*p > 0 && *p < '5')
+            {
+                continue;
+            }
+            switch (*p)
+            {
+                case 0:
+                {
+                    iNumMissingPens++;
+                    break;
+                }
+                case '5':
+                {
+                    ePen = BLACK_PEN;
+                    break;
+                }
+                case '6':
+                case '7':
+                case '8':
+                {
+                    if (ePen == BLACK_PEN)
+                    {
+                        ePen = BOTH_PENS;
+                    }
+                    else
+                    {
+                        ePen = COLOR_PEN;
+                    }
+                    break;
+                }
+            }
+
+        }
+        if (iNumMissingPens != 0)
+        {
+            return MISSING_PENS;
+        }
+        return NO_ERROR;
+    }
+
+    for (i = 0; i < num_pens; i++, p += 8)
     {
         AsciiHexToBinary (penInfoBits, p, 8);
 
@@ -898,7 +943,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
             return UNSUPPORTED_PEN;
         }
 
-        if ((penInfoBits[0] & 0x80) != 0x80)        // if Bit 31 is 0, this is not a pen
+        if ((penInfoBits[0] & 0x80) != 0x80)         // if Bit 31 is 0, this is not a pen
         {
             continue;
         }
@@ -965,6 +1010,7 @@ DRIVER_ERROR DJ9xxVIP::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
             case 7:             // low dye load cyan pen
             case 8:             // low dye load magenta pen
             case 9:             // low dye load yellow pen
+            case 11:            // blue pen
                 if (ePen == BLACK_PEN || ePen == BOTH_PENS)
                 {
                     ePen = BOTH_PENS;
@@ -1332,7 +1378,7 @@ DISPLAY_STATUS DJ9xxVIP::ParseError(BYTE status_reg)
 
 DRIVER_ERROR DJ9xxVIP::CleanPen()
 {
-    const BYTE Aladdin_User_Output_Page[] = {ESC, '%','P','u','i','f','p','.',
+    const BYTE DJ990_User_Output_Page[] = {ESC, '%','P','u','i','f','p','.',
         'm','u','l','t','i','_','b','u','t','t','o','n','_','p','u','s','h',' ','3',';',
         'u','d','w','.','q','u','i','t',';',ESC,'%','-','1','2','3','4','5','X' };
 
@@ -1342,8 +1388,8 @@ DRIVER_ERROR DJ9xxVIP::CleanPen()
 
     // send this page so that the user sees some output.  If you don't send this, the
     // pens get serviced but nothing prints out.
-    length = sizeof(Aladdin_User_Output_Page);
-    return pSS->ToDevice(Aladdin_User_Output_Page, &length);
+    length = sizeof(DJ990_User_Output_Page);
+    return pSS->ToDevice(DJ990_User_Output_Page, &length);
 } //CleanPen
 
 
@@ -1927,16 +1973,18 @@ PAPER_SIZE DJ9xxVIP::MandatoryPaperSize()
 
 DRIVER_ERROR DJ9xxVIP::CheckInkLevel()
 {
-    DRIVER_ERROR err;
-    char* pStr;
+    DRIVER_ERROR    err;
+    char            *pStr;
+    int             i;
 
-    BYTE bDevIDBuff[DevIDBuffSize];
+//    BYTE bDevIDBuff[DevIDBuffSize];
 
     if (!IOMode.bDevID)
     {
         return NO_ERROR;
     }
 
+#if 0
 /*
  *  Check for unknown device id version.
  */
@@ -1954,11 +2002,17 @@ DRIVER_ERROR DJ9xxVIP::CheckInkLevel()
 
     if ( (pStr=(char *)strstr((const char*)bDevIDBuff+2,";S:")) == NULL )
     {
-        return SYSTEM_ERROR;
+        return NO_ERROR;
     }
+#endif
 
-    // skip to pen-count field next 3 should be 2C1
-    //   meaning 2 pens, first field is head/supply for K
+    // Skip to pen-count field
+
+    err = SetPenInfo (pStr, FALSE);
+    if (err != NO_ERROR)
+    {
+        return NO_ERROR;
+    }
 
 	/*
 	 *  VIPVersion = DevID Version + 1 - DevID Version no is 2 bytes following ;S:
@@ -1966,17 +2020,20 @@ DRIVER_ERROR DJ9xxVIP::CheckInkLevel()
 	 *  Version 02 and onwards, report two additional bytes before pen info
 	 */
 
-    if (pSS->GetVIPVersion () <= 2)
+    if (pSS->GetVIPVersion () == 1)
     {
 
-//      Aladdin style DeviceID
+//      DJ990 style DeviceID
 
-        pStr += 19;
+        // Next 3 should be 2C1
+        // meaning 2 pens, first field is head/supply for K
+
+//        pStr += 19;
         BYTE b1,b2,b3;
         b1=*pStr++; b2=*pStr++; b3=*pStr++;
         if ( (b1 != '2') || (b2 != 'C') || (b3 != '1'))
         {
-            return SYSTEM_ERROR;
+            return NO_ERROR;
         }
 
         // black pen
@@ -2010,11 +2067,13 @@ DRIVER_ERROR DJ9xxVIP::CheckInkLevel()
         }
     }
 
+#if 0
     pStr += 21;
     if (pSS->GetVIPVersion () > 4)
     {
         pStr += 4;
     }
+#endif
 
     int     numPens = 0;
     if (*pStr > '0' && *pStr < '9')
@@ -2032,12 +2091,86 @@ DRIVER_ERROR DJ9xxVIP::CheckInkLevel()
 
     pStr++;
 
+    err = NO_ERROR;
+    if (pSS->GetVIPVersion () == 3)
+    {
+        for (i = 0; i < numPens; i++, pStr += 4)
+        {
+            switch (*pStr)
+            {
+                case '5':
+                {
+                    if ((*(pStr+1) & 0xf3) > 1)
+                    {
+                        if (err != NO_ERROR)
+                        {
+                            err = WARN_LOW_INK_MULTIPLE_PENS;
+                        }
+                        else
+                        {
+                            err = WARN_LOW_INK_BLACK;
+                        }
+                    }
+                    break;
+                }
+                case '6':
+                {
+                    if ((*(pStr+1) & 0xf3) > 1)
+                    {
+                        if (err != NO_ERROR)
+                        {
+                            err = WARN_LOW_INK_MULTIPLE_PENS;
+                        }
+                        else
+                        {
+                            err = WARN_LOW_INK_CYAN;
+                        }
+                    }
+                    break;
+                }
+                case '7':
+                {
+                    if ((*(pStr+1) & 0xf3) > 1)
+                    {
+                        if (err != NO_ERROR)
+                        {
+                            err = WARN_LOW_INK_MULTIPLE_PENS;
+                        }
+                        else
+                        {
+                            err = WARN_LOW_INK_MAGENTA;
+                        }
+                    }
+
+                    break;
+                }
+                case '8':
+                {
+                    if ((*(pStr+1) & 0xf3) > 1)
+                    {
+                        if (err != NO_ERROR)
+                        {
+                            err = WARN_LOW_INK_MULTIPLE_PENS;
+                        }
+                        else
+                        {
+                            err = WARN_LOW_INK_YELLOW;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return err;
+    }
+
 	BYTE    penInfoBits[4];
     BYTE    blackink = 0;
     BYTE    colorink = 0;
     BYTE    photoink = 0;
     BYTE    greyink = 0;
-    for (int i = 0; i < numPens; i++, pStr += 8)
+
+    for (i = 0; i < numPens; i++, pStr += 8)
     {
         AsciiHexToBinary (penInfoBits, pStr, 8);
 

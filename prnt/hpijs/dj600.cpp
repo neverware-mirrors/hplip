@@ -38,14 +38,14 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_CMY[ 9 * 9 * 9 ];
 //
 // ** DJ600:Printer CLASS **
 //
 
 Mode600::Mode600()
-: PrintMode( ulMapVOLTAIRE_CCM_CMY )
+: PrintMode( ulMapDJ600_CCM_CMY )
 {
    dyeCount=3;
    CompatiblePens[0] = COLOR_PEN;   // only color pen allowed
@@ -53,7 +53,7 @@ Mode600::Mode600()
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 Mode600DraftColor::Mode600DraftColor()
-: PrintMode( ulMapVOLTAIRE_CCM_CMY )
+: PrintMode( ulMapDJ600_CCM_CMY )
 {
     dyeCount=3;
     CompatiblePens[0] = COLOR_PEN;   // only color pen allowed
@@ -62,14 +62,14 @@ Mode600DraftColor::Mode600DraftColor()
 }
 
 Mode600DraftGrayK::Mode600DraftGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityDraft;
    pmQuality = QUALITY_DRAFT;
 }
 
 Mode600BestGrayK::Mode600BestGrayK()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
    theQuality = qualityPresentation;
    pmQuality = QUALITY_BEST;
@@ -98,10 +98,10 @@ DJ600::DJ600(SystemServices* pSS, BOOL proto)
         ePen=COLOR_PEN;    // matches default mode
     }
 
-    CMYMap = ulMapVOLTAIRE_CCM_CMY;
+    CMYMap = ulMapDJ600_CCM_CMY;
 
     pMode[DEFAULTMODE_INDEX] = new Mode600();
-    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapVOLTAIRE_CCM_K);
+    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapDJ600_CCM_K);
 #ifdef APDK_EXTENDED_MEDIASIZE
     pMode[SPECIALMODE_INDEX] = new Mode600DraftGrayK();
     pMode[SPECIALMODE_INDEX+1] = new Mode600DraftColor();

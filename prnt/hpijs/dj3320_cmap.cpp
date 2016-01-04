@@ -38,7 +38,7 @@
 APDK_BEGIN_NAMESPACE
 
 // 300x300x1, K    - Plain, Draft, Grey
-uint32_t ulMapCROSSBOW_K_3x3x1[] =
+uint32_t ulMapDJ3320_K_3x3x1[] =
 {
        255UL,        255UL,        247UL,        224UL,        197UL,        177UL, 
        167UL,        161UL,        157UL,        171UL,        165UL,        161UL, 
@@ -166,7 +166,7 @@ uint32_t ulMapCROSSBOW_K_3x3x1[] =
 
 // 600x600x1, K    - Plain, Normal, Grey
 
-uint32_t ulMapCROSSBOW_K_6x6x1[] =
+uint32_t ulMapDJ3320_K_6x6x1[] =
 {
        255UL,        238UL,        218UL,        204UL,        189UL,        181UL, 
        171UL,        161UL,        154UL,        178UL,        168UL,        161UL, 
@@ -294,7 +294,7 @@ uint32_t ulMapCROSSBOW_K_6x6x1[] =
 
 // 300x300x1, CMY  - Plain Draft, Color Pen Only
 
-uint32_t ulMapCROSSBOW_CMY_3x3x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3320_CMY_3x3x1[ 9 * 9 * 9 ] =
 {
 4294967040UL, 4294967040UL, 2499804928UL, 1073741568UL,  619577088UL,  383844096UL, 
  198573824UL,   63766272UL,   12975872UL, 4292869888UL, 4293394176UL, 2381905664UL, 
@@ -422,7 +422,7 @@ uint32_t ulMapCROSSBOW_CMY_3x3x1[ 9 * 9 * 9 ] =
 
 // 300x300x1, KCMY - Plain Draft, Both Pens
 
-uint32_t ulMapCROSSBOW_KCMY_3x3x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3320_KCMY_3x3x1[ 9 * 9 * 9 ] =
 {
 1330601906UL,   13500224UL,   12582697UL,   12386074UL,   12254995UL,   12254990UL, 
   12254986UL,   12386053UL,   12451584UL, 4280614716UL,  184614723UL,   10288939UL, 
@@ -550,7 +550,7 @@ uint32_t ulMapCROSSBOW_KCMY_3x3x1[ 9 * 9 * 9 ] =
 
 // 600x600x1, CMY  - Plain Normal, Color Pen Only
 
-uint32_t ulMapCROSSBOW_CMY_6x6x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3320_CMY_6x6x1[ 9 * 9 * 9 ] =
 {
 4294967040UL, 2969566976UL, 1492844288UL,  886243072UL,  583073536UL,  347143936UL, 
  178716416UL,   44367616UL,   11075328UL, 4292280064UL, 3166895872UL, 1455881984UL, 
@@ -678,7 +678,7 @@ uint32_t ulMapCROSSBOW_CMY_6x6x1[ 9 * 9 * 9 ] =
 
 // 600x600x1, KCMY - Plain Normal, Both Pens
 
-uint32_t ulMapCROSSBOW_KCMY_6x6x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3320_KCMY_6x6x1[ 9 * 9 * 9 ] =
 {
 1413633791UL,   77528918UL,   78053164UL,   44105496UL,   44105488UL,   43974410UL, 
   43974404UL,   10682114UL,   11075328UL, 4279697248UL,  303628118UL,  108461864UL, 

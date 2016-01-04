@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.9 $ 
-# $Date: 2004/11/17 21:39:58 $
+# $Revision: 1.10 $ 
+# $Date: 2005/02/09 23:33:47 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -28,52 +28,7 @@
 import struct
 import sys
 
-COLOR_ALIGN_TABLE = ( ( 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71 ),
-                            ( 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71 ),
-                            ( 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71 ),
-                            ( 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71 ),
-                            ( 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77 ),
-                            ( 83, 85, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83 ),
-                            ( 86, 85, 86, 88, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86 ),
-                            ( 89, 89, 89, 88, 89, 91, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89 ),
-                            ( 93, 93, 93, 93, 93, 91, 93, 94, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93 ),
-                            ( 96, 96, 96, 96, 96, 96, 96, 94, 96, 98, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96 ),
-                            ( 100, 100, 100, 100, 100, 100, 100, 100, 100, 98, 100, 102, 100, 100, 100, 100, 100, 100, 100, 100, 100 ),
-                            ( 104, 104, 104, 104, 104, 104, 104, 104, 104, 104, 104, 102, 104, 106, 104, 104, 104, 104, 104, 104, 104 ),
-                            ( 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 106, 109, 111, 109, 109, 109, 109, 109 ),
-                            ( 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 111, 114, 116, 114, 114, 114 ),
-                            ( 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 116, 119, 122, 119 ),
-                            ( 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 122, 125 ),
-                            ( 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132, 132 ),
-                            ( 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139, 139 ),
-                            ( 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147 ),
-                            ( 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156, 156 ),
-                            ( 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167 ) 
-                          )
 
-PHOTO_ALIGN_TABLE = ( ( 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167 ),
-                            ( 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167 ),
-                            ( 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167 ),
-                            ( 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167 ),
-                            ( 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143, 143 ),
-                            ( 125, 122, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125 ),
-                            ( 119, 122, 119, 116, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119 ),
-                            ( 114, 114, 114, 116, 114, 111, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114, 114 ),
-                            ( 109, 109, 109, 109, 109, 111, 109, 106, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109 ),
-                            ( 104, 104, 104, 104, 104, 104, 104, 106, 104, 102, 104, 104, 104, 104, 104, 104, 104, 104, 104, 104, 104 ),
-                            ( 100, 100, 100, 100, 100, 100, 100, 100, 100, 102, 100, 98, 100, 100, 100, 100, 100, 100, 100, 100, 100 ),
-                            ( 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 98, 96, 94, 96, 96, 96, 96, 96, 96, 96 ),
-                            ( 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 94, 93, 91, 93, 93, 93, 93, 93 ),
-                            ( 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 91, 89, 88, 89, 89, 89 ),
-                            ( 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 88, 86, 85, 86 ),
-                            ( 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 85, 83 ),
-                            ( 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81 ),
-                            ( 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80 ),
-                            ( 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78 ),
-                            ( 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74 ),
-                            ( 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71 ) 
-                          )
-  
 PACKET_FRAME = ord('$')
 PACKET_PAD = 0xff
 CMD_HEADER_FMT = ">BHBBBHH" # 10 bytes
@@ -145,7 +100,7 @@ QUERY_PEN_ALIGNMENT = 15 # 0.4.3
 
 
 def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
-    
+
     if packet_type == PACKET_TYPE_DISABLE_PACING:
         p = '$\x00\x10\x00\x01\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff$'
 
@@ -176,7 +131,7 @@ def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
         p = '$\x00\x10\x00\x06\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff$'
 
     elif packet_type == PACKET_TYPE_COMMAND:
-        
+
         if command == COMMAND_HANDLE_PEN:   
             fmt = CMD_HEADER_FMT + "BBBBBB"
             p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_HANDLE_PEN, 
@@ -216,7 +171,7 @@ def buildLIDILPacket( packet_type, command=0, operation=0, other={} ):
             fmt = CMD_HEADER_FMT + "BBHBB"
             p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_QUERY, 
                              0, 0, 0, operation, 0, PACKET_PAD, PACKET_FRAME )
-        
+
         elif command == COMMAND_PRINT_INTERNAL_PAGE: 
             fmt = CMD_HEADER_FMT + "BBBBBB"
             p = struct.pack( fmt, PACKET_FRAME, struct.calcsize(fmt), 0, PACKET_TYPE_COMMAND, COMMAND_PRINT_INTERNAL_PAGE, 
@@ -239,16 +194,16 @@ def buildSyncPacket():
 
 def buildSyncCompletePacket():
     return buildLIDILPacket( PACKET_TYPE_SYNC_COMPLETE )
-    
+
 def buildResetPacket():
     return buildLIDILPacket( PACKET_TYPE_RESET_LIDIL )
-    
+
 def buildGetAlignmentValues038Packet():
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PRINTER_ALIGNMENT )
-    
+
 def buildGetAlignmentValues043Packet():
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_QUERY, QUERY_PEN_ALIGNMENT )
-    
+
 def buildEnableResponsesPacket( enable=True ):
     if enable:
         return buildLIDILPacket( PACKET_TYPE_ENABLE_RESPONSES )
@@ -259,27 +214,27 @@ def buildSetPrinterAlignmentPacket( k_bidi,
                                     c_vert, 
                                     c_hort, 
                                     c_bidi ): # 0.3.8
-    
+
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PRINTER_ALIGNMENT,
                              COMMAND_SET_PRINTER_ALIGNMENT_OPERATION,
                              other={ 'c_vert' : c_vert,
                                      'c_hort' : c_hort,
                                      'c_bidi' : c_bidi,
                                      'k_bidi' : k_bidi,
-                                     
+
                                     } )
-    
+
 def buildPrintInternalPagePacket(): # Type 6
     return buildLIDILPacket( PACKET_TYPE_COMMAND, 
                              COMMAND_PRINT_INTERNAL_PAGE,
                              COMMAND_PRINT_INTERNAL_PAGE_OPERATION )
-    
-    
+
+
 def buildZCAPacket( value ):
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_ZCA, 
                              COMMAND_ZCA_OPERATION,  
                              other={ 'zca' : value } )
-                                 
+
 def buildBlackBidiPacket( value ): # 0.4.3
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
@@ -301,14 +256,14 @@ def buildColorBidiPacket( value ): # 0.4.3
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_BIDI,
                                      'value' : value } )
 
-                                  
+
 def buildColorHortPacket( value ): # 0.4.3
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
                              other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_COLOR,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_HORT,
                                      'value' :  value } )
-                                  
+
 def buildColorVertPacket( value ): # 0.4.3
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
@@ -328,7 +283,7 @@ def buildBlackHortPacket( value ): # 0.4.3
                              other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_BLACK,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_HORT,
                                      'value' :  value } )
-                              
+
 def buildPhotoHortPacket( value ): # 0.4.3
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PEN_ALIGNMENT,
                              COMMAND_SET_PEN_ALIGNMENT_OPERATION,
@@ -341,21 +296,21 @@ def buildPhotoVertPacket( value ): # 0.4.3
                              other={ 'pen' : COMMAND_SET_PEN_ALIGNMENT_PEN_PHOTO,
                                      'item' : COMMAND_SET_PEN_ALIGNMENT_ITEM_VERT,
                                      'value' :  value } )
-    
+
 def buildPhotoHuePacket( value ): # 0.4.3
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
                              COMMAND_SET_HUE_COMPENSATION_OPERATION,
                              other={ 'which' : COMMAND_SET_HUE_COMPENSATION_PEN_PHOTO,
                                      'value' :  value } )
-                                              
-            
+
+
 def buildColorHuePacket( value ): # 0.4.3
    return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_HUE_COMPENSATION,
                             COMMAND_SET_HUE_COMPENSATION_OPERATION,
                             other={ 'which' : COMMAND_SET_HUE_COMPENSATION_PEN_COLOR,
                                     'value' :  value } )
-                                              
-    
+
+
 def buildSetPensAlignedPacket():
     return buildLIDILPacket( PACKET_TYPE_COMMAND, COMMAND_SET_PENS_ALIGNED, 
                               COMMAND_SET_PENS_ALIGNED_OPERATION,
@@ -366,9 +321,9 @@ def buildSetPensAlignedPacket():
                                                  COMMAND_SET_PENS_ALIGNED_m | 
                                                  COMMAND_SET_PENS_ALIGNED_k | 
                                                  COMMAND_SET_PENS_ALIGNED_K } )
-    
-    
+
+
 if __name__ == "__main__":
     pass    
-    
-    
+
+
