@@ -1,9 +1,108 @@
+2005-10-10 dsuffield
+    * Release 0.9.6.4 (public release 0.9.6)
+
+2005-10-10 rcauligi
+    * Added a new file, ojprokx50.h to apdk to support OfficeJet Pro K550 and K850
+    * Added this to Makefile.am
+    
+2005-10-07 dwelch
+    * Made a small LaserJet status change that makes the CLJ 2550 work OK.
+    * Fixed a bug with the PSC3310 with low photo supplies (caused a toolbox exception)
+    * Fixed a problem that made an offline CLJ2500 crash hpssd
+    * Changed hpssd so that status is not attempted when io-mode is uni-di and not networked.
+    
+2005-10-07 dsuffield
+    * Release 0.9.6.3
+
+2005-10-07 dwelch   
+    * Toolbox (Device Manager) no longer uses a server socket. All communication is done over the same 
+      client socket to hpssd.
+
+2005-10-04 dsuffield
+    * Release 0.9.6.2
+
+2005-10-03 rcauligi
+    * PrintableTopLeft in hpijs_get_cb had a return statement in the wrong place, resulting in
+      segmentation fault on some systems
+
+2005-10-03 dwelch   
+    * create_product_support_table will now read all the files in the /data/xml directory (but 
+      _not_ the unreleased directory).
+    * Added 'from __future__ import generators' to fix Python 2.2- issues with toolbox (yield statements)
+    
+2005-09-29 dsuffield
+    * Reordered hplip/hpijs build. Hpijs is now built after hplip.
+    * Added libhpip check to hpijs makefile. If libhpip is available
+      hpijsfax will be built.
+      
+2005-09-29 dsuffield
+    * Release 0.9.6.1
+
+2005-09-29 dsuffield
+    * Remove hpijsfax because of libhpip build dependency.
+
+2005-09-29 rcauligi
+    * Added fax support
+    * Added support for DJ460
+    * Moved DJ450 from DJGenericVIP class to DJ9xxVIP class, because mandatory mrgins are
+      0.25 inch on left and right sides and it does not support fullbleed on any papersize.
+
+2005-09-26 dwelch
+    * Fixed defect 694 ("bw" should be replaced by "fw" in the Usage of command "hp-info".)
+    * Fixed defect 689 (The CUPS web interface can not be launched when clicking the "CUPS Web Interface" button without any printer installed.)
+    * Fixed defect 692 (An error occurs and nothing was done after executing "hp-clean -v3" command. )
+    * Fixed defect 690 (The "Open in Browser" button should be grey out when the device is connected via USB cable)
+    * Set CLJ 25xx devices to uni-di mode in models.xml
+    * Fixed defect 683 (An error occurs in the terminal while double-click the F6 (Refresh all) key from keyboard quickly.)
+    * Fixed defect 668 (The command "hp-fab" leads to error.)
+
+2005-09-22 dwelch
+    * Removed hardcoded "/var/run" paths from Python code.
+
+2005-09-22 dsuffield
+    * Removed hardcoded "/var/run" paths from C code. Removed root groupid check from hpiod. Added "/var/run" path to hplip.conf.
+      This allows HPLIP to be run from different userid and groupid other than root (debian/ubuntu request).
+
+2005-09-21 rcauligi
+    * Added a new printer family, DJ55xx to take care of margin issues for DJ55xx printers
+    * Fixed a bug in sending custom paper size to JetReady and FastRaster printers
+    * Fixed a bug in LJFastRaster when last band was less than 128 hight, it was incorrectly positioned
+    * Fixed margin adjustment code to allow fullbleed or .125 inch margins for those printers that support it in autoduplex mode
+
+2005-09-20 dsuffield
+    * Remove "su -root" from hplip.sh.
+    * Fixed bigendian macros in libsane-hpaio.
+    * Incorporated most non-showstopper patches from Henrique Holschuh at debian.
+
+2005-09-16 dsuffield
+    * Fixed pml scanning problem in libsane-hpaio.
+
+2005-09-16 dsuffield
+    * Release 0.9.6.0
+
+2005-09-16 dsuffield
+    * Added shadow directory support.
+
+2005-09-15 dwelch
+    * hpssd now reads all *.xml in the src/data/xml directory, followed by *.xml in the /unreleased directory
+
+2005-09-14 dwelch (merged dwelch-k550-branch)
+    * K550/K850 maintenance routines (linefeed calibrate and pq diag)
+    * DJ460 maintenance routines and battery level/power settings
+    * New Device Manager UI for supplies and maintenance tools
+    * Rearranged content  and removed 2 tabs in Device Manager
+    * Changes to how models.xml and extra files are handled
+    * <icon> field in models XML now used by Device Manager
+    * New browser launching mechanism
+    * Support resources dialog
+    * CUPS web interface access
+
 2005-09-14 dsuffield
     * Release 0.9.5.9 (public release 0.9.5)
 
 2005-09-14 dsuffield
     * Made a change to hpijs. If deviceid does not support vstatus or "s:" field force uni-di mode (ie: OJ600).
-	
+    
 2005-09-09 dsuffield
     * Release 0.9.5.8
 
@@ -12,10 +111,10 @@
 
 2005-09-09 dsuffield
     * Added PS8700 ppd file patch to hpijs makefile. The patch changes the default inputslot to upper.
-	
+    
 2005-09-08 dsuffield
     * Added makeuri pp support to hpiod.
-	
+    
 2005-09-08 jpitter
     * added HP-PhotoSmart_3100, HP-PhotoSmart_3200, HP-PhotoSmart_3300, HP-PhotoSmart_7800, HP-PhotoSmart_8000, 
       HP-DeskJet_5440, HP-DeskJet_5940, HP-Color_LaserJet_4700 to foomatic-db-hpijs/data-generators/hpijs/hpijs-printermap.
@@ -27,7 +126,160 @@
     * Added unsolicited data packet support to hpiod.
     * Added pml done timeout count to libsane-hpaio.
     * Changed mfpdtf read timeout in libsane-hpaio.
-	
+    
+2005-09-08 dwelch
+    * Changed makeuri to handle parallel devnodes. Passes bus param to hpiod
+
+2005-09-06 dwelch
+    * Fixed defect 686 (An error occurs when we set the Bar graph size as zero and execute the "hp-levels" command.)
+    * Fixed issue with color calibration on the PSC 2610. May fix other align/colorcal/etc. on other printers as well.
+
+2005-09-02 dsuffield
+    * Release 0.9.5.7
+
+2005-09-02 dsuffield
+    * Fixed gcc uninitialized varable warning in udevice.cpp.
+    * Removed jdprobe code from hp.c backend.
+    * Added timeout check in hpiod.
+    * Added more pml error checking in hpiod.
+    * Fixed a miser mode MLC credit problem in hpiod.
+    * Fixed a MLC firmware problem that occured with OJ600 in hpiod.
+    * Fixed a MLC credit problem with short timeouts.
+    * Rewrote most of the pml scanning code in libsane-hpaio.
+
+2005-08-31 syie
+    * Added unidi parallel products in models.xml
+
+2005-08-29 dsuffield
+    * Fixed "condrestart" typo in hplip startup script (as per Red Hat request). 
+
+2005-08-26 syie
+    * Release 0.9.5.6
+
+2005-08-25 dwelch
+    * Fixed defect 679 (Hp-Toolbox/Information/Open in Browser...)
+
+2005-08-23 dwelch
+    * Fixed defect 668 (The command "hp-fab" leads to error.)
+    * Resolved defect 666 (Suse 9.3 / 0.9.5.2 / Toolbox not loading issue)
+    * Fixed defect 670 (Command "hp-testpage" leads to error and test-page can not be printed out.)
+    * Resolved defect 662 (The test page could not be printed and an error occurs in the terminal while performing "Print Test Page" operation with toolbox.)
+    * Added feature 466 (Add Type 10 alignment to toolbox)
+    * Added feature 467 (Add Type 10 alignment to model_editor)
+    * Fixed defect 588 ("The operation completed successfully" dialog pops up quickly before the actual alignment job completes.)
+    * Fixed defect 604 (An error occurs while running hp-testpage command to print to testpage after disconnect the usb cable.)
+    * Resolved defect 629 (The Clean Cartridges does not respond and a error occurs when clicking "Clean Cartridges" button in toolbox)
+    * Fixed defect 630 (The HP Printer test page is truncated.)
+    * Resolved defect 638 (The "Unload File from Photo Card"dialog hangs up after clicking the Access Photo Cards button.)
+    * Resolved defect 644 as INVALID (The Group name can not be edited while editing the specified group.)
+    * Resolved defect 646 as INVALID (The "New Group" button is greyed-out while adding a new fax address.)
+    * Resolved defect 540 ("Invalid color calibration type" error occurs when executing command "colorcal" in terminal.)
+    
+2005-08-22 jpitter
+    * Added Photo5x7 as a max size to foomatic-db-hpijs:hpijs-generators.in
+    * Added entries into foomatic-db-hpijs:hpijs-printermap for HP OfficeJet 5600, HP PSC 1400, HP PhotoSmart 2570, HP PhotoSmart 420, and HP PhotoSmart 470
+    * Added HP-OfficeJet_5600.xml HP-PSC_1400.xml HP-PhotoSmart_2570.xml HP-PhotoSmart_420.xml HP-PhotoSmart_470.xml to foomatic-db:printer both tip and stable.
+
+2005-08-22 dwelch
+    * Fixed problem with status on the CLJ3500 crashing hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.5
+    
+2005-08-19 dsuffield
+    * Fixed fax constants in hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.4
+
+2005-08-18 dwelch
+    * Fixed case where toolbox crashed if models.xml entry was missing
+    * Fixed problem with new fax constants appearing in hpssd
+    * Added type 10 alignment to hp-align
+    * Fixed hp-colorcal incorrect parameter passing to maint routines (reported on forum)
+    * Put a hack in place to use '*' as the printer (default) if no cups printers are returned 
+      from cups for a newly installed printer
+    
+2005-09-26 dwelch
+    * Fixed defect 694 ("bw" should be replaced by "fw" in the Usage of command "hp-info".)
+    * Fixed defect 689 (The CUPS web interface can not be launched when clicking the "CUPS Web Interface" button without any printer installed.)
+    * Fixed defect 692 (An error occurs and nothing was done after executing "hp-clean -v3" command. )
+    * Fixed defect 690 (The "Open in Browser" button should be grey out when the device is connected via USB cable)
+    * Set CLJ 25xx devices to uni-di mode in models.xml
+    * Fixed defect 683 (An error occurs in the terminal while double-click the F6 (Refresh all) key from keyboard quickly.)
+
+2005-09-22 dwelch
+    * Removed hardcoded "/var/run" paths from Python code.
+
+2005-09-22 dsuffield
+    * Removed hardcoded "/var/run" paths from C code. Removed root groupid check from hpiod. Added "/var/run" path to hplip.conf.
+      This allows HPLIP to be run from different userid and groupid other than root (debian/ubuntu request).
+
+>>>>>>> 1.403
+2005-09-21 rcauligi
+    * Added a new printer family, DJ55xx to take care of margin issues for DJ55xx printers
+    * Fixed a bug in sending custom paper size to JetReady and FastRaster printers
+    * Fixed a bug in LJFastRaster when last band was less than 128 hight, it was incorrectly positioned
+    * Fixed margin adjustment code to allow fullbleed or .125 inch margins for those printers that support it in autoduplex mode
+
+2005-09-20 dsuffield
+    * Remove "su -root" from hplip.sh.
+    * Fixed bigendian macros in libsane-hpaio.
+    * Incorporated most non-showstopper patches from Henrique Holschuh at debian.
+
+2005-09-16 dsuffield
+    * Fixed pml scanning problem in libsane-hpaio.
+
+2005-09-16 dsuffield
+    * Release 0.9.6.0
+
+2005-09-16 dsuffield
+    * Added shadow directory support.
+
+2005-09-15 dwelch
+    * hpssd now reads all *.xml in the src/data/xml directory, followed by *.xml in the /unreleased directory
+
+2005-09-14 dwelch (merged dwelch-k550-branch)
+    * K550/K850 maintenance routines (linefeed calibrate and pq diag)
+    * DJ460 maintenance routines and battery level/power settings
+    * New Device Manager UI for supplies and maintenance tools
+    * Rearranged content  and removed 2 tabs in Device Manager
+    * Changes to how models.xml and extra files are handled
+    * <icon> field in models XML now used by Device Manager
+    * New browser launching mechanism
+    * Support resources dialog
+    * CUPS web interface access
+
+2005-09-14 dsuffield
+    * Release 0.9.5.9 (public release 0.9.5)
+
+2005-09-14 dsuffield
+    * Made a change to hpijs. If deviceid does not support vstatus or "s:" field force uni-di mode (ie: OJ600).
+    
+2005-09-09 dsuffield
+    * Release 0.9.5.8
+
+2005-09-09 dsuffield
+    * Fixed gcc4 warnings.
+
+2005-09-09 dsuffield
+    * Added PS8700 ppd file patch to hpijs makefile. The patch changes the default inputslot to upper.
+    
+2005-09-08 dsuffield
+    * Added makeuri pp support to hpiod.
+    
+2005-09-08 jpitter
+    * added HP-PhotoSmart_3100, HP-PhotoSmart_3200, HP-PhotoSmart_3300, HP-PhotoSmart_7800, HP-PhotoSmart_8000, 
+      HP-DeskJet_5440, HP-DeskJet_5940, HP-Color_LaserJet_4700 to foomatic-db-hpijs/data-generators/hpijs/hpijs-printermap.
+    * added HP-PhotoSmart_3100.xml, HP-PhotoSmart_3200.xml, HP-PhotoSmart_3300.xml, HP-PhotoSmart_7800.xml, HP-PhotoSmart_8000.xml,
+      HP-DeskJet_5440.xml, HP-DeskJet_5940.xml, HP-Color_LaserJet_4700.xml to foomatic-db/db/source/printer both tip and stable.
+    * added HP-Color_LaserJet_4700 to foomatic-db/db/source/driver/Postscript.xml both tip and stable.
+
+2005-09-08 dsuffield
+    * Added unsolicited data packet support to hpiod.
+    * Added pml done timeout count to libsane-hpaio.
+    * Changed mfpdtf read timeout in libsane-hpaio.
+    
 2005-09-08 dwelch
     * Changed makeuri to handle parallel devnodes. Passes bus param to hpiod
 

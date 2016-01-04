@@ -99,12 +99,8 @@ class DJGenericVIPProxy : public PrinterProxy
 public:
     DJGenericVIPProxy() : PrinterProxy(
         "GenericVIP",                       // family name
-        "dj450\0"
-		"deskjet 450\0"
         "deskjet 5100\0"
         "Deskjet 5400\0"
-        "deskjet 5550\0"
-        "deskjet 5551\0"
         "deskjet 5600\0"
 		"Deskjet 5700\0"
 		"deskjet 5800\0"

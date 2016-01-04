@@ -5,7 +5,7 @@
 #
 
 AC_INIT(io/hpiod/hpiod.cpp)
-AM_INIT_AUTOMAKE(hplip, 0.9.5)
+AM_INIT_AUTOMAKE(hplip, 0.9.6)
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
@@ -108,7 +108,7 @@ for i in $ICONSEARCHPATH; do
          if test "$jdx" = "$idx"; then
             break
          fi
-         jdx=$jdx=1
+         jdx=$jdx+1
       done
       ICON_FILE="$j"
       break

@@ -540,7 +540,7 @@ bugout:
 
 int ParDevice::compat_write(int fd, const void *buffer, int size)
 {
-   int i;
+   int i=0;
    unsigned char *p = (unsigned char *)buffer;
    int m = IEEE1284_MODE_COMPAT;
    static int timeout=0;

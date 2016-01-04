@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.27 $
-# $Date: 2005/07/28 16:55:50 $
+# $Revision: 1.31 $
+# $Date: 2005/10/05 20:54:12 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -42,8 +42,8 @@ from codes import *
 import logger
 
 # System wide logger
-log = logger.Logger( '', logger.Logger.LOG_LEVEL_INFO, logger.Logger.LOG_TO_CONSOLE )
-log.set_level( 'info' )
+log = logger.Logger('', logger.Logger.LOG_LEVEL_INFO, logger.Logger.LOG_TO_CONSOLE)
+log.set_level('info')
 
 MINIMUM_PYQT_MAJOR_VER = 3
 MINIMUM_PYQT_MINOR_VER = 8
@@ -53,19 +53,22 @@ MINIMUM_QT_MINOR_VER = 0
 # System wide properties
 class Properties(dict):
 
-    def __getattr__( self, attr ):
+    def __getattr__(self, attr):
         if attr in self.keys():
-            return self.__getitem__( attr )
+            return self.__getitem__(attr)
         else:
             return ""
 
-    def __setattr__( self, attr, val ):
-        self.__setitem__( attr, val )
+    def __setattr__(self, attr, val):
+        self.__setitem__(attr, val)
 
 prop = Properties()
 
 # Language settings
-locale.setlocale( locale.LC_ALL, '' )
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    log.error("Unable to set locale.")
 
 try:
     t, prop.encoding = locale.getdefaultlocale()
@@ -74,39 +77,44 @@ except ValueError:
     prop.encoding = 'ISO8859-1'
 
 try:
-    prop.lang_code = t[ :2 ].lower()
+    prop.lang_code = t[:2].lower()
 except TypeError:
     prop.lang_code = 'en'
 
 # Config file: directories and ports
 prop.config_file = '/etc/hp/hplip.conf'
 
-if os.path.exists( prop.config_file ):
+if os.path.exists(prop.config_file):
     config = ConfigParser.ConfigParser()
-    config.read( prop.config_file )
+    config.read(prop.config_file)
 
     try:
-        prop.hpssd_cfg_port = config.getint( "hpssd", "port" )
+        prop.hpssd_cfg_port = config.getint("hpssd", "port")
     except:
         prop.hpssd_cfg_port = 0
 
     try:
-        prop.version = config.get( 'hplip', 'version' )
+        prop.version = config.get('hplip', 'version')
     except:
         prop.version = ''
 
     try:
-        prop.home_dir = config.get( 'dirs', 'home' )
+        prop.home_dir = config.get('dirs', 'home')
     except:
-        prop.home_dir = os.path.realpath( os.path.normpath( os.getcwd() ) )
+        prop.home_dir = os.path.realpath(os.path.normpath(os.getcwd()))
+
+    try:
+        prop.run_dir = config.get('dirs', 'run')
+    except:
+        prop.run_dir = '/var/run'
 
 try:
-    prop.hpiod_port = int( file( '/var/run/hpiod.port', 'r' ).read() )
+    prop.hpiod_port = int(file(os.path.join(prop.run_dir, 'hpiod.port'), 'r').read())
 except:
     prop.hpiod_port = 0
 
 try:
-    prop.hpssd_port = int( file( '/var/run/hpssd.port', 'r' ).read() )
+    prop.hpssd_port = int(file(os.path.join(prop.run_dir, 'hpssd.port'), 'r').read())
 except:
     prop.hpssd_port = 0
 
@@ -118,10 +126,11 @@ prop.hpguid_host = 'localhost'
 
 prop.username = pwd.getpwuid(os.getuid())[0]
 
-prop.data_dir = os.path.join( prop.home_dir, 'data' )
-prop.i18n_dir = os.path.join( prop.home_dir, 'data', 'qm' )
-prop.image_dir = os.path.join( prop.home_dir, 'data', 'images' )
-prop.html_dir = os.path.join( prop.home_dir, 'data', 'html', prop.lang_code )
+prop.data_dir = os.path.join(prop.home_dir, 'data')
+prop.i18n_dir = os.path.join(prop.home_dir, 'data', 'qm')
+prop.image_dir = os.path.join(prop.home_dir, 'data', 'images')
+prop.xml_dir = os.path.join(prop.home_dir, 'data', 'xml')
+#prop.html_dir = os.path.join(prop.home_dir, 'data', 'html', prop.lang_code)
 
 prop.max_message_len = 8192
 prop.max_message_read = 65536
@@ -132,9 +141,9 @@ prop.ppd_search_pattern = 'HP-*.ppd.*'
 prop.ppd_download_url = 'http://www.linuxprinting.org/ppd-o-matic.cgi'
 prop.ppd_file_suffix = '-hpijs.ppd'
 
-prop.errors_file = os.path.join( prop.home_dir, 'data', 'xml', 'errors.xml' )
-prop.strings_file = os.path.join( prop.home_dir, 'data', 'xml', 'strings.xml' )
-prop.models_file = os.path.join( prop.home_dir, 'data', 'xml', 'models.xml' )
+prop.errors_file = os.path.join(prop.home_dir, 'data', 'xml', 'errors.xml')
+prop.strings_file = os.path.join(prop.home_dir, 'data', 'xml', 'strings.xml')
+prop.models_file = os.path.join(prop.home_dir, 'data', 'xml', 'models.xml')
 
 # Spinner, ala Gentoo Portage
 spinner = "\|/-\|/-"
@@ -144,8 +153,8 @@ spinpos = 0
 def update_spinner():
     global spinner, spinpos
     if sys.stdout.isatty():
-        sys.stdout.write( "\b" + spinner[ spinpos ] )
-        spinpos=( spinpos + 1 ) % 8
+        sys.stdout.write("\b" + spinner[spinpos])
+        spinpos=(spinpos + 1) % 8
         sys.stdout.flush()
 
 
@@ -205,12 +214,12 @@ ERROR_STRINGS = {
                 ERROR_UNSUPPORTED_MODEL : "Unsupported printer model.",
                }
 
-class Error( Exception ):
-    def __init__( self, opt=ERROR_INTERNAL ):
+class Error(Exception):
+    def __init__(self, opt=ERROR_INTERNAL):
         self.opt = opt
-        self.msg = ERROR_STRINGS.get( opt, ERROR_STRINGS[ ERROR_INTERNAL ] )
-        log.debug( "Exception: %d (%s)" % ( opt, self.msg ) )
-        Exception.__init__( self, self.msg, opt  )
+        self.msg = ERROR_STRINGS.get(opt, ERROR_STRINGS[ERROR_INTERNAL])
+        log.debug("Exception: %d (%s)" % (opt, self.msg))
+        Exception.__init__(self, self.msg, opt)
 
 
 # Make sure True and False are avail. in pre-2.2 versions

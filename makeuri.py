@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.9 $ 
-# $Date: 2005/09/08 18:22:23 $
+# $Revision: 1.10 $ 
+# $Date: 2005/10/04 16:37:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -35,6 +35,7 @@ import socket
 
 # Local
 from base.g import *
+from base.codes import *
 from base import device, utils, msg
 
 def usage():

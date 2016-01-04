@@ -96,7 +96,7 @@ validate_name(const char *name) /* I - Name to check */
   for (ptr = name; *ptr; ptr ++)
     if (*ptr == '@')
       break;
-    else if ((*ptr >= 0 && *ptr <= ' ') || *ptr == 127 || *ptr == '/')
+    else if ((*ptr < '!') || (*ptr > '~') || (*ptr == '/'))
       return (0);
 
  /*

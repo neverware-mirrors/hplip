@@ -1804,7 +1804,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=hplip
- VERSION=0.9.5
+ VERSION=0.9.6
 
 
 cat >>confdefs.h <<_ACEOF
@@ -21643,7 +21643,7 @@ for i in $ICONSEARCHPATH; do
          if test "$jdx" = "$idx"; then
             break
          fi
-         jdx=$jdx=1
+         jdx=$jdx+1
       done
       ICON_FILE="$j"
       break
