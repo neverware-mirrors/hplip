@@ -859,7 +859,6 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
-  --enable-debug             enable debug mode default=no
   --enable-cups-install             enable cups install default=yes
   --enable-foomatic-install         enable foomatic install default=yes
 
@@ -1619,7 +1618,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=hpijs
- VERSION=2.1.1
+ VERSION=2.1.2
 
 
 cat >>confdefs.h <<_ACEOF
@@ -4544,32 +4543,6 @@ MYFLAGS="$MYFLAGS -DAPDK_DJ660 -DAPDK_DJ6xx -DAPDK_DJ6xxPhoto \
 -DAPDK_LJJETREADY  -DAPDK_LJFASTRASTER \
 -DAPDK_BUFFER_SEND -DAPDK_LDL_COMPRESS -DAPDK_EXTENDED_MEDIASIZE \
 -DAPDK_MLC_PRINTER -DAPDK_DJ3600 -DAPDK_LINUX"
-
-echo "$as_me:$LINENO: checking \"which type of build\"" >&5
-echo $ECHO_N "checking \"which type of build\"... $ECHO_C" >&6
-if test "$GCC" = yes; then
-   # Check whether --enable-debug or --disable-debug was given.
-if test "${enable_debug+set}" = set; then
-  enableval="$enable_debug"
-  enable_debug=$enableval
-else
-  enable_debug=no
-fi;
-   if test $enable_debug = yes; then
-      CFLAGS="-g -Wall"
-      CXXFLAGS="-g -Wall"
-      echo "$as_me:$LINENO: result: debug" >&5
-echo "${ECHO_T}debug" >&6
-   else
-      CFLAGS="-O2 -Wall"
-      CXXFLAGS="-O2 -Wall"
-      echo "$as_me:$LINENO: result: release" >&5
-echo "${ECHO_T}release" >&6
-   fi
-else
-   echo "$as_me:$LINENO: result: \"$CXXFLAGS\"" >&5
-echo "${ECHO_T}\"$CXXFLAGS\"" >&6
-fi
 
 echo "$as_me:$LINENO: checking \"for unint32_t\"" >&5
 echo $ECHO_N "checking \"for unint32_t\"... $ECHO_C" >&6

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/waitform_base.ui'
 #
-# Created: Tue Jan 25 11:22:49 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri Apr 1 14:51:32 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 

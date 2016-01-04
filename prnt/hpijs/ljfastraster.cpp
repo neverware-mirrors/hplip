@@ -591,7 +591,7 @@ DISPLAY_STATUS LJFastRaster::ParseError(BYTE status_reg)
         while (*tmpStr < '0' || *tmpStr > '9')
             tmpStr++;
         sscanf (tmpStr, "%d", &iErrorCode);
-        if (iErrorCode != (int) (this))
+        if (iErrorCode != (long) (this))
             return DISPLAY_PRINTING;
     }
 

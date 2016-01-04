@@ -2631,7 +2631,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
   <td height=17 style='height:12.75pt'>BIJ 1000</td>
   <td>YES</td>
   <td>YES</td>
-  <td>DJGenericxxVIP</td>
+  <td>DJGenericVIP</td>
   <td>NO</td>
   <td>NO</td>
   <td>NO</td>
@@ -3750,6 +3750,24 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPLIP 0.9.2</b> - This release has the following changes.
+<pre>
+   1. Fixed "Invalid color calibration type" error occurs when executing command "colorcal" in terminal.
+   2. Fixed issue reported in forum (AlignType3() number of arguments error in hp-align).
+   3. Made UI architectural change (removed hpguid.py, removed popup feature, etc).
+   4. Fixed a scanning issue with Laserjet flatbed scanners (PML scanners). Scan would fail at end of scan.
+   5. Removed images.tgz after install.
+   6. Fixed a problem when all function buttons are grayed out when toolbox is launched at the first time.
+   7. Fixed DJ450 battery check issue.
+   8. Fixed issue when Toolbox does not launch with PyQt 3.14-1mdk. All .py files produced by compiling .ui files with pyuic have been updated to fix the QSizePolicy() problem.
+   9. Added new print mode "FastDraft Grayscale" to DJGenericVIP.
+  10. Rebuilt PPD files with new "FastDraft Grayscale" support.
+  11. Put limit (max=5) on syslog messages when output device write() fails (Debian request).  
+  12. Removed specified gcc options in hpijs configure.in (Debian request).
+  13. Fixed a 64-bit compile issue in ljjetready.cpp.
+</pre>
+<p>
+<li>
 <b>HPLIP 0.9.1</b> - This release has the following changes.
 <pre>
    1. Changed configure to check for libnetsnmp instead of libsnmp.
@@ -3993,7 +4011,7 @@ See your distribution about spooler questions. For latest information and detail
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
 &#169 2004-2005 Hewlett-Packard Company<br>
-HPLIP 0.9.1, last updated April 1, 2005
+HPLIP 0.9.2, last updated April 15, 2005
 </font>
  </BODY>
 </HTML>

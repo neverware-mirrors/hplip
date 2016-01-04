@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/colorcalform_base.ui'
 #
-# Created: Thu Jan 20 09:35:45 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -81,8 +81,8 @@ class ColorCalForm_base(QDialog):
         self.resize(QSize(610,220).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ContinueButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.CancelButton,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ContinueButton,SIGNAL("clicked()"),self.accept)
         self.connect(self.ColorCalGroup,SIGNAL("clicked(int)"),self.ColorCalGroup_clicked)
 
 

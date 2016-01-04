@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/pparks/linux-imaging-and-printing/src/ui/imagepropertiesdlg_base.ui'
+# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/imagepropertiesdlg_base.ui'
 #
-# Created: Thu Mar 10 14:15:39 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri Apr 1 14:51:29 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,7 +38,7 @@ class ImagePropertiesDlg_base(QDialog):
         self.EXifDataListView.addColumn(self.__tr("EXIF Labels"))
         self.EXifDataListView.header().setResizeEnabled(0,self.EXifDataListView.header().count() - 1)
         self.EXifDataListView.addColumn(self.__tr("Contents "))
-        self.EXifDataListView.setSizePolicy(QSizePolicy(7,7,0,0,self.EXifDataListView.sizePolicy().hasHeightForWidth()))
+        self.EXifDataListView.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.EXifDataListView.sizePolicy().hasHeightForWidth()))
         self.EXifDataListView.setMinimumSize(QSize(400,100))
         self.EXifDataListView.setFrameShadow(QListView.Sunken)
         self.EXifDataListView.setResizeMode(QListView.AllColumns)

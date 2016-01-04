@@ -49,10 +49,10 @@
             </property>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>PopupAlerts</cstring>
+                    <cstring>CleaningLevels</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Popup Alerts</string>
+                    <string>Auto Refresh</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -60,15 +60,15 @@
                     </property>
                     <widget class="QLabel" row="0" column="0">
                         <property name="name">
-                            <cstring>textLabel3</cstring>
+                            <cstring>textLabel3_2_2</cstring>
                         </property>
                         <property name="text">
-                            <string>&lt;b&gt;Configure if the HP Device Manager will popup on alerts&lt;/b&gt;</string>
+                            <string>&lt;b&gt;Configure the rate at which devices are automaically refreshed&lt;/b&gt;</string>
                         </property>
                     </widget>
                     <widget class="Line" row="1" column="0">
                         <property name="name">
-                            <cstring>line1</cstring>
+                            <cstring>line1_2_2</cstring>
                         </property>
                         <property name="frameShape">
                             <enum>HLine</enum>
@@ -80,17 +80,9 @@
                             <enum>Horizontal</enum>
                         </property>
                     </widget>
-                    <widget class="QCheckBox" row="2" column="0">
-                        <property name="name">
-                            <cstring>PopupCheckBox</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Popup Device Manager when status alerts occur</string>
-                        </property>
-                    </widget>
                     <spacer row="3" column="0">
                         <property name="name">
-                            <cstring>spacer7</cstring>
+                            <cstring>spacer8</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Vertical</enum>
@@ -100,11 +92,76 @@
                         </property>
                         <property name="sizeHint">
                             <size>
-                                <width>21</width>
-                                <height>171</height>
+                                <width>20</width>
+                                <height>200</height>
                             </size>
                         </property>
                     </spacer>
+                    <widget class="QButtonGroup" row="2" column="0">
+                        <property name="name">
+                            <cstring>CleaningLevel</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Auto refresh rate</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <spacer row="0" column="1">
+                                <property name="name">
+                                    <cstring>spacer9_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>181</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QLayoutWidget" row="0" column="0">
+                                <property name="name">
+                                    <cstring>layout7</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QSpinBox">
+                                        <property name="name">
+                                            <cstring>AutoRefreshRate</cstring>
+                                        </property>
+                                        <property name="wrapping">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="buttonSymbols">
+                                            <enum>PlusMinus</enum>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>360</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>5</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_3</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>seconds</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </grid>
+                    </widget>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -295,123 +352,6 @@
                             </size>
                         </property>
                     </spacer>
-                </grid>
-            </widget>
-            <widget class="QWidget">
-                <property name="name">
-                    <cstring>CleaningLevels</cstring>
-                </property>
-                <attribute name="title">
-                    <string>Auto Refresh</string>
-                </attribute>
-                <grid>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel" row="0" column="0">
-                        <property name="name">
-                            <cstring>textLabel3_2_2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&lt;b&gt;Configure the rate at which devices are automaically refreshed&lt;/b&gt;</string>
-                        </property>
-                    </widget>
-                    <widget class="Line" row="1" column="0">
-                        <property name="name">
-                            <cstring>line1_2_2</cstring>
-                        </property>
-                        <property name="frameShape">
-                            <enum>HLine</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                    </widget>
-                    <spacer row="3" column="0">
-                        <property name="name">
-                            <cstring>spacer8</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>200</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QButtonGroup" row="2" column="0">
-                        <property name="name">
-                            <cstring>CleaningLevel</cstring>
-                        </property>
-                        <property name="title">
-                            <string>Auto refresh rate</string>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <spacer row="0" column="1">
-                                <property name="name">
-                                    <cstring>spacer9_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>181</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QLayoutWidget" row="0" column="0">
-                                <property name="name">
-                                    <cstring>layout7</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QSpinBox">
-                                        <property name="name">
-                                            <cstring>AutoRefreshRate</cstring>
-                                        </property>
-                                        <property name="wrapping">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="buttonSymbols">
-                                            <enum>PlusMinus</enum>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>360</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>5</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1_3</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>seconds</string>
-                                        </property>
-                                    </widget>
-                                </hbox>
-                            </widget>
-                        </grid>
-                    </widget>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -714,7 +654,6 @@
     <tabstop>pushButton30</tabstop>
     <tabstop>pushButton32</tabstop>
     <tabstop>pushButton31</tabstop>
-    <tabstop>PopupCheckBox</tabstop>
     <tabstop>EmailAddress</tabstop>
     <tabstop>SMTPServer</tabstop>
     <tabstop>Username</tabstop>

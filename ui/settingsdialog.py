@@ -28,34 +28,23 @@ from settingsdialog_base import SettingsDialog_base
 class SettingsDialog(SettingsDialog_base):
     def __init__(self, parent = None,name = None,modal = 0,fl = 0):
         SettingsDialog_base.__init__(self,parent,name,modal,fl)
-        #self.cleaning_level = cleaning_level
-        #self.CleaningLevel.setButton( self.cleaning_level )
         self.DefaultsButton.setEnabled( False )
-        
+
     def PrintCmdChangeButton_clicked(self):
-        #self.PrintCommand
         pass
-        
+
     def ScanCmdChangeButton_clicked(self):
-        #self.ScanCommand
         pass
-        
+
     def AccessPCardCmdChangeButton_clicked(self):
-        #self.AccessPCardCommand
         pass
-        
+
     def SendFaxCmdChangeButton_clicked(self):
-        #self.SendFaxCommand
         pass
-        
+
     def MakeCopiesCmdChangeButton_clicked(self):
-        #self.MakeCopiesCommand
         pass
-        
-    #def CleaningLevel_clicked(self,a0):
-        #self.cleaning_level = a0
-    #    pass
-        
+
     def DefaultsButton_clicked(self):
         cmd_print, cmd_scan, cmd_pcard, cmd_copy, cmd_fax = utils.deviceDefaultFunctions()
         self.PrintCommand.setText( cmd_print )
@@ -66,20 +55,19 @@ class SettingsDialog(SettingsDialog_base):
 
     def TabWidget_currentChanged(self,a0):
         name = str( a0.name() )
-        
+
         if name == 'FunctionCommands':
             self.DefaultsButton.setEnabled( True )
         else:
             self.DefaultsButton.setEnabled( False )
-      
-    
+
+
     def EmailTestButton_clicked(self): 
         email_address = str( self.EmailAddress.text() )
         smtp_server = str( self.SMTPServer.text() )
         s = service.Service()
         resultCode = s.testEmail(email_address, smtp_server)
         if resultCode != ERROR_SUCCESS:
-             log.debug( "Failure-Result_Code: %s" % resultCode )
-            # show success/failure dialog
+            log.debug( "Failure-Result_Code: %s" % resultCode )
         log.debug( "Success-Result_Code: %s" % resultCode )
         s.close()

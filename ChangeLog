@@ -1,7 +1,45 @@
-2005-04-1 dsuffield
+2005-04-15 jpitter
+    * models.xml: cloned HP LaserJet 4050 Series to the same thing with a trailing underscore to solve a forum issue.
+
+2005-04-15 dsuffield
+    * Release 0.9.2
+
+2005-04-14 dwelch
+    * Fixed defect 540 ("Invalid color calibration type" error occurs when executing command "colorcal" in terminal.)
+    * Fixed issue reported in forum (AlignType3() number of arguments error in hp-align)
+    
+2005-04-13 dwelch
+    * UI architectural change (removed hpguid.py, removed popup feature, etc)
+    
+2005-04-13 dsuffield
+    * Release 0.9.1.2
+	
+2005-04-13 dsuffield
+    * Fixed a scanning issue with Laserjet flatbed scanners (PML scanners). Scan would fail at end of scan.
+    * Added hpijs 5 limit syslog message when output device write() fails.  
+    * Removed specified gcc options in hpijs configure.in.
+    * Removed images.tgz after install.
+	
+2005-04-12 dsuffield
+    * Release 0.9.1.1
+
+2005-04-12 dwelch
+    * Fixed defect 533 (All function buttons are grayed out when toolbox is launched at the first time.)
+    * Fixed defect that caused DJ450 battery check to fail 
+
+2005-04-01 jpitter
+    * added new entries for PSC 750xi, CP1700, and OfficeJet 5110 in models.xml fixing issues 572 and 555.
+    * added new entries for new products HP LaserJet 4240, HP LaserJet 9040, HP Color LaserJet 4610, HP Business Inkjet 1000, and HP LaserJet 1022 in models.xml.
+    * added HP-LaserJet_4240.xml, HP-LaserJet_9040.xml, HP-Color_LaserJet_4610.xml, HP-Business_Inkjet_1000.xml, and HP-LaserJet_1022.xml to the stable branch of foomatic-db.
+    * added HP-LaserJet_4240, HP-LaserJet_9040, and HP-Color_LaserJet_4610 to Postscript.xml on foomatic-db stable.
+
+2005-04-01 dwelch
+    * Fixed defect 507 (Toolbox does not launch with PyQt 3.14-1mdk). All .py files produced by compiling .ui files with pyuic have been updated to fix the QSizePolicy() problem.
+    
+2005-04-01 dsuffield
     * Release 0.9.1
 
-2005-04-1 dsuffield
+2005-04-01 dsuffield
     * Added toobox *.ui files to package.
 
 2005-04-01 dwelch
@@ -15,7 +53,7 @@
 
 2005-03-31 dsuffield
     * Fixed gcc warnings specified by Henrique de Moraes Holeschuh (debian).
-    
+
 2005-03-31 jpitter
     * PS PPDs HP_LaserJet_4240.ppd, HP_LaserJet_9040.ppd, and hp_color_LaserJet_4610.ppd scp'd to linuxprinting.org download.
     * updated foomatic-db/driver/Postscript.xml to include HP-LaserJet_4240, HP-LaserJet_9040, and HP-Color_LaserJet_4610 in tip.

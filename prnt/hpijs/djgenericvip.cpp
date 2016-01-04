@@ -113,7 +113,7 @@ VIPGrayFastDraftMode::VIPGrayFastDraftMode () : GrayMode (ulMapDJ600_CCM_K)
 #endif
 
     dyeCount    = 1;
-    medium      = mediaAuto;
+    medium      = mediaPlain;
     theQuality  = qualityFastDraft;
     pmQuality   = QUALITY_FASTDRAFT;
     pmMediaType = MEDIA_PLAIN;

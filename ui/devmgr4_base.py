@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/devmgr4_base.ui'
 #
-# Created: Wed Mar 23 13:02:51 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri Apr 1 14:51:30 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -28,7 +28,7 @@ class DevMgr4_base(QMainWindow):
         self.splitter2.setOrientation(QSplitter.Horizontal)
 
         self.DeviceList = QIconView(self.splitter2,"DeviceList")
-        self.DeviceList.setSizePolicy(QSizePolicy(5,5,0,0,self.DeviceList.sizePolicy().hasHeightForWidth()))
+        self.DeviceList.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.DeviceList.sizePolicy().hasHeightForWidth()))
         self.DeviceList.setMaximumSize(QSize(32767,32767))
         self.DeviceList.setResizePolicy(QIconView.Manual)
         self.DeviceList.setArrangement(QIconView.TopToBottom)
@@ -73,7 +73,7 @@ class DevMgr4_base(QMainWindow):
         self.PrintButton.setEnabled(0)
 
         TabPageLayout.addMultiCellWidget(self.PrintButton,1,1,0,1)
-        self.Tabs.insertTab(self.TabPage,QString(""))
+        self.Tabs.insertTab(self.TabPage,QString.fromLatin1(""))
 
         self.StatusTab = QWidget(self.Tabs,"StatusTab")
         StatusTabLayout = QGridLayout(self.StatusTab,1,1,11,6,"StatusTabLayout")
@@ -94,7 +94,7 @@ class DevMgr4_base(QMainWindow):
         StatusGroupBoxLayout.addWidget(self.StatusText,0,0)
 
         self.StatusIcon = QLabel(self.StatusGroupBox,"StatusIcon")
-        self.StatusIcon.setSizePolicy(QSizePolicy(0,0,0,0,self.StatusIcon.sizePolicy().hasHeightForWidth()))
+        self.StatusIcon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.StatusIcon.sizePolicy().hasHeightForWidth()))
         self.StatusIcon.setMinimumSize(QSize(32,32))
         self.StatusIcon.setMaximumSize(QSize(32,32))
         self.StatusIcon.setScaledContents(1)
@@ -134,7 +134,7 @@ class DevMgr4_base(QMainWindow):
         groupBox3Layout.addWidget(self.StatusHistoryList,0,0)
 
         StatusTabLayout.addWidget(self.groupBox3,1,0)
-        self.Tabs.insertTab(self.StatusTab,QString(""))
+        self.Tabs.insertTab(self.StatusTab,QString.fromLatin1(""))
 
         self.TabPage_2 = QWidget(self.Tabs,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
@@ -155,7 +155,7 @@ class DevMgr4_base(QMainWindow):
         TabPageLayout_2.addWidget(self.CancelPrintJobButton,1,1)
         spacer12_3 = QSpacerItem(471,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout_2.addItem(spacer12_3,1,0)
-        self.Tabs.insertTab(self.TabPage_2,QString(""))
+        self.Tabs.insertTab(self.TabPage_2,QString.fromLatin1(""))
 
         self.SuppliesTab = QWidget(self.Tabs,"SuppliesTab")
         SuppliesTabLayout = QGridLayout(self.SuppliesTab,1,1,11,6,"SuppliesTabLayout")
@@ -171,7 +171,7 @@ class DevMgr4_base(QMainWindow):
         self.textLabel1_2 = QLabel(self.SuppliesTab,"textLabel1_2")
 
         SuppliesTabLayout.addWidget(self.textLabel1_2,0,0)
-        self.Tabs.insertTab(self.SuppliesTab,QString(""))
+        self.Tabs.insertTab(self.SuppliesTab,QString.fromLatin1(""))
 
         self.MaintTab = QWidget(self.Tabs,"MaintTab")
         MaintTabLayout = QGridLayout(self.MaintTab,1,1,11,6,"MaintTabLayout")
@@ -241,7 +241,7 @@ class DevMgr4_base(QMainWindow):
         MaintTabLayout.addWidget(self.groupBox4,0,0)
         spacer13_2 = QSpacerItem(20,170,QSizePolicy.Minimum,QSizePolicy.Expanding)
         MaintTabLayout.addItem(spacer13_2,3,0)
-        self.Tabs.insertTab(self.MaintTab,QString(""))
+        self.Tabs.insertTab(self.MaintTab,QString.fromLatin1(""))
 
         self.TabPage_3 = QWidget(self.Tabs,"TabPage_3")
         TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
@@ -254,7 +254,7 @@ class DevMgr4_base(QMainWindow):
         groupBox9_2Layout.setAlignment(Qt.AlignTop)
 
         self.Panel = QLabel(self.groupBox9_2,"Panel")
-        self.Panel.setSizePolicy(QSizePolicy(0,0,0,0,self.Panel.sizePolicy().hasHeightForWidth()))
+        self.Panel.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Panel.sizePolicy().hasHeightForWidth()))
         self.Panel.setMinimumSize(QSize(254,40))
         self.Panel.setMaximumSize(QSize(254,40))
         self.Panel.setFrameShape(QLabel.NoFrame)
@@ -271,13 +271,13 @@ class DevMgr4_base(QMainWindow):
         groupBox9_2Layout.addItem(spacer14_2,1,0)
 
         TabPageLayout_3.addWidget(self.groupBox9_2,0,0)
-        self.Tabs.insertTab(self.TabPage_3,QString(""))
+        self.Tabs.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.InfoTab = QWidget(self.Tabs,"InfoTab")
         InfoTabLayout = QGridLayout(self.InfoTab,1,1,11,6,"InfoTabLayout")
 
         self.groupBox11 = QGroupBox(self.InfoTab,"groupBox11")
-        self.groupBox11.setSizePolicy(QSizePolicy(5,5,0,0,self.groupBox11.sizePolicy().hasHeightForWidth()))
+        self.groupBox11.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.groupBox11.sizePolicy().hasHeightForWidth()))
         self.groupBox11.setColumnLayout(0,Qt.Vertical)
         self.groupBox11.layout().setSpacing(6)
         self.groupBox11.layout().setMargin(11)
@@ -287,7 +287,7 @@ class DevMgr4_base(QMainWindow):
         self.AdvInfoList = QListView(self.groupBox11,"AdvInfoList")
         self.AdvInfoList.addColumn(self.__tr("Key"))
         self.AdvInfoList.addColumn(self.__tr("Value"))
-        self.AdvInfoList.setSizePolicy(QSizePolicy(7,7,0,0,self.AdvInfoList.sizePolicy().hasHeightForWidth()))
+        self.AdvInfoList.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.AdvInfoList.sizePolicy().hasHeightForWidth()))
         self.AdvInfoList.setAllColumnsShowFocus(1)
 
         groupBox11Layout.addWidget(self.AdvInfoList,0,0)
@@ -334,7 +334,7 @@ class DevMgr4_base(QMainWindow):
         groupBox9Layout.addWidget(self.OpenEmbeddedBrowserButton,1,1)
 
         InfoTabLayout.addWidget(self.groupBox9,2,0)
-        self.Tabs.insertTab(self.InfoTab,QString(""))
+        self.Tabs.insertTab(self.InfoTab,QString.fromLatin1(""))
 
         DevMgr4_baseLayout.addWidget(self.splitter2,0,0)
 

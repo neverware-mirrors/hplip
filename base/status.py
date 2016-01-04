@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.28 $ 
-# $Date: 2005/03/30 18:11:34 $
+# $Revision: 1.30 $ 
+# $Date: 2005/04/12 18:30:19 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -615,7 +615,8 @@ def BatteryCheck( dev, status_block, io_control ):
             
                 for x in BATTERY_PML_TRIGGER_MAP:
                     if x[0] >= battery_level > x[1]:
-                        battery_trigger_level = BATTERY_TRIGGER_MAP[ x ]
+                        battery_trigger_level = BATTERY_PML_TRIGGER_MAP[ x ]
+                        break
                 
                 if power_mode & pml.POWER_MODE_CHARGING:
                     agent_health = AGENT_HEALTH_CHARGING

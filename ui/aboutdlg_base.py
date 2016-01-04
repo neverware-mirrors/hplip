@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/aboutdlg_base.ui'
 #
-# Created: Thu Jan 20 09:35:49 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:31 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -57,7 +57,7 @@ class AboutDlg_base(QDialog):
         self.resize(QSize(465,487).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.pushButton15,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.pushButton15,SIGNAL("clicked()"),self.close)
 
 
     def languageChange(self):
