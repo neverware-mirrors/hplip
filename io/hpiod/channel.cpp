@@ -57,7 +57,7 @@ int Channel::WriteData(unsigned char *data, int length, char *sendBuf, int *resu
 
    while (size > 0)
    {
-      len = pDev->pSys->Write(pDev->GetOpenFD(), data+total, size);
+      len = pDev->Write(pDev->GetOpenFD(), data+total, size);
       if (len < 0)
       {
          syslog(LOG_ERR, "unable to write data: %m\n");
@@ -101,7 +101,7 @@ int Channel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength,
 
    while (len==0)
    {
-      len = pDev->pSys->Read(pDev->GetOpenFD(), buffer, length, timeout, 0);
+      len = pDev->Read(pDev->GetOpenFD(), buffer, length, timeout, 0);
       if (len < 0)
       {
          syslog(LOG_ERR, "unable to read data Channel::ReadData: %m\n");

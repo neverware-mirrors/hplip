@@ -55,7 +55,7 @@ int MlcChannel::MlcForwardReply(int fd, unsigned char *buf, int size)
 {
    int len=0;
 
-   if ((len = pDev->pSys->Write(fd, buf, size)) != size)
+   if ((len = pDev->Write(fd, buf, size)) != size)
    {
       syslog(LOG_ERR, "unable to MlcForwarReply: %m\n");
    }   
@@ -73,17 +73,36 @@ int MlcChannel::MlcExecReverseCmd(int fd, unsigned char *buf)
    MLCCreditRequestReply *pCreditReqReply;
    MLCError *pError;
    MlcChannel *pC;
-   int i, len;
+   int i, len, size;
 
    pCmd = (MLCCmd *)buf;
 
+   /* See if this packet is a command packet. */
    if (!(pCmd->h.hsid == 0 && pCmd->h.psid == 0))
    {
-     //      len = ntohs(pCmd->h.length) - sizeof(MLCHeader);
-      len = ntohs(pCmd->h.length);
-      syslog(LOG_ERR, "unexpected data packet: hsid=%x, psid=%x, length=%d, credit=%d, status=%x\n", pCmd->h.hsid,
-                                     pCmd->h.psid, len, pCmd->h.credit, pCmd->h.status);
-      sysdump(buf, len);
+      if ((pCmd->h.hsid == pCmd->h.psid) && ((i = MlcSocket2Channel(pCmd->h.hsid)) >= 0))
+      {
+         /* Got a valid data packet handle it. This can happen when ReadData timeouts and p2hcredit=1. */
+         pC = (MlcChannel *)pDev->pChannel[i];
+         size = ntohs(pCmd->h.length) - sizeof(MLCHeader);
+         if (size > (MAX_RECEIVER_DATA - pC->rcnt))
+         {
+            syslog(LOG_ERR, "invalid data packet size=%d: %s %d\n", size, __FILE__, __LINE__);
+            return 0;
+         }
+         memcpy(&pC->rbuf[pC->rcnt], buf+sizeof(MLCHeader), size);
+         pC->rcnt += size;
+         if (pCmd->h.credit)
+            pC->SetH2PCredit(pC->GetH2PCredit() + pCmd->h.credit);  /* note, piggy back credit is 1 byte wide */ 
+         pC->SetP2HCredit(pC->GetP2HCredit()-1); /* one data packet was read, decrement credit count */
+      }
+      else
+      {
+         len = ntohs(pCmd->h.length);
+         syslog(LOG_ERR, "unsolicited data packet: hsid=%x, psid=%x, length=%d, credit=%d, status=%x: %s %d\n", pCmd->h.hsid,
+                                     pCmd->h.psid, len, pCmd->h.credit, pCmd->h.status, __FILE__, __LINE__);
+         sysdump(buf, len);
+      }
       return 0;  
    }
 
@@ -107,8 +126,8 @@ int MlcChannel::MlcExecReverseCmd(int fd, unsigned char *buf)
          static int cnt=0;
          pCreditReq = (MLCCreditRequest *)buf;
          if (cnt++ < 5)         
-            syslog(LOG_ERR, "unexpected MLCCreditRequest: cmd=%x, hid=%x, pid=%x, credit=%d\n", pCreditReq->cmd,
-                                         pCreditReq->hsocket, pCreditReq->psocket, ntohs(pCreditReq->credit));
+            syslog(LOG_ERR, "unexpected MLCCreditRequest: cmd=%x, hid=%x, pid=%x, credit=%d: %s %d\n", pCreditReq->cmd,
+                                         pCreditReq->hsocket, pCreditReq->psocket, ntohs(pCreditReq->credit), __FILE__, __LINE__);
          pCreditReqReply = (MLCCreditRequestReply *)buf;
          pCreditReqReply->h.length = htons(sizeof(MLCCreditRequestReply));
          pCreditReqReply->cmd |= 0x80;
@@ -118,11 +137,11 @@ int MlcChannel::MlcExecReverseCmd(int fd, unsigned char *buf)
          break;
       case MLC_ERROR:
          pError = (MLCError *)buf;
-         syslog(LOG_ERR, "unexpected MLCError: cmd=%x, result=%x\n", pError->cmd, pError->result);
+         syslog(LOG_ERR, "unexpected MLCError: cmd=%x, result=%x\n: %s %d", pError->cmd, pError->result, __FILE__, __LINE__);
          return 1;
       default:
          pReply = (MLCReply *)buf;
-         syslog(LOG_ERR, "unexpected command: cmd=%x, result=%x\n", pReply->cmd, pReply->result);
+         syslog(LOG_ERR, "unexpected command: cmd=%x, result=%x: %s %d\n", pReply->cmd, pReply->result, __FILE__, __LINE__);
          pReply->h.length = htons(sizeof(MLCReply));
          pReply->cmd |= 0x80;
          pReply->result = 1;
@@ -149,7 +168,7 @@ int MlcChannel::MlcReverseCmd(int fd)
    size = sizeof(MLCHeader);
    while (size > 0)
    {
-      if ((len = pDev->pSys->Read(fd, pBuf, size)) < 0)
+      if ((len = pDev->Read(fd, pBuf, size)) < 0)
       {
          syslog(LOG_ERR, "unable to read MlcReverseCmd header: %m\n");
          stat = 1;
@@ -171,7 +190,7 @@ int MlcChannel::MlcReverseCmd(int fd)
    size = pklen - sizeof(MLCHeader);
    while (size > 0)
    {
-      if ((len = pDev->pSys->Read(fd, pBuf, size)) < 0)
+      if ((len = pDev->Read(fd, pBuf, size)) < 0)
       {
          syslog(LOG_ERR, "unable to read MlcReverseCmd data: %m\n");
          stat = 1;
@@ -207,9 +226,9 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       size = sizeof(MLCHeader);
       while (size > 0)
       {
-         if ((len = pDev->pSys->Read(fd, pBuf, size, 1, 0)) < 0)   /* wait 1 second */
+         if ((len = pDev->Read(fd, pBuf, size, 1, 0)) < 0)   /* wait 1 second */
          {
-            syslog(LOG_ERR, "unable to read MlcReverseReply header: %m\n");
+            syslog(LOG_ERR, "unable to read MlcReverseReply header: %m %s %d\n", __FILE__, __LINE__);
             stat = 2;  /* short timeout */
             goto bugout;
          }
@@ -218,18 +237,41 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       }
 
       /* Determine packet size. */
-      if ((pklen = ntohs(pPk->h.length)) > bufsize)
+      pklen = ntohs(pPk->h.length);
+      if (pklen > bufsize)
       {
-         syslog(LOG_ERR, "invalid MlcReverseReply packet size: size=%d, buf=%d\n", pklen, bufsize);
+         syslog(LOG_ERR, "invalid MlcReverseReply packet size: size=%d, buf=%d %s %d\n", pklen, bufsize, __FILE__, __LINE__);
          stat = 1;
          goto bugout;
+      }
+
+      if (pklen == 0)
+      {
+         /* Got invalid MLC header from peripheral, try this "off-by-one" firmware hack (ie: OJ600). */
+         syslog(LOG_ERR, "trying MlcReverseReply firmware hack: %s %d\n", __FILE__, __LINE__);
+         memcpy(buf, &buf[1], sizeof(MLCHeader)-1);
+         pklen = ntohs(pPk->h.length);
+         if (pklen <= 0 || pklen > bufsize)
+         {
+            syslog(LOG_ERR, "invalid MlcReverseReply packet size: size=%d, buf=%d %s %d\n", pklen, bufsize, __FILE__, __LINE__);
+            stat = 1;
+            goto bugout;
+         }
+         if ((len = pDev->Read(fd, --pBuf, 1, 1, 0)) < 0)   /* wait 1 second */
+         {
+            syslog(LOG_ERR, "unable to read MlcReverseReply header: %m %s %d\n", __FILE__, __LINE__);
+            stat = 1;
+            goto bugout;
+         }
+         pBuf++;
+         sysdump(buf, sizeof(MLCHeader));
       }
 
       /* Read packet data field. */
       size = pklen - sizeof(MLCHeader);
       while (size > 0)
       {
-         if ((len = pDev->pSys->Read(fd, pBuf, size)) < 0)
+         if ((len = pDev->Read(fd, pBuf, size)) < 0)
          {
             syslog(LOG_ERR, "unable to read MlcReverseReply data: %m\n");
             stat = 1;
@@ -268,7 +310,7 @@ int MlcChannel::MlcInit(int fd)
    pCmd->cmd = MLC_INIT;
    pCmd->rev = 3;
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MLCInit: %m\n");
       stat = 1;
@@ -295,7 +337,7 @@ int MlcChannel::MlcInit(int fd)
          {
             /* hack for Tahoe */
             syslog(LOG_INFO, "invalid MLCInitReply retrying command...\n");
-            pDev->pSys->Write(fd, pCmd, n);
+            pDev->Write(fd, pCmd, n);
             cnt++;
             continue;
          }
@@ -323,7 +365,7 @@ int MlcChannel::MlcExit(int fd)
    pCmd->h.length = htons(n);
    pCmd->cmd = MLC_EXIT;
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MLCExit: %m\n");
       stat = 1;
@@ -364,7 +406,7 @@ int MlcChannel::MlcConfigSocket(int fd)
    pCmd->p2hsize = htons(MAX_RECEIVER_DATA);
    pCmd->status = 0;   /* status level?? */
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MLCConfigSocket: %m\n");
       stat = 1;
@@ -400,14 +442,14 @@ int MlcChannel::MlcForwardData(int fd, int sockid, unsigned char *buf, int size)
    h.hsid = sockid;
    h.psid = sockid;
       
-   if ((len = pDev->pSys->Write(fd, &h, sizeof(MLCHeader))) != sizeof(MLCHeader))
+   if ((len = pDev->Write(fd, &h, sizeof(MLCHeader))) != sizeof(MLCHeader))
    {
       syslog(LOG_ERR, "unable to write MlcForwardData header: %m\n");
       stat = 1;
       goto bugout;
    }
 
-   if ((len = pDev->pSys->Write(fd, buf, size)) != size)
+   if ((len = pDev->Write(fd, buf, size)) != size)
    {
       syslog(LOG_ERR, "unable to write MlcForwardData: %m\n");
       stat = 1;
@@ -436,9 +478,9 @@ int MlcChannel::MlcReverseData(int fd, int sockid, unsigned char *buf, int lengt
       {
          /* Use requested client timeout until we start reading. */
          if (total == 0)
-            len = pDev->pSys->Read(fd, buf+total, size, timeout, 0);
+            len = pDev->Read(fd, buf+total, size, timeout, 0);
          else
-            len = pDev->pSys->Read(fd, buf+total, size);
+            len = pDev->Read(fd, buf+total, size);
 
          if (len < 0)
          {
@@ -468,7 +510,7 @@ int MlcChannel::MlcReverseData(int fd, int sockid, unsigned char *buf, int lengt
             /* Ok, got a command channel packet instead of a data packet, handle it... */
             while (size > 0)
             {
-               if ((len = pDev->pSys->Read(fd, buf+total, size)) < 0)
+               if ((len = pDev->Read(fd, buf+total, size)) < 0)
                {
                   syslog(LOG_ERR, "unable to read MlcReverseData command: %m\n");
                   goto bugout;
@@ -497,7 +539,7 @@ int MlcChannel::MlcReverseData(int fd, int sockid, unsigned char *buf, int lengt
       /* Read packet data field without exception_timeout. */
       while (size > 0)
       {
-         if ((len = pDev->pSys->Read(fd, buf+total, size)) < 0)
+         if ((len = pDev->Read(fd, buf+total, size)) < 0)
          {
             syslog(LOG_ERR, "unable to read MlcReverseData: %m\n");
             goto bugout;
@@ -529,7 +571,7 @@ int MlcChannel::MlcOpenChannel(int fd)
    pCmd->credit = htons(0);             /* credit sender will accept from receiver (set by MlcDevice::ReadData) */
    //   SetH2PCredit(0);                    /* initialize sender to receiver credit */
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MlcOpenChannel: %m\n");
       stat = 1;
@@ -567,7 +609,7 @@ int MlcChannel::MlcCloseChannel(int fd)
    pCmd->hsocket = GetSocketID();   /* assume static socket ids */    
    pCmd->psocket = GetSocketID();
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MlcCloseChannel: %m\n");
       stat = 1;
@@ -604,7 +646,7 @@ int MlcChannel::MlcCredit(int fd, unsigned short credit)
    pCmd->psocket = GetSocketID();
    pCmd->credit = htons(credit);                /* set peripheral to host credit */
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MlcCredit: %m\n");
       stat = 1;
@@ -620,6 +662,8 @@ int MlcChannel::MlcCredit(int fd, unsigned short credit)
       stat = 1;
       goto bugout;
    }
+
+   SetP2HCredit(GetP2HCredit()+credit);
 
 bugout:
    return stat;
@@ -641,7 +685,7 @@ int MlcChannel::MlcCreditRequest(int fd, unsigned short credit)
    pCmd->psocket = GetSocketID();
    pCmd->credit = htons(credit);                /* request host to peripheral credit */
    
-   if ((len = pDev->pSys->Write(fd, pCmd, n)) != n)
+   if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
       syslog(LOG_ERR, "unable to write MlcCreditRequest: %m\n");
       stat = 1;
@@ -723,7 +767,7 @@ int MlcChannel::Open(char *sendBuf, int *result)
 
          /* Drain any reverse data. */
          for (i=0,len=1; len > 0 && i < sizeof(buf); i++)
-            len = pDev->pSys->Read(pDev->GetOpenFD(), buf+i, 1, 0, 0);    /* no blocking */
+            len = pDev->Read(pDev->GetOpenFD(), buf+i, 1, 0, 0);    /* no blocking */
 
          /* MLC initialize */
          if (MlcInit(pDev->GetOpenFD()) != 0)
@@ -781,7 +825,7 @@ int MlcChannel::Close(char *sendBuf, int *result)
       if (pDev->CurrentProtocol != USB_PROTOCOL_713)
       {
          ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 78);  /* reset MLC (ECP channel-78) */
-         pDev->pSys->Write(pDev->GetOpenFD(), &nullByte, 1);  
+         pDev->Write(pDev->GetOpenFD(), &nullByte, 1);  
          ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 0);   /* set raw mode (ECP channel-0) */
          ioctl(pDev->GetOpenFD(), LPIOC_SET_PROTOCOL, pDev->CurrentProtocol);
       }
@@ -808,7 +852,7 @@ int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *r
    {
       len = (size > dlen) ? dlen : size;
 
-      if (pDev->GetFlowCtl() == MISER)
+      if (GetH2PCredit() <= 0 && pDev->GetFlowCtl() == MISER)
       {
          if (MlcCreditRequest(pDev->GetOpenFD(), 1) != 0)  /* Miser flow control */
          {
@@ -817,10 +861,10 @@ int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *r
          }
       }
 
-      if (!GetH2PCredit())
+      if (GetH2PCredit() == 0)
       {
          ret = MlcReverseCmd(pDev->GetOpenFD());
-         if (!GetH2PCredit())
+         if (GetH2PCredit() == 0)
          {
             if (ret == 0)
                continue;  /* Got a reverse command, but no MlcCredit, try again. */ 
@@ -894,6 +938,9 @@ int MlcChannel::CutBuf(char *sendBuf, int length)
  *
  * The "timeout" specifies how many seconds to wait for a data packet. Once the read of the data packet has
  * started the "timeout" is no longer used.
+ *
+ * Note, if a "timeout" occurs one peripheral to host credit is left outstanding. Which means the peripheral
+ * can send unsolicited data later.
  */
 int MlcChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result)
 {
@@ -923,7 +970,7 @@ int MlcChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLeng
       goto bugout;
    }
 
-   if (!GetP2HCredit())
+   if (GetP2HCredit() == 0)
    {
       /* Issue enough credit to the peripheral to read one data packet. */ 
       if (MlcCredit(pDev->GetOpenFD(), 1) != 0)
@@ -935,10 +982,10 @@ int MlcChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLeng
 
    *result=R_AOK;
    rcnt = MlcReverseData(pDev->GetOpenFD(), GetSocketID(), rbuf, sizeof(rbuf), timeout);
-   sendLen = CutBuf(sendBuf, length);
-
    if (rcnt)
-      SetP2HCredit(0); /* one data packet was read, reset credit count */
+      SetP2HCredit(GetP2HCredit()-1); /* one data packet was read, decrement credit count */
+ 
+   sendLen = CutBuf(sendBuf, length);
 
 bugout:
    //   if (*result != R_AOK)

@@ -25,8 +25,7 @@ open source software and uses GPL compatible licenses.
 <li><a href="#Updates">5 Updates</a>
 <li><a href="#Building">6 Installation</a>
 <li><a href="#Usage">7 Usage and Troubleshooting</a>
-<li><a href="http://sourceforge.net/projects/hpinkjet/">8 Project
-Development</a>
+<li><a href="http://sourceforge.net/projects/hpinkjet/">8 Project Development</a>
 </ul>
 
 <hr>
@@ -45,12 +44,12 @@ system. A CUPS/HPLIP system provides bi-di communication which is necessary for
 full HPLIP support. HPLIP provides a new CUPS backend called "hp" which supports
 bi-di printing connectivity.
 <p>
-HPLIP works with <A HREF="http://hpinkjet.sf.net/hpijs_readme.html">HPIJS</A>
-and is backward compatable with uni-di operation. This means HPIJS is still
-available for uni-di and bi-di operation.
-Simply select the "hp" CUPS backend for bi-di operation or select the "usb" (or
-"parallel") CUPS backend for uni-di operation.
+HPLIP uses <A HREF="http://hpinkjet.sf.net/hpijs_readme.html">HPIJS</A> for generating printer-ready-data for non-postscript print jobs.
+HPIJS has been available since 2001 as a uni-di solution.
+HPIJS has been modified to support
+HPLIP, but HPIJS is still backward compatible with existing spoolers.
 <p>
+HPLIP supports connectivity over USB, parallel and network (JetDirect).
 The following figure is an overview of the CUPS/HPLIP system with major
 components highlighted.
 <p>
@@ -64,9 +63,11 @@ foomatic database and distributed with the HPLIP tar ball. The foomatic system
 is available at <a href="http://www.linuxprinting.org">
 www.linuxprinting.org</a>.
 <p>
-The "hp" CUPS backend provides in-bound print job status. Job status is sent to
+The "hp" CUPS backend supports printing via USB, parallel, and JetDirect connectivity.
+The "hp" backend can be used in place of the normal "usb" and "parallel" backends provided by CUPS. 
+<p>
+The "hp" backend provides in-bound print job status. Job status is sent to
 CUPS via stderr "ERROR:" and "INFO:" messages and to the HP Device Manager.
-The HP Device Manager can be configured to pop-up or ignore print job status.
 <p>
 Out-of-bound printer status is available in the HP Device Manager. For example,
 ink levels for most inkjets can be viewed in the device manager.
@@ -81,12 +82,12 @@ printers that support photo-cards.
 Faxing will not be in the first release. Only PC fax send will be supported, no
 PC fax receive. PC fax send will look like a CUPS printer spool queue.
 <p>
-A distribution can mix and match the HPLIP package in order to support a un-di
-or bi-di solution. HPIJS is part of the HPLIP package.
+A distribution can mix and match the HPLIP package in order to support a bi-di or uni-di solution.
+HPIJS is part of the HPLIP package, but HPIJS can still be installed separately. 
+The HPLIP package includes two makefiles one for HPLIP and one for HPIJS.
 <p>
 HPLIP is intended to replace <A
-HREF="http://hpoj.sf.net/hpijs_readme.html">HPOJ</A> for all local USB and
-JetDirect connectivity.
+HREF="http://hpoj.sf.net/hpijs_readme.html">HPOJ</A>. They both support USB, parallel and JetDirect connectivity.
 HPLIP is similar to HPOJ, but different.
 HPLIP has persistent daemons (hpiod, hpssd) like HPOJ, but is more friendly.
 HPLIP does not require a "ptal-init setup". The "hp" backend will look like any
@@ -98,11 +99,20 @@ HPLIP provides a MLC/1284.4 transport for talking to Multi-Function Peripherals
 HPLIP brings MLC/1284.4 up and down as needed. This means a MFP can use raw I/O
 for printing and MLC/1284.4 for scanning.
 <p>
-HPOJ and HPLIP can co-exist on the same PC, but they cannot access the same
-device.
-For example if HPOJ is configured for device "/dev/usb/lp0" then device
-"/dev/usb/lp0" is not available for HPLIP.
-Use "ptal-init setup" to add/remove HPOJ devices.
+HPOJ performs all parallel I/O directly to the hardware port in User Mode. This is problematic with other Linux/Unix
+platforms. Many kernels do not allow direct communication to the parallel port from User Mode.
+HPLIP also performs parallel I/O in User Mode, but HPLIP uses the ppdev/parport kernel modules.
+Which provides kernel management and a better sharing mechanism for other applications.
+<p>
+All IEEE 1284 functions needed for HPLIP are performed with low-level ppdev ioctl(s).
+This includes data reads and writes. For MLC/1284.4, hardware ECP Mode is not always available so only software ECP Mode is supported.
+<p>
+In most cases USB I/O will be faster than parallel I/O. The reason for this is all USB I/O takes place in Kernel mode via the USB hardware controller.
+Where most parallel I/O takes place in User Mode via software control. If your peripheral supports both USB or parallel use USB.
+<p>
+Generally HPOJ and HPLIP cannot co-exist on the same PC. 
+The parport kernel module will conflict with HPOJ.
+Use "ptal-init setup" to remove HPOJ devices.
 <p>
 <hr>
 <H2><a name="License"></a>2 License</H2>
@@ -145,7 +155,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <p>
 
 <table CELLSPACING=0 CELLPADDING=4 border=1 BGCOLOR=#ffffff COLOR=#000000><tr height=17 style='height:12.75pt'>
-<td height=17 width=241 style='height:12.75pt;width:181pt'><b>Color Inkjet Printers</b></td>
+<td height=17 width=241 style='height:12.75pt;width:181pt'><b>Color and Monochrome (B&W) Inkjet Printers</b></td>
 <td width=64 style='width:48pt'><b>Parallel</b></td>
 <td width=64 style='width:48pt'><b>USB</b></td>
 <td width=64 style='width:48pt'><b>Network(1)</b></td>
@@ -216,6 +226,18 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 1100</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 1120</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 1125</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 1220c</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>No</td><td>No</td><td>No</td>
@@ -292,7 +314,43 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 400</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ350</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 400l</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ350</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 500</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 500c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 505j</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 510</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 5100</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 520</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 540</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 5400 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -328,6 +386,22 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 5900 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 600</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 610c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 610cl</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 6120</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
@@ -340,36 +414,100 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 612c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 630c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ630</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 632c</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 640c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 648c</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 6500</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 656c</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ630</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 660</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 6600</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 670tv</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 672c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 680</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 6800</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 682</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 690</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 692</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 693</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 694</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 695</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 697</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ6xxPhoto</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 810c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 812c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 815c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 816c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 825c</td>
@@ -377,43 +515,59 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 830c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 832c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 840c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 841c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 842c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 843c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 845c</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ8x5</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 850c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 855c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 870c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 880c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 882c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Deskjet 890c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 895c</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>Yes</td><td>No</td><td>DJ8xx</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Deskjet 916c</td>
@@ -512,10 +666,70 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet lx</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 300</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 310</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 320</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 330</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 350</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ540</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 7150</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2100</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2150</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2200</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2500</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2600</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo 2650</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2560</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo p2000-u</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP21xx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP apollo p2250</td>
+<td>Yes</td><td>No</td><td>No</td><td>AP2xxx</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP cp1160</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xxVIP</td>
 <td>No</td><td>No</td><td>No</td>
@@ -536,7 +750,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 </tr>
 <tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 100</td>
-<td>No</td><td>Yes</td><td>No</td><td>PS100</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 1115</td>
@@ -552,7 +766,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 130</td>
-<td>No</td><td>Yes</td><td>No</td><td>PS100</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 1315</td>
@@ -560,15 +774,15 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 140 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>PS100</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 230</td>
-<td>No</td><td>Yes</td><td>No</td><td>PS100</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 240 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>PS100</td>
+<td>No</td><td>Yes</td><td>No</td><td>PSP100</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 320 series</td>
@@ -584,6 +798,14 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 380 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 420 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 470 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -611,8 +833,16 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 7800 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 7900 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>No</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 8000 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>No</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 8100 series</td>
@@ -658,7 +888,15 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 2550 series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 3500</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3500n</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -666,7 +904,15 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3550n</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 3700</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3700n</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -687,6 +933,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 4650</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 4700</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -741,6 +991,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>Postscript</td>
 <td>Yes</td><td>Yes(2)</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 4730 MFP</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 width=241 style='height:12.75pt;width:181pt'><b>Color Inkjet All-in-Ones</b></td>
 <td width=64 style='width:48pt'><b>Parallel</b></td>
 <td width=64 style='width:48pt'><b>USB</b></td>
@@ -754,47 +1008,51 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 4100 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 4105 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 4110 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 4115 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 4200 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>Undefined</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 5100 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 5105</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 5110</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 5500 series</td>
-<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet 5600 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 6100 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 6150 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 6200 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
@@ -802,23 +1060,23 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 7100 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 7200 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 7300 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 7400 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet 9100 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet d series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xxVIP</td>
@@ -826,19 +1084,19 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet g55</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet g55xi</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet g85</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet g85xi</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet g95</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
@@ -846,55 +1104,123 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet k60</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet k60xi</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet k80</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet k80xi</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet pro 1150c</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ850</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet pro 1170c series</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ890</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet r40</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet r40xi</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet r45</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet r60</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ8xx</td>
-<td>Yes</td><td>Yes</td><td>No</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet r65</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet r80</td>
-<td>No</td><td>Yes</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet r80xi</td>
+<td>Yes</td><td>No</td><td>Yes</td><td>DJ8xx</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 500</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 520</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 570</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 580</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 590</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 600</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 610</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 630</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 700</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 710</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 720</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet series 725</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ660</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Officejet t series</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet v30</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet v40</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet v40xi</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Officejet v45</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
-<td>Yes</td><td>No</td><td>Yes</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 1100 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
@@ -912,6 +1238,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>DJ3600</td>
 <td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP PSC 1400 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJ3320</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 1500 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
@@ -922,19 +1252,19 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 2100 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 2150 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 2170 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 2200 series</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
-<td>Yes</td><td>Yes</td><td>Yes</td>
+<td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 2300 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
@@ -951,6 +1281,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td height=17 style='height:12.75pt'>HP PSC 2500 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP PSC 500</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ8xx</td>
+<td>Yes</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP PSC 720</td>
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
@@ -972,6 +1306,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>DJ9xx</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 2570 series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Photosmart 2600 series</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
@@ -980,6 +1318,22 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
 <td>Yes</td><td>Yes</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 3100 series</td>
+<td>No</td><td>Yes</td><td>No</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 3200 series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Photosmart 3300 series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>DJGenericVIP</td>
+<td>Yes</td><td>Yes</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Printer scanner copier 300</td>
+<td>Yes</td><td>No</td><td>No</td><td>DJ6xx</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 width=241 style='height:12.75pt;width:181pt'><b>Monochrome (B&W) LaserJet Printers</b></td>
 <td width=64 style='width:48pt'><b>Parallel</b></td>
 <td width=64 style='width:48pt'><b>USB</b></td>
@@ -1011,10 +1365,6 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>No</td></tr><tr height=17 style='height:12.75pt'>
-<td height=17 style='height:12.75pt'>HP LaserJet 1100</td>
-<td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
-<td>No</td><td>No</td><td>No</td>
-<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP LaserJet 1150</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
@@ -1170,6 +1520,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td class=xl19 width=144 style='width:108pt'><b>Services/Status</b></td>
 </tr>
 <tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP LaserJet 1100</td>
+<td>Yes</td><td>No</td><td>No</td><td>LJMono</td>
+<td>Yes</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP LaserJet 1220</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJMono</td>
 <td>Yes</td><td>No</td><td>No</td>
@@ -1258,11 +1612,47 @@ on the network using an external JetDirect print server. Not all network configu
 to the HPLIP FAQs for more information.<p>
 (2) USB mass storage only. You may mount the photocard as a storage drive over USB only. Refer to
 your distribution's documentation for setup and usage instructions.
-
 <p>
 <hr>
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
+<li>
+<b>HPLIP 0.9.5</b> - This release has the following changes.
+<pre>
+ 1. Added parallel port support for printing and scanning. See Product Support table for supported devices and features.
+ 2. Fixed most gcc4 warnings.
+ 3. Changed the PS8700 PPD inputslot from "default" to "upper".
+ 4. Fixed gcc uninitialized varable warning in udevice.cpp.
+ 5. Removed unused jdprobe code from hp.c backend.
+ 6. Fixed miser mode MLC credit problem in hpiod.
+ 7. Fixed MLC credit problem with short timeouts.
+ 8. Rewrote most of the pml scanning code in libsane-hpaio.
+ 9. Fixed "condrestart" typo in HPLIP startup script (as per Red Hat request). 
+10. Fixed many known hp-toolbox issues.
+11. Fixed case where hp-toolbox crashed if models.xml entry was missing.
+12. Fixed hp-colorcal incorrect parameter passing to maint routines (reported on forum)
+13. Fixed a bug in hpssd.py that caused hal:\\ devices to crash hpssd.
+14. Fixed supplies status for CLJ28xx.
+15. Fixed powersettings for DJ4x0.
+16. Fixed LJ1022 status problem.
+17. Fixed a 4-sided full bleed printing issue in HPIJS.
+18. Added support for the following new printers.
+
+    HP Photosmart 420 (PSP100) 
+    HP Photosmart 470 (PSP100) 
+    HP Photosmart 2570 (DJGenericVIP) 
+    HP PSC 1400 (DJ3600) 
+    HP Officejet 5600 (DJ3600) 
+    HP Photosmart 3100 (DJGenericVIP) 
+    HP Photosmart 3200 (DJGenericVIP) 
+    HP Photosmart 3300 (DJGenericVIP) 
+    HP Photosmart 8000 (DJGenericVIP) 
+    HP Photosmart 7800 (DJGenericVIP) 
+    HP Deskjet 5940 (DJGenericVIP) 
+    HP Deskjet 5440 (DJGenericVIP) 
+    HP Color laserJet 4700 (LJColor/PS) 
+</pre>
+<p>
 <li>
 <b>HPLIP 0.9.4</b> - This release has the following changes.
 <pre>
@@ -1555,7 +1945,9 @@ Issues/TODO
 <p>
 <hr>
 <H2><a name="Building"></a>6 Installation</H2>
-This section addresses how to install HPLIP from source code. This section
+This section addresses how to install HPLIP from source code. Note, most distributions already
+have a HPLIP package available. Check your distribution before installing HPLIP from source code. 
+This section
 assumes all System Requirements listed in the previous section have been met and
 any pre-existing HPLIP install uses the same "./configure --prefix=/usr"
 parameters.
@@ -1600,32 +1992,29 @@ Now we must restart cupsd in order to let CUPS see the new "hp" backend.
 <p>
 <b>Caveats</b>
 <pre>
-1. At configure time, if libsnmp and libcrypto are not found, HPLIP network
-support will not be built. If this happens then only local USB will be supported.
-2. The HPLIP startup/shutdown script is Red Hat (chkconfig) and LSB
-(install_initd) compliant. If your distribution is not compliant the script may
-not work.
-3. In order to get HPLIP to compile with libsnmp on SUSE 9.1 you need add the
-following symlink for libcrypto.
-<b>ln -s /usr/lib/libcrypto.so.0.9.7 /usr/lib/libcrypto.so</b>
-4. For distribution package managers the following ./configure options are
-available. This allows the package manager to configure these options.
-<b>--enable-rpm-install</b>         disables sane, icon, /etc/hp and /etc/init.d
-install
-<b>--disable-foomatic-install</b>   disables foomatic install
-<b>--disable-cups-install</b>       disables cups install
-<b>--enable-network-build</b>       disables building network support, will not
-link with libsnmp
-5. The HPLIP startup script must be executed before the CUPS startup script at boot time.
-6. For Mandrake be sure to include the net-snmp-mibs package for network support.
-7. In order to run the HP Device Manager, PyQt needs to be installed. Also
-Fedora C3 requires the "sip" module, see the following Fedora C3 instructions.
-<b>yum install PyQt</b>
-<b>yum install sip</b>
-8. In SUSE 9.2 and above PyQt is now part of kdebindings3-python.
-9. In order to run HPLIP with Fedora C4 you must disable SELinux protection for cupsd. Under "Security Level Configuration",
-select SELinux tab, click "SELinux Service Protection", then check "Disable SELinux protection for cupsd daemon". This
-solves a "hp" backend problem reading /var/run/hpiod.port.
+ 1. Network support requires libsnmp. HPLIP can be build without network support. At configure time use the following command.
+    <b>./configure --prefix=/usr --disable-network-build</b>
+ 2. The HPLIP startup/shutdown script is Red Hat (chkconfig) and LSB
+    (install_initd) compliant. If your distribution is not compliant the script may not work. 
+ 3. In order to get HPLIP to compile with libsnmp on SUSE 9.1 you need add the following symlink for libcrypto.
+    <b>ln -s /usr/lib/libcrypto.so.0.9.7 /usr/lib/libcrypto.so</b>
+ 4. For distribution package managers the following ./configure options are available. This allows the package 
+    manager to configure these options.
+    <b>--enable-rpm-install</b>         disables sane, icon, /etc/hp and /etc/init.d install
+    <b>--disable-foomatic-install</b>   disables foomatic install
+    <b>--disable-cups-install</b>       disables cups install
+    <b>--enable-network-build</b>       disables building network support, will not link with libsnmp
+ 5. The HPLIP startup script must be executed before the CUPS startup script at boot time.
+ 6. For Mandrake be sure to include the net-snmp-mibs package for network support.
+ 7. In order to run the HP Device Manager, PyQt needs to be installed. Also Fedora C3 requires the "sip" module, 
+    see the following Fedora C3 instructions.
+    <b>yum install PyQt</b>
+    <b>yum install sip</b>
+ 8. In SUSE 9.2 and above PyQt is now part of kdebindings3-python.
+ 9. In order to run HPLIP with Fedora C4 you must disable SELinux protection for cupsd. Under "Security Level Configuration",
+    select SELinux tab, click "SELinux Service Protection", then check "Disable SELinux protection for cupsd daemon". This
+    solves a "hp" backend problem reading /var/run/hpiod.port.
+10. HPLIP can be uninstalled with the "make uninstall" command. 
 </pre>
 <p>
 <H2><a name="Usage"></a>7 Usage and Troubleshooting</H2>
@@ -1774,9 +2163,38 @@ If this step fails your USB subsystem may have a problem goto the next step to v
 <p>
 If the printer-ready-file fails to print send us a copy of the printer-read-file and we will verify the file. If the printer-ready-file prints ok then you have a USB subsystem problem with your Linux box in step 3, see your distribution for help.
 <p>
+<b>
+Issue 6: How do I print borderless photos from Gimp?<br>
+Solution:</b><br>
+The Gimp Print Plugin modifies the RGB gamma values so we don't use the Gimp Print Plugin, but you can still use Gimp to
+print using HPIJS. Use the follow step-by-step instructions for printing a jpg camera photo on 4x6 photo paper.
+<p>
+1. Open the jpg photo with GIMP.
+<p>
+2. Right click on the image and do a File "save as.." command.
+<p>
+3. In the Save Image dialog, click "Postscript" for file type. Then click ok. This will bring up the Save as Postscript dialog.
+<p>
+4. In the Save as Postscript dialog click "Inch" for units.
+<p>
+5. Set the X-Offset and Y-Offset to zero for borderless.
+<p>
+6. If the picture needs to be rotated select 90 degrees. 
+<p>
+7. Set the Width and Height to the desired size of the input image. If the picture is rotated 90 degrees then set the 
+Width to 6 inches and the Height to 4 inches.
+If the picture is not going to be rotated the set the Width to 4 inches and the Height to 6 inches.
+<p>
+8. If you want to maintain the aspect ratio click "Keep Aspect Ratio".
+<p>
+9. Click ok to finish saving the postscript file.
+<p>
+10. Now you should have a postscript file that can be printed with from the hp-toolbox.
+<p>
+11. Make sure your print queue is set to Full Bleed (borderless) when printing.
+<p>
 
 <h3>7.4 Scanning Troubleshooting</h3>
-
 
 <p>
 <b>Issue 1: 'xsane' reports error: "Failed to open device: Operation not supported"<br>
@@ -1888,7 +2306,7 @@ hpinkjet.sourceforge.net</a>.
 &#169 2004-2005 Hewlett-Packard Company<br>
 This document is provided "AS IS" without warranties of any kind including warranties of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
 <br>
-HPLIP 0.9.4, last updated July 19, 2005
+HPLIP 0.9.5, last updated September 14, 2005
 </font>
 </BODY>
 </HTML>

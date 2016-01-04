@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.26 $
-# $Date: 2005/07/18 15:54:53 $
+# $Revision: 1.27 $
+# $Date: 2005/07/21 17:32:37 $
 # $Author: dwelch $
 #
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class IconViewItem(QIconViewItem):
 
 
 class UnloadForm(UnloadForm_base):
-    def __init__(self, bus='usb', device_uri=None, printer_name=None,
+    def __init__(self, bus='usb,par', device_uri=None, printer_name=None,
                  parent=None, name=None, fl=0):
 
         UnloadForm_base.__init__(self,parent,name,fl)
@@ -97,7 +97,7 @@ class UnloadForm(UnloadForm_base):
                 self.init_failed = True
 
             elif x == 1:
-                log.info("Using device: %s" % devices[0][0])
+                log.info(utils.bold("Using device: %s" % devices[0][0]))
                 self.device_uri = devices[0][0]
 
             else:

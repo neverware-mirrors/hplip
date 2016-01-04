@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.7 $ 
-# $Date: 2005/06/06 21:57:46 $
+# $Revision: 1.8 $ 
+# $Date: 2005/09/06 22:42:22 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -49,7 +49,7 @@ def buildEmbeddedPML( pml ):
 ##   '\x1bE\x1b%-12345X@PJL JOB NAME="unnamed"\n@PJL ENTER LANGUAGE=PCL3GUI\n\x1bE\x1b&b15WPML \x04\x00\x04\x01\x01\x05\x02\x04\x02\x01\x03\x1bE\x1b%-12345X@PJL EOJ\n\x1b%-12345X'
 
 def buildEmbeddedPML2( pml ):
-    return ''.join( [ RESET, UEL, PJL_BEGIN_JOB, PJL_ENTER_LANG, RESET, pml, RESET, UEL, PJL_END_JOB, UEL ] )
+    return ''.join( [ RESET, UEL, PJL_BEGIN_JOB, PJL_ENTER_LANG, RESET, pml, RESET, PJL_END_JOB, RESET, UEL ] )
 
 
 def buildDynamicCounter( counter ):

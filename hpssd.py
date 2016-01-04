@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.101 $
-# $Date: 2005/07/21 01:48:39 $
+# $Revision: 1.107 $
+# $Date: 2005/09/09 20:22:03 $
 # $Author: dsuffield $
 
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@
 # Remove in 2.3?
 from __future__ import generators
 
-_VERSION = '5.1'
+_VERSION = '5.2'
 
 # Std Lib
-import sys, socket, os, os.path, signal, getopt, time
+import sys, socket, os, os.path, signal, getopt
 import smtplib, threading, atexit, gettext, re, xml.parsers.expat
 
 # Local
@@ -45,9 +45,6 @@ from base.strings import string_table
 
 # Printing support
 from prnt import cups
-
-# Device support
-from base import device
 
 # Per user alert settings
 alerts = {}
@@ -219,7 +216,7 @@ class ModelParser:
 
 def QueryModel(model_name):
     p = ModelParser()
-    model_name = model_name.replace(' ', '_').strip('_').replace('__', '_').lower()
+    model_name = model_name.replace(' ', '_').strip('_').replace('__', '_').replace('~','').lower()
     log.debug("Query model: %s" % model_name)
     return p.parseModels(model_name)
 
@@ -548,8 +545,8 @@ class hpssd_handler(async.dispatcher):
         result_code = ERROR_SUCCESS
         try:
             mq = QueryModel(model)
-            log.debug(mq)
         except Error, e:
+            mq = {}
             result_code = e.opt
             mq = {}
 
@@ -582,7 +579,7 @@ class hpssd_handler(async.dispatcher):
 
         if result_code == ERROR_SUCCESS:
             oid = self.fields.get('oid', '')
-            typ  = self.field.get('type', pml.TYPE_UNKNOWN)
+            typ  = self.fields.get('type', pml.TYPE_UNKNOWN)
             try:
                 result_code = \
                     devices[device_uri].setPML((oid, typ), self.payload)
@@ -594,18 +591,19 @@ class hpssd_handler(async.dispatcher):
 
     def handle_getdynamiccounter(self):
         device_uri = self.fields.get('device-uri', '')
+        #convert_to_int = self.fields.get('convert-int', True)
         result_code = self.__opendevice(device_uri)
 
         if result_code == ERROR_SUCCESS:
             counter = self.fields.get('counter', 0)
             try:
-                data = devices[device_uri].getDynamicCounter(counter)
+                data = devices[device_uri].getDynamicCounter(counter, False)
             except Error, e:
                 result_code = e.opt
         else:
             data = 0
 
-        return buildResultMessage('GetDynamicCounterResult', None, result_code, data)
+        return buildResultMessage('GetDynamicCounterResult', data, result_code)
 
 
     def handle_readprintchannel(self):
@@ -620,7 +618,7 @@ class hpssd_handler(async.dispatcher):
         else:
             data = ''
 
-        return buildResultMessage('ReadPrintChannel', None, result_code, data)
+        return buildResultMessage('ReadPrintChannel', data, result_code)
 
 
     def handle_writeprintchannel(self):
@@ -651,21 +649,6 @@ class hpssd_handler(async.dispatcher):
                 result_code = e.opt
 
         return buildResultMessage('WriteEmbeddedPMLResult', None, result_code)
-
-
-    #def handle_printparsedgzippostscript(self):
-    #    device_uri = self.fields.get('device-uri', '')
-    #    result_code = self.__opendevice(device_uri)
-
-    #    if result_code == ERROR_SUCCESS:
-    #        print_file = self.fields.get('file', '')
-
-    #        try:
-    #            devices[device_uri].printParsedGzipPostscript(print_file)
-    #        except Error, e:
-    #            result_code = e.opt
-
-    #    return buildResultMessage('PrintParsedGzipPSResult', None, result_code)
 
 
     def handle_setalerts(self):
@@ -903,7 +886,7 @@ class hpssd_handler(async.dispatcher):
         devices[device_uri].createHistory(event_code, job_id, username)
 
         typ = 'tbx'
-        if EVENT_UI_FAX_MIN <= event_code <= EVENT_UI_FAX_MAX:
+        if EVENT_FAX_MIN <= event_code <= EVENT_FAX_MAX:
             typ = 'fax'
 
 ##        try:
@@ -970,9 +953,11 @@ class hpssd_handler(async.dispatcher):
                 msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % (device_uri, event_code, error_string_short)
 
                 mt = MailThread(msg,
-                                 smtp_server,
-                                 fromaddr,
-                                 toaddrs)
+                                smtp_server,
+                                fromaddr,
+                                toaddrs,
+                                prop.username,
+                                '')
                 mt.start()
 
         return ''
@@ -983,7 +968,7 @@ class hpssd_handler(async.dispatcher):
         try:
             username = self.fields['username']
             try:
-                gui_host, gui_port, gui_pid = self.get_gui(username)
+                gui_host, gui_port, gui_pid = self.get_gui(username, 'tbx')
             except Error, e:
                 raise Error(e.opt)
 
@@ -1007,7 +992,7 @@ class hpssd_handler(async.dispatcher):
         payload, result_code = '', ERROR_SUCCESS
         num_devices, ret_devices = 0, {}
 
-        buses = self.fields.get('bus', 'cups,usb')
+        buses = self.fields.get('bus', 'cups,usb,par')
         buses = buses.split(',')
         format = self.fields.get('format', 'default')
 
@@ -1018,18 +1003,18 @@ class hpssd_handler(async.dispatcher):
                 timeout = int(self.fields.get('timeout', 5))
 
                 try:
-                    devices = slp.detectNetworkDevices('224.0.1.60', 427, ttl, timeout)
+                    detected_devices = slp.detectNetworkDevices('224.0.1.60', 427, ttl, timeout)
                 except Error:
                     log.error("An error occured during network probe.")
                 else:
-                    for ip in devices:
-                        hn = devices[ip].get('hn', '?UNKNOWN?')
-                        num_devices_on_jd = devices[ip].get('num_devices', 0)
-                        num_ports_on_jd = devices[ip].get('num_ports', 1)
+                    for ip in detected_devices:
+                        hn = detected_devices[ip].get('hn', '?UNKNOWN?')
+                        num_devices_on_jd = detected_devices[ip].get('num_devices', 0)
+                        num_ports_on_jd = detected_devices[ip].get('num_ports', 1)
 
                         if num_devices_on_jd > 0:
                             for port in range(num_ports_on_jd):
-                                dev = devices[ip].get('device%d' % (port+1), '0')
+                                dev = detected_devices[ip].get('device%d' % (port+1), '0')
 
                                 if dev is not None and dev != '0':
                                     device_id = device.parseDeviceID(dev)
@@ -1065,22 +1050,21 @@ class hpssd_handler(async.dispatcher):
                                         ret_devices[device_uri] = (model, hn)
 
 
-            elif bus == 'usb':
-                #try:
-                fields, data, result_code =                    xmitMessage(hpiod_sock,
+            elif bus in ('usb', 'par'):
+                fields, data, result_code = \
+                    xmitMessage(hpiod_sock,
                                  "ProbeDevices",
                                  None,
                                  {
-                                   'bus' : 'usb'
+                                   'bus' : bus,
                                  }
                                )
-                #except Error:
                 if result_code != ERROR_SUCCESS:
-                    devices = []
+                    detected_devices = []
                 else:
-                    devices = [x.split(' ')[1] for x in data.splitlines()]
+                    detected_devices = [x.split(' ')[1] for x in data.splitlines()]
 
-                for d in devices:
+                for d in detected_devices:
                     try:
                         back_end, is_hp, bus, model, serial, dev_file, host, port = \
                             device.parseDeviceURI(d)
@@ -1113,7 +1097,7 @@ class hpssd_handler(async.dispatcher):
 
             elif bus == 'cups':
 
-                cups_devices = {}
+                #cups_devices = {}
                 cups_printers = cups.getPrinters()
                 x = len(cups_printers)
 
@@ -1131,6 +1115,8 @@ class hpssd_handler(async.dispatcher):
                             log.warning("Inrecognized URI: %s" % device_uri)
                             continue
 
+                        if not is_hp:
+                            continue
 
                         if device_filter in ('none', 'print'):
                             include = True
@@ -1220,11 +1206,11 @@ class MailThread(threading.Thread):
                     server.login(self.username, self.server_pass)
                 except (smtplib.SMTPHeloError, smtplib.SMTPException), e:
                     log.error("SMTP Server Login Error: Unable to connect to server: %s" % e)
-                    self.result = ERROR_SMTP_LOGIN_HELO_ERROR
+                    self.result = ERROR_SMTP_HELO_ERROR
 
                 except (smtplib.SMTPAuthenticationError), e:
                     log.error("SMTP Server Login Error: Unable to authenicate with server: %s" % e)
-                    self.result = ERROR_SMTP_AUTHENTICATION_ERROR
+                    self.result = ERROR_SMTP_CONNECT_ERROR
         except smtplib.SMTPConnectError, e:
             log.error("SMTP Error: Unable to connect to server: %s" % e)
             self.result = ERROR_SMTP_CONNECT_ERROR
@@ -1289,30 +1275,21 @@ def exitAllGUIs():
 
 
 def usage():
-    formatter = utils.TextFormatter(
-                (
-                    {'width': 38, 'margin' : 2},
-                    {'width': 38, 'margin' : 2},
-                )
-            )
+    formatter = utils.usage_formatter()
+    log.info(utils.bold("""\nUsage: hpssd.py [OPTIONS]\n\n""" ))
+    utils.usage_options()
+    utils.usage_logging(formatter)
+    log.info(formatter.compose(("Disable daemonize:", "-x")))
+    log.info(formatter.compose(("Port to listen on:", "-p<port> or --port=<port> (overrides value in /etc/hp/hplip.conf)")))
+    utils.usage_help(formatter, True)
+    sys.exit(0)
 
-    log.info(utils.TextFormatter.bold("""\nUsage: hpssd.py [OPTIONS]\n\n"""))
-
-    log.info(formatter.compose((utils.TextFormatter.bold("[OPTIONS]"), "")))
-
-    log.info(formatter.compose(("Set the logging level:",   "-l<level> or --logging=<level>")))
-    log.info(formatter.compose(("",                         "<level>: none, info*, error, warn, debug (*default)")))
-    log.info(formatter.compose(("Disable daemonize:",       "-x")))
-    log.info(formatter.compose(("This help information:",   "-h or --help"), True))
 
 hpiod_sock = None
 
 def main(args):
-
     prop.prog = sys.argv[0]
     prop.daemonize = True
-    log.set_module('hpssd')
-
     utils.log_title('Services and Status Daemon', _VERSION)
 
     try:
@@ -1320,7 +1297,6 @@ def main(args):
 
     except getopt.GetoptError:
         usage()
-        sys.exit(1)
 
     for o, a in opts:
         if o in ('-l', '--logging'):
@@ -1332,14 +1308,13 @@ def main(args):
 
         elif o in ('-h', '--help'):
             usage()
-            sys.exit(1)
 
         elif o in ('-p', '--port'):
             try:
                 prop.hpssd_cfg_port = int(a)
             except ValueError:
                 log.error('Port must be a numeric value')
-                sys.exit(1)
+                usage()
 
 
     prop.history_size = 32
@@ -1353,9 +1328,7 @@ def main(args):
     if prop.daemonize:
         utils.daemonize()
 
-    # Give hpiod enough time to startup
-    # This fixes a race condition that was occuring on fast PCs
-    #time.sleep(1)
+    log.set_module('hpssd')
 
     # configure the various data stores
     gettext.install('hplip')
@@ -1378,6 +1351,7 @@ def main(args):
     os.umask (0077)
     log.debug('port=%d' % prop.hpssd_port)
     log.info("Listening on %s port %d" % (prop.hpssd_host, prop.hpssd_port))
+
 
     global hpiod_sock
     try:

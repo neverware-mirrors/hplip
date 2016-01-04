@@ -645,6 +645,10 @@ void HeaderDJ990::SetMediaSource(MediaSource msource)
 // Sets value of PCL::mediasource and associated counter msrccount
 {
     msrccount=EscAmplCopy((BYTE*)mediasource,msource,'H');
+    if (msource == sourceTray2 || msource > sourceTrayAuto)
+    {
+        SetMediaType (mediaPlain);
+    }
 }
 
 DRIVER_ERROR DJ9xxVIP::VerifyPenInfo()

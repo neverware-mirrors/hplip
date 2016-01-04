@@ -18,9 +18,7 @@ magic.py
                            '    filename' contains.
 '''
 
-import sys
-import re
-import struct
+import re, struct
 
 __version__ = '0.1'
 

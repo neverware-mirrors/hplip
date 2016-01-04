@@ -63,6 +63,82 @@ Device::~Device()
    pthread_mutex_destroy(&mutex);
 }
 
+//Device::Write
+//!  Kernel write with timeout. File descriptor must be opened with O_NONBLOCK.
+/*!
+******************************************************************************/
+int Device::Write(int fd, const void *buf, int size)
+{
+   struct timeval tmo;
+   fd_set master;
+   fd_set writefd;
+   int maxfd, ret, len=0;
+
+   FD_ZERO(&master);
+   FD_SET(fd, &master);
+   maxfd = fd;
+   tmo.tv_sec = EXCEPTION_TIMEOUT;
+   tmo.tv_usec = 0;
+
+   while(1)
+   {
+      writefd = master;
+      if ((ret = select(maxfd+1, NULL, &writefd, NULL, &tmo)) == 0)
+      {
+         len = -1;
+         break;   /* timeout */
+      }
+      len = write(fd, buf, size);
+      if (len < 0)
+         if (errno == EAGAIN)
+            continue;
+      break;
+   }
+
+   return len;
+}
+
+//Device::Read
+//!  Kernel read with timeout. File descriptor must be opened with O_NONBLOCK.
+/*!
+******************************************************************************/
+int Device::Read(int fd, void *buf, int size, int sec, int usec)
+{
+   struct timeval tmo;
+   fd_set master;
+   fd_set readfd;
+   int maxfd, ret, len=0;
+
+   FD_ZERO(&master);
+   FD_SET(fd, &master);
+   maxfd = fd;
+   tmo.tv_sec = sec;
+   tmo.tv_usec = usec;
+
+   while(1)
+   {
+      readfd = master;
+      if ((ret = select(maxfd+1, &readfd, NULL, NULL, &tmo)) == 0)
+      {
+         len = -1;
+         break;   /* timeout */
+      }
+      len = read(fd, buf, size);
+      if (len == 0)
+      {
+         // Zero reads wasts cpu resources, but this appears to be normal. 
+         //         syslog(LOG_ERR, "zero read\n");   
+         continue;
+      }
+      if (len < 0)
+         if (errno == EAGAIN)
+            continue;
+      break;
+   }
+
+   return len;
+}
+
 int Device::DeviceID(char *buffer, int size)
 {
    int len=0, maxSize;
@@ -161,7 +237,7 @@ int Device::PowerUp()
    else
       return 0;  /* must be laserjet, don't do power-up */
 
-   write(OpenFD, Venice_Power_On, sizeof(Venice_Power_On));  
+   Write(OpenFD, Venice_Power_On, sizeof(Venice_Power_On));  
    sleep(2);
 
    return 0;
@@ -204,15 +280,6 @@ int Device::Open(char *sendBuf, int *result)
 
       if (pSys->IsHP(ID) && strcmp(uriModel, "ANY") != 0)
       {
-#if 0
-         /* Don't need MLC reset if crossbow. */
-         if (strstr(ID, "CMD:LDL") == NULL)
-         {
-            ioctl(OpenFD, LPIOC_HP_SET_CHANNEL, 78);  /* reset MLC (ECP channel-78) */
-            pSys->Write(OpenFD, &nullByte, 1);  
-            ioctl(OpenFD, LPIOC_HP_SET_CHANNEL, 0);   /* set raw mode (ECP channel-0) */
-         }
-#endif
          PowerUp();
       }
    }

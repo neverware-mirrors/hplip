@@ -1,3 +1,149 @@
+2005-09-14 dsuffield
+    * Release 0.9.5.9 (public release 0.9.5)
+
+2005-09-14 dsuffield
+    * Made a change to hpijs. If deviceid does not support vstatus or "s:" field force uni-di mode (ie: OJ600).
+	
+2005-09-09 dsuffield
+    * Release 0.9.5.8
+
+2005-09-09 dsuffield
+    * Fixed gcc4 warnings.
+
+2005-09-09 dsuffield
+    * Added PS8700 ppd file patch to hpijs makefile. The patch changes the default inputslot to upper.
+	
+2005-09-08 dsuffield
+    * Added makeuri pp support to hpiod.
+	
+2005-09-08 jpitter
+    * added HP-PhotoSmart_3100, HP-PhotoSmart_3200, HP-PhotoSmart_3300, HP-PhotoSmart_7800, HP-PhotoSmart_8000, 
+      HP-DeskJet_5440, HP-DeskJet_5940, HP-Color_LaserJet_4700 to foomatic-db-hpijs/data-generators/hpijs/hpijs-printermap.
+    * added HP-PhotoSmart_3100.xml, HP-PhotoSmart_3200.xml, HP-PhotoSmart_3300.xml, HP-PhotoSmart_7800.xml, HP-PhotoSmart_8000.xml,
+      HP-DeskJet_5440.xml, HP-DeskJet_5940.xml, HP-Color_LaserJet_4700.xml to foomatic-db/db/source/printer both tip and stable.
+    * added HP-Color_LaserJet_4700 to foomatic-db/db/source/driver/Postscript.xml both tip and stable.
+
+2005-09-08 dsuffield
+    * Added unsolicited data packet support to hpiod.
+    * Added pml done timeout count to libsane-hpaio.
+    * Changed mfpdtf read timeout in libsane-hpaio.
+	
+2005-09-08 dwelch
+    * Changed makeuri to handle parallel devnodes. Passes bus param to hpiod
+
+2005-09-06 dwelch
+    * Fixed defect 686 (An error occurs when we set the Bar graph size as zero and execute the "hp-levels" command.)
+    * Fixed issue with color calibration on the PSC 2610. May fix other align/colorcal/etc. on other printers as well.
+
+2005-09-02 dsuffield
+    * Release 0.9.5.7
+
+2005-09-02 dsuffield
+    * Fixed gcc uninitialized varable warning in udevice.cpp.
+    * Removed jdprobe code from hp.c backend.
+    * Added timeout check in hpiod.
+    * Added more pml error checking in hpiod.
+    * Fixed a miser mode MLC credit problem in hpiod.
+    * Fixed a MLC firmware problem that occured with OJ600 in hpiod.
+    * Fixed a MLC credit problem with short timeouts.
+    * Rewrote most of the pml scanning code in libsane-hpaio.
+
+2005-08-31 syie
+    * Added unidi parallel products in models.xml
+
+2005-08-29 dsuffield
+    * Fixed "condrestart" typo in hplip startup script (as per Red Hat request). 
+
+2005-08-26 syie
+    * Release 0.9.5.6
+
+2005-08-25 dwelch
+    * Fixed defect 679 (Hp-Toolbox/Information/Open in Browser...)
+
+2005-08-23 dwelch
+    * Fixed defect 668 (The command "hp-fab" leads to error.)
+    * Resolved defect 666 (Suse 9.3 / 0.9.5.2 / Toolbox not loading issue)
+    * Fixed defect 670 (Command "hp-testpage" leads to error and test-page can not be printed out.)
+    * Resolved defect 662 (The test page could not be printed and an error occurs in the terminal while performing "Print Test Page" operation with toolbox.)
+    * Added feature 466 (Add Type 10 alignment to toolbox)
+    * Added feature 467 (Add Type 10 alignment to model_editor)
+    * Fixed defect 588 ("The operation completed successfully" dialog pops up quickly before the actual alignment job completes.)
+    * Fixed defect 604 (An error occurs while running hp-testpage command to print to testpage after disconnect the usb cable.)
+    * Resolved defect 629 (The Clean Cartridges does not respond and a error occurs when clicking "Clean Cartridges" button in toolbox)
+    * Fixed defect 630 (The HP Printer test page is truncated.)
+    * Resolved defect 638 (The "Unload File from Photo Card"dialog hangs up after clicking the Access Photo Cards button.)
+    * Resolved defect 644 as INVALID (The Group name can not be edited while editing the specified group.)
+    * Resolved defect 646 as INVALID (The "New Group" button is greyed-out while adding a new fax address.)
+    * Resolved defect 540 ("Invalid color calibration type" error occurs when executing command "colorcal" in terminal.)
+    
+2005-08-22 jpitter
+    * Added Photo5x7 as a max size to foomatic-db-hpijs:hpijs-generators.in
+    * Added entries into foomatic-db-hpijs:hpijs-printermap for HP OfficeJet 5600, HP PSC 1400, HP PhotoSmart 2570, HP PhotoSmart 420, and HP PhotoSmart 470
+    * Added HP-OfficeJet_5600.xml HP-PSC_1400.xml HP-PhotoSmart_2570.xml HP-PhotoSmart_420.xml HP-PhotoSmart_470.xml to foomatic-db:printer both tip and stable.
+
+2005-08-22 dwelch
+    * Fixed problem with status on the CLJ3500 crashing hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.5
+    
+2005-08-19 dsuffield
+    * Fixed fax constants in hpssd.
+
+2005-08-19 dsuffield
+    * Release 0.9.5.4
+
+2005-08-18 dwelch
+    * Fixed case where toolbox crashed if models.xml entry was missing
+    * Fixed problem with new fax constants appearing in hpssd
+    * Added type 10 alignment to hp-align
+    * Fixed hp-colorcal incorrect parameter passing to maint routines (reported on forum)
+    * Put a hack in place to use '*' as the printer (default) if no cups printers are returned 
+      from cups for a newly installed printer
+    
+2005-08-16 dsuffield
+    * Release 0.9.5.3
+    
+2005-08-15 dwelch
+    * Added alignment type 10 for new devices
+    * Fixed a bug in hpssd.py that caused hal:\\ devices to crash the daemon
+
+2005-07-27 syie
+    * Release 0.9.5.2
+    * Pick up APDK label HPLIP-0_9_5_2
+
+2005-07-26 dwelch
+    * Added plugins/ to tarball
+    * Fixed supplies status for CLJ28xx
+    * Added hp-levels tool
+
+2005-07-22 dwelch
+    * Fixed powersettings for DJ4x0
+    * Toolbox now uses icon setting from models.xml
+    * Fixed LJ1022 status problem
+    * Fixed problem with getDynamicCounter()
+    * Added fax PML objects
+
+2005-07-22 dsuffield
+    * Release 0.9.5.1
+
+2005-07-22 dsuffield
+    * Fixed hpiod GetPml/SetPml issue with parallel.
+    * Fixed issue with hplip_ReadHP in hplip_api. Message we not terminated correctly.
+
+2005-07-21 dsuffield
+    * Release 0.9.5.0
+
+2005-07-21 dsuffield
+    * Added I/O code for parallel port support.
+
+2005-07-21 dwelch
+    * Added and fixed support for parallel ("par") in all Python code
+    * Fixed an issue in modelQuery() in hpssd
+    * Cleaned up and enhanced usage ("-h"/"--help") for all command line utilities
+    * Fixed low-ink/-toner status history 
+    * 
+
 2005-07-20 dsuffield
     * Release 0.9.4.17 (public release 0.9.4)
 

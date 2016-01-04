@@ -1,4 +1,29 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# $Revision: 1.7 $
+# $Date: 2005/07/21 17:32:37 $
+# $Author: dwelch $
+#
+#
+# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# Authors: Don Welch
+
 
 from qt import *
 from printerform_base import PrinterForm_base
@@ -27,6 +52,7 @@ class PrinterForm(PrinterForm_base):
         PrinterForm_base.__init__(self,parent,name,modal,fl)
         self.device_uri = device_uri
         self.printer_name = printer_name
+        print device_uri, printer_name
         self.file_list = []
         self.auto_duplex_button_group = 0
         self.orientation_button_group = 0
@@ -35,10 +61,10 @@ class PrinterForm(PrinterForm_base):
         self.pageRangeEdit.setValidator( RangeValidator( self.pageRangeEdit ) )
 
         self.MIME_TYPES_DESC = \
-        {   
+        {
             "application/pdf" : self.__tr( "PDF Document" ),
             "application/postscript" : self.__tr( "Postscript Document" ),
-            "application/vnd.hp-HPGL" : self.__tr( "HP Graphics Language File" ), 
+            "application/vnd.hp-HPGL" : self.__tr( "HP Graphics Language File" ),
             "application/x-cshell" : self.__tr( "C Shell Script" ),
             "application/x-perl" : self.__tr( "Perl Script" ),
             "application/x-python" : self.__tr( "Python Program" ),
@@ -69,7 +95,7 @@ class PrinterForm(PrinterForm_base):
 
         pix = QPixmap( os.path.join( prop.image_dir, 'folder_remove.png' ) )
         self.delFileButton.setPixmap( pix )
-        
+
         pix = QPixmap( os.path.join( prop.image_dir, 'status_refresh.png' ))
         self.refreshToolButton.setPixmap( pix )
 
@@ -117,7 +143,7 @@ class PrinterForm(PrinterForm_base):
                         self.device_uri = p.device_uri
                         break
                 else:
-                    self.FailureUI( self.__tr( "<b>Unknown printer name.</b><p>Run 'lpstat -a' or 'hp-probe' for a list of printers." ) )                    
+                    self.FailureUI( self.__tr( "<b>Unknown printer name.</b><p>Run 'lpstat -a' or 'hp-probe' for a list of printers." ) )
                     self.close()
                     return
 
@@ -133,9 +159,9 @@ class PrinterForm(PrinterForm_base):
             self.printerNameComboBox.insertItem( p )
 
         self.dev = device.Device( self.device_uri )
-        
+
         self.UpdatePrinterStatus()
-        
+
         if self.printer_name is None:
             self.printerNameComboBox.setCurrentItem(0)
         elif self.printer_name in self.cups_printers:
@@ -188,36 +214,36 @@ class PrinterForm(PrinterForm_base):
         self.printPushButton.setEnabled( non_empty_file_list )
 
     def addFileButton_clicked(self):
-        ##s = str( QFileDialog.getOpenFileName( os.path.expanduser("~"), "All files (*.*)", self, 
+        ##s = str( QFileDialog.getOpenFileName( os.path.expanduser("~"), "All files (*.*)", self,
         ##                                      "openfile", self.caption() ) )
-        ##if s: 
+        ##if s:
         ##    self.addFile( s )
         self.setFocus()
-        
+
         log.debug("isTopLevel %d" % self.isTopLevel())
         log.debug("hasFocus %d" % self.hasFocus())
         log.debug("isEnabled %d" % self.isEnabled())
-        
+
         workingDirectory = os.path.expanduser("~")
-        
+
         log.debug("workingDirectory: %s" % workingDirectory)
-        
+
         dlg = QFileDialog(workingDirectory, QString.null, None, None, True )
-        
+
         dlg.setCaption( "openfile" )
         dlg.setMode( QFileDialog.ExistingFile )
-        dlg.show() 
-        
+        dlg.show()
+
         if dlg.exec_loop() == QDialog.Accepted:
                 results = dlg.selectedFile()
                 workingDirectory = dlg.url()
                 log.debug("results: %s" % results)
                 log.debug("workingDirectory: %s" % workingDirectory)
-                
+
                 if results:
                     self.addFile(str(results))
-            
-            
+
+
 
     def delFileButton_clicked(self):
         try:
@@ -231,7 +257,7 @@ class PrinterForm(PrinterForm_base):
                     del self.file_list[index]
                     break
                 index += 1
-    
+
             self.UpdateFileList()
 
 
@@ -246,17 +272,17 @@ class PrinterForm(PrinterForm_base):
     def UpdatePrinterInfo( self ):
         for p in self.printer_list:
             if p.name == self.current_printer:
-                
+
                 try:
                     self.LocationText.setText( p.location )
                 except AttributeError:
                     self.LocationText.setText( '' )
-                
+
                 try:
                     self.CommentText.setText( p.info )
                 except AttributeError:
                     self.CommentText.setText( '' )
-                    
+
                 cups.openPPD( p.name )
                 self.UpdateDuplex()
                 cups.closePPD()
@@ -312,7 +338,7 @@ class PrinterForm(PrinterForm_base):
             if collate and copies > 1:
                 cmd = ' '.join( [ cmd, '-o Collate=True' ] )
 
-            if t in [   "application/x-cshell", 
+            if t in [   "application/x-cshell",
                         "application/x-perl",
                         "application/x-python",
                         "application/x-shell",
@@ -345,7 +371,7 @@ class PrinterForm(PrinterForm_base):
     def pagesButtonGroup_clicked(self,a0):
         self.pages_button_group = a0
         self.pageRangeEdit.setEnabled( a0 == 1 )
-            
+
 
     def duplexButtonGroup_clicked(self,a0):
         self.auto_duplex_button_group = a0
@@ -358,28 +384,28 @@ class PrinterForm(PrinterForm_base):
 
 
     def SuccessUI( self ):
-        QMessageBox.information( self, 
+        QMessageBox.information( self,
                              self.caption(),
                              self.__tr( "<p><b>The operation completed successfully.</b>" ),
-                              QMessageBox.Ok, 
-                              QMessageBox.NoButton, 
+                              QMessageBox.Ok,
+                              QMessageBox.NoButton,
                               QMessageBox.NoButton )
 
     def FailureUI( self, error_text ):
-        QMessageBox.critical( self, 
+        QMessageBox.critical( self,
                              self.caption(),
                              error_text,
-                              QMessageBox.Ok, 
-                              QMessageBox.NoButton, 
+                              QMessageBox.Ok,
+                              QMessageBox.NoButton,
                               QMessageBox.NoButton )
 
     def WarningUI( self, msg ):
-        QMessageBox.warning( self, 
+        QMessageBox.warning( self,
                              self.caption(),
                              msg,
-                              QMessageBox.Ok, 
-                              QMessageBox.NoButton, 
-                              QMessageBox.NoButton )        
+                              QMessageBox.Ok,
+                              QMessageBox.NoButton,
+                              QMessageBox.NoButton )
 
 
     def __tr(self,s,c = None):

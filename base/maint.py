@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.30 $
-# $Date: 2005/07/19 23:22:37 $
+# $Revision: 1.36 $
+# $Date: 2005/08/15 21:19:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -283,7 +283,7 @@ def AlignxBow(dev, align_type, loadpaper_ui, align_ui, paperedge_ui,
         statepos += 1
 
     return ok
-    
+
 
 def AlignType6(dev, ui1, ui2, loadpaper_ui):
     state = 0
@@ -361,6 +361,65 @@ def AlignType8(dev, loadpaper_ui, align_ui): # 450
     return ok
 
 
+def AlignType10(dev, loadpaper_ui, align_ui):
+    pen_config = status.getPenConfiguration(dev.getStatusFromDeviceID())
+    log.debug("Pen config=%d" % pen_config)
+
+    pattern = 1
+    if pen_config == AGENT_CONFIG_COLOR_AND_BLACK:
+        pattern = 2
+    elif pen_config in (AGENT_CONFIG_COLOR_AND_PHOTO, AGENT_CONFIG_COLOR_AND_GREY):
+        pattern = 3
+
+    log.debug("Pattern=%d" % pattern)
+
+    state = 0
+
+    while state != -1:
+        if state == 0:
+            state = -1
+            ok = loadpaper_ui()
+            if ok:
+                alignType10Phase1(dev)
+                state = 1
+
+        elif state == 1:
+            values = align_ui(pattern)
+            log.debug(values)
+            alignType10Phase2(dev, values, pattern)
+            state = 2
+
+        elif state == 2:
+            state = -1
+            ok = loadpaper_ui()
+            if ok:
+                alignType10Phase3(dev)
+
+
+def alignType10Phase1(dev):
+    dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
+                         pml.PRINT_INTERNAL_PAGE_ALIGNMENT_PAGE)
+
+def alignType10Phase2(dev, values, pattern):
+    #if pattern == 2:
+    #    pattern = 3
+    i, p = 0, ''.join([pcl.UEL, '\n'])
+    for x in values:
+        i += 1
+        if not x:
+            break
+        p = ''.join([p, pcl.ESC, '*o5W\x1a', chr(i), '\x00', chr(pattern), chr(x), '\n'])
+    
+    p = ''.join([p, pcl.UEL]) 
+    
+    dev.printData(p)
+
+def alignType10Phase3(dev):
+    dev.writeEmbeddedPML(pml.OID_PRINT_INTERNAL_PAGE,
+                         pml.PRINT_INTERNAL_PAGE_ALIGNMENT_PAGE_VERIFICATION)
+
+
+
 def alignType2Phase1(dev): # Type 2 (8xx)
     dev.writeEmbeddedPML(pml.OID_AGENT2_VERTICAL_ALIGNMENT, 0)
     dev.writeEmbeddedPML(pml.OID_AGENT2_HORIZONTAL_ALIGNMENT, 0)
@@ -417,7 +476,7 @@ def alignType4Phase1(dev): # Type 4 (xBow/LIDIL 0.3.8)
     elif dev.pen_config == AGENT_CONFIG_COLOR_AND_BLACK:
         ldl_file = 'cb2pcal.ldl.gz'
 
-    dev.printData(ldl.buildSetPrinterAlignmentPacket(0, 0, 0, 0)) 
+    dev.printData(ldl.buildSetPrinterAlignmentPacket(0, 0, 0, 0))
     dev.printGzipFile(os.path.join(prop.home_dir, 'data', 'ldl', ldl_file))
 
 
@@ -833,7 +892,7 @@ def cleanType2(dev): # LIDIL, Level 1
 
 
 def primeType2(dev): # LIDIL, Level 2
-    p = ldl.buildLIDILPacket(ldl.PACKET_TYPE_COMMAND, 
+    p = ldl.buildLIDILPacket(ldl.PACKET_TYPE_COMMAND,
                              ldl.COMMAND_HANDLE_PEN,
                              ldl.COMMAND_HANDLE_PEN_CLEAN_LEVEL2)
 
@@ -841,7 +900,7 @@ def primeType2(dev): # LIDIL, Level 2
 
 
 def wipeAndSpitType2(dev): # LIDIL, Level 3
-    p = ldl.buildLIDILPacket(ldl.PACKET_TYPE_COMMAND, 
+    p = ldl.buildLIDILPacket(ldl.PACKET_TYPE_COMMAND,
                              ldl.COMMAND_HANDLE_PEN,
                              ldl.COMMAND_HANDLE_PEN_CLEAN_LEVEL3)
 

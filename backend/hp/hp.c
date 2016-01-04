@@ -204,7 +204,7 @@ int GetVStatus(int hd)
    {
       /* No S-field, use status register instead of device id. */ 
       unsigned char status;
-      hplip_GetStatus(hd, &status, 1);      
+      hplip_GetStatus(hd, (char *)&status, 1);      
       if (DEVICE_IS_OOP(status))
          vstatus = VSTATUS_OOPA;
       else if (DEVICE_PAPER_JAMMED(status))
@@ -289,6 +289,7 @@ int DevDiscovery()
       fprintf(stdout, "%s", ma.data);
    }
 
+#if 0
    if (jdprobe)
    {
       len2 = sprintf(message, "msg=ProbeDevicesFiltered\nbus=net\n");
@@ -316,6 +317,7 @@ int DevDiscovery()
          fprintf(stdout, "%s", ma.data);
       }
    }  /* end if (jdprobe) */
+#endif
 
    if (len+len2 == 0)
       fprintf(stdout, "direct hp:/no_device_found \"Unknown\" \"hp no_device_found\"\n");

@@ -64,6 +64,7 @@ class Device
 {
 friend class Channel;
 friend class MlcChannel;
+friend class ParMlcChannel;
 friend class JetDirectChannel;
 
 protected:
@@ -92,6 +93,8 @@ protected:
    virtual int DeviceID(char *buffer, int size);
    int SFieldPrinterState(char *id);
    int PowerUp();
+   virtual int Write(int fd, const void *buf, int size);
+   virtual int Read(int fd, void *buf, int size, int sec=EXCEPTION_TIMEOUT, int usec=0);
 
 public:
    Device(System *pSys);
@@ -153,6 +156,65 @@ public:
    int ReadData(int length, int channel, int timeout, char *sendBuf, int sendBufLength, int *result);   
 }; //UniUsbDevice
 
+//ParDevice
+//! Base class that encapsulates common parallel device services.
+/*!
+******************************************************************************/
+class ParDevice : public Device
+{
+friend class ParMlcChannel;
+
+protected:
+   virtual Channel *NewChannel(unsigned char sockid);
+   int DeviceID(char *buffer, int size);
+
+   int frob_control(int fd, unsigned char mask, unsigned char val);
+   unsigned char read_status(int fd);
+   int wait_status(int fd, unsigned char mask, unsigned char val, int usec);
+   int wait(int usec);
+   int ecp_is_fwd(int fd);
+   int ecp_is_rev(int fd);
+   int ecp_rev_to_fwd(int fd);
+   int ecp_fwd_to_rev(int fd);
+   int ecp_write_addr(int fd, unsigned char data);
+   int ecp_write_data(int fd, unsigned char data);
+   int ecp_read_data(int fd, unsigned char *data);
+   int ecp_read(int fd, void *buffer, int size, int sec);
+   int ecp_write(int fd, const void *buffer, int size);
+   int nibble_read_data(int fd, unsigned char *data);
+   int nibble_read(int fd, int flag, void *buffer, int size, int sec);
+   int compat_write_data(int fd, unsigned char data);
+   int compat_write(int fd, const void *buffer, int size);
+
+   int Write(int fd, const void *buf, int size);
+   int Read(int fd, void *buf, int size, int sec=EXCEPTION_TIMEOUT, int usec=0);
+
+public:
+   ParDevice(System *pSys) : Device(pSys) {}
+
+   virtual int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
+   virtual int GetDeviceStatus(char *sendBuf, int *result);
+   virtual int Open(char *sendBuf, int *result);
+   int Close(char *sendBuf, int *result);
+}; //ParDevice
+
+//UniParDevice
+//! Class that encapsulates uni-di parallel device services.
+/*!
+******************************************************************************/
+class UniParDevice : public ParDevice
+{
+protected:
+   Channel *NewChannel(unsigned char sockid);
+
+public:
+   UniParDevice(System *pSys) : ParDevice(pSys) {}
+
+   int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
+   int GetDeviceStatus(char *sendBuf, int *result);
+   int Open(char *sendBuf, int *result);
+   int ReadData(int length, int channel, int timeout, char *sendBuf, int sendBufLength, int *result);   
+}; //UniParDevice
 
 //JetDirectDevice
 //! Class that encapsulates common JetDirect device services.

@@ -74,7 +74,7 @@ BOOL DJ3600::FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, float *xOv
 {
     BYTE    sDevIdStr[DevIDBuffSize];
     char    *pStr;
-    if (IOMode.bDevID && ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, TRUE)) == NO_ERROR))
+    if ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, FALSE)) == NO_ERROR)
     {
         if ((pStr = strstr ((char *) sDevIdStr, ";S:")))
         {

@@ -45,7 +45,6 @@
 *cupsICCProfile CMYK../CMYK Matching Profile: "/Library/Printers/hp/Profiles/CMYK_A.icc"
 *cupsICCProfile Gray../Gray Matching Profile: "/Library/Printers/hp/Profiles/Gray_A.icc"
 *APPrinterIconPath: "/Library/Printers/hp/Icons/hp color LaserJet 9500.icns"
-*cupsFilter: "application/vnd.cups-postscript 0 /Library/Printers/hp/filter/hppostprocessing"
 
 *% Product Name and Version Information
 *Manufacturer:	"HP"
@@ -2137,7 +2136,7 @@ restore
 *HPwmBrightness Light/Light:              "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .33 mul } forall setcolor } put"
 *HPwmBrightness Lighter/Lighter:          "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .22 mul } forall setcolor } put"
 *HPwmBrightness Lightest/Lightest:        "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .11 mul } forall setcolor } put"
-*CloseUI: *HpwmBrightness
+*CloseUI: *HPwmBrightness
 
 *CloseGroup: HPWaterOverlayPanel
 

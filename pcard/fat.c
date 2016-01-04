@@ -221,7 +221,7 @@ int UpdateFat(void)
    uint8_t *p12=NULL;
    int i, total=0;
 
-   if (strcmp(bpb.SystemID, "FAT12") == 0)
+   if (strcmp((char *)bpb.SystemID, "FAT12") == 0)
    {
       if ((p12 = malloc(da.Fat12Size)) == NULL)
          goto bugout;
@@ -463,7 +463,7 @@ int FatInit(void)
    RootSetCWD();
    fatsize = bpb.SectorsPerFat * FAT_HARDSECT;
    
-   if (strcmp(bpb.SystemID, "FAT12") == 0)
+   if (strcmp((char *)bpb.SystemID, "FAT12") == 0)
    {
       da.Fat12Size = fatsize;
       if ((da.Fat12 = (uint8_t *)malloc(da.Fat12Size)) == NULL)
@@ -529,8 +529,8 @@ int FatDiskAttributes( PHOTO_CARD_ATTRIBUTES * pa )
     pa->ReservedSectors = bpb.ReservedSectors;
     pa->SectorsPerFat = bpb.SectorsPerFat;
     pa->RootEntries = bpb.RootEntries;
-    strncpy( pa->SystemID, bpb.SystemID, 8 );
-    strncpy( pa->VolumeLabel, bpb.VolumeLabel, 11 );
+    strncpy( pa->SystemID, (char *)bpb.SystemID, 8 );
+    strncpy( pa->VolumeLabel, (char *)bpb.VolumeLabel, 11 );
     pa->WriteProtect = da.WriteProtect;
     
     return 0;

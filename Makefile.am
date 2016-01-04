@@ -16,7 +16,7 @@ dist_hplip_DATA = $(doc_DATA) hplip.conf
 dist_hplip_SCRIPTS = hpssd.py __init__.py hplip.sh
 
 cmddir = $(hplipdir)
-dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py
+dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py levels.py
 
 # hp backend.
 cupsdir = $(CUPS_BACKEND_PATH)
@@ -27,14 +27,19 @@ hp_LDADD = libhplip-api.la
 # hpiod
 sbin_PROGRAMS = hpiod
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/udevice.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
+    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h\
+    io/hpiod/system.h 
 
 # base
 basedir = $(hplipdir)/base
 dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
     base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
     base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
-    base/imagesize.py
+    base/imagesize.py base/subproc.py
+    
+# fax
+faxdir = $(hplipdir)/fax
+dist_fax_SCRIPTS = fax/fax.py fax/__init__.py
 
 # ptest
 noinst_PROGRAMS = ptest
@@ -75,7 +80,7 @@ dist_prnt_SCRIPTS = prnt/cups.py prnt/__init__.py prnt/ldl.py prnt/pcl.py prnt/c
 
 # scan
 scandir = $(hplipdir)/scan
-dist_scan_SCRIPTS = scan/__init__.py scan/pml_scanner.py scan/sane.py scan/scanner.py scan/scl.py scan/scl_scanner.py
+dist_scan_SCRIPTS = scan/__init__.py
 
 # ip library
 lib_LTLIBRARIES = libhpip.la libsane-hpaio.la
@@ -118,13 +123,19 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
     ui/colorcal4form_base.py ui/colorcal4form_base.ui ui/printerform.py ui/printerform_base.ui ui/printerform_base.py \
     ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
-    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py ui/align10form.py ui/align10form_base.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
     ui/nodevicesform_base.ui ui/cleaningform_base.ui ui/colorcalform_base.ui ui/devmgr4_base.ui ui/loadpaperform_base.ui \
     ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
-    ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui
+    ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui \
+    plugins/powersettingsdialog_base.ui ui/align10form_base.ui
+
+# ui plugins
+pluginsdir = $(hplipdir)/plugins
+dist_plugins_SCRIPTS = plugins/dj450.py plugins/__init__.py plugins/powersettings.py plugins/powersettingsdialog.py \
+    plugins/powersettingsdialog_base.py 
 
 build-pcardext: 
 	cd pcard/pcardext; \

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.26 $ 
-# $Date: 2005/07/18 20:28:20 $
+# $Revision: 1.27 $
+# $Date: 2005/07/28 16:55:50 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -58,10 +58,10 @@ class Properties(dict):
             return self.__getitem__( attr )
         else:
             return ""
-        
+
     def __setattr__( self, attr, val ):
         self.__setitem__( attr, val )
-        
+
 prop = Properties()
 
 # Language settings
@@ -72,7 +72,7 @@ try:
 except ValueError:
     t = 'en_US'
     prop.encoding = 'ISO8859-1'
-    
+
 try:
     prop.lang_code = t[ :2 ].lower()
 except TypeError:
@@ -104,13 +104,13 @@ try:
     prop.hpiod_port = int( file( '/var/run/hpiod.port', 'r' ).read() )
 except:
     prop.hpiod_port = 0
-    
+
 try:
     prop.hpssd_port = int( file( '/var/run/hpssd.port', 'r' ).read() )
 except:
     prop.hpssd_port = 0
-    
-        
+
+
 prop.hpiod_host = 'localhost'
 prop.hpssd_host = 'localhost'
 prop.hpfaxd_host = 'localhost'
@@ -151,7 +151,7 @@ def update_spinner():
 
 # Internal/messaging errors
 
-ERROR_STRINGS = {  
+ERROR_STRINGS = {
                 ERROR_SUCCESS : 'No error',
                 ERROR_UNKNOWN_ERROR : 'Unknown error',
                 ERROR_DEVICE_NOT_FOUND : 'Device not found',
@@ -211,8 +211,8 @@ class Error( Exception ):
         self.msg = ERROR_STRINGS.get( opt, ERROR_STRINGS[ ERROR_INTERNAL ] )
         log.debug( "Exception: %d (%s)" % ( opt, self.msg ) )
         Exception.__init__( self, self.msg, opt  )
-        
-        
+
+
 # Make sure True and False are avail. in pre-2.2 versions
 try:
     True

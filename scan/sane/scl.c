@@ -129,7 +129,7 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
                                        countdown,
                                        startTimeout,
                                        continueTimeout );*/
-        return hplip_ReadHP( deviceid, channelid, buffer, bufferLen, -1 );  
+        return hplip_ReadHP( deviceid, channelid, buffer, bufferLen, EXCEPTION_TIMEOUT );  
         
     }
 
@@ -140,7 +140,7 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
                                     countdown,
                                     startTimeout,
                                     &myContinueTimeout );*/
-        r = hplip_ReadHP( deviceid, channelid, buffer, countdown, -1 );                                      
+        r = hplip_ReadHP( deviceid, channelid, buffer, countdown, EXCEPTION_TIMEOUT );                                      
 
         DBG( 0, "SclChannelRead(%d): "
                         "ChannelReadTimeout(buffer=0x%8.8X,count=%d) "
@@ -156,7 +156,7 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
         }
         countup += r;
 
-        countdown = SclBufferIsPartialReply( bufferStart, countup );
+        countdown = SclBufferIsPartialReply( (unsigned char *)bufferStart, countup );
         
         if( countup + countdown > bufferLen )
         {

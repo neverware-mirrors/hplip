@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +46,9 @@
 #include <signal.h>
 #include <ctype.h>
 #include <pthread.h>
+#include <linux/parport.h>
+#include <linux/ppdev.h>
+
 
 //#define HPIOD_DEBUG
 
@@ -80,6 +84,7 @@ typedef struct
    char oid[LINE_SIZE];       /* snmp oid */
    int type;             /* pml type */
    int pml_result; 
+   char bus[LINE_SIZE];
    unsigned char *data;       /* pointer to data */
 } MsgAttributes;
 
@@ -144,7 +149,8 @@ enum RESULT_CODE
    R_INVALID_DEVICE_OPEN = 37,
    R_INVALID_DEVICE_NODE = 38,
    R_INVALID_IP = 45,
-   R_INVALID_IP_PORT = 46
+   R_INVALID_IP_PORT = 46,
+   R_INVALID_TIMEOUT = 47         
 };
 
 enum CHANNEL_ID  /* MLC socket ids */ 
