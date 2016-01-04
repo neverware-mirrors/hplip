@@ -25,6 +25,8 @@
 
 #include "hpiod.h"
 
+#ifdef HAVE_PPORT
+
 /*
  * PC-style parallel port bit definitions.
  *
@@ -741,10 +743,10 @@ hijmp:
 }
 
 //ParDevice::NewChannel
-//!  Create channel object given the service name.
+//!  Create channel object given the requeste socket id and service name.
 /*!
 ******************************************************************************/
-Channel *ParDevice::NewChannel(unsigned char sockid)
+Channel *ParDevice::NewChannel(unsigned char sockid, char *sn)
 {
    Channel *pC=NULL;
    int i, n, mode;
@@ -755,12 +757,12 @@ Channel *ParDevice::NewChannel(unsigned char sockid)
       if (pChannel[i] != NULL)
       {
          n++;
-         if (sockid == pChannel[i]->GetSocketID())
+         if (strcasecmp(sn, pChannel[i]->GetService()) == 0)
          {
             if (sockid == PML_CHANNEL)
             {
-               pC = pChannel[i];   /* same channel, re-use it (PML only) */
-               pC->SetClientCnt(pC->GetClientCnt()+1);
+               pC = pChannel[i];
+               pC->SetClientCnt(pC->GetClientCnt()+1);    /* same channel, re-use it (PML only) */
             }
             goto bugout;
          }
@@ -787,11 +789,14 @@ Channel *ParDevice::NewChannel(unsigned char sockid)
       {
          if (mode == RAW_MODE)
             pC = new RawChannel(this);  /* constructor sets ClientCnt=1 */
-         else
+         else if (mode == MLC_MODE)
             pC = new ParMlcChannel(this);  /* constructor sets ClientCnt=1 */
+         else
+            pC = new ParDot4Channel(this);  /* constructor sets ClientCnt=1 */
 
          pC->SetIndex(i);
          pC->SetSocketID(sockid);
+         pC->SetService(sn);
          pChannel[i] = pC;
          ChannelCnt++;
          ChannelMode = mode;
@@ -908,6 +913,6 @@ bugout:
    return len;
 }
 
-
+#endif /* HAVE_PPORT */
 
 

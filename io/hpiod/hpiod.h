@@ -46,9 +46,10 @@
 #include <signal.h>
 #include <ctype.h>
 #include <pthread.h>
+#ifdef HAVE_PPORT
 #include <linux/parport.h>
 #include <linux/ppdev.h>
-
+#endif
 
 //#define HPIOD_DEBUG
 
@@ -177,6 +178,7 @@ extern char HpiodPortFile[];             /* full port file path */
 #include "device.h"
 #include "channel.h"
 #include "mlc.h"
+#include "dot4.h"
 
 #endif // _HPIOD_H
 

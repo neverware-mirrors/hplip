@@ -75,6 +75,34 @@ bugout:
    return sLen;
 }
 
+int Channel::CutBuf(char *sendBuf, int length)
+{
+   char res[] =  "msg=ChannelDataInResult\nresult-code=%d\nlength=%d\ndata:\n";
+   int sendLen, total;
+
+   if (rcnt > length)
+   {
+      /* Return part of rbuf. */
+      total = length;
+      sendLen = sprintf(sendBuf, res, R_AOK, total); 
+      memcpy(&sendBuf[sendLen], &rbuf[rindex], total);
+      sendLen += total; 
+      rindex += total;
+      rcnt -= total;
+   }
+   else
+   {
+      /* Return all of rbuf. */
+      total = rcnt;
+      sendLen = sprintf(sendBuf, res, R_AOK, total); 
+      memcpy(&sendBuf[sendLen], &rbuf[rindex], total);
+      sendLen += total; 
+      rindex = rcnt = 0;
+   }
+
+   return sendLen;
+} 
+
 //Channel::ReadData
 //! This base class for reading data (raw).
 //!

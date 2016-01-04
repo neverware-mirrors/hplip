@@ -25,6 +25,8 @@
 
 #include "hpiod.h"
 
+#ifdef HAVE_PPORT
+
 int UniParDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
    char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
@@ -167,10 +169,10 @@ int UniParDevice::ReadData(int length, int channel, int timeout, char *sendBuf, 
 }
 
 //UniParDevice::NewChannel
-//!  Create channel object given the service name.
+//!  Create channel object given the requested socket id and service name.
 /*!
 ******************************************************************************/
-Channel *UniParDevice::NewChannel(unsigned char sockid)
+Channel *UniParDevice::NewChannel(unsigned char sockid, char *sn)
 {
    Channel *pC=NULL;
    int i;
@@ -189,7 +191,6 @@ Channel *UniParDevice::NewChannel(unsigned char sockid)
          pC->SetSocketID(sockid);
          pChannel[i] = pC;
          ChannelCnt++;
-         ChannelMode = UNI_MODE;
          break;
       }
    }     
@@ -198,7 +199,7 @@ bugout:
    return pC;
 }
 
-
+#endif /* HAVE_PPORT */
 
 
 

@@ -29,15 +29,15 @@
 *LanguageEncoding: ISOLatin1
 *PCFileName:	"HPIJS.PPD"
 *Manufacturer:	"HP"
-*Product:	"(HP OfficeJet_Pro_K550)"
+*Product:	"(HP OfficeJet Pro K550)"
 *cupsVersion:	1.0
 *cupsManualCopies: True
 *cupsModelNumber:  2
 *cupsFilter:	"application/vnd.cups-postscript 0 foomatic-rip"
 *%pprRIP:        foomatic-rip other
-*ModelName:     "HP OfficeJetProK550"
-*ShortNickName: "HP OfficeJet_Pro_K550 hpijs"
-*NickName:      "HP OfficeJet_Pro_K550 Foomatic/hpijs (recommended)"
+*ModelName:     "HP OfficeJet Pro K550"
+*ShortNickName: "HP OfficeJet Pro K550 hpijs"
+*NickName:      "HP OfficeJet Pro K550 Foomatic/hpijs (recommended)"
 *PSVersion:	"(3010.000) 550"
 *PSVersion:	"(3010.000) 651"
 *PSVersion:	"(3010.000) 652"
@@ -305,6 +305,8 @@ dDEVICEHEIGHTPOINTS=567"
 *DefaultInputSlot: Default
 *InputSlot Default/Printer default: "%% FoomaticRIPOptionSetting: InputSlot=Default"
 *FoomaticRIPOptionSetting InputSlot=Default: ",PS:MediaPosition=7"
+*InputSlot PhotoTray/Photo Tray: "%% FoomaticRIPOptionSetting: InputSlot=PhotoTray"
+*FoomaticRIPOptionSetting InputSlot=PhotoTray: ",PS:MediaPosition=6"
 *InputSlot Upper/Upper Tray: "%% FoomaticRIPOptionSetting: InputSlot=Upper"
 *FoomaticRIPOptionSetting InputSlot=Upper: ",PS:MediaPosition=1"
 *InputSlot Lower/Lower Tray: "%% FoomaticRIPOptionSetting: InputSlot=Lower"

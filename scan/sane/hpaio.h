@@ -64,7 +64,7 @@ typedef struct hpaioScanner_s HPAIO_RECORD;
 
 /************************************************************************************/
 
-#define LEN_BUFFER    16384
+#define LEN_BUFFER    17408         /* 16384 + 1024, clj28xx used 16396 */
 #define LEN_DEVICE_ID_STRING  4096
 #define LEN_STRING_OPTION_VALUE 20
 #define LEN_MODEL_RESPONSE  20

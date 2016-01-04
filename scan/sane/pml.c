@@ -497,6 +497,18 @@ int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj )
  * Phase 2 rewrite. des
  */
 
+int is_zero(char *buf, int size)
+{
+   int i;
+
+   for (i=0; i<size; i++)
+   {
+      if (buf[i] != 0)
+         return 0;  /* no */
+   }
+   return 1; /* yes */
+}
+
 /* Unlock Scanner. */
 int clr_scan_token(HPAIO_RECORD *hpaio)
 {
@@ -507,7 +519,7 @@ int clr_scan_token(HPAIO_RECORD *hpaio)
       goto bugout;
    len = PmlGetValue(hpaio->pml.objScanToken, 0, hpaio->pml.scanToken, max);
 
-   if (len != 0)     
+   if (len > 0 && !is_zero(hpaio->pml.scanToken, len))     
    {
       /* Zero token. */
       len = (len > max) ? max : len; 
@@ -520,6 +532,7 @@ int clr_scan_token(HPAIO_RECORD *hpaio)
          goto bugout;
    }
 
+   hpaio->pml.lenScanToken = len;
    stat = OK;
 
 bugout:
@@ -529,18 +542,20 @@ bugout:
 /* Lock Scanner. */
 int set_scan_token(HPAIO_RECORD *hpaio)
 {
-   char token[] = "555";
    int stat=ERROR;
 
    /* Make sure token==0. */
    if (clr_scan_token(hpaio) == ERROR)
       goto bugout;
 
-   if (PmlSetValue(hpaio->pml.objScanToken, PML_TYPE_BINARY, token, sizeof(token)) == ERROR)
-      goto bugout;
-   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken) == ERROR)
-      goto bugout;
-
+   if (hpaio->pml.lenScanToken > 0)
+   {
+      strncpy(hpaio->pml.scanToken, "555", hpaio->pml.lenScanToken);
+      if (PmlSetValue(hpaio->pml.objScanToken, PML_TYPE_BINARY, hpaio->pml.scanToken, hpaio->pml.lenScanToken) == ERROR)
+         goto bugout;
+      if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken) == ERROR)
+         goto bugout;
+   }
    stat = OK;
 
 bugout:

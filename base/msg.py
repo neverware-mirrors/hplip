@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.24 $
-# $Date: 2005/07/22 00:00:15 $
+# $Revision: 1.27 $
+# $Date: 2005/11/14 20:27:09 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -107,13 +107,21 @@ def parseMessage(message):
         msg.seek(pos)
         remaining_msg = msg.read() or ''
 
-    #print fields, repr(data), repr(remaining_msg)
     return fields, data, remaining_msg
 
 
-def sendEvent(sock, msg_type, payload=None, other_fields={}):
+def sendEvent(sock, msg_type, payload=None, other_fields={}, 
+              timeout=prop.read_timeout):
+              
     m = buildMessage(msg_type, payload, other_fields)
+    
+    log.debug("Sending data on channel (%d)" % sock.fileno())
     log.debug(repr(m))
+
+    r, w, e = select.select([], [sock], [], timeout)
+
+    if w == []:
+        raise Error(ERROR_INTERNAL)
 
     try:
         sock.send(m)
@@ -125,13 +133,16 @@ def sendEvent(sock, msg_type, payload=None, other_fields={}):
 def xmitMessage(sock, msg_type, payload=None,
                  other_fields={},
                  timeout=prop.read_timeout):
-    """
-    Send and receive GMP message on socket.
-    Parse and remove 'msg' field on return.
-    """
+
     m = buildMessage(msg_type, payload, other_fields)
 
-    log.debug("Sending: %s" % repr(m))
+    log.debug("Sending data on channel (%d)" % sock.fileno())
+    log.debug(repr(m))
+
+    r, w, e = select.select([], [sock], [], timeout)
+
+    if w == []:
+        raise Error(ERROR_INTERNAL)
 
     try:
         sock.send(m)
@@ -145,19 +156,29 @@ def xmitMessage(sock, msg_type, payload=None,
         raise Error(ERROR_INTERNAL)
 
     m = sock.recv(prop.max_message_read)
-    log.debug("Received: %s" % repr(m))
+    log.debug("Reading data on channel (%d)" % sock.fileno())
+    log.debug(repr(m))
     fields, data, remaining = parseMessage(m)
     
     if remaining:
-        log.error("xmitMessage() remaining message != ''")
+        log.warn("xmitMessage() remaining message != '' ('%s')" % remaining)
         
-    result_code = fields['result-code']
-
     try:
-        del fields['msg']
+        result_code = fields['result-code']
+    except KeyError:
+        result_code = ERROR_INTERNAL
+    else:
         del fields['result-code']
-    except:
-        pass
+    
+    try:
+        result_msg_type = fields['msg']
+    except KeyError:
+        result_msg_type = ''
+    else:
+        del fields['msg']
+        
+    if result_msg_type.lower().strip() != ''.join([msg_type.lower(), 'result']):
+        log.error("Unexpected message")
 
     return fields, data, result_code
 

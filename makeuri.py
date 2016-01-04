@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.10 $ 
-# $Date: 2005/10/04 16:37:49 $
-# $Author: dwelch $
+# $Revision: 1.12 $ 
+# $Date: 2005/10/19 21:57:57 $
+# $Author: smitty $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
 #
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '2.4'
+_VERSION = '2.5'
 
 # Std Lib
 import sys
@@ -39,19 +39,12 @@ from base.codes import *
 from base import device, utils, msg
 
 def usage():
-##    formatter = utils.TextFormatter( 
-##                (
-##                    {'width': 48, 'margin' : 2},
-##                    {'width': 38, 'margin' : 2},
-##                )
-##            )
     formatter = utils.usage_formatter(48)
     log.info( utils.bold( """\nUsage: hp-makeuri [OPTIONS] IPs|DEVNODEs\n\n""" ) )
 
     log.info( formatter.compose( ( utils.bold("[OPTIONS]"), "" ) ) )
     utils.usage_bus(formatter)
     utils.usage_logging(formatter)
-    log.info( formatter.compose( ( "", "<level>: none, info*, error, warn, debug (*default)" ) ) )
     log.info( formatter.compose( ( "Show the CUPS URI only (quiet mode)(See note 1):","-c or --cups" ) ) )
     log.info( formatter.compose( ( "Show the SANE URI only (quiet mode)(See note 1):","-s or --sane" ) ) )
     log.info( formatter.compose( ( "This help information:", "-h or --help" ) ) )
@@ -134,38 +127,7 @@ if len(args) == 0:
 for a in args:
     log.info( utils.bold( "Creating URIs for '%s':" % a ) )
 
-    if ip_pat.search(a) is not None:
-        
-        try:
-            fields, data, result_code = \
-                msg.xmitMessage( hpiod_sock, 
-                                 "MakeURI", 
-                                 None, 
-                                 { 
-                                    'hostname' : a,
-                                    'port' : 1,
-                                 } 
-                                )
-        except Error:
-            result_code = ERROR_INTERNAL
-        
-        if result_code == ERROR_SUCCESS:
-            cups_uri = fields.get( 'device-uri', '' )
-            sane_uri = cups_uri.replace("hp:","hpaio:")
-            
-            if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
-                print "CUPS URI:", cups_uri
-            
-            if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
-                print "SANE URI:", sane_uri
-        
-        elif result_code == ERROR_INVALID_HOSTNAME:
-            log.error( "Invalid hostname IP address. Please check the address and try again." )
-        
-        else:
-            log.error( "Failed (error code=%d). Please check address of device and try again." % result_code )
-        
-    elif dev_pat.search(a) is not None:
+    if dev_pat.search(a) is not None:
         if 'usb' not in bus and 'par' not in bus:
             log.error("%s: DEVNODE specified but bus specification does not include 'usb' or 'par'." % a)
             usage()
@@ -175,7 +137,6 @@ for a in args:
             
             if b in ('usb', 'par'):
                 log.info("Trying bus: %s..." % b)
-                
                 try:
                     fields, data, result_code = \
                         msg.xmitMessage( hpiod_sock, 
@@ -206,10 +167,43 @@ for a in args:
             log.error( "%s: Failed. Please check device node of device and try again." % a )
             
     else:
-        log.error( "Invalid IP or device node." )
-        log.error( "IP addresses must be in the form 'a.b.c.d', where a, b, c, and d are between 0 and 255." )
-        log.error( "Device nodes must be in the form '/dev/*' (e.g., /dev/usb/lp0 or /dev/hp6800)" )
-    
+        
+        try:
+            if ip_pat.search(a) is None:
+                log.info("Address '%s' not an IPv4 address, trying DNS resolution..." % a)
+                a = socket.gethostbyname(a)
+
+            fields, data, result_code = \
+                msg.xmitMessage( hpiod_sock, 
+                                 "MakeURI", 
+                                 None, 
+                                 { 
+                                    'hostname' : a,
+                                    'port' : 1,
+                                 } 
+                                )
+        except socket.gaierror:
+            result_code = ERROR_INVALID_HOSTNAME
+        except Error:
+            result_code = ERROR_INTERNAL
+        
+        if result_code == ERROR_SUCCESS:
+            cups_uri = fields.get( 'device-uri', '' )
+            sane_uri = cups_uri.replace("hp:","hpaio:")
+            
+            if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "CUPS URI:", cups_uri
+            
+            if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "SANE URI:", sane_uri
+        
+        elif result_code == ERROR_INVALID_HOSTNAME:
+            log.error( "Invalid hostname or IP address. Please check the address and try again." )
+        
+        else:
+            log.error( "Failed (error code=%d). Please check address of device and try again." % result_code )
+        
+   
     log.info( "" )
 
 hpiod_sock.close()

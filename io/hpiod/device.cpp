@@ -47,6 +47,7 @@ Device::Device(System *pS) : pSys(pS)
    ChannelMode = -1; 
    MlcUp = 0;
    CurrentProtocol = USB_PROTOCOL_712;
+   NewProtocol = 0;
    memset(CA, 0, sizeof(CA));
 }
 
@@ -522,10 +523,10 @@ rjmp:
 }
 
 //Device::NewChannel
-//!  Create channel object given the service name.
+//!  Create channel object given the requested socket id and service name.
 /*!
 ******************************************************************************/
-Channel *Device::NewChannel(unsigned char sockid)
+Channel *Device::NewChannel(unsigned char sockid, char *sn)
 {
    Channel *pC=NULL;
    int i, n, mode;
@@ -536,12 +537,12 @@ Channel *Device::NewChannel(unsigned char sockid)
       if (pChannel[i] != NULL)
       {
          n++;
-         if (sockid == pChannel[i]->GetSocketID())
+         if (strcasecmp(sn, pChannel[i]->GetService()) == 0)
          {
             if (sockid == PML_CHANNEL)
             {
-               pC = pChannel[i];   /* same channel, re-use it (PML only) */
-               pC->SetClientCnt(pC->GetClientCnt()+1);
+               pC = pChannel[i];
+               pC->SetClientCnt(pC->GetClientCnt()+1);    /* same channel, re-use it (PML only) */
             }
             goto bugout;
          }
@@ -568,11 +569,14 @@ Channel *Device::NewChannel(unsigned char sockid)
       {
          if (mode == RAW_MODE)
             pC = new RawChannel(this);  /* constructor sets ClientCnt=1 */
-         else
+         else if (mode == MLC_MODE)
             pC = new MlcChannel(this);  /* constructor sets ClientCnt=1 */
+         else 
+            pC = new Dot4Channel(this);  /* constructor sets ClientCnt=1 */
 
          pC->SetIndex(i);
-         pC->SetSocketID(sockid);
+         pC->SetSocketID(sockid);   /* static socket id is valid for MLC not 1284.4 */
+         pC->SetService(sn);
          pChannel[i] = pC;
          ChannelCnt++;
          ChannelMode = mode;
@@ -635,7 +639,7 @@ int Device::ChannelOpen(char *sn, int *channel, char *sendBuf, int *result)
    }
    else
    {
-      syslog(LOG_ERR, "unsupported service uri:%s Device::ChannelOpen: %s\n", URI, sn);
+      syslog(LOG_ERR, "unsupported service uri:%s Device::ChannelOpen: %s %s %d\n", URI, sn, __FILE__, __LINE__);
       len = sprintf(sendBuf, res, R_INVALID_SN);
       goto bugout;
    }
@@ -643,9 +647,9 @@ int Device::ChannelOpen(char *sn, int *channel, char *sendBuf, int *result)
    //   if (pthread_mutex_trylock(&mutex) == 0)
    if (pthread_mutex_lock(&mutex) == 0)
    {
-      if ((pC = NewChannel(sockid)) == NULL)
+      if ((pC = NewChannel(sockid, sn)) == NULL)
       {
-         syslog(LOG_ERR, "service busy uri:%s Device::ChannelOpen: %s\n", URI, sn);
+         syslog(LOG_ERR, "service busy uri:%s Device::ChannelOpen: %s %s %d\n", URI, sn, __FILE__, __LINE__);
          *result = R_CHANNEL_BUSY;
          len = sprintf(sendBuf, res, *result);
       }
@@ -665,7 +669,7 @@ int Device::ChannelOpen(char *sn, int *channel, char *sendBuf, int *result)
    }
    else
    {
-      syslog(LOG_ERR, "unable to lock uri:%s Device::ChannelOpen: %m\n", URI);
+      syslog(LOG_ERR, "unable to lock uri:%s Device::ChannelOpen: %m %s %d\n", URI, __FILE__, __LINE__);
       *result = R_IO_ERROR;
       len = sprintf(sendBuf, res, *result);  
       goto bugout;

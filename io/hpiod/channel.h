@@ -26,6 +26,12 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
+//#define MAX_COMMAND_PACKET 64
+#define MAX_COMMAND_PACKET BUFFER_SIZE  
+#define MAX_SENDER_DATA BUFFER_SIZE
+#define MAX_RECEIVER_DATA BUFFER_SIZE
+#define MAX_SERVICE_NAME 40
+
 //Channel
 //! Class that encapsulates common channel services. Channels
 //! have a unique service name and only one service name can be open at a time.
@@ -33,12 +39,18 @@
 ******************************************************************************/
 class Channel
 {
-   unsigned char sockid;    /* static socket id */
+   unsigned char sockid;    /* socket id */
+   char service[MAX_SERVICE_NAME];
 
 protected:
    Device *pDev;
    int ClientCnt;           /* number of clients using this device */
    int Index;             /* Device::pChannel[index] of this object */
+
+   unsigned char rbuf[MAX_RECEIVER_DATA];  /* read packet buffer */
+   int rindex;
+   int rcnt;
+   int CutBuf(char *sendBuf, int length);
 
 public:
    Channel(Device *pDev);
@@ -50,6 +62,8 @@ public:
    inline void SetClientCnt(int i) { ClientCnt=i; }
    inline unsigned char GetSocketID() { return sockid; }
    inline void SetSocketID(unsigned char s) { sockid=s; }
+   inline char *GetService() { return service; }
+   inline void SetService(char *s) { strncpy(service, s, sizeof(service)); }
    virtual int Open(char *sendBuf, int *result);
    virtual int Close(char *sendBuf, int *result);
    virtual int WriteData(unsigned char *data, int length, char *sendBuf, int *result);
@@ -85,25 +99,14 @@ public:
    int ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result);   
 }; //JetdirectChannel
 
-//#define MAX_COMMAND_PACKET 64
-#define MAX_COMMAND_PACKET BUFFER_SIZE  
-#define MAX_SENDER_DATA BUFFER_SIZE
-#define MAX_RECEIVER_DATA BUFFER_SIZE
-
 //MlcChannel
 //! Class that encapsulates common channel services requiring MLC.
 /*!
 ******************************************************************************/
 class MlcChannel : public Channel
 {
-//   unsigned short h2psize;  /* host to peripheral packet size in bytes */
-//   unsigned short p2hsize;  /* peripheral to host packet size in bytes */
    unsigned short credit;  /* host to peripheral credit */
    unsigned short p2hcredit;  /* peripheral to host credit */   
-//   int CurrentProtocol;
-   unsigned char rbuf[MAX_RECEIVER_DATA];  /* read packet buffer */
-   int rindex;
-   int rcnt;
 
 public:
    MlcChannel(Device *pDev);
@@ -135,15 +138,68 @@ public:
    virtual int Close(char *sendBuf, int *result);
    int WriteData(unsigned char *data, int length, char *sendBuf, int *result);
    int ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result);   
-   int CutBuf(char *sendBuf, int length);
 
 }; //MlcDevice
+
+//Dot4Channel
+//! Class that encapsulates common channel services requiring 1284.4.
+/*!
+******************************************************************************/
+class Dot4Channel : public Channel
+{
+   unsigned short pcredit;  /* primary socket id credit for sending */
+   unsigned short scredit;  /* secondary socket id credit for sending */  
+   unsigned short psize;    /* primary max packet size for sending */
+   unsigned short ssize;    /* secondary max packet size for sending */
+
+public:
+   Dot4Channel(Device *pDev);
+
+   inline unsigned short GetH2PSize() { return psize; }
+   inline void SetH2PSize(unsigned short i) { psize=i; }
+   inline unsigned short GetP2HSize() { return ssize; }
+   inline void SetP2HSize(unsigned short i) { ssize=i; }
+   inline unsigned short GetP2HCredit() { return scredit; }
+   inline void SetP2HCredit(unsigned short i) { scredit=i; }
+   inline unsigned short GetH2PCredit() { return pcredit; }
+   inline void SetH2PCredit(unsigned short i) { pcredit=i; }
+
+   int Dot4Socket2Channel(unsigned char sockid);
+   int Dot4ForwardReply(int fd, unsigned char *buf, int size);
+   int Dot4ExecReverseCmd(int fd, unsigned char *buf);
+   int Dot4ReverseCmd(int fd);
+   int Dot4ReverseReply(int fd, unsigned char *buf, int bufsize);
+   int Dot4Credit(int fd, unsigned short credit);
+   int Dot4CreditRequest(int fd, unsigned short credit);
+   int Dot4ForwardData(int fd, int sockid, unsigned char *buf, int size);
+   int Dot4ReverseData(int fd, int sockid, unsigned char *buf, int bufsize, int timeout);
+   int Dot4Init(int fd);
+   int Dot4Exit(int fd);
+   int Dot4GetSocket(int fd);
+   int Dot4OpenChannel(int fd);
+   int Dot4CloseChannel(int fd);
+   virtual int Open(char *sendBuf, int *result);
+   virtual int Close(char *sendBuf, int *result);
+   int WriteData(unsigned char *data, int length, char *sendBuf, int *result);
+   int ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result);   
+
+}; //Dot4Device
 
 class ParMlcChannel : public MlcChannel
 {
 
 public:
    ParMlcChannel(Device *pDev);
+
+   int Open(char *sendBuf, int *result);
+   int Close(char *sendBuf, int *result);
+}; 
+
+class ParDot4Channel : public Dot4Channel
+{
+
+public:
+   ParDot4Channel(Device *pDev);
 
    int Open(char *sendBuf, int *result);
    int Close(char *sendBuf, int *result);
