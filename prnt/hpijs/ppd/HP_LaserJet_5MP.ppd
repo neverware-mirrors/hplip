@@ -32,7 +32,7 @@
 
 *FileVersion: "1.1.0 X"
 *FormatVersion: "4.3"
-*LanguageEncoding: ISOLatin1
+*LanguageEncoding: MacStandard
 *LanguageVersion: English
 *ModelName: "HP LaserJet 5P"
 *NickName: "HP LaserJet 5MP Postscript (recommended)"
@@ -60,7 +60,7 @@
 	"
 *End
 
-*Protocols: PJL
+*Protocols: TBCP
 
 *UIConstraints: *PageSize Comm10 *InputSlot Lower
 *UIConstraints: *PageSize Monarch *InputSlot Lower

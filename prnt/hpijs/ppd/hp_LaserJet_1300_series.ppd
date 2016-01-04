@@ -52,9 +52,9 @@
 *%=================================================
 *% 		 Product Version Information
 *%=================================================
-*ModelName: "HP LaserJet 1300"
-*ShortNickName: "HP LaserJet 1300"
-*NickName: "HP LaserJet 1300 Postscript (recommended)"
+*ModelName: "HP LaserJet 1300 Series"
+*ShortNickName: "HP LaserJet 1300 Series"
+*NickName: "HP LaserJet 1300 Series Postscript (recommended)"
 *Product: "(hp LaserJet 1300)"
 *Product: "(hp LaserJet 1300n)"
 *Manufacturer: "HP"
@@ -81,7 +81,7 @@
 *%=================================================
 *%		 Emulations and Protocols
 *%=================================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout:  "0"
 *SuggestedWaitTimeout: "120"
@@ -723,7 +723,7 @@
 *MaxMediaHeight: "1008"
 *HWMargins:      12 12 12 12
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
 "

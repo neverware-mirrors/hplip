@@ -75,7 +75,7 @@ class AlignForm( QDialog ):
         buttonGroupLayout.addMultiCellLayout(ChoiceLayout, 1, 1, 0, 1)
 
         self.Icon = QLabel(self.buttonGroup,"Icon")
-        self.Icon.setProperty("sizePolicy",QVariant(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth())))
+        self.Icon.setProperty("sizePolicy",QVariant(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth())))
         self.Icon.setProperty("scaledContents",QVariant(QVariant(1,0)))
 
         buttonGroupLayout.addWidget(self.Icon,0,0)

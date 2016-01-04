@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $ 
-# $Date: 2005/04/29 16:45:58 $
-# $Author: syie $
+# $Revision: 1.18 $ 
+# $Date: 2005/06/28 23:13:41 $
+# $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
 #
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.1'
+_VERSION = '1.2'
 
 # Std Lib
 import sys
@@ -121,6 +121,8 @@ for o, a in opts:
     elif o in ( '-o', '--timeout' ):
         try:
             timeout = int( a )
+            if timeout > 44:
+                timeout = 44
         except ValueError:
             timeout = 5
 
@@ -149,7 +151,7 @@ if timeout < 0:
     sys.exit(0)
 
 for f in filter.split(','):
-    if f not in ( 'none', 'print', 'scan', 'fax', 'pcard' ):
+    if f not in ( 'none', 'print', 'scan', 'fax', 'pcard', 'copy' ):
         log.error( "Invalid term '%s' in filter list" % f )
         usage()
         sys.exit(0)
@@ -168,18 +170,19 @@ for x in bus.split(','):
 hpssd_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 hpssd_sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
 
-fields, data = msg.xmitMessage( hpssd_sock, 
-                                "ProbeDevicesFiltered",
-                                None, 
-                                { 
-                                    'bus' : bus,
-                                    'timeout' : timeout,
-                                    'ttl' : ttl,
-                                    'format' : 'cups',
-                                    'filter' : filter,
+fields, data, result_code = \
+    msg.xmitMessage( hpssd_sock, 
+                     "ProbeDevicesFiltered",
+                      None, 
+                      { 
+                            'bus' : bus,
+                            'timeout' : timeout,
+                            'ttl' : ttl,
+                            'format' : 'cups',
+                            'filter' : filter,
 
-                                } 
-                              )
+                      } 
+                    )
 
 hpssd_sock.close()
 

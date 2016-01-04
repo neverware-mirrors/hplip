@@ -32,11 +32,11 @@
 
 *FileVersion: "1.1.0 X"
 *FormatVersion: "4.3"
-*LanguageEncoding: ISOLatin1
+*LanguageEncoding: MacStandard
 *LanguageVersion: English
 *ModelName: "HP LaserJet 6P/6MP"
 *ShortNickName: "HP LaserJet 6P/6MP - PostScript"
-*NickName: "HP LaserJet 6P/6MP - Postscript (recommended)"
+*NickName: "HP LaserJet 6P/6MP - PostScript Postscript (recommended)"
 *PCFileName: "HPLJ6P_1.PPD"
 *Product: "(HP LaserJet 6P)"
 *PSVersion: "(2014.108) 1"
@@ -61,7 +61,7 @@
 	"
 *End
 
-*Protocols: PJL
+*Protocols: TBCP
 *VariablePaperSize: True
 
 *SuggestedJobTimeout: "0"

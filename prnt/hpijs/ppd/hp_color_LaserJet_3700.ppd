@@ -32,8 +32,8 @@
 *% =================================
 *% PPD File Version Information
 *FormatVersion: "4.3"
-*FileVersion: "1.0.1"
-*HPBuildNumber: "003"
+*FileVersion: "1.0.2"
+*HPBuildNumber: "004"
 *LanguageVersion: English
 *LanguageEncoding: MacStandard
 *PCFileName: "HP3700.PPD"
@@ -75,7 +75,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *% =================================
 *% Installable Options
@@ -705,9 +705,10 @@ restore
 
 *ParamCustomPageSize Width: 1 points 216 612
 *ParamCustomPageSize Height: 2 points 360 1008
-*ParamCustomPageSize Orientation: 3 int 0 0
-*ParamCustomPageSize HeightOffset: 4 points 0 0
-*ParamCustomPageSize WidthOffset: 5 points 0 0
+
+*ParamCustomPageSize HeightOffset: 3 points 0 0
+*ParamCustomPageSize WidthOffset: 4 points 0 0
+*ParamCustomPageSize Orientation: 5 int 0 3
 
 *RequiresPageRegion All: True
 
@@ -759,7 +760,7 @@ restore
 
 *% Enable/Disable Manual Feed
 *OpenUI *ManualFeed/Tray 1 (Manual): Boolean
-*OrderDependency: 20 AnySetup *ManualFeed
+*OrderDependency: 25 AnySetup *ManualFeed
 *DefaultManualFeed: False
 *ManualFeed True/True: "
 	<</ManualFeed true>> setpagedevice"
@@ -783,7 +784,7 @@ restore
 *% Media Types
 *% =================================
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: None
 *MediaType None/None:  "
     <</ManualFeed false /MediaType null >> setpagedevice"
@@ -1214,7 +1215,7 @@ globaldict /HPColorTrapping known {
 *% =================================
 *OpenUI *ColorModel/Print Color as Gray:  PickOne
 *OrderDependency: 20 AnySetup *ColorModel
-*DefaultColorModel: Gray
+*DefaultColorModel: CMYK
 *ColorModel Gray/On: "<</ProcessColorModel /DeviceGray>> setpagedevice"
 *ColorModel CMYK/Off: "<</ProcessColorModel /DeviceCMYK>> setpagedevice"
 *?ColorModel: "
@@ -1537,27 +1538,6 @@ globaldict /HPColorTrapping known {
   restore
 "
 *End
-
-*%====================================
-*%         Collation
-*%====================================
-*OpenUI *Collate/Collate:  Boolean
-*OrderDependency: 12 AnySetup *Collate
-*DefaultCollate: True
-*Collate True/On (turn off in application): "
-    <</Collate true>> setpagedevice"
-*End
-*Collate False/Off: "
-    <</Collate false>> setpagedevice"
-*End
-*?Collate: "
-  save
-    currentpagedevice /Collate get
-    {(True)}{(False)}ifelse = flush
-  restore
-"
-*End
-*CloseUI: *Collate
 
 *% =================================
 *% Specials for Quark

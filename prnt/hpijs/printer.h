@@ -211,7 +211,7 @@ public:
 
     virtual Compressor* CreateCompressor(unsigned int RasterSize);
 
-	virtual Compressor* CreateBlackPlaneCompressor(unsigned int RasterSize);
+	virtual Compressor* CreateBlackPlaneCompressor (unsigned int RasterSize, BOOL bVIPPrinter = FALSE);
 
     virtual DISPLAY_STATUS ParseError(BYTE status_reg);
 

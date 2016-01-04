@@ -80,7 +80,7 @@
 *%=================================================
 *%		 Emulations and Protocols
 *%=================================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout:  "0"
 *SuggestedWaitTimeout: "120"
@@ -748,7 +748,7 @@
 *MaxMediaHeight: "1008"
 *HWMargins:      12 12 12 12
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
 "

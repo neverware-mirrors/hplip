@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.8 $ 
-# $Date: 2004/11/17 21:36:01 $
+# $Revision: 1.9 $ 
+# $Date: 2005/06/28 23:13:58 $
 # $Author: dwelch $
 #
 # (c) Copyright 2002-2004 Hewlett-Packard Development Company, L.P.
@@ -30,7 +30,7 @@ import os
 import sys
 import thread
 import syslog
-
+import traceback
 
 # 3rd Party
 
@@ -112,7 +112,6 @@ class Logger( object ):
         if self._level <= Logger.LOG_LEVEL_INFO:
             self.log( "%s %s" % (self.module, message ), Logger.LOG_LEVEL_INFO )
 
-    
     information = info
    
     def warn( self, message ):
@@ -129,17 +128,12 @@ class Logger( object ):
 
     def fatal( self, message ):
         if self._level <= Logger.LOG_LEVEL_FATAL:
-            self.log( "%s%s [CRITICAL]: %s%s" % ( '\x1b[31;01m', self.module, message, '\x1b[0m' ), Logger.LOG_LEVEL_DEBUG )
-            syslog.syslog( syslog.LOG_CRIT, "%s [CRITICAL] %s" % (self.module, message ) )
+            self.log( "%s%s [FATAL]: %s%s" % ( '\x1b[31;01m', self.module, message, '\x1b[0m' ), Logger.LOG_LEVEL_DEBUG )
+            syslog.syslog( syslog.LOG_CRIT, "%s [FATAL] %s" % (self.module, message ) )
 
-
-def test():
-    log = Logger( Logger.LOG_LEVEL_INFO, Logger.LOG_TO_CONSOLE )
-    log.log( "Test" )
-
-
-if __name__ == "__main__":
-    test()
-
-    
-    
+    def exception( self ):
+        typ, value, tb = sys.exc_info()
+        body = "Traceback (innermost last):\n"
+        lst = traceback.format_tb(tb) + traceback.format_exception_only(typ, value)
+        body = body + "%-20s %s" % (''.join( lst[:-1] ), lst[-1], )
+        self.fatal( body )

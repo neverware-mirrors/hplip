@@ -536,9 +536,9 @@ static int hpaioConnClose( hpaioScanner_t hpaio )
         hpaio->pml.scanTokenIsSet = 0;
     }
     
-    CloseChannel( hpaio->deviceid, hpaio->scan_channelid );
+    hplip_CloseChannel( hpaio->deviceid, hpaio->scan_channelid );
     hpaio->scan_channelid = -1;
-    CloseChannel( hpaio->deviceid, hpaio->cmd_channelid );
+    hplip_CloseChannel( hpaio->deviceid, hpaio->cmd_channelid );
     hpaio->cmd_channelid = -1;
 
 bugout:
@@ -553,7 +553,7 @@ static SANE_Status hpaioConnOpen( hpaioScanner_t hpaio )
     DBG( 0, "hpaio: openFirst=%d\n", hpaio->pml.openFirst );
 
     if (hpaio->scan_channelid < 0)
-       hpaio->scan_channelid = OpenChannel( hpaio->deviceid, "HP-SCAN", hpaio->flow_ctl );
+       hpaio->scan_channelid = hplip_OpenChannel( hpaio->deviceid, "HP-SCAN" );
     else
        syslog(LOG_INFO, "warning HP-SCAN channel already open: %s %d", __FILE__, __LINE__);
         
@@ -564,7 +564,7 @@ static SANE_Status hpaioConnOpen( hpaioScanner_t hpaio )
     }
     
     if (hpaio->cmd_channelid < 0)
-       hpaio->cmd_channelid = OpenChannel(hpaio->deviceid, "HP-MESSAGE", hpaio->flow_ctl );
+       hpaio->cmd_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-MESSAGE" );
     else
        syslog(LOG_INFO, "warning HP-MESSAGE channel already open: %s %d", __FILE__, __LINE__);
         
@@ -1477,7 +1477,7 @@ static SANE_Status hpaioProgramOptions( hpaioScanner_t hpaio )
                             SCL_CMD_DOWNLOAD_BINARY_DATA,
                             sizeof( hp11xxSeriesColorMap ) );
             
-            WriteChannel( hpaio->deviceid, hpaio->scan_channelid,
+            hplip_WriteHP( hpaio->deviceid, hpaio->scan_channelid,
                           ( char * ) hp11xxSeriesColorMap,
                           sizeof( hp11xxSeriesColorMap ) );
         }
@@ -2076,7 +2076,7 @@ extern SANE_Status sane_hpaio_init( SANE_Int * pVersionCode,
     //DBG_INIT();
     DBG( 0, "\nsane_hpaio_init() *******************************************************************************************\n" );
     
-    Init();
+    hplip_Init();
 
     //hpaioDeviceListReset();
     //ResetDevices( hpaioDeviceList );
@@ -2634,7 +2634,9 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
 
     DBG( 0, "Opening %s...\n", devname );
     
-    hpaio->deviceid = OpenDevice( (char *)devname );
+    hplip_ModelQuery(devname, &ma);  /* get device specific parameters */
+
+    hpaio->deviceid = hplip_OpenHP( (char *)devname, &ma );
     strncpy( hpaio->deviceuri, devname, sizeof(hpaio->deviceuri) );
     
     if( hpaio->deviceid == -1 )
@@ -2649,7 +2651,7 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
     /* Get the device ID string and initialize the SANE_Device structure. */
     memset( deviceIDString, 0, LEN_DEVICE_ID_STRING );
     
-    if( GetDeviceID( hpaio->deviceid,  deviceIDString, LEN_DEVICE_ID_STRING ) == 0 )
+    if( hplip_GetID( hpaio->deviceid,  deviceIDString, sizeof(deviceIDString)) == 0 )
     {
         retcode = SANE_STATUS_INVAL;
         goto abort;
@@ -2661,19 +2663,12 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
     
     hpaio->saneDevice.vendor = "Hewlett-Packard"; 
     
-    GetModel( deviceIDString, model, sizeof( model ) );
+    hplip_GetModel( deviceIDString, model, sizeof( model ) );
     
     DBG( 0, "Model = %s\n", model );
     
     hpaio->saneDevice.model = strdup( model );
     hpaio->saneDevice.type = "multi-function peripheral";
-
-    /* Do model query and get device specific parameters. */
-    hpaio->flow_ctl[0]=0;
-    if (ModelQuery(devname, &ma) == 0)
-    {
-        strncpy( hpaio->flow_ctl, ma.flow_ctl, sizeof(hpaio->flow_ctl));
-    }
 
     /* Initialize option descriptors. */
     hpaioSetupOptions( hpaio ); 
@@ -3893,8 +3888,7 @@ needMoreData:
         }
         else
         {
-            while( 1 ) // mfpdtf
-            {
+            // mfpdtf
                 int rService;
 
                 rService = MfpdtfReadService( hpaio->mfpdtf );
@@ -3939,26 +3933,28 @@ needMoreData:
                         retcode = SANE_STATUS_IO_ERROR;
                         goto abort;
                     }
-                    break;
                 }
-
-                if( rService & MFPDTF_RESULT_NEW_END_OF_PAGE_RECORD || 
-                    ( rService & MFPDTF_RESULT_END_PAGE && hpaio->preDenali ) )
+                else if( rService & MFPDTF_RESULT_NEW_END_OF_PAGE_RECORD || ( rService & MFPDTF_RESULT_END_PAGE && hpaio->preDenali ))
                 {
                     hpaio->endOfData = 1;
                 }
+
                 if( hpaio->endOfData )
                 {
-                    if( hpaio->scannerType == SCANNER_TYPE_PML && !hpaio->pml.scanDone )
+                    if( hpaio->scannerType == SCANNER_TYPE_PML )
                     {
-                        continue;
+                        while (!hpaio->pml.scanDone)
+                        {
+                            /* Mfpdtf side is done, wait for pml side. */
+                            sleep(1);
+                            if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
+                               goto abort;
+                        }
                     }
-                    break;
                 }
 
                 DBG( 0,  "hpaio: sane_hpaio_read: "
                                 "Unhandled MfpdtfReadService() result=0x%4.4X.\n", rService );
-            } /* while (1) */
 
         } /* if (!hpaio->mfpdtf) */
 
@@ -4010,9 +4006,7 @@ needMoreData:
     
     if( wResult & ( IP_INPUT_ERROR | IP_FATAL_ERROR ) )
     {
-        DBG( 0,  "hpaio: sane_hpaio_read: "
-                       "ipConvert() returns 0x%4.4X!\n",
-                       wResult );
+        bug("hpaio: ipConvert error=%x\n", wResult);
         retcode = SANE_STATUS_IO_ERROR;
         goto abort;
     }
@@ -4057,7 +4051,7 @@ extern void sane_hpaio_close(SANE_Handle handle)
        hpaioConnEndScan(hpaio);
     
     if (hpaio->deviceid > 0)
-       CloseDevice(hpaio->deviceid);
+       hplip_CloseHP(hpaio->deviceid);
     
     /* free hpaio object?? (des) */
 }
@@ -4089,6 +4083,6 @@ extern void sane_hpaio_exit( void )
 
     ResetDevices( &hpaioDeviceList );
 
-    Exit();
+    hplip_Exit();
 }
 

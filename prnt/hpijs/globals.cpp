@@ -92,6 +92,7 @@ MediaSize PaperToMediaSize(PAPER_SIZE psize)
 	case ENVELOPE_JPN3:  return size3JPNEnv;     break;
 	case ENVELOPE_JPN4:  return size4JPNEnv;     break;
 #endif
+    case PHOTO_5x7:      return size5x7;        break;
     default:            return sizeUSLetter;    break;
     }
 }

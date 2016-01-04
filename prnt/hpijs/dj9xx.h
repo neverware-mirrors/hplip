@@ -165,7 +165,7 @@ public:
         "PHOTOSMART P1000\0"        // PSP 1000
         "PHOTOSMART P1100\0"        // PSP 1100
         "DESKJET 1220\0"            // DeskJet 1220
-        "HP Deskjet 1280\0"         // Deskjet 1280
+        "Deskjet 1280\0"         // Deskjet 1280
 		"hp deskjet 9300\0"         // deskjet 9300
 #ifdef APDK_MLC_PRINTER
         "OfficeJet K\0"             // OfficeJet K Series
@@ -174,6 +174,7 @@ public:
         "PSC 7\0"                   // PSC 750
         "PSC 9\0"                   // PSC 900 Series
 		"officejet 5100 series\0"   // officejet 5100 series
+        "HP 2000C\0"
 #endif
     ) {m_iPrinterType = eDJ9xx;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ9xx(pSS); }

@@ -23,7 +23,7 @@
 
 
 
-SOURCES = $(libhpip_la_SOURCES) $(libsane_hpaio_la_SOURCES) $(hp_SOURCES) $(hpiod_SOURCES) $(ptest_SOURCES)
+SOURCES = $(libhpip_la_SOURCES) $(libhplip_api_la_SOURCES) $(libsane_hpaio_la_SOURCES) $(hp_SOURCES) $(hpiod_SOURCES) $(ptest_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -84,7 +84,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(cupsdir)" \
 	"$(DESTDIR)$(psdir)" "$(DESTDIR)$(xmldir)" \
 	"$(DESTDIR)$(docdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
-LTLIBRARIES = $(lib_LTLIBRARIES)
+LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libhpip_la_LIBADD =
 am_libhpip_la_OBJECTS = xconvolve.lo xfax.lo xgrayout.lo xjpg_dct.lo \
 	xjpg_fix.lo xpad.lo xrotate.lo xskel.lo xtiff.lo ipmain.lo \
@@ -93,7 +93,10 @@ am_libhpip_la_OBJECTS = xconvolve.lo xfax.lo xgrayout.lo xjpg_dct.lo \
 	xfakemono.lo xgray2bi.lo xinvert.lo xjpg_enc.lo xmatrix.lo \
 	xpnm.lo xscale.lo xthumb.lo xyxtract.lo
 libhpip_la_OBJECTS = $(am_libhpip_la_OBJECTS)
-libsane_hpaio_la_DEPENDENCIES = libhpip.la
+libhplip_api_la_LIBADD =
+am_libhplip_api_la_OBJECTS = hplip_api.lo
+libhplip_api_la_OBJECTS = $(am_libhplip_api_la_OBJECTS)
+libsane_hpaio_la_DEPENDENCIES = libhpip.la libhplip-api.la
 am_libsane_hpaio_la_OBJECTS = hpaio.lo mfpdtf.lo pml.lo scl.lo io.lo
 libsane_hpaio_la_OBJECTS = $(am_libsane_hpaio_la_OBJECTS)
 cupsPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -101,15 +104,15 @@ sbinPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(cups_PROGRAMS) $(noinst_PROGRAMS) $(sbin_PROGRAMS)
 am_hp_OBJECTS = hp.$(OBJEXT)
 hp_OBJECTS = $(am_hp_OBJECTS)
-hp_LDADD = $(LDADD)
+hp_DEPENDENCIES = libhplip-api.la
 am_hpiod_OBJECTS = hpiod.$(OBJEXT) channel.$(OBJEXT) device.$(OBJEXT) \
 	mlc.$(OBJEXT) system.$(OBJEXT) jddevice.$(OBJEXT) \
-	jetdirect.$(OBJEXT)
+	jetdirect.$(OBJEXT) udevice.$(OBJEXT)
 hpiod_OBJECTS = $(am_hpiod_OBJECTS)
 hpiod_LDADD = $(LDADD)
 am_ptest_OBJECTS = ptest.$(OBJEXT) fat.$(OBJEXT)
 ptest_OBJECTS = $(am_ptest_OBJECTS)
-ptest_LDADD = $(LDADD)
+ptest_DEPENDENCIES = libhplip-api.la
 dist_baseSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_cmdSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 dist_hplipSCRIPT_INSTALL = $(INSTALL_SCRIPT)
@@ -140,10 +143,12 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile --tag=CXX $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libhpip_la_SOURCES) $(libsane_hpaio_la_SOURCES) \
-	$(hp_SOURCES) $(hpiod_SOURCES) $(ptest_SOURCES)
-DIST_SOURCES = $(libhpip_la_SOURCES) $(libsane_hpaio_la_SOURCES) \
-	$(hp_SOURCES) $(hpiod_SOURCES) $(ptest_SOURCES)
+SOURCES = $(libhpip_la_SOURCES) $(libhplip_api_la_SOURCES) \
+	$(libsane_hpaio_la_SOURCES) $(hp_SOURCES) $(hpiod_SOURCES) \
+	$(ptest_SOURCES)
+DIST_SOURCES = $(libhpip_la_SOURCES) $(libhplip_api_la_SOURCES) \
+	$(libsane_hpaio_la_SOURCES) $(hp_SOURCES) $(hpiod_SOURCES) \
+	$(ptest_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -278,28 +283,32 @@ subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = prnt/hpijs
+INCLUDES = -Iprnt/hpijs -Iip
 hplipdir = $(datadir)/hplip
 docdir = $(datadir)/doc/$(distdir)
 doc_DATA = hplip_readme.html hplip_overview.png COPYING
 dist_hplip_DATA = $(doc_DATA) hplip.conf
 dist_hplip_SCRIPTS = hpssd.py __init__.py hplip.sh
 cmddir = $(hplipdir)
-dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py rpu.py testpage.py makeuri.py check.py
+dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py
 
 # hp backend.
 cupsdir = $(CUPS_BACKEND_PATH)
 hp_SOURCES = backend/hp/hp.c 
+hp_LDADD = libhplip-api.la
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
+    io/hpiod/udevice.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
 
 
 # base
 basedir = $(hplipdir)/base
 dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
-    base/database.py base/__init__.py base/mfpdtf.py base/service.py base/utils.py base/async_qt.py \
-    base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py
+    base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
+    base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
+    base/imagesize.py
 
 ptest_SOURCES = pcard/ptest.c pcard/ptest.h pcard/fat.c pcard/fat.h 
+ptest_LDADD = libhplip-api.la
 
 # data
 xmldir = $(hplipdir)/data/xml
@@ -364,7 +373,11 @@ libsane_hpaio_la_SOURCES = scan/sane/hpaio.c scan/sane/mfpdtf.c scan/sane/pml.c 
 
 libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) 
 # The following is a interlibrary dependency that must be compiled first.
-libsane_hpaio_la_LIBADD = libhpip.la
+libsane_hpaio_la_LIBADD = libhpip.la libhplip-api.la
+
+# api library
+noinst_LTLIBRARIES = libhplip-api.la
+libhplip_api_la_SOURCES = prnt/hpijs/hplip_api.c prnt/hpijs/hplip_api.h
 
 # ui
 uidir = $(hplipdir)/ui
@@ -376,12 +389,16 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/aligntype6form2.py ui/nodevicesform_base.py ui/nodevicesform.py ui/unloadform.py ui/unloadform_base.py \
     ui/imagepropertiesdlg_base.py ui/imagepropertiesdlg.py ui/choosedevicedlg.py \
     ui/aboutdlg.py ui/aboutdlg_base.py ui/waitform.py ui/waitform_base.py ui/cleaningform_base.py ui/cleaningform.py \
-    ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py
+    ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
+    ui/colorcal4form_base.py ui/colorcal4form_base.ui ui/printerform.py ui/printerform_base.ui ui/printerform_base.py \
+    ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
     ui/nodevicesform_base.ui ui/cleaningform_base.ui ui/colorcalform_base.ui ui/devmgr4_base.ui ui/loadpaperform_base.ui \
-    ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui
+    ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
+    ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui
 
 all: all-recursive
 
@@ -447,8 +464,19 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
 libhpip.la: $(libhpip_la_OBJECTS) $(libhpip_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(libhpip_la_LDFLAGS) $(libhpip_la_OBJECTS) $(libhpip_la_LIBADD) $(LIBS)
+libhplip-api.la: $(libhplip_api_la_OBJECTS) $(libhplip_api_la_DEPENDENCIES) 
+	$(LINK)  $(libhplip_api_la_LDFLAGS) $(libhplip_api_la_OBJECTS) $(libhplip_api_la_LIBADD) $(LIBS)
 libsane-hpaio.la: $(libsane_hpaio_la_OBJECTS) $(libsane_hpaio_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(libsane_hpaio_la_LDFLAGS) $(libsane_hpaio_la_OBJECTS) $(libsane_hpaio_la_LIBADD) $(LIBS)
 install-cupsPROGRAMS: $(cups_PROGRAMS)
@@ -669,6 +697,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpaio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hpiod.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hplip_api.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ipmain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jddevice.Po@am__quote@
@@ -679,6 +708,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/udevice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xbi2gray.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xchgbpp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xcolrspc.Plo@am__quote@
@@ -940,6 +970,13 @@ xyxtract.lo: ip/xyxtract.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile --tag=CC $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xyxtract.lo `test -f 'ip/xyxtract.c' || echo '$(srcdir)/'`ip/xyxtract.c
 
+hplip_api.lo: prnt/hpijs/hplip_api.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile --tag=CC $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT hplip_api.lo -MD -MP -MF "$(DEPDIR)/hplip_api.Tpo" -c -o hplip_api.lo `test -f 'prnt/hpijs/hplip_api.c' || echo '$(srcdir)/'`prnt/hpijs/hplip_api.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/hplip_api.Tpo" "$(DEPDIR)/hplip_api.Plo"; else rm -f "$(DEPDIR)/hplip_api.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='prnt/hpijs/hplip_api.c' object='hplip_api.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile --tag=CC $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o hplip_api.lo `test -f 'prnt/hpijs/hplip_api.c' || echo '$(srcdir)/'`prnt/hpijs/hplip_api.c
+
 hpaio.lo: scan/sane/hpaio.c
 @am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile --tag=CC $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT hpaio.lo -MD -MP -MF "$(DEPDIR)/hpaio.Tpo" -c -o hpaio.lo `test -f 'scan/sane/hpaio.c' || echo '$(srcdir)/'`scan/sane/hpaio.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/hpaio.Tpo" "$(DEPDIR)/hpaio.Plo"; else rm -f "$(DEPDIR)/hpaio.Tpo"; exit 1; fi
@@ -1135,6 +1172,20 @@ jetdirect.obj: io/hpiod/jetdirect.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/jetdirect.cpp' object='jetdirect.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o jetdirect.obj `if test -f 'io/hpiod/jetdirect.cpp'; then $(CYGPATH_W) 'io/hpiod/jetdirect.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/jetdirect.cpp'; fi`
+
+udevice.o: io/hpiod/udevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT udevice.o -MD -MP -MF "$(DEPDIR)/udevice.Tpo" -c -o udevice.o `test -f 'io/hpiod/udevice.cpp' || echo '$(srcdir)/'`io/hpiod/udevice.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/udevice.Tpo" "$(DEPDIR)/udevice.Po"; else rm -f "$(DEPDIR)/udevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/udevice.cpp' object='udevice.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o udevice.o `test -f 'io/hpiod/udevice.cpp' || echo '$(srcdir)/'`io/hpiod/udevice.cpp
+
+udevice.obj: io/hpiod/udevice.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT udevice.obj -MD -MP -MF "$(DEPDIR)/udevice.Tpo" -c -o udevice.obj `if test -f 'io/hpiod/udevice.cpp'; then $(CYGPATH_W) 'io/hpiod/udevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/udevice.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/udevice.Tpo" "$(DEPDIR)/udevice.Po"; else rm -f "$(DEPDIR)/udevice.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='io/hpiod/udevice.cpp' object='udevice.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o udevice.obj `if test -f 'io/hpiod/udevice.cpp'; then $(CYGPATH_W) 'io/hpiod/udevice.cpp'; else $(CYGPATH_W) '$(srcdir)/io/hpiod/udevice.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1562,8 +1613,8 @@ maintainer-clean-generic:
 clean: clean-recursive
 
 clean-am: clean-cupsPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-noinstPROGRAMS clean-sbinPROGRAMS \
-	mostlyclean-am
+	clean-libtool clean-noinstLTLIBRARIES clean-noinstPROGRAMS \
+	clean-sbinPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1636,28 +1687,29 @@ uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am am--refresh check \
 	check-am clean clean-cupsPROGRAMS clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
-	clean-recursive clean-sbinPROGRAMS ctags ctags-recursive dist \
-	dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ dist-zip \
-	distcheck distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-recursive distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-cupsPROGRAMS \
-	install-data install-data-am install-data-hook \
-	install-dist_baseSCRIPTS install-dist_cmdSCRIPTS \
-	install-dist_hplipDATA install-dist_hplipSCRIPTS \
-	install-dist_imagesDATA install-dist_ldlDATA \
-	install-dist_pcardSCRIPTS install-dist_pclDATA \
-	install-dist_prntSCRIPTS install-dist_psDATA \
-	install-dist_scanSCRIPTS install-dist_uiSCRIPTS \
-	install-dist_xmlDATA install-docDATA install-exec \
-	install-exec-am install-exec-hook install-info install-info-am \
-	install-libLTLIBRARIES install-man install-sbinPROGRAMS \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
+	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
+	clean-noinstPROGRAMS clean-recursive clean-sbinPROGRAMS ctags \
+	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-shar \
+	dist-tarZ dist-zip distcheck distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-recursive \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-cupsPROGRAMS install-data install-data-am \
+	install-data-hook install-dist_baseSCRIPTS \
+	install-dist_cmdSCRIPTS install-dist_hplipDATA \
+	install-dist_hplipSCRIPTS install-dist_imagesDATA \
+	install-dist_ldlDATA install-dist_pcardSCRIPTS \
+	install-dist_pclDATA install-dist_prntSCRIPTS \
+	install-dist_psDATA install-dist_scanSCRIPTS \
+	install-dist_uiSCRIPTS install-dist_xmlDATA install-docDATA \
+	install-exec install-exec-am install-exec-hook install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-sbinPROGRAMS install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
 	uninstall-cupsPROGRAMS uninstall-dist_baseSCRIPTS \
 	uninstall-dist_cmdSCRIPTS uninstall-dist_hplipDATA \
 	uninstall-dist_hplipSCRIPTS uninstall-dist_imagesDATA \

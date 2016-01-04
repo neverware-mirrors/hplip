@@ -93,7 +93,7 @@
 *% ===================================
 *%       Emulations and Protocols
 *% ===================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout: "0"
 *SuggestedWaitTimeout: "120"
@@ -1040,7 +1040,7 @@ restore
 *MaxMediaHeight: "1332"
 *HWMargins: 16 16 16 16
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
    "
@@ -1062,16 +1062,16 @@ restore
 *OrderDependency: 20 AnySetup *InputSlot
 *DefaultInputSlot: Middle
 *InputSlot Upper/Tray 1: "
-    <</ManualFeed false/MediaPosition 3>> setpagedevice"
+    <</ManualFeed false /MediaPosition 3>> setpagedevice"
 *End
 *InputSlot Middle/Tray 2: "
-    <</ManualFeed false/MediaPosition 0>> setpagedevice"
+    <</ManualFeed false /MediaPosition 0>> setpagedevice"
 *End
 *InputSlot Lower/Tray 3: "
-    <</ManualFeed false/MediaPosition 1>> setpagedevice"
+    <</ManualFeed false /MediaPosition 1>> setpagedevice"
 *End
 *InputSlot LargeCapacity/Tray 4: "
-    <</ManualFeed false/MediaPosition 4>> setpagedevice"
+    <</ManualFeed false /MediaPosition 4>> setpagedevice"
 *End
 *?InputSlot: "
   save
@@ -1309,7 +1309,7 @@ restore
 *%====================================
 *OpenUI *Collate/Collate:  Boolean
 *OrderDependency: 20 AnySetup *Collate
-*DefaultCollate: True
+*DefaultCollate: False
 *Collate True/On (turn off in application): "
     <</Collate true>> setpagedevice"
 *End

@@ -5,6 +5,7 @@
 #
 
 SUBDIRS = prnt/hpijs
+INCLUDES = -Iprnt/hpijs -Iip
 
 hplipdir = $(datadir)/hplip
 
@@ -15,27 +16,30 @@ dist_hplip_DATA = $(doc_DATA) hplip.conf
 dist_hplip_SCRIPTS = hpssd.py __init__.py hplip.sh
 
 cmddir = $(hplipdir)
-dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py rpu.py testpage.py makeuri.py check.py
+dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py testpage.py makeuri.py check.py fab.py
 
 # hp backend.
 cupsdir = $(CUPS_BACKEND_PATH)
 cups_PROGRAMS = hp
 hp_SOURCES = backend/hp/hp.c 
+hp_LDADD = libhplip-api.la
 
 # hpiod
 sbin_PROGRAMS = hpiod
 hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
+    io/hpiod/udevice.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h io/hpiod/system.h
 
 # base
 basedir = $(hplipdir)/base
 dist_base_SCRIPTS = base/maint.py base/codes.py base/g.py base/mfpdtf2.py base/pml.py base/status.py base/async.py \
-    base/database.py base/__init__.py base/mfpdtf.py base/service.py base/utils.py base/async_qt.py \
-    base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py
+    base/__init__.py base/mfpdtf.py base/utils.py base/async_qt.py base/kirbybase.py base/service.py \
+    base/device.py base/logger.py base/msg.py base/slp.py base/exif.py base/strings.py base/magic.py \
+    base/imagesize.py
 
 # ptest
 noinst_PROGRAMS = ptest
 ptest_SOURCES = pcard/ptest.c pcard/ptest.h pcard/fat.c pcard/fat.h 
+ptest_LDADD = libhplip-api.la
 
 # data
 xmldir = $(hplipdir)/data/xml
@@ -95,7 +99,11 @@ libsane_hpaio_la_SOURCES = scan/sane/hpaio.c scan/sane/mfpdtf.c scan/sane/pml.c 
       scan/sane/mfpdtf.h scan/sane/sane.h scan/sane/scl.h scan/sane/tables.h
 libsane_hpaio_la_LDFLAGS = -version-info $(MAJORVER):$(MINORVER):$(AGEVER) 
 # The following is a interlibrary dependency that must be compiled first.
-libsane_hpaio_la_LIBADD = libhpip.la
+libsane_hpaio_la_LIBADD = libhpip.la libhplip-api.la
+
+# api library
+noinst_LTLIBRARIES = libhplip-api.la
+libhplip_api_la_SOURCES = prnt/hpijs/hplip_api.c prnt/hpijs/hplip_api.h
 
 # ui
 uidir = $(hplipdir)/ui
@@ -107,12 +115,16 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/aligntype6form2.py ui/nodevicesform_base.py ui/nodevicesform.py ui/unloadform.py ui/unloadform_base.py \
     ui/imagepropertiesdlg_base.py ui/imagepropertiesdlg.py ui/choosedevicedlg.py \
     ui/aboutdlg.py ui/aboutdlg_base.py ui/waitform.py ui/waitform_base.py ui/cleaningform_base.py ui/cleaningform.py \
-    ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py
+    ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py ui/colorcal4form.py \
+    ui/colorcal4form_base.py ui/colorcal4form_base.ui ui/printerform.py ui/printerform_base.ui ui/printerform_base.py \
+    ui/faxaddrbookgroupsform_base.py ui/faxaddrbookgroupeditform_base.py ui/faxaddrbookform_base.py \
+    ui/faxaddrbookform.py ui/faxaddrbookeditform_base.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
     ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
     ui/nodevicesform_base.ui ui/cleaningform_base.ui ui/colorcalform_base.ui ui/devmgr4_base.ui ui/loadpaperform_base.ui \
-    ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui
+    ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui ui/faxaddrbookeditform_base.ui \
+    ui/faxaddrbookform_base.ui ui/faxaddrbookgroupeditform_base.ui ui/faxaddrbookgroupsform_base.ui
 
 build-pcardext: 
 	cd pcard/pcardext; \

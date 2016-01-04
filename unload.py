@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.13 $ 
+# $Date: 2005/06/28 23:13:41 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -171,28 +171,25 @@ def __tr( s,c = None):
 utils.log_title( 'Photo Card Access GUI', _VERSION )
 
 try:
-    try:
-        a = QApplication(sys.argv)
-        QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+    a = QApplication(sys.argv)
+    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+    
+    if use_qt_splashscreen:
+        pixmap = QPixmap( os.path.join( prop.image_dir, "hp-tux-printer.png" ) )
+        splash = QSplashScreen( pixmap )
+        splash.message( __tr( "Loading..." ), Qt.AlignBottom )
+        splash.show()
         
-        if use_qt_splashscreen:
-            pixmap = QPixmap( os.path.join( prop.image_dir, "hp-tux-printer.png" ) )
-            splash = QSplashScreen( pixmap )
-            splash.message( __tr( "Loading..." ), Qt.AlignBottom )
-            splash.show()
-            
-        w = unloadform.UnloadForm( bus, device_uri, printer_name )
-        a.setMainWidget(w)
-        w.show()
+    w = unloadform.UnloadForm( bus, device_uri, printer_name )
+    a.setMainWidget(w)
+    w.show()
 
-        if use_qt_splashscreen:
-            splash.finish( w )
-                
-        a.exec_loop()
-    except Exception, e:
-        log.error( "An error occured: %s" % e )
-finally:
-    pass
+    if use_qt_splashscreen:
+        splash.finish( w )
+            
+    a.exec_loop()
+except Exception, e:
+    log.exception()
 
 
 

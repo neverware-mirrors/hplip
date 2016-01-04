@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.13 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.15 $ 
+# $Date: 2005/06/28 23:13:41 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '2.0'
+_VERSION = '1.1'
 
 
 # Std Lib
@@ -35,10 +35,19 @@ import re
 
 # Local
 from base.g import *
-from base import device, service, utils
+from base import utils, device
 from prnt import cups
 
-   
+# PyQt
+if not utils.checkPyQtImport():
+    sys.exit(0)
+
+from qt import *
+from ui.printerform import PrinterForm
+
+app = None   
+printdlg = None
+
 def usage():
     formatter = utils.TextFormatter( 
                 (
@@ -47,138 +56,76 @@ def usage():
                 )
             )
 
-    log.info( utils.TextFormatter.bold( """\nUsage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] FILE\n\n""") )
-    
+    log.info( utils.TextFormatter.bold( """\nUsage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] [FILE LIST]\n\n""") )
+
     log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
-    log.info( formatter.compose( ( "(**See NOTES 1&2)",                     "" ) ) )
     log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
     log.info( formatter.compose( ( "To specify a device-URI:",             "-d<device-uri> or --device=<device-uri>" ), True ) )
     log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"),            "" ) ) )
     log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "Bus to probe (interactive mode only):","-b<bus> or --bus=<bus>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
 
-    log.info(  """Examples:\n\nPrint to a CUPS printer named "hp5550":\n   hp-print -php5550 FILENAME\n\n""" \
-               """Print to a printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-print -dhp:/usb/DESKJET_990C?serial=12345 FILENAME\n\n"""\
-               """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
-               """            is probed and the program enters interactive mode.\n""" \
-               """         2. If -p* is specified, the default CUPS printer will be used.\n""" )    
-    
+def main( args ):
 
-utils.log_title( 'Direct Print Test Utility', _VERSION )
+    utils.log_title( 'Print Utility', _VERSION )
 
-try:
-    opts, args = getopt.getopt( sys.argv[1:], 'p:d:hb:l:', 
-                               [ 'printer=', 'device=', 'help', 'bus=', 'logging=' ] ) 
-except getopt.GetoptError:
-    usage()
-    sys.exit(0)
-    
-printer_name = None
-device_uri = None    
-bus = 'cups,usb'
-log_level = 'info'
-
-for o, a in opts:
-    if o in ( '-h', '--help' ):
-        usage()
-        sys.exit(0)
-    
-    elif o in ( '-p', '--printer' ):
-        printer_name = a
-    
-    elif o in ( '-d', '--device' ):
-        device_uri = a
-        
-    elif o in ( '-b', '--bus' ):
-        bus = a.lower().strip()
-        
-    elif o in ( '-l', '--logging' ):
-        log_level = a.lower().strip()
-
-    
-if not log_level in ( 'info', 'warn', 'error', 'debug' ):
-    log.error( "Invalid logging level." )
-    sys.exit(0)
-    
-log.set_level( log_level )   
-   
-for x in bus.split(','):
-    bb = x.lower().strip()
-    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
-    if bb not in ( 'usb', 'cups', 'net' ):
-        log.error( "Invalid bus name: %s" % bb )
-        usage()
-        sys.exit(0)
-
-if device_uri and printer_name:
-    log.error( "You may not specify both a printer (-p) and a device (-d)." )
-    sys.exit(0)
-
-if printer_name:
-    printer_list = cups.getPrinters()
-    found = False
-    for p in printer_list:
-        if p.name == printer_name:
-            found = True
-    
-    if not found:
-        log.error( "Unknown printer name: %s" % printer_name )
-        sys.exit(0)
-
-
-if not device_uri and not printer_name:
     try:
-        device_uri = utils.getInteractiveDeviceURI( bus )
-        if device_uri is None:
-            sys.exit(0)
-    except Error:
-        log.error( "Error occured during interative mode. Exiting." )
+        opts, args = getopt.getopt( sys.argv[1:], 'P:p:d:hb:l:', 
+                                   [ 'printer=', 'device=', 'help', 'logging=' ] ) 
+    except getopt.GetoptError:
+        usage()
         sys.exit(0)
 
-d = device.Device( None, device_uri, printer_name )
+    printer_name = None
+    device_uri = None    
+    log_level = 'info'
 
-if d.device_uri is None and printer_name:
-    log.error( "Printer '%s' not found." % printer_name )
-    sys.exit(0)
-    
-if d.device_uri is None and device_uri:
-    log.error( "Malformed/invalid device-uri: %s" % device_uri )
-    sys.exit(0)
-    
-if not len(args):
-    log.error( 'No file to print specified' )
-    sys.exit(0)
+    for o, a in opts:
+        if o in ( '-h', '--help' ):
+            usage()
+            sys.exit(0)
 
-print_file = args[0]
+        elif o in ( '-p', '-P', '--printer' ): 
+            printer_name = a
 
-try:
-    os.stat( print_file )
-except OSError:
-    log.error( "File not found." )
-    sys.exit(0)
+        elif o in ( '-d', '--device' ):
+            device_uri = a
+
+        elif o in ( '-l', '--logging' ):
+            log_level = a.lower().strip()
 
 
-    
-log.info( "Printing to device..." )
+    if not log_level in ( 'info', 'warn', 'error', 'debug' ):
+        log.error( "Invalid logging level." )
+        sys.exit(0)
 
-device_id = d.open()
-channel_id = d.openChannel( 'PRINT' )
-if channel_id == -1:
-    log.error( "Could not open print channel" )
-    sys.exit(0)
+    log.set_level( log_level )   
+    log.set_module( 'hp-print' )
 
-log.info( "Printing file..." )
+    # Security: Do *not* create files that other users can muck around with
+    os.umask ( 0077 )
 
-if print_file.endswith( '.gz' ):
-    d.printGzipFile( print_file, update_spinner )
-else:
-    d.printFile( print_file, update_spinner )
+    # create the main application object
+    global app
+    app = QApplication( sys.argv )
 
-d.close()
-log.info( "Done." )
+    global printdlg
+    printdlg = PrinterForm( device_uri, printer_name, args )
+    printdlg.show()
+    app.setMainWidget( printdlg )
 
+    user_config = os.path.expanduser( '~/.hplip.conf' )
+    loc = utils.loadTranslators( app, user_config )
 
-    
+    try:
+        log.debug( "Starting GUI loop..." )
+        app.exec_loop()
+    except KeyboardInterrupt:
+        pass
+    except:
+        log.exception()
+
+if __name__ == "__main__":
+    sys.exit( main( sys.argv[1:] ) )
+

@@ -58,15 +58,7 @@ public:
 
     virtual BOOL HagakiFeedDuplexerPresent(BOOL bQueryPrinter);
 #endif
-
-    virtual BOOL GetMargins (PAPER_SIZE ps, float *fMargins)
-    {
-        fMargins[0] = (float) 0.125;
-        fMargins[1] = (float) 0.125;
-        fMargins[2] = (float) 0.125;
-        fMargins[3] = (float) 0.5;
-        return TRUE;
-    }
+    virtual BOOL GetMargins (PAPER_SIZE ps, float *fMargins);
 
 private:
 	virtual void AdjustModeSettings (BOOL bDoFullBleed, MEDIATYPE ReqMedia,
@@ -85,6 +77,12 @@ class VIPGrayFastDraftMode : public GrayMode
 public:
     VIPGrayFastDraftMode ();
 }; // VIPGrayFastDraftMode
+
+class VIPAutoPQMode : public PrintMode
+{
+public:
+    VIPAutoPQMode ();
+}; // VIPAutoPQMode
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
 //! DJGenericVIPProxy
@@ -122,14 +120,21 @@ public:
 		"Photosmart 7400\0"
 		"Photosmart 8100\0"
 		"Photosmart 8400\0"
-		"Photosmart 8750\0"
+		"Photosmart 8700\0"
+		"Photosmart 8200\0"
+        "Business Inkjet 1000\0"
+		"Photosmart 320\0"
+		"Photosmart 370\0"
+		"Photosmart 380\0"
+		"Photosmart 330\0"
 #ifdef APDK_MLC_PRINTER
-		"psc 1600\0"
+		"PSC 1500\0"
+		"PSC 1600\0"
         "PSC 2100\0"              
         "PSC 2150\0"
         "PSC 2200\0"
         "psc 2300\0"
-		"psc 2350\0"
+		"PSC 2350\0"
         "psc 2400\0"
         "psc 2500\0"
 		"PSC 2170\0"

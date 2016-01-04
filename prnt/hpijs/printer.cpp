@@ -188,21 +188,16 @@ Printer::~Printer()
 
 
 ////////////////////////////////////////////////////////////////////////////
-Compressor* Printer::CreateCompressor
-(
-    unsigned int RasterSize
-)
+Compressor* Printer::CreateCompressor (unsigned int RasterSize)
 {
-    return new Mode9(pSS,RasterSize);   // most printers use mode 9
+    return new Mode9 (pSS, RasterSize);   // most printers use mode 9
 }
 
 ////////////////////////////////////////////////////////////////////////////
-Compressor* Printer::CreateBlackPlaneCompressor
-(
-    unsigned int RasterSize
-)
+Compressor* Printer::CreateBlackPlaneCompressor (unsigned int RasterSize,
+                                                 BOOL bVIPPrinter)
 {
-    return new Mode9(pSS,RasterSize);   // most printers use mode 9
+    return new Mode9 (pSS, RasterSize, bVIPPrinter);   // most printers use mode 9
 }
 
 ////////////////////////////////////////////////////////////////////////////

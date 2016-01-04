@@ -129,7 +129,7 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
                                        countdown,
                                        startTimeout,
                                        continueTimeout );*/
-        return ReadChannel( deviceid, channelid, buffer, bufferLen, -1 );  
+        return hplip_ReadHP( deviceid, channelid, buffer, bufferLen, -1 );  
         
     }
 
@@ -140,7 +140,7 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
                                     countdown,
                                     startTimeout,
                                     &myContinueTimeout );*/
-        r = ReadChannel( deviceid, channelid, buffer, countdown, -1 );                                      
+        r = hplip_ReadHP( deviceid, channelid, buffer, countdown, -1 );                                      
 
         DBG( 0, "SclChannelRead(%d): "
                         "ChannelReadTimeout(buffer=0x%8.8X,count=%d) "
@@ -259,7 +259,7 @@ SANE_Status SclSendCommand( int deviceid,//hpaioScanner_t hpaio,
 
     // *********************************
     //if( ptalChannelWrite( hpaio->chan, buffer, datalen ) != datalen )
-    if( WriteChannel( deviceid, channelid, buffer, datalen ) != datalen )
+    if( hplip_WriteHP( deviceid, channelid, buffer, datalen ) != datalen )
     {
         return SANE_STATUS_IO_ERROR;
     }

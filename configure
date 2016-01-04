@@ -1804,7 +1804,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=hplip
- VERSION=0.9.3
+ VERSION=0.9.4
 
 
 cat >>confdefs.h <<_ACEOF
@@ -21660,13 +21660,13 @@ fi
 
 if test "$network_build" = "yes"; then
    if test "$libsnmp" = "no"; then
-      { { echo "$as_me:$LINENO: error: cannot find net-snmp support" >&5
-echo "$as_me: error: cannot find net-snmp support" >&2;}
+      { { echo "$as_me:$LINENO: error: cannot find net-snmp support (or --disable-network-build)" >&5
+echo "$as_me: error: cannot find net-snmp support (or --disable-network-build)" >&2;}
    { (exit 1); exit 1; }; }
    fi
    if test "$snmpdevel" = "no"; then
-      { { echo "$as_me:$LINENO: error: cannot find net-snmp-devel support" >&5
-echo "$as_me: error: cannot find net-snmp-devel support" >&2;}
+      { { echo "$as_me:$LINENO: error: cannot find net-snmp-devel support (or --disable-network-build)" >&5
+echo "$as_me: error: cannot find net-snmp-devel support (or --disable-network-build)" >&2;}
    { (exit 1); exit 1; }; }
    fi
    cat >>confdefs.h <<\_ACEOF

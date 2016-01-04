@@ -40,7 +40,7 @@ class System
 
    Device *pDevice[MAX_DEVICE];
    int DeviceCnt;
-   Device *NewDevice(char *uri);
+   Device *NewDevice(MsgAttributes *ma);
    int DelDevice(int i);
 
    int UsbDiscovery(char *list, int *cnt);

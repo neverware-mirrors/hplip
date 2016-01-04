@@ -19,14 +19,6 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QPushButton" row="1" column="0">
-            <property name="name">
-                <cstring>helpButton</cstring>
-            </property>
-            <property name="text">
-                <string>Help</string>
-            </property>
-        </widget>
         <widget class="QPushButton" row="1" column="3">
             <property name="name">
                 <cstring>ContinueButton</cstring>
@@ -175,9 +167,6 @@
         <slot>ColorCalGroup_clicked(int)</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">colorcalform_base.ui.h</include>
-</includes>
 <slots>
     <slot>buttonGroup2_clicked( int )</slot>
     <slot>ColorCalGroup_released( int )</slot>

@@ -94,12 +94,10 @@ ot;"
 *DefaultPrintoutMode: Normal
 *PrintoutMode Draft/Draft (Economy): "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
 *FoomaticRIPOptionSetting PrintoutMode=Draft: "Quality=600DraftGraysca&&
-leK QualityType=Draft"
+leK"
 *End
 *PrintoutMode Normal/Normal: "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
-*FoomaticRIPOptionSetting PrintoutMode=Normal: "Quality=600GrayscaleK &&
-QualityType=Normal"
-*End
+*FoomaticRIPOptionSetting PrintoutMode=Normal: "Quality=600GrayscaleK"
 *CloseUI: *PrintoutMode
 
 *OpenUI *PageSize/Page Size: PickOne
@@ -328,6 +326,20 @@ e=true"
 *FoomaticRIPOptionSetting Duplex=None: " -dDuplex=false"
 *CloseUI: *Duplex
 
+*OpenUI *QualityType/Quality Type: PickOne
+*FoomaticRIPOption QualityType: enum JCL A
+*OrderDependency: 100 AnySetup *QualityType
+*DefaultQualityType: Normal
+*QualityType Draft/Draft: "%% FoomaticRIPOptionSetting: QualityType=Draft"
+*FoomaticRIPOptionSetting QualityType=Draft: "SET PRINTQUALITY=DRAFT"
+*QualityType Normal/Normal: "%% FoomaticRIPOptionSetting: QualityType=Normal"
+*FoomaticRIPOptionSetting QualityType=Normal: "SET PRINTQUALITY=NORMAL&&
+"
+*End
+*QualityType High/High: "%% FoomaticRIPOptionSetting: QualityType=High"
+*FoomaticRIPOptionSetting QualityType=High: "SET PRINTQUALITY=HIGH"
+*CloseUI: *QualityType
+
 *OpenUI *Economode/Toner Saving: PickOne
 *FoomaticRIPOption Economode: enum JCL A
 *OrderDependency: 100 AnySetup *Economode
@@ -501,21 +513,6 @@ uality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:PenSe&&
 t=0"
 *End
 *CloseUI: *Quality
-
-*OpenUI *QualityType/Quality Type: PickOne
-*FoomaticRIPOption QualityType: enum JCL A
-*OrderDependency: 100 AnySetup *QualityType
-*DefaultQualityType: FromPrintoutMode
-*QualityType FromPrintoutMode/Controlled by 'Printout Mode': "%% FoomaticRIPOptionSetting: QualityType=@PrintoutMode"
-*QualityType Draft/Draft: "%% FoomaticRIPOptionSetting: QualityType=Draft"
-*FoomaticRIPOptionSetting QualityType=Draft: "SET PRINTQUALITY=DRAFT"
-*QualityType Normal/Normal: "%% FoomaticRIPOptionSetting: QualityType=Normal"
-*FoomaticRIPOptionSetting QualityType=Normal: "SET PRINTQUALITY=NORMAL&&
-"
-*End
-*QualityType High/High: "%% FoomaticRIPOptionSetting: QualityType=High"
-*FoomaticRIPOptionSetting QualityType=High: "SET PRINTQUALITY=HIGH"
-*CloseUI: *QualityType
 
 *CloseGroup: PrintoutMode
 

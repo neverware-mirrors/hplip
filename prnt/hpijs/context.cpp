@@ -119,9 +119,8 @@ const PrintContext::PaperSizeMetrics PrintContext::PSM[MAX_PAPER_SIZE] =
     // A6_WITH_TEAR_OFF_TAB = 105mm x 148mm = 4.13 x 5.83 in.
     {
         (float)4.13, (float)5.83,   (float)3.88,  (float)5.705,   (float)0.125
-    }
+    },
 #ifdef APDK_EXTENDED_MEDIASIZE
-    ,
     // A3 = 294mm x 419.8mm = 11.69 x 16.53 in.
     {
         (float)11.69, (float)16.53,   (float)11.29,  (float)15.905,   (float)0.125
@@ -185,8 +184,12 @@ const PrintContext::PaperSizeMetrics PrintContext::PSM[MAX_PAPER_SIZE] =
 	// Japanese Envelope #4 (90 x 205 mm)
 	{
 		(float)3.54, (float)8.07, (float)3.29, (float)7.445,  (float)0.125
-	}
+	},
 #endif
+    // PHOTO_5x7 = 5in x 7in = 127 mm x 177.8 mm
+    {
+        (float) 5.0, (float) 7.0, (float) 4.75, (float) 6.375
+    }
 
 }; //PSM
 
@@ -2004,5 +2007,16 @@ PEN_TYPE PrintContext::GetInstalledPens()
 		return NO_PEN;
 	return thePrinter->ePen;
 }
+
+void PrintContext::ResetIOMode (BOOL bDevID, BOOL bStatus)
+{
+    if (thePrinter)
+    {
+        thePrinter->IOMode.bDevID  = bDevID;
+        thePrinter->IOMode.bStatus = bStatus;
+        thePrinter->bCheckForCancelButton = bDevID;
+    }
+}
+  
 
 APDK_END_NAMESPACE

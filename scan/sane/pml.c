@@ -415,7 +415,7 @@ int PmlReadReply( /*ptalDevice_t dev,*/
                   int request )
 {
     //return ptalChannelRead( dev->pmlChannel, data, maxDatalen );
-    return ReadChannel( deviceid, channelid, data, maxDatalen, -1 );
+    return hplip_ReadHP( deviceid, channelid, data, maxDatalen, -1 );
 
     /* TODO: Check for and handle traps. */
 }

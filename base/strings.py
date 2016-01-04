@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.11 $ 
-# $Date: 2005/03/29 21:09:55 $
+# $Revision: 1.13 $ 
+# $Date: 2005/07/18 20:28:20 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -65,7 +65,7 @@ string_table = {
 '1005' :            ( lambda : _( 'Canceling.' ),
                       '' ),
 
-'1006' :            ( '%5002',
+'1006' :            ( '%5002%',
                       '%try_again%' ),
 
 '1007' :            ( lambda : _( 'Waiting for ink to dry.' ),
@@ -247,6 +247,9 @@ string_table = {
 
 '1806' :            ( lambda : _( 'Service request.' ),
                       '%try_again%' ),
+                      
+'1900' :            ( lambda : _( 'Unsupported printer model.' ),
+                      '' ),
 
 '2000' :            ( lambda : _( 'Scan job started.' ),
                       '' ),

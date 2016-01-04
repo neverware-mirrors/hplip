@@ -26,7 +26,8 @@
 #include "hpiod.h"
 
 static const int PrintPort[] = { 0, 9100, 9101, 9102 };
-static const int ScanPort[] = { 0, 9290, 9291, 9292 };
+static const int ScanPort0[] = { 0, 9290, 9291, 9292 };
+static const int ScanPort1[] = { 0, 8290, 8291, 8292 };        /* hack for CLJ28xx */
 static const int GenericPort[] = { 0, 9220, 9221, 9222 };
 
 JetDirectChannel::JetDirectChannel(Device *pDev) : Channel(pDev)
@@ -56,7 +57,7 @@ int JetDirectChannel::Open(char *sendBuf, int *result)
    struct sockaddr_in pin;  
    JetDirectDevice *pD = (JetDirectDevice *)pDev;
    char buf[LINE_SIZE];
-   int r, len;
+   int r, len, port;
 
    *result = R_IO_ERROR;
 
@@ -66,56 +67,66 @@ int JetDirectChannel::Open(char *sendBuf, int *result)
 
    if (GetSocketID() == PRINT_CHANNEL)
    {
-      pin.sin_port = htons(PrintPort[pD->GetPort()]);
+      port = PrintPort[pD->GetPort()];
+      pin.sin_port = htons(port);
       if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to open print socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to open print port %d JetDirectChannel::Open: %m\n", port);  
          goto bugout;  
       }  
       if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to connect to print socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to connect to print port %d JetDirectChannel::Open: %m\n", port);  
          goto bugout;  
       }  
    }
    else if (GetSocketID() == SCAN_CHANNEL)
    {
-      pin.sin_port = htons(ScanPort[pD->GetPort()]);
+      if (pDev->GetScanPort() == SCAN_PORT0)
+         port = ScanPort0[pD->GetPort()];
+      else
+         port = ScanPort1[pD->GetPort()];
+      pin.sin_port = htons(port);
+
       if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to open scan socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to open scan port %d JetDirectChannel::Open: %m\n", port);  
          goto bugout;  
       }  
       if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to connect to scan socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to connect to scan err=%d port %d JetDirectChannel::Open: %m\n", errno, port);  
          goto bugout;  
-      }  
-      r = ReadReply();
-      if (r != 0)
-      {  
-         syslog(LOG_ERR, "invalid scan response %d socket %d JetDirectChannel::Open: line %d\n", r, Socket, __LINE__);  
-         goto bugout;  
-      } 
+      }
+      if (pDev->GetScanPort() == SCAN_PORT0)
+      {
+         r = ReadReply();
+         if (r != 0)
+         {  
+            syslog(LOG_ERR, "invalid scan response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
+            goto bugout;  
+         } 
+      }
    }
    else if (GetSocketID() == MEMORY_CARD_CHANNEL)
    {
-      pin.sin_port = htons(GenericPort[pD->GetPort()]);
+      port = GenericPort[pD->GetPort()];
+      pin.sin_port = htons(port);
       if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to open photo card socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to open photo card port %d JetDirectChannel::Open: %m\n", port);  
          goto bugout;  
       }  
       if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
       {  
-         syslog(LOG_ERR, "unable to connect to photo card socket %d JetDirectChannel::Open: %m\n", Socket);  
+         syslog(LOG_ERR, "unable to connect to photo card port %d JetDirectChannel::Open: %m\n", port);  
          goto bugout;  
       } 
          
       r = ReadReply();
       if (r != 220)
       {  
-         syslog(LOG_ERR, "invalid photo card response %d socket %d JetDirectChannel::Open: line %d\n", r, Socket, __LINE__);  
+         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
          goto bugout;  
       } 
 
@@ -124,7 +135,7 @@ int JetDirectChannel::Open(char *sendBuf, int *result)
       r = ReadReply();
       if (r != 200)
       {  
-         syslog(LOG_ERR, "invalid photo card response %d socket %d JetDirectChannel::Open: line %d\n", r, Socket, __LINE__);  
+         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
          goto bugout;  
       } 
 
@@ -133,7 +144,7 @@ int JetDirectChannel::Open(char *sendBuf, int *result)
       r = ReadReply();
       if (r != 200)
       {  
-         syslog(LOG_ERR, "invalid photo card response %d socket %d JetDirectChannel::Open: line %d\n", r, Socket, __LINE__);  
+         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
          goto bugout;  
       } 
    }
@@ -162,6 +173,9 @@ int JetDirectChannel::Close(char *sendBuf, int *result)
    if (Socket >= 0)
       close(Socket);
    Socket = -1;  
+
+   /* Delay for back-to-back scanning using scanimage. */
+   sleep(1);
 
    return sprintf(sendBuf, "msg=ChannelCloseResult\nresult-code=%d\n", *result);
 }

@@ -220,7 +220,13 @@ Job::~Job()
     // we may need to eject a page now.
     if (DataSent)
     {
+        MediaSource     mSource = thePrintContext->GetMediaSource ();
+        if (mSource == sourceBanner)
+        {
+            thePrintContext->SetMediaSource (sourceTrayAuto);
+        }
         newpage();
+        thePrintContext->SetMediaSource (mSource);
     }
 
 
@@ -495,22 +501,29 @@ DRIVER_ERROR Job::newpage()
 
     sendrasters();     // flush pipeline
 
-
-    err = pHead->FormFeed();
-    ERRCHECK;
-
-    // reset vertical cursor counter
-    if (thePrinter->UseGUIMode(thePrintContext->CurrentMode) &&
-        ((int) (thePrintContext->PrintableStartY () * 100)) != 0)
-    // DJ895 in GUImode doesn't accept top-margin setting, so we use CAP for topmargin
-    // Start at the top for full-bleed printing - PhotoSmart 100 for now
-    {
-        CAPy = thePrintContext->GUITopMargin();
-    }
-    else
+    if ((thePrintContext->GetMediaSource ()) == sourceBanner)
     {
         CAPy = 0;
     }
+    else
+    {
+        err = pHead->FormFeed();
+        ERRCHECK;
+
+        // reset vertical cursor counter
+        if (thePrinter->UseGUIMode(thePrintContext->CurrentMode) &&
+            ((int) (thePrintContext->PrintableStartY () * 100)) != 0)
+        // DJ895 in GUImode doesn't accept top-margin setting, so we use CAP for topmargin
+        // Start at the top for full-bleed printing - PhotoSmart 100 for now
+        {
+            CAPy = thePrintContext->GUITopMargin();
+        }
+        else
+        {
+            CAPy = 0;
+        }
+    }
+
     skipcount = RowsInput = 0;
     fcount = 0;
 
@@ -827,7 +840,7 @@ DRIVER_ERROR Job::Configure()
 			   // VIP black data is 1 bit here
 			   unsigned int SeedBufferSize;
 			   SeedBufferSize = width;
-			   pBlackPlaneCompressor = thePrinter->CreateBlackPlaneCompressor(SeedBufferSize);
+			   pBlackPlaneCompressor = thePrinter->CreateBlackPlaneCompressor(SeedBufferSize, TRUE);
 			   NEWCHECK(pBlackPlaneCompressor);
 			   err = pBlackPlaneCompressor->constructor_error;
 			   ERRCHECK;

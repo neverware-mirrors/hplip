@@ -307,6 +307,7 @@ public:
         "DESKJET 99\0"                              // DeskJet 99x series
         "deskjet 6122\0"                            // deskjet 6122
         "deskjet 6127\0"                            // deskjet 6127
+        "PHOTOSMART 1115\0"
         "PHOTOSMART 1215\0"                         // PSP 1215
         "PHOTOSMART 1218\0"                         // PSP 1218
         "PHOTOSMART 1115\0"                         // PSP 1115
@@ -314,6 +315,7 @@ public:
         "HP BUSINESS INKJET 22\0"                   // 2200, 2230, 2250, 2280
         "cp1160\0"                                  // CP 1160
         "HP Color Inkjet CP1700\0"                  // CP 1700
+        "HP BUSINESS INKJET 22\0"
 #ifdef APDK_MLC_PRINTER
         "officejet d\0"                             // officejet d series
 		"officejet 7100\0"                          // offjetjet 7100 series

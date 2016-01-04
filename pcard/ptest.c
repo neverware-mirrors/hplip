@@ -39,53 +39,11 @@
 #include <ctype.h>
 #include "ptest.h"
 #include "fat.h"
+#include "hplip_api.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
     typedef unsigned long uint32_t;
 #endif
-
-#define HPIODFILE "/var/run/hpiod.port"
-#define HPSSDFILE "/var/run/hpssd.port"
-#define LINE_SIZE 256 /* Length of buffer reads */
-#define BUFFER_SIZE 4096
-#define HEADER_SIZE 4096   /* Rough estimate for message header */
-
-enum RESULT_CODE
-{
-   R_AOK = 0,
-   R_INVALID_DESCRIPTOR = 3,
-   R_INVALID_URI = 4,
-   R_INVALID_MESSAGE = 5,
-   R_INVALID_LENGTH = 8,
-   R_IO_ERROR = 12,
-   R_INVALID_CHANNEL_ID = 30,
-   R_CHANNEL_BUSY = 31,
-};
-
-enum SESSION_STATE
-{
-   SESSION_NORMAL = 0,
-   SESSION_START,
-   SESSION_END
-};
-
-typedef struct
-{
-   char cmd[LINE_SIZE];
-   char uri[LINE_SIZE];
-   char flow_ctl[32];
-   int descriptor;       /* device descriptor (device-id) */
-   int length;           /* length of data in bytes */
-   int result;
-   int channel;          /* channel descriptor (channel-id) */
-   int writelen;           /* bytes-written */
-   int readlen;   /* bytes-to-read */
-   int sector;
-   int nsector;
-   int msglen;            /* message length */
-   int ndevice;
-   unsigned char *data;           /* pointer to data */
-} MSG_ATTRIBUTES;
 
 #define DEV_ACK 0x0100
 
@@ -112,10 +70,6 @@ typedef struct
 
 #pragma pack()
 
-static int hpiod_port_num = 50000;
-static int hpiod_socket=-1;
-static int hpssd_port_num = 50002;
-static int hpssd_socket=-1;
 static int hd=-1, channel=-1;
 
 int verbose=0;
@@ -290,543 +244,24 @@ int GetDir(char *path, char *dir, char **tail)
    return i;
 }
 
-int GetPair(char *buf, char *key, char *value, char **tail)
-{
-   int i=0, j;
-
-   key[0] = 0;
-   value[0] = 0;
-
-   if (buf[i] == '#')
-   {
-      for (; buf[i] != '\n' && i < HEADER_SIZE; i++);  /* eat comment line */
-      i++;
-   }
-
-   if (buf[i] == '\n')
-   {
-      /* do nothing, empty line */
-   }
-   else if (strncasecmp(&buf[i], "data:", 5) == 0)
-   {
-      strcpy(key, "data:");   /* "data:" key has no value */
-      i+=5;
-   }   
-   else
-   {
-      j = 0;
-      while ((buf[i] != '=') && (i < HEADER_SIZE) && (j < LINE_SIZE))
-         key[j++] = buf[i++];
-      for (j--; key[j] == ' ' && j > 0; j--);  /* eat white space before = */
-         key[++j] = 0;
-
-      for (i++; buf[i] == ' ' && i < HEADER_SIZE; i++);  /* eat white space after = */
-
-      j = 0;
-      while ((buf[i] != '\n') && (i < HEADER_SIZE) && (j < LINE_SIZE))
-         value[j++] = buf[i++];
-      for (j--; value[j] == ' ' && j > 0; j--);  /* eat white space before \n */
-      value[++j] = 0;
-   }
-
-   i++;   /* bump past '\n' */
-
-   if (tail != NULL)
-      *tail = buf + i;  /* tail points to next line */
-
-   return i;
-}
-
-//System::ParseMsg
-//!  Parse and convert all key value pairs in message. Do sanity check on values.
-/*!
-******************************************************************************/
-int ParseMsg(char *buf, int len, MSG_ATTRIBUTES *ma)
-{
-   char key[LINE_SIZE];
-   char value[LINE_SIZE];
-   char *tail, *tail2;
-   int i, ret=R_AOK;
-
-   ma->cmd[0] = 0;
-   ma->uri[0] = 0;
-   ma->flow_ctl[0] = 0;
-   ma->descriptor = -1;
-   ma->length = 0;
-   ma->channel = -1;
-   ma->data = NULL;
-   ma->result = -1;
-   ma->writelen = 0;
-   ma->readlen = 0;
-   ma->sector = 0;
-   ma->nsector = 0;
-   ma->ndevice = 0;
-   ma->msglen = 0;
-
-   i = GetPair(buf, key, value, &tail);
-   if (strcasecmp(key, "msg") != 0)
-   {
-      syslog(LOG_ERR, "invalid message:%s\n", key);
-      return R_INVALID_MESSAGE;
-   }
-   strncpy(ma->cmd, value, sizeof(ma->cmd));
-
-   while (i < len)
-   {
-      i += GetPair(tail, key, value, &tail);
-
-      if (strcasecmp(key, "device-uri") == 0)
-      {
-         strncpy(ma->uri, value, sizeof(ma->uri));
-      }
-      else if (strcasecmp(key, "device-id") == 0)
-      {
-         ma->descriptor = strtol(value, &tail2, 10);
-         if (ma->descriptor < 0)
-         {
-            syslog(LOG_ERR, "invalid device descriptor:%d\n", ma->descriptor);
-            ret = R_INVALID_DESCRIPTOR;
-            break;
-         }
-      }
-      else if (strcasecmp(key, "channel-id") == 0)
-      {
-         ma->channel = strtol(value, &tail2, 10);
-         if (ma->channel < 0)
-         {
-            syslog(LOG_ERR, "invalid channel descriptor:%d\n", ma->channel);
-            ret = R_INVALID_CHANNEL_ID;
-            break;
-         }
-      }
-      else if (strcasecmp(key, "length") == 0)
-      {
-         ma->length = strtol(value, &tail2, 10);
-         if (ma->length > BUFFER_SIZE)
-         {
-            syslog(LOG_ERR, "invalid data length:%d\n", ma->length);
-            ret = R_INVALID_LENGTH;
-         }
-      }
-      else if (strcasecmp(key, "data:") == 0)
-      {
-         ma->data = (unsigned char *)tail;
-         break;  /* done parsing */
-      }
-      else if (strcasecmp(key, "result-code") == 0)
-      {
-         ma->result = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "bytes-written") == 0)
-      {
-         ma->writelen = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "bytes-to-read") == 0)
-      {
-         ma->readlen = strtol(value, &tail2, 10);
-         if (ma->readlen > BUFFER_SIZE)
-         {
-            syslog(LOG_ERR, "invalid read length:%d\n", ma->readlen);
-            ret = R_INVALID_LENGTH;
-         }
-      }
-      else if (strcasecmp(key, "sector") == 0)
-      {
-         ma->sector = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "nsector") == 0)
-      {
-         ma->nsector = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "num-devices") == 0)
-      {
-         ma->ndevice = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "io-control") == 0)
-      {
-         strncpy(ma->flow_ctl, value, sizeof(ma->flow_ctl));
-      }
-      else
-      {
-         /* Unknown keys are ignored (R_AOK). */
-      }
-   }  // end while (i < len)
-
-   ma->msglen = i;
-
-   return ret;
-}
-
-int ReadConfig()
-{
-   char rcbuf[255];
-   FILE *inFile=NULL;
-   char *tail;
-        
-   if((inFile = fopen(HPIODFILE, "r")) == NULL) 
-   {
-      bug("unable to open %s: %m\n", HPIODFILE);
-      goto bugout;
-   } 
-   if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
-      hpiod_port_num = strtol(rcbuf, &tail, 10);
-   fclose(inFile);
-
-   if((inFile = fopen(HPSSDFILE, "r")) == NULL) 
-   {
-      bug("unable to open %s: %m\n", HPSSDFILE);
-      goto bugout;
-   } 
-   if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
-      hpssd_port_num = strtol(rcbuf, &tail, 10);
-
-bugout:
-   if (inFile != NULL)
-     fclose(inFile);
-         
-   return 0;
-}
-
-int OpenHP(char *dev)
-{
-   char message[512];  
-   struct sockaddr_in pin;  
-   int len=0, fd=-1;
-   MSG_ATTRIBUTES ma;
- 
-   bzero(&pin, sizeof(pin));  
-   pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-   pin.sin_port = htons(hpiod_port_num);  
- 
-   if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to open socket %d: %m\n", hpiod_port_num);  
-      goto mordor;  
-   }  
- 
-   if (connect(hpiod_socket, (void *)&pin, sizeof(pin)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to connect to socket %d: %m\n", hpiod_port_num);  
-      goto mordor;  
-   }  
-
-   len = sprintf(message, "msg=DeviceOpen\ndevice-uri=%s\n", dev);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send DeviceOpen: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive DeviceOpenResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-   if (ma.result == R_AOK)
-      fd = ma.descriptor;
-
-mordor:
-
-   return fd;
-}
-
-int WriteHP(int hd, int channel, char *buf, int size)
-{
-   char message[BUFFER_SIZE+HEADER_SIZE];  
-   int len=0, slen=0;
-   MSG_ATTRIBUTES ma;
- 
-   len = sprintf(message, "msg=ChannelDataOut\ndevice-id=%d\nchannel-id=%d\nlength=%d\ndata:\n", hd, channel, size);
-   if (size+len > sizeof(message))
-   {  
-      syslog(LOG_ERR, "unable to fill data buffer: size=%d\n", size);  
-      goto mordor;  
-   }  
-
-   memcpy(message+len, buf, size);
-  
-   if (send(hpiod_socket, message, size+len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send ChannelDataOut: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive ChannelDataOutResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-   ParseMsg(message, len, &ma);
-
-   slen = ma.writelen;
-
-mordor:
-
-   return slen;
-}
-
-int ReadHP(int hd, int channel, char *buf, int size)
-{
-   char message[BUFFER_SIZE+HEADER_SIZE];  
-   int len=0, rlen=0;
-   MSG_ATTRIBUTES ma;
- 
-   len = sprintf(message, "msg=ChannelDataIn\ndevice-id=%d\nchannel-id=%d\nbytes-to-read=%d\n", hd, channel, size);
-   if (size+len > sizeof(message))
-   {  
-      fprintf(stderr, "Error data size=%d\n", size);  
-      goto mordor;  
-   }  
-
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send ChannelDataIn: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive ChannelDataInResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-
-   if (ma.result == 0)
-   {  
-      rlen = ma.length;
-      memcpy(buf, ma.data, rlen);
-   }
-
-mordor:
-
-   return rlen;
-}
-
-//GetURIModel
-//! Parse the model from a uri string.
-/*!
-******************************************************************************/
-int GetURIModel(char *uri, char *buf, int bufSize)
-{
-   char *p;
-   int i;
-
-   buf[0] = 0;
-
-   if ((p = strstr(uri, "/")) == NULL)
-      return 0;
-   if ((p = strstr(p+1, "/")) == NULL)
-      return 0;
-   p++;
-
-   for (i=0; (p[i] != '?') && (i < bufSize); i++)
-      buf[i] = p[i];
-
-   buf[i] = 0;
-
-   return i;
-}
-
-//ModelQuery
-//!  Request ModelQuery from hpssd.
-/*!
-******************************************************************************/
-int ModelQuery(char *uri, MSG_ATTRIBUTES *ma)
-{
-   char message[HEADER_SIZE];  
-   char model[128];
-   struct sockaddr_in pin;  
-   int len=0,stat=1;
-
-   bzero(&pin, sizeof(pin));  
-   pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-   pin.sin_port = htons(hpssd_port_num);   /* hpssd */  
-
-   if ((hpssd_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-   {  
-      bug("unable to open socket %d: %m\n", hpssd_port_num);  
-      hpssd_socket = -1;  
-      goto bugout;  
-   }  
- 
-   if (connect(hpssd_socket, (void *)&pin, sizeof(pin)) == -1) 
-   {  
-      bug("unable to connect to socket %d: %m\n", hpssd_port_num);  
-      hpssd_socket = -1;  
-      goto bugout;  
-   }  
-
-   len = GetURIModel(uri, model, sizeof(model));
-
-   len = sprintf(message, "msg=ModelQuery\nmodel=%s\n", model);
-
-   if (send(hpssd_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send ModelQuery: %m\n");  
-      goto bugout;  
-   }  
-
-   if ((len = recv(hpssd_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ModelQueryResult: %m\n");  
-      goto bugout;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, ma);
-   stat=0;
-
-bugout:
-   if (hpssd_socket >= 0)
-   {
-      close(hpssd_socket);
-      hpssd_socket = -1;  
-   }
-
-   return stat;
-}
-
-int OpenChannel(int hd, char *sn, char *uri)
-{
-   char message[512];  
-   int len=0, channel=-1;
-   MSG_ATTRIBUTES ma;
-
-   ModelQuery(uri, &ma);
-
-   if (ma.flow_ctl[0] == 0)
-      len = sprintf(message, "msg=ChannelOpen\ndevice-id=%d\nservice-name=%s\n", hd, sn);
-   else
-      len = sprintf(message, "msg=ChannelOpen\ndevice-id=%d\nservice-name=%s\nio-control=%s\n", hd, sn, ma.flow_ctl);
-
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send ChannelOpen: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive ChannelOpenResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-   if (ma.result == R_AOK)
-      channel = ma.channel;
-
-mordor:
-
-   return channel;
-}
-
-int CloseChannel(int hd, int channel)
-{
-   char message[512];  
-   int len=0;
-
-   len = sprintf(message, "msg=ChannelClose\ndevice-id=%d\nchannel-id=%d\n", hd, channel);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send ChannelClose: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive ChannelCloseResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-mordor:
-
-   return 0;
-}
-
-int CloseHP(int hd)
-{
-   char message[512];  
-   int len=0;
- 
-   len = sprintf(message, "msg=DeviceClose\ndevice-id=%d\n", hd);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to send DeviceClose: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      syslog(LOG_ERR, "unable to receive DeviceCloseResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-mordor:
-   close(hpiod_socket);
-   hpiod_socket = -1;  
-
-   return 0;
-}
-
 int DevDiscovery(char *uri, int urisize)
 {
    char message[LINE_SIZE*64];  
-   int socket_descriptor;  
-   struct sockaddr_in pin;  
    int i, len=0;  
-   MSG_ATTRIBUTES ma;
+   MsgAttributes ma;
    char *pBeg;
  
-   message[0] = 0;
    uri[0] = 0;
-
-   bzero(&pin, sizeof(pin));  
-   pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-   pin.sin_port = htons(hpiod_port_num);  
- 
-   if ((socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-   {  
-      bug("unable to open socket: %m\n");  
-      goto mordor;  
-   }  
- 
-   if (connect(socket_descriptor, (void *)&pin, sizeof(pin)) == -1) 
-   {  
-      bug("unable to connect to socket: %m\n");  
-      goto mordor;  
-   }  
 
    len = sprintf(message, "msg=ProbeDevices\n");
  
-   if (send(socket_descriptor, message, len, 0) == -1) 
+   if (send(hpiod_socket, message, len, 0) == -1) 
    {  
       bug("unable to send ProbeDevices: %m\n");  
       goto mordor;  
    }  
 
-   if ((len = recv(socket_descriptor, message, sizeof(message), 0)) == -1) 
+   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
    {  
       bug("unable to receive ProbeDevicesResult: %m\n");  
       goto mordor;
@@ -834,7 +269,7 @@ int DevDiscovery(char *uri, int urisize)
 
    message[len] = 0;
 
-   ParseMsg(message, len, &ma);
+   hplip_ParseMsg(message, len, &ma);
    if (ma.result == R_AOK && ma.length)
    {
       if (verbose > 0)
@@ -856,8 +291,6 @@ int DevDiscovery(char *uri, int urisize)
    }
 
 mordor:
-   close(socket_descriptor);  
-
    return len;
 }
 
@@ -884,12 +317,12 @@ int ReadSector(int sector, int nsector, void *buf, int size)
    for (i=0; i<nsector; i++)
      *pSect++ = htonl(sector+i);
    len = sizeof(CMD_READ_REQUEST)+(4*nsector);
-   WriteHP(hd, channel, message, len);
+   hplip_WriteHP(hd, channel, message, len);
 
    /* Read photo card response header from device. */
    memset(message, 0, sizeof(RESPONSE_SECTOR));
    rlen = sizeof(RESPONSE_SECTOR);
-   len = ReadHP(hd, channel, message, rlen); 
+   len = hplip_ReadHP(hd, channel, message, rlen, EXCEPTION_TIMEOUT); 
    pR = (RESPONSE_SECTOR *)message;
    if (ntohs(pR->cmd) != (cmd | DEV_ACK))
    {
@@ -908,7 +341,7 @@ int ReadSector(int sector, int nsector, void *buf, int size)
    rlen = nsector*FAT_HARDSECT;
    while (total < rlen)
    { 
-      if ((len = ReadHP(hd, channel, buf+total, rlen)) == 0)
+      if ((len = hplip_ReadHP(hd, channel, buf+total, rlen, EXCEPTION_TIMEOUT)) == 0)
          break;  /* timeout */
       total+=len;
    }
@@ -948,13 +381,13 @@ int WriteSector(int sector, int nsector, void *buf, int size)
    for (i=0; i<nsector; i++)
      *pSect++ = htonl(sector+i);
    len = sizeof(CMD_WRITE_REQUEST)+(4*nsector);
-   WriteHP(hd, channel, message, len);
+   hplip_WriteHP(hd, channel, message, len);
 
    /* Write photo card sector data to device. */
-   WriteHP(hd, channel, buf, size);
+   hplip_WriteHP(hd, channel, buf, size);
 
    /* Read response. */
-   len = ReadHP(hd, channel, (char *)&response, sizeof(response)); 
+   len = hplip_ReadHP(hd, channel, (char *)&response, sizeof(response), EXCEPTION_TIMEOUT); 
    if (ntohs(response) != DEV_ACK)
    {
       bug("WriteSector invalid response cmd=%x expected=%x\n", ntohs(response), DEV_ACK);
@@ -983,6 +416,7 @@ int main(int argc, char *argv[])
    char *tail;
    int i, stat=-1;
    PHOTO_CARD_ATTRIBUTES pa;
+   MsgAttributes ma;
 
    while ((i = getopt(argc, argv, "vhu:c:p:")) != -1)
    {
@@ -1012,7 +446,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   ReadConfig();
+   hplip_Init();
 
    if (uri[0] == 0)
       DevDiscovery(uri, sizeof(uri));
@@ -1022,12 +456,15 @@ int main(int argc, char *argv[])
       goto bugout;
    }   
 
-   if ((hd = OpenHP(uri)) < 0)
+   /* Get any parameters needed for DeviceOpen. */
+   hplip_ModelQuery(argv[0], &ma);  
+
+   if ((hd = hplip_OpenHP(uri, &ma)) < 0)
    {
       bug("unable to open device %s\n", uri);
       goto bugout;
    }   
-   if ((channel = OpenChannel(hd, "hp-card-access", uri)) < 0)
+   if ((channel = hplip_OpenChannel(hd, "hp-card-access")) < 0)
    {
       bug("unable to open hp-card-access channel %s\n", uri);
       goto bugout;
@@ -1044,8 +481,8 @@ int main(int argc, char *argv[])
    /* If disk is write protected reopen channel to clear write error. */
    if (pa.WriteProtect)
    {
-      CloseChannel(hd, channel);
-      if ((channel = OpenChannel(hd, "hp-card-access", uri)) < 0)
+      hplip_CloseChannel(hd, channel);
+      if ((channel = hplip_OpenChannel(hd, "hp-card-access")) < 0)
       {
          bug("unable to open hp-card-access channel %s\n", uri);
          goto bugout;
@@ -1106,10 +543,11 @@ int main(int argc, char *argv[])
 
 bugout:
    if (channel >= 0)
-      CloseChannel(hd, channel);
+      hplip_CloseChannel(hd, channel);
    if (hd >= 0)
-      CloseHP(hd);   
-  
+      hplip_CloseHP(hd);   
+   hplip_Exit();  
+
    exit (stat);
 }
 

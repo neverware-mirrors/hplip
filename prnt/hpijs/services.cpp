@@ -174,6 +174,7 @@ int UXServices::ProcessRaster(char *raster, char *k_raster)
 UXServices::UXServices():SystemServices()
 {
    char *hpDev;
+   MsgAttributes ma;
 
    constructor_error = NO_ERROR;
    hpFD = -1;
@@ -186,13 +187,14 @@ UXServices::UXServices():SystemServices()
    {
       if (strncmp(hpDev, "hp:", 3) == 0)
       {
-         if ((hpFD = OpenHP(hpDev)) >= 0)
+         hplip_Init();
+         hplip_ModelQuery(hpDev, &ma);      /* check io-mode in models.xml for this device */  
+         if (ma.prt_mode != UNI_MODE)
          {
-            InitDeviceComm();            /* lets try bi-di support */
-         }
-         if(IOMode.bDevID == FALSE)
-         {
-            bug("unable to set bi-di for hp backend\n");
+            if ((hpFD = hplip_OpenHP(hpDev, &ma)) >= 0)
+               InitDeviceComm();            /* lets try bi-di support */
+            if(IOMode.bDevID == FALSE)
+               bug("unable to set bi-di for hp backend\n");
          }
       }
    }
@@ -218,10 +220,11 @@ UXServices::UXServices():SystemServices()
 
 UXServices::~UXServices()
 {
-    if (RastersOnPage)
-        delete [] RastersOnPage;
+   if (RastersOnPage)
+      delete [] RastersOnPage;
    if (hpFD >= 0)
-      CloseHP(hpFD);   
+      hplip_CloseHP(hpFD);  
+   hplip_Exit(); 
 }
 
 DRIVER_ERROR UXServices::ToDevice(const BYTE * pBuffer, DWORD * Count)
@@ -241,14 +244,14 @@ DRIVER_ERROR UXServices::ToDevice(const BYTE * pBuffer, DWORD * Count)
 
 BOOL UXServices::GetStatusInfo (BYTE * bStatReg)
 {
-   if (ReadHPStatus(hpFD, (char *)bStatReg, 1) == 1)
+   if (hplip_GetStatus(hpFD, (char *)bStatReg, 1) == 1)
       return TRUE;
    return FALSE;
 }
 
 DRIVER_ERROR UXServices::ReadDeviceID (BYTE * strID, int iSize)
 {
-   if (ReadHPDeviceID(hpFD, (char *)strID, iSize) < 3)
+   if (hplip_GetID(hpFD, (char *)strID, iSize) < 3)
       return IO_ERROR;
    return NO_ERROR;
 }
@@ -414,4 +417,14 @@ int UXServices::MapPaperSize(float width, float height)
    }
 
    return 0; 
+}
+
+void UXServices::ResetIOMode (BOOL bDevID, BOOL bStatus)
+{
+    if (pPC)
+    {
+        IOMode.bDevID  = bDevID;
+        IOMode.bStatus = bStatus;
+        pPC->ResetIOMode (bDevID, bStatus);
+    }
 }

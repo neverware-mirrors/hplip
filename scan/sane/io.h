@@ -49,51 +49,16 @@
 
 #include "sane.h"
 #include "pml.h"
+#include "hplip_api.h"
 
 // Uncomment the following line to get verbose debugging output
 //#define HPAIO_DEBUG
 
 #define BREAKPOINT __asm( "int3" )
 
-#define MAXSIZE 16384
-#define MINSIZE 512
-#define ERROR 0
 #define OK 1
-#define LINE_SIZE 256
-#define BUFFER_SIZE 8192
-#define HEADER_SIZE 256   /* Rough estimate for message header */
+#define ERROR 0
 #define MAX_LIST_SIZE 32
-#define RCFILE "/etc/hp/hplip.conf"
-#define DEFAULT_CHANNEL_READ_TIMEOUT 60
-
-
-typedef struct
-{
-   char cmd[LINE_SIZE];
-   char flow_ctl[32];
-   int deviceid; 
-   int channelid; 
-   int length;
-   int resultcode;
-   int byteswritten;
-   int numdevices;
-   int scantype;
-   int type;
-   int pmlresult;
-   unsigned char *data;
-} MsgAttributes;
-
-enum RESULT_CODE
-{
-   R_AOK = 0,
-   R_INVALID_DESCRIPTOR = 3,
-   R_INVALID_URI = 4,
-   R_INVALID_MESSAGE = 5,
-   R_INVALID_LENGTH = 8,
-   R_IO_ERROR = 12,
-   R_INVALID_CHANNEL_ID = 30,
-   R_CHANNEL_BUSY = 31,
-};
 
 #define BEND_GET_SHORT(s) (((s)[0]<<8)|((s)[1]))
 #define BEND_GET_LONG(s) (((s)[0]<<24)|((s)[1]<<16)|((s)[2]<<8)|((s)[3]))
@@ -115,57 +80,20 @@ unsigned long DivideAndShift( int line,
                               int shift );
 
 void NumListClear( int * list );
-
 int NumListIsInList( int * list, int n );
-
 int NumListAdd( int * list, int n );
-
 int NumListGetCount( int * list );
-
 int NumListGetFirst( int * list );
-
 void StrListClear( const char ** list );
-
 int StrListIsInList( const char ** list, char * s );
-
 int StrListAdd( const char ** list, char * s );
-
-int Init( void );
-
 int ResetDevices( SANE_Device *** devices );
-
 int SendScanEvent( char * device_uri, int event, char * type );
-
-int ProbeDevices( SANE_Device *** devices );
-
 int GetScannerType( SANE_String model );
-
-int OpenDevice( char * devicename );
-
-int GetDeviceID( int deviceid,  char * deviceIDString, int maxlen );
-
-int GetModel(char *id, char *buf, int bufSize);
-
-int ModelQuery(char *devicename, MsgAttributes *ma);
-
+int ProbeDevices( SANE_Device *** devices );
 int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *pml_result);
-
 int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *pml_result);
-
-int OpenChannel( int deviceid, char * channelname, char * flow_ctl ); 
-
-int CloseChannel( int deviceid, int channelid );
-
-int ReadChannel( int deviceid, int channelid, unsigned char * buffer, int maxlen, int timeout );
-
-int ReadChannelEx( int deviceid, int channelid, unsigned char * buffer, int countdown, int timeout );
-
-int WriteChannel( int deviceid, int channelid, unsigned char * buffer, int numbytes );
-
-int CloseDevice( int deviceid );
-
-int Exit( void );
-
+int ReadChannelEx(int deviceid, int channelid, unsigned char * buffer, int length, int timeout);
 
 #endif
 

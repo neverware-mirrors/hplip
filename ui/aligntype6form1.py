@@ -28,9 +28,9 @@ class AlignType6Form1(AlignType6Form1_base):
     
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         AlignType6Form1_base.__init__(self,parent,name,modal,fl)
-        self.print_page = False
+        #self.print_page = False
         
-    def printPageButton_clicked(self):
+    #def printPageButton_clicked(self):
         #print "AlignType6Form1_base.printPageButton_clicked(): Not implemented yet"
-        self.print_page = True
-        self.accept()
+    #    self.print_page = True
+    #    self.accept()

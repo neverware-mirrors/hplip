@@ -184,7 +184,7 @@ rjmp:
 //!  Create channel object given the service name.
 /*!
 ******************************************************************************/
-Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *io_mode, char *unused)
+Channel *JetDirectDevice::NewChannel(unsigned char sockid)
 {
    Channel *pC=NULL;
    int i, n;

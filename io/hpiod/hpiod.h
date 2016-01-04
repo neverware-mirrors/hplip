@@ -54,7 +54,8 @@
 #define BUFFER_SIZE 8192  /* General Read/Write buffer. */
 #define MAX_DEVICE 16     /* Max devices. */
 #define MAX_CHANNEL 8     /* Max channels per device. */
-#define HEADER_SIZE 256   /* Rough estimate of hpiod message header */
+//#define HEADER_SIZE 256   /* Rough estimate of hpiod message header */
+#define HEADER_SIZE 4096   /* Rough estimate of hpiod message header */
 #define EXCEPTION_TIMEOUT 45  /* seconds */
 
 typedef struct
@@ -62,10 +63,12 @@ typedef struct
    char cmd[LINE_SIZE];
    char uri[LINE_SIZE];
    char service[LINE_SIZE];   /* service-name */
-   char io_mode[32];
-   char flow_ctl[32];
    char ip[LINE_SIZE];    /* internet IP */ 
    int ip_port;
+   int prt_mode;          
+   int mfp_mode;
+   int flow_ctl;
+   int scan_port;
    char dnode[LINE_SIZE];   /* device node */
    int descriptor;       /* device descriptor (device-id) */
    int jobid;
@@ -76,6 +79,7 @@ typedef struct
    int timeout;
    char oid[LINE_SIZE];       /* snmp oid */
    int type;             /* pml type */
+   int pml_result; 
    unsigned char *data;       /* pointer to data */
 } MsgAttributes;
 
@@ -153,12 +157,6 @@ enum CHANNEL_ID  /* MLC socket ids */
    MEMORY_CARD_CHANNEL = 0x11
 };
 #define MAX_SOCKETID MEMORY_CARD_CHANNEL+1  /* must be largest numeric socketid + 1 */
-
-enum CHANNEL_MODE
-{
-   RAW_MODE,
-   MLC_MODE,
-};
 
 void sysdump(void *data, int size);
 

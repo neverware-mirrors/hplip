@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
 #
-# Created: Wed Apr 13 11:15:03 2005
+# Created: Wed Jul 13 09:36:14 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -25,10 +25,6 @@ class SettingsDialog_base(QDialog):
         self.pushButton30 = QPushButton(self,"pushButton30")
 
         SettingsDialog_baseLayout.addWidget(self.pushButton30,1,3)
-
-        self.pushButton32 = QPushButton(self,"pushButton32")
-
-        SettingsDialog_baseLayout.addWidget(self.pushButton32,1,0)
 
         self.pushButton31 = QPushButton(self,"pushButton31")
 
@@ -257,8 +253,7 @@ class SettingsDialog_base(QDialog):
         self.connect(self.EmailTestButton,SIGNAL("clicked()"),self.EmailTestButton_clicked)
 
         self.setTabOrder(self.TabWidget,self.pushButton30)
-        self.setTabOrder(self.pushButton30,self.pushButton32)
-        self.setTabOrder(self.pushButton32,self.pushButton31)
+        self.setTabOrder(self.pushButton30,self.pushButton31)
         self.setTabOrder(self.pushButton31,self.EmailAddress)
         self.setTabOrder(self.EmailAddress,self.SMTPServer)
         self.setTabOrder(self.SMTPServer,self.Username)
@@ -277,7 +272,6 @@ class SettingsDialog_base(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("HP Device Manager - Settings"))
         self.pushButton30.setText(self.__tr("OK"))
-        self.pushButton32.setText(self.__tr("Help"))
         self.pushButton31.setText(self.__tr("Cancel"))
         self.textLabel3_2_2.setText(self.__tr("<b>Configure the rate at which devices are automaically refreshed</b>"))
         self.CleaningLevel.setTitle(self.__tr("Auto refresh rate"))

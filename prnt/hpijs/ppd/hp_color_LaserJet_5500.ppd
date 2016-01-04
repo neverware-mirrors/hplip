@@ -76,7 +76,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *% =================================
 *% PostScript Patches
@@ -506,6 +506,34 @@ userdict/HP_updated_defaultCRD known not
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Max
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Light
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Off
+
+*% Fills not allowed with overlays
+*%=============================================
+*UIConstraints: *HPwmSwitch Overlay *HPwmTextStyle Fill
+*UIConstraints: *HPwmTextStyle Fill *HPwmSwitch Overlay
+*% Halo style does not work with Watermarks
+*UIConstraints: *HPwmSwitch Watermark *HPwmTextStyle Halo
+*UIConstraints: *HPwmTextStyle Halo *HPwmSwitch Watermark
+
+*% Job Storage not allowed from RAM disk
+*%=============================================
+*UIConstraints: *HPOption_Disk False *HPJobRetentionOption HPJobRetentionProof
+*%UIConstraints: *HPOption_Disk False *HPJobRetentionOption HPJobRetentionPrivate
+*UIConstraints: *HPOption_Disk False *HPJobRetentionOption HPJobRetentionQuickCopy
+*UIConstraints: *HPOption_Disk False *HPJobRetentionOption HPJobRetentionStore
+*UIConstraints: *HPOption_Disk False *Collate True
+*UIConstraints: *Collate True *HPOption_Disk False
+
+
+*% ### The following lines are left in for visibility but commented out because though it
+*% ### seems like requiring a PIN for a private job is the thing to do, the way it works
+*% ### from the driver is very annoying. If you select a Private Job the UI constraint
+*% ### immediately presents an alert saying that you must have a PIN without giving the
+*% ### user a chance to even get to the PIN field yet. It would be nice if the alert were
+*% ### presented when the Print button is pushed, but it isn't.
+*% PIN is required when Job Storage is HPJobRetentionPrivate or HPJobRetentionPrivateStore
+*%###*UIConstraints: *HPJobRetentionOption HPJobRetentionPrivate *HPJobHoldKey HoldKeyNone
+*%###*UIConstraints: *HPJobHoldKey HoldKeyNone *HPJobRetentionOption HPJobRetentionPrivate
 
 *% ======================================================================
 *% Job Storage (NOTE: JOB Retention was changed to Job Storage in EC 4.0,
@@ -1068,7 +1096,7 @@ restore
 
 *% Enable/Disable Manual Feed
 *OpenUI *ManualFeed/Tray 1 (Manual): Boolean
-*OrderDependency: 20 AnySetup *ManualFeed
+*OrderDependency: 25 AnySetup *ManualFeed
 *DefaultManualFeed: False
 *ManualFeed True/True: "
 	<</ManualFeed true>> setpagedevice"
@@ -1098,6 +1126,7 @@ restore
 *HPManualDuplex False/No: "<< /PrintOnBackside false >> setpagedevice"
 *?HPManualDuplex: "(False) == flush"
 *CloseUI: *HPManualDuplex
+*HPManualDuplexSupport:    True
 
 *%The following are here for the Manual Duplex plugin
 *HPDisallowManualFeedForManualDuplex: True
@@ -1106,7 +1135,7 @@ restore
 *% Media Types
 *% =================================
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: Plain
 
 *MediaType Plain/Plain:  "
@@ -1776,7 +1805,7 @@ globaldict /HPColorTrapping known {
 *%====================================
 *OpenUI *Collate/Collate:  Boolean
 *OrderDependency: 12 AnySetup *Collate
-*DefaultCollate: True
+*DefaultCollate: False
 *Collate True/On (turn off in application): "
     <</Collate true>> setpagedevice"
 *End
