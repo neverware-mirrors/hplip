@@ -116,7 +116,7 @@ static int wait_status(int fd, unsigned char mask, unsigned char val, int usec)
       gettimeofday(&now, NULL);
       if ((now.tv_sec > tmo.tv_sec) || (now.tv_sec == tmo.tv_sec && now.tv_usec > tmo.tv_usec))
       {
-         BUG("wait_status timeout status=%x mask=%x val=%x us=%d\n", status, mask, val, usec);
+         DBG("wait_status timeout status=%x mask=%x val=%x us=%d\n", status, mask, val, usec);
          return -1;   /* timeout */
       }
    }
@@ -359,7 +359,7 @@ bugout:
    return len;
 }
 
-static int ecp_read(int fd, void *buffer, int size, int sec)
+static int ecp_read(int fd, void *buffer, int size, int usec)
 {
    int i=0;
    unsigned char *p = (unsigned char *)buffer;
@@ -370,12 +370,12 @@ static int ecp_read(int fd, void *buffer, int size, int sec)
    {
       if (ecp_read_data(fd, p+i) != 1)
       {
-         if (sec > 0)
-         {
-            sec--;
+         usec-=PP_SIGNAL_TIMEOUT;
+         if (usec > 0)
             continue;
-	 }
-         return -1;
+
+//         return -1;
+         return -ETIMEDOUT;   /* timeout */
       }
       i++;
    }
@@ -464,7 +464,7 @@ bugout:
    return len;
 }
 
-static int nibble_read(int fd, int flag, void *buffer, int size, int sec)
+static int nibble_read(int fd, int flag, void *buffer, int size, int usec)
 {
    int i=0;
    unsigned char *p = (unsigned char *)buffer;
@@ -475,20 +475,20 @@ static int nibble_read(int fd, int flag, void *buffer, int size, int sec)
    ioctl (fd, PPNEGOT, &mc);
    if (ioctl (fd, PPNEGOT, &m))
    {
-     //      syslog(LOG_ERR, "ParDevice::nibble_read failed: %m\n");
-      goto bugout;
+      DBG("nibble_read negotiation failed: %m\n");
+      return -1;
    }
 
    while (i < size)
    {
       if (nibble_read_data(fd, p+i) != 1)
       {
-         if (sec > 0)
-         {
-            sec--;
+         usec-=PP_SIGNAL_TIMEOUT;
+         if (usec > 0)
             continue;
-	 }
-         return -1;
+
+//         return -1;
+         return -ETIMEDOUT;   /* timeout */
       }
 
       i++;
@@ -504,7 +504,6 @@ static int nibble_read(int fd, int flag, void *buffer, int size, int sec)
       }
    }
 
-bugout:
    return i;
 }
 
@@ -749,17 +748,17 @@ int __attribute__ ((visibility ("hidden"))) pp_write(int fd, const void *buf, in
 int __attribute__ ((visibility ("hidden"))) pp_read(int fd, void *buf, int size, int usec)
 {
    int len=0, m;
-   int sec = usec/1000000;
+//   int sec = usec/1000000;
 
    ioctl(fd, PPGETMODE, &m);
 
    if (m & (IEEE1284_MODE_ECPSWE | IEEE1284_MODE_ECP))
    {  
-      len = ecp_read(fd, buf, size, sec);
+      len = ecp_read(fd, buf, size, usec);
    }
    else
    {
-      len = nibble_read(fd, 0, buf, size, sec);
+      len = nibble_read(fd, 0, buf, size, usec);
    }
 
    DBG("read fd=%d len=%d size=%d usec=%d\n", fd, len, size, usec);
@@ -1208,6 +1207,7 @@ enum HPMUD_RESULT __attribute__ ((visibility ("hidden"))) pp_dot4_channel_close(
 
 int __attribute__ ((visibility ("hidden"))) pp_probe_devices(char *lst, int lst_size, int *cnt)
 {
+   struct hpmud_model_attributes ma;
    char dev[HPMUD_LINE_SIZE];
    char rmodel[128];
    char model[128];
@@ -1231,6 +1231,14 @@ int __attribute__ ((visibility ("hidden"))) pp_probe_devices(char *lst, int lst_
                hpmud_get_model(id, model, sizeof(model));
                hpmud_get_raw_model(id, rmodel, sizeof(rmodel));
                snprintf(dev, sizeof(dev), "hp:/par/%s?device=/dev/parport%d", model, i);
+
+               /* See if device is supported by hplip. */
+               hpmud_query_model(dev, &ma); 
+               if (ma.support != HPMUD_SUPPORT_TYPE_HPLIP)
+               {
+                  BUG("ignoring %s support=%d\n", dev, ma.support);
+                  continue;           /* ignor, not supported */
+               }
 
                if (strncasecmp(rmodel, "hp ", 3) == 0)
                   size += sprintf(lst+size,"direct %s \"HP %s\" \"HP %s LPT parport%d HPLIP\" \"%s\"\n", dev, &rmodel[3], &rmodel[3], i, id);

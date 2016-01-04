@@ -45,7 +45,10 @@ from scrollprintcontrol import ScrollPrintJobView
 from scrolltool import ScrollToolView, ScrollDeviceInfoView, ScrollTestpageView, ScrollPrinterInfoView
 from scrollsupplies import ScrollSuppliesView
 from scrollprint import ScrollPrintView
-from scrollfax import ScrollFaxView
+
+if prop.fax_build:
+    from scrollfax import ScrollFaxView
+    
 from scrollunload import ScrollUnloadView
 from scrollcopy import ScrollCopyView
 
@@ -208,11 +211,15 @@ class DevMgr4(DevMgr4_base):
     def SwitchFunctionsTab(self, page='funcs'):
         self.FuncTabLayout.remove(self.FuncList)
         self.FuncList.hide()
+        self.deviceRemoveAction.setEnabled(False)
+        self.deviceInstallAction.setEnabled(False)        
 
         if page  == 'funcs':
             self.allow_auto_refresh = True
             self.Tabs.changeTab(self.FunctionsTab,self.__tr("Functions"))
             self.FuncList = ScrollFunctionsView(self.FunctionsTab, self, "FuncView")
+            self.deviceRemoveAction.setEnabled(True)
+            self.deviceInstallAction.setEnabled(True)        
 
         elif page == 'print':
             self.allow_auto_refresh = False
@@ -297,11 +304,15 @@ class DevMgr4(DevMgr4_base):
     def SwitchMaintTab(self, page='tools'):
         self.MaintTabLayout.remove(self.ToolList)
         self.ToolList.hide()
+        self.deviceRemoveAction.setEnabled(False)
+        self.deviceInstallAction.setEnabled(False)        
 
         if page  == 'tools':
             self.allow_auto_refresh = True
             self.Tabs.changeTab(self.MaintTab,self.__tr("Tools"))
             self.ToolList = ScrollToolView(True, self.MaintTab, self, "ToolView")
+            self.deviceRemoveAction.setEnabled(True)
+            self.deviceInstallAction.setEnabled(True)        
 
         elif page == 'device_info':
             self.allow_auto_refresh = False
@@ -577,19 +588,23 @@ class DevMgr4(DevMgr4_base):
             self.cur_device.supported:
 
             for c in self.cur_device.cups_printers:
-                self.PrintSettingsPrinterCombo.insertItem(c)
-                self.PrintJobPrinterCombo.insertItem(c)
+                #print repr(c), type(c)
+                #print c.encode('latin1')
+                self.PrintSettingsPrinterCombo.insertItem(c.decode("utf-8"))
+                self.PrintJobPrinterCombo.insertItem(c.decode("utf-8"))
 
-            self.current_printer = str(self.PrintSettingsPrinterCombo.currentText())
+            self.current_printer = unicode(self.PrintSettingsPrinterCombo.currentText())
 
     def SettingsPrinterCombo_activated(self, s):
-        self.current_printer = str(s)
-        self.PrintJobPrinterCombo.setCurrentText(self.current_printer)
+        #self.current_printer = str(s)
+        self.current_printer = unicode(s)
+        self.PrintJobPrinterCombo.setCurrentText(self.current_printer.encode("latin1"))
         return self.PrinterCombo_activated(self.current_printer)
 
     def JobsPrinterCombo_activated(self, s):
-        self.current_printer = str(s)
-        self.PrintSettingsPrinterCombo.setCurrentText(s)
+        #self.current_printer = str(s)
+        self.current_printer = unicode(s)
+        self.PrintSettingsPrinterCombo.setCurrentText(self.current_printer.encode("latin1"))
         return self.PrinterCombo_activated(self.current_printer)
 
     def PrinterCombo_activated(self, printer):
@@ -1017,8 +1032,13 @@ class DevMgr4(DevMgr4_base):
             else:
                 log.debug("Run: %s %s (%s) %s" % ("*"*20, cmd, self.cur_device_uri, "*"*20))
                 log.debug(cmd)
-                cmd = ''.join([self.cur_device.device_vars.get(x, x) \
-                                 for x in cmd.split(macro_char)])
+                
+                try:
+                    cmd = ''.join([self.cur_device.device_vars.get(x, x) \
+                                     for x in cmd.split(macro_char)])
+                except AttributeError:
+                    pass
+                    
                 log.debug(cmd)
 
                 path = cmd.split()[0]
@@ -1068,8 +1088,9 @@ class DevMgr4(DevMgr4_base):
 
     def deviceInstallAction_activated(self):
         su_sudo = None
+
         if utils.which('kdesu'):
-            su_sudo = 'kdesu -- "%s"'
+            su_sudo = 'kdesu -- %s'
 
         elif utils.which('gksu'):
             su_sudo = 'gksu "%s"'
@@ -1081,17 +1102,16 @@ class DevMgr4(DevMgr4_base):
                                 QMessageBox.Ok,
                                 QMessageBox.NoButton,
                                 QMessageBox.NoButton)
+
         else:
             if utils.which('hp-setup'):
-                c = 'hp-setup -u --username=%s' % prop.username
-                cmd = su_sudo % c
+                cmd = su_sudo % 'hp-setup -u'
             else:
-                c = 'python ./setup.py -u --username=%s' % prop.username
-                cmd = su_sudo % c
+                cmd = su_sudo % 'python ./setup.py -u'
 
             log.debug(cmd)
-            os.system(cmd)
-            self.RescanDevices()
+            utils.run(cmd, log_output=True, password_func=None, timeout=1)
+            self.RescanDevices()        
 
 
     def deviceRemoveAction_activated(self):
@@ -1128,7 +1148,7 @@ class DevMgr4(DevMgr4_base):
 
 
     def FailureUI(self, error_text):
-        log.error(unicode(error_text).replace("<b>", "").replace("</b>", "").replace("<p>", ""))
+        log.error(unicode(error_text).replace("<b>", "").replace("</b>", "").replace("<p>", " "))
         QMessageBox.critical(self,
                              self.caption(),
                              error_text,

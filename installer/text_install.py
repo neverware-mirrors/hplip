@@ -45,16 +45,9 @@ def option_question_callback(opt, desc):
     if not ok: sys.exit(0)
     return ans
 
-def start(auto=True, test_depends=False, test_unknown=False):
+def start(language, auto=True, test_depends=False, test_unknown=False):
     try:
-        log.info("Initializing. Please wait...")
-        core =  CoreInstall(MODE_INSTALLER)
-        core.init()
-        
-        if test_unknown:
-            core.distro_name = 'unknown'
-            core.distro = 0
-            core.distro_version = 0
+        core =  CoreInstall(MODE_INSTALLER, INTERACTIVE_MODE)
     
         if core.running_as_root():
             log.error("You are running the installer as root. It is highly recommended that you run the installer as")
@@ -75,12 +68,33 @@ def start(auto=True, test_depends=False, test_unknown=False):
             log.info("Automatic mode will install the full HPLIP solution with the most common options.")
             log.info("Custom mode allows you to chose installation options to fit specific requirements.")
             
-            ok, choice = tui.enter_choice("\nPlease choose the installation mode (a=automatic*, c=custom, q=quit) : ", 
-                ['a', 'c'], 'a')
+            if os.getenv('DISPLAY') and utils.find_browser() is not None:
+                ok, choice = tui.enter_choice("\nPlease choose the installation mode (a=automatic*, c=custom, w=web installer, q=quit) : ", 
+                    ['a', 'c', 'w'], 'a')
+            else:
+                ok, choice = tui.enter_choice("\nPlease choose the installation mode (a=automatic*, c=custom, q=quit) : ", 
+                    ['a', 'c'], 'a')
+                    
             if not ok: sys.exit(0)
+            
             if choice == 'a':
                 auto = True
+                
+            elif choice == 'w':
+                import web_install
+                log.debug("Starting web browser installer...")
+                web_install.start(language)
+                return
 
+        log.info("\nInitializing. Please wait...")
+        core.init()
+        
+        if test_unknown:
+            core.distro_name = 'unknown'
+            core.distro = 0
+            core.distro_version = 0
+        
+        
         #
         # HPLIP vs. HPIJS INSTALLATION
         #
@@ -264,7 +278,6 @@ def start(auto=True, test_depends=False, test_unknown=False):
                 if core.distro_version_int == 0:
                     core.distro_version = DISTRO_VER_UNKNOWN
                     core.distro_version_supported = False
-
                 else:
                     core.distro_version = versions[core.distro_version_int - 1]
                     core.distro_version_supported = core.get_ver_data('supported', False)
@@ -397,6 +410,7 @@ def start(auto=True, test_depends=False, test_unknown=False):
             log.notice("Installation of dependencies requires an active internet connection.")
 
             for depend, desc, required_for_opt, opt in core.missing_optional_dependencies():
+                
                 if required_for_opt:
                     log.warning("Missing REQUIRED dependency for option '%s': %s (%s)" % (opt, depend, desc))
 
@@ -452,7 +466,8 @@ def start(auto=True, test_depends=False, test_unknown=False):
             p = core.check_pkg_mgr()
             while p:
                 ok, user_input = tui.enter_choice("A package manager '%s' appears to be running. Please quit the package manager and press enter to continue (i=ignore, q=quit*) :" 
-                    % p, ['i'], 'q')
+                    % p, ['i', 'q'], 'q')
+                
                 if not ok: sys.exit(0)
                 
                 if user_input == 'i':
@@ -610,10 +625,19 @@ def start(auto=True, test_depends=False, test_unknown=False):
                     log.warn("Continuing to run installer - this installation should overwrite the previous one.")
 
 
+            #
+            # POST-DEPEND
+            #
+            
+            tui.title("RUNNING POST-PACKAGE COMMANDS")
+            core.run_post_depend(progress_callback)
+            
+            
             # 
             # DEPENDENCIES RE-CHECK
             #
-
+            
+            tui.title("RE-CHECKING DEPENDENCIES")
             core.check_dependencies()
 
             num_req_missing = 0
@@ -637,14 +661,13 @@ def start(auto=True, test_depends=False, test_unknown=False):
                     core.selected_options[opt] = False
                 else:
                     log.warn("An optional dependency '%s (%s)' is still missing." % (depend, desc))
-                    log.warn("Some features may not function as expected.")                
+                    log.warn("Some features may not function as expected.") 
+     
+            
+            if not num_opt_missing and not num_req_missing:
+                log.info("OK")
 
 
-            #
-            # POST-DEPEND
-            #
-            tui.title("RUNNING POST-PACKAGE COMMANDS")
-            core.run_post_depend(progress_callback)
 
         #
         # INSTALL LOCATION
@@ -684,19 +707,19 @@ def start(auto=True, test_depends=False, test_unknown=False):
 
         tui.title("POST-BUILD COMMANDS")  
         core.run_post_build(progress_callback)
-
+        
         # Restart or re-plugin if necessary (always True in 2.7.9+)
         if core.restart_required:
             tui.title("RESTART OR RE-PLUG IS REQUIRED")
             cmd = core.su_sudo() % "hp-setup"
-            paragraph = """If you are installing a USB connected printer, and the printer was plugged in when you started this installer, you will need to either restart your PC or unplug and re-plug in your printer (USB cable only). If you choose to restart, run this command after restarting: %s  (Note: If you are using a parallel connection, you will have to restart your PC).""" % cmd 
+            paragraph = """If you are installing a USB connected printer, and the printer was plugged in when you started this installer, you will need to either restart your PC or unplug and re-plug in your printer (USB cable only). If you choose to restart, run this command after restarting: %s  (Note: If you are using a parallel connection, you will have to restart your PC. If you are using network/wireless, you can ignore and continue).""" % cmd 
             
             for p in tui.format_paragraph(paragraph):
                 log.info(p)
             log.info("")
                 
-            ok, choice = tui.enter_choice("Restart or re-plug in your printer (r=restart, p=re-plug in*, q=quit) : ", 
-                ['r', 'p'], 'p')
+            ok, choice = tui.enter_choice("Restart or re-plug in your printer (r=restart, p=re-plug in*, i=ignore/continue, q=quit) : ", 
+                ['r', 'p', 'i'], 'p')
                 
             if not ok: sys.exit(0)
             
@@ -713,10 +736,10 @@ def start(auto=True, test_depends=False, test_unknown=False):
                     
                 sys.exit(0)
                 
-            else: # 'p'
+            elif choice == 'p': # 'p'
                 if not tui.continue_prompt("Please unplug and re-plugin your printer now. "):
                     sys.exit(0)
-        
+                    
         #
         # SETUP PRINTER
         #
