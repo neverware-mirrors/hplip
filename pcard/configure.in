@@ -1,0 +1,24 @@
+#
+#  configure.in - photo card autoconf input file
+# 
+#  (c) 2004 Copyright Hewlett-Packard Development Company, LP
+#
+
+AC_INIT(fat.c)
+AM_INIT_AUTOMAKE(pcard, 0.8)
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_INSTALL
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_BIGENDIAN
+
+AC_OUTPUT(Makefile)

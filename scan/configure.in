@@ -1,0 +1,10 @@
+#
+#  configure.in - scan autoconf input file
+# 
+#  (c) 2004 Copyright Hewlett-Packard Development Company, LP
+#
+
+AC_INIT(sane.py)
+AM_INIT_AUTOMAKE(scan, 0.8)
+
+AC_OUTPUT(Makefile)

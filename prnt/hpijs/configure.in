@@ -1,0 +1,155 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(hpijs.cpp)
+AM_INIT_AUTOMAKE(hpijs, 2.0.1)
+#AC_PREFIX_DEFAULT(/usr) 
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_INSTALL
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h malloc.h syslog.h unistd.h)
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_C_BIGENDIAN
+
+if test $ac_cv_c_bigendian = no; then
+   MYFLAGS="-DAPDK_LITTLE_ENDIAN"
+fi
+
+MYFLAGS="$MYFLAGS -DAPDK_DJ660 -DAPDK_DJ6xx -DAPDK_DJ6xxPhoto \
+-DAPDK_DJ8xx -DAPDK_DJ9xx -DAPDK_DJ9xxVIP -DAPDK_DJ630 \
+-DAPDK_APOLLO2XXX -DAPDK_APOLLO21XX -DAPDK_APOLLO2560 -DAPDK_DJ600 \
+-DAPDK_DJ350 -DAPDK_DJ8x5 -DAPDK_PSP100 -DAPDK_AUTODUPLEX \
+-DAPDK_HIGH_RES_MODES -DAPDK_LJMONO -DAPDK_DJ540 -DAPDK_DJ850 \
+-DAPDK_DJ890 -DAPDK_DJ3320 -DAPDK_LJCOLOR -DAPDK_DJGENERICVIP \
+-DAPDK_BUFFER_SEND -DAPDK_LDL_COMPRESS -DAPDK_EXTENDED_MEDIASIZE \
+-DAPDK_MLC_PRINTER -DAPDK_DJ3600 -DAPDK_LINUX"
+
+AC_MSG_CHECKING("which type of build")
+if test "$GCC" = yes; then
+   AC_ARG_ENABLE(debug,
+     [  --enable-debug             enable debug mode [default=no]],
+     enable_debug=$enableval, enable_debug=no)
+   if test $enable_debug = yes; then
+      CFLAGS="-g -Wall"
+      CXXFLAGS="-g -Wall"
+      AC_MSG_RESULT(debug)
+   else
+      CFLAGS="-O2 -Wall"
+      CXXFLAGS="-O2 -Wall"
+      AC_MSG_RESULT(release)
+   fi
+else
+   AC_MSG_RESULT("$CXXFLAGS")   
+fi
+
+AC_MSG_CHECKING("for unint32_t")
+FOUND_TYPE=""
+for i in stdint.h machine/types.h inttypes.h; do
+   AC_TRY_COMPILE([#include <$i>], [uint32_t x;], FOUND_TYPE=$i) 
+   if test "$FOUND_TYPE" != ""; then
+      break
+   fi
+done
+if test "$FOUND_TYPE" != ""; then
+   cat >auto-include.h <<EOF
+#include <$FOUND_TYPE>
+EOF
+   AC_MSG_RESULT("found in $FOUND_TYPE")
+   MYFLAGS="$MYFLAGS -DAPDK_AUTO_INCLUDE"
+else
+   AC_MSG_RESULT("no typedef")
+fi
+
+CXXFLAGS="$CXXFLAGS $MYFLAGS"
+
+AC_CANONICAL_HOST
+
+AC_MSG_CHECKING("for platform-dependencies")
+case "$host" in
+   *-darwin*)
+      AC_MSG_RESULT("using Mac OS X platform.h")
+      cat >platform.h <<EOF
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/malloc.h>
+#include <memory.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+EOF
+      ;;
+
+     *)
+      AC_MSG_RESULT("using Default platform.h")
+      cat >platform.h <<EOF
+#include <stdlib.h>
+#include <memory.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+EOF
+      ;;
+esac
+
+CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /opt"
+
+AC_MSG_CHECKING("for cups ppd path")
+CUPS_PPD_PATH="/usr/share/cups/model"
+for i in $CUPSSEARCHPATH; do
+   if test -d "$i/cups/model"; then
+      CUPS_PPD_PATH="$i/cups/model"
+      break
+   fi
+done
+AC_MSG_RESULT("using $CUPS_PPD_PATH")
+AC_SUBST(CUPS_PPD_PATH)
+
+AC_MSG_CHECKING("for cups filter path")
+CUPS_FILTER_PATH="/usr/lib/cups/filter"
+for i in $CUPSSEARCHPATH; do
+   if test -d "$i/cups/filter"; then
+      CUPS_FILTER_PATH="$i/cups/filter"
+      break
+   fi
+done
+AC_MSG_RESULT("using $CUPS_FILTER_PATH")
+AC_SUBST(CUPS_FILTER_PATH)
+
+AC_MSG_CHECKING("for cups install")
+AC_ARG_ENABLE(cups_install,
+  [  --enable-cups-install             enable cups install [default=yes]],
+  cups_install=$enableval, cups_install=yes)
+if test $cups_install = yes; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+AM_CONDITIONAL(CUPS_INSTALL, test x$cups_install = xyes)
+
+AC_MSG_CHECKING("for foomatic install")
+AC_ARG_ENABLE(foomatic_install,
+  [  --enable-foomatic-install         enable foomatic install [default=yes]],
+  foomatic_install=$enableval, foomatic_install=yes)
+if test $foomatic_install = yes; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+AM_CONDITIONAL(FOOMATIC_INSTALL, test x$foomatic_install = xyes)
+
+dnl Checks for library functions.
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(strtod strtol)
+AC_CHECK_FUNC(pow, , AC_CHECK_LIB(m, pow))
+
+AC_OUTPUT(Makefile)

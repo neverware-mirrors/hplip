@@ -1,0 +1,131 @@
+#
+#  Makefile.in - hplip automake input file
+# 
+#  (c) 2004 Copyright Hewlett-Packard Development Company, LP
+#
+
+@SET_MAKE@
+SHELL = @SHELL@
+PACKAGE = hplip
+VERSION="0.8.7"
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+srcdir = @srcdir@
+datadir = @datadir@
+chkconfigdir = @CHKCONFIG_PATH@
+lsbinstalldir = @LSB_INSTALL_PATH@
+install = @INSTALL@
+install_data = $(install) -m 644
+install_script = $(install)
+mkinstalldirs = $(install) -d
+rpm_install = @rpm_install@
+
+PYTHON_SOURCES = \
+    align.py \
+    info.py \
+    print.py \
+    toolbox.py \
+    clean.py \
+    colorcal.py \
+    photo.py \
+    unload.py \
+    probe.py \
+    rpu.py \
+    ctr.py \
+    testpage.py
+
+PYTHON_SOURCES2 = \
+    hpguid.py \
+    hpssd.py \
+    __init__.py
+
+DIST_SOURCES = \
+    hplip.sh \
+    hplip.conf \
+    ChangeLog \
+    hplip_readme.html \
+    hplip_overview.png
+
+DIST_COMMON = Makefile.in configure configure.in install-sh missing mkinstalldirs COPYING
+
+PROJECT_PATH = prnt prnt/hpijs io/hpiod backend/hp base data scan ui ip scan/sane pcard
+
+all:
+	here=`pwd`; \
+	for i in $(PROJECT_PATH); do \
+	   cd $$here/$$i; \
+	   $(MAKE) $(AM_MAKEFLAGS); \
+	done
+
+install:
+	here=`pwd`; \
+	for i in $(PROJECT_PATH); do \
+	   cd $$here/$$i; \
+	   $(MAKE) $(AM_MAKEFLAGS) install; \
+	done
+#
+#       Install python files to destdir and remove .py extensions.
+	$(install_script) $(PYTHON_SOURCES) $(PYTHON_SOURCES2) $(DESTDIR)$(datadir)/$(PACKAGE)
+	for i in $(PYTHON_SOURCES); do \
+	    newname=$${i%.*}; \
+	    mv $(DESTDIR)$(datadir)/$(PACKAGE)/$$i $(DESTDIR)$(datadir)/$(PACKAGE)/$$newname; \
+	done
+#
+#       Install and edit hpiod.conf in destdir.
+	$(install_data) $(PACKAGE).conf $(DESTDIR)$(datadir)/$(PACKAGE)
+	echo -e "\n[$(PACKAGE)]\nversion=$(VERSION)\njdprobe=0\n" >> $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf
+	echo -e "[dirs]\nhome=$(datadir)/$(PACKAGE)\n" >> $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf
+#
+#       Install and edit hpiod.sh in destdir.
+	$(install_script) $(PACKAGE).sh $(DESTDIR)$(datadir)/$(PACKAGE); \
+	sed 's:HPIODDIR=:HPIODDIR=$(sbindir):' < $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh > $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp; \
+	sed 's:HPSSDDIR=:HPSSDDIR=$(datadir)/$(PACKAGE):' < $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp > $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh; \
+	rm -f $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).tmp
+#
+#       Do full install if not rpm_install. Also only run chkconfig/install_initd if DESTDIR="". 
+	if [ "$(rpm_install)" = "no" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/hp; \
+	   ln -sf $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).conf $(DESTDIR)/etc/hp/$(PACKAGE).conf; \
+	   if [ -d /etc/init.d ]; then \
+	      ln -sf $(DESTDIR)$(datadir)/$(PACKAGE)/$(PACKAGE).sh $(DESTDIR)/etc/init.d/$(PACKAGE); \
+	      if [ "$(DESTDIR)" = "" ]; then \
+	         if [ -x $(lsbinstalldir)/install_initd ]; then \
+	            $(lsbinstalldir)/install_initd $(PACKAGE); \
+	         else \
+	            $(chkconfigdir)/chkconfig $(PACKAGE) reset; \
+	         fi \
+	      fi \
+	   fi \
+	fi
+
+uninstall:
+	here=`pwd`; \
+	for i in $(PROJECT_PATH); do \
+	   cd $$here/$$i; \
+	   $(MAKE) $(AM_MAKEFLAGS) uninstall; \
+	done
+
+clean:
+	rm -f *~ 
+	here=`pwd`; \
+	for i in $(PROJECT_PATH); do \
+	   cd $$here/$$i; \
+	   $(MAKE) $(AM_MAKEFLAGS) clean; \
+	done
+
+dist:
+	rm -rf $(PACKAGE)-$(VERSION)
+	mkdir $(PACKAGE)-$(VERSION)
+	here=`pwd`; \
+	for i in $(PROJECT_PATH); do \
+	   mkdir -p $$here/$(PACKAGE)-$(VERSION)/$$i; \
+	   cd $$here/$$i; \
+	   $(MAKE) $(AM_MAKEFLAGS) copy COPY_DEST="$$here/$(PACKAGE)-$(VERSION)/$$i"; \
+	done
+	cp -L $(PYTHON_SOURCES) $(PYTHON_SOURCES2) $(DIST_SOURCES) $(DIST_COMMON) $(PACKAGE)-$(VERSION)
+	tar czvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
+	rm -rf $(PACKAGE)-$(VERSION)
+
+
