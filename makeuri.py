@@ -20,7 +20,7 @@
 # Authors: Don Welch, Smith Kennedy
 #
 
-__version__ = '4.2'
+__version__ = '4.3'
 __title__ = 'Device URI Creation Utility'
 __doc__ = "Creates device URIs for local and network connected printers for use with CUPS."
 
@@ -76,8 +76,6 @@ def usage(typ='text'):
     utils.format_text(USAGE, typ, __title__, 'hp-makeuri', __version__)
     sys.exit(0)
 
-
-
     
     
 log.set_module('hp-makeuri')
@@ -85,11 +83,11 @@ log.set_module('hp-makeuri')
 try:
     opts, args = getopt.getopt(sys.argv[1:], 
                                 'hl:csfp:g', 
-                                ['help', 'help-rest', 'help-man',
+                                ['help', 'help-rest', 'help-man', 'help-desc',
                                   'logging=',
                                   'cups',
                                   'sane',
-                                  'fax=',
+                                  'fax',
                                   'port=',
                                 ] 
                               ) 
@@ -116,6 +114,10 @@ for o, a in opts:
         
     elif o == '--help-man':
         usage('man')
+        
+    elif o == '--help-desc':
+        print __doc__,
+        sys.exit(0)
 
     elif o in ('-l', '--logging'):
         log_level = a.lower().strip()

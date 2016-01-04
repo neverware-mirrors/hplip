@@ -25,11 +25,15 @@ from __future__ import generators
 
 # Std Lib
 import sys, os, fnmatch, tempfile, socket, struct, select, time
-import fcntl, errno, stat, string, xml.parsers.expat, commands
+import fcntl, errno, stat, string, commands
+import cStringIO, re
+import xml.parsers.expat as expat
 
 # Local
 from g import *
 from codes import *
+
+xml_basename_pat = re.compile(r"""HPLIP-(\d*)_(\d*)_(\d*).xml""", re.IGNORECASE)
 
 
 def Translator(frm='', to='', delete='', keep=None):
@@ -702,7 +706,8 @@ def checkPyQtImport():
             (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
             log.error("This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver))
             log.error("Incorrect version of pyQt installed. Ver. %d.%d or greater required." % (MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER))
-            return False
+            log.error("This program will continue, but you may experience errors, crashes or other problems.")
+            return True
 
     return True
 
@@ -762,7 +767,7 @@ try:
     from string import Template # will fail in Python <= 2.3
 except ImportError:
     # Code from Python 2.4 string.py
-    import re as _re
+    #import re as _re
 
     class _multimap:
         """Helper class for combining multiple mappings.
@@ -797,10 +802,10 @@ except ImportError:
                 pattern = cls.pattern
             else:
                 pattern = _TemplateMetaclass.pattern % {
-                    'delim' : _re.escape(cls.delimiter),
+                    'delim' : re.escape(cls.delimiter),
                     'id'    : cls.idpattern,
                     }
-            cls.pattern = _re.compile(pattern, _re.IGNORECASE | _re.VERBOSE)
+            cls.pattern = re.compile(pattern, re.IGNORECASE | re.VERBOSE)
 
 
     class Template:
@@ -932,7 +937,7 @@ class ModelParser:
                 log.error("Duplicate model in XML: %s" % self.cur_model)
                 raise Error(ERROR_INTERNAL)
 
-            #print self.cur_model
+            self.model['min-ver'] = self.min_ver
             self.models[self.cur_model] = self.model
 
             self.model = None
@@ -948,13 +953,26 @@ class ModelParser:
             self.model[str('-'.join(self.stack))] = str(data)
 
     def loadModels(self, filename, untested=False):
-        parser = xml.parsers.expat.ParserCreate()
+        
+        basename = os.path.basename(filename)
+        match_obj = xml_basename_pat.search(basename)
+        
+        try:
+            major = match_obj.group(1)
+            year = match_obj.group(2)
+            month = match_obj.group(3)
+        except AttributeError:
+            major, year, month = '0', '0', '0'
+            
+        self.min_ver = "%s.%s.%s" % (major, year, month)
+
+        parser = expat.ParserCreate()
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
         parser.CharacterDataHandler = self.charData
         try:
             parser.Parse(open(filename).read(), True)
-        except xml.parsers.expat.ExpatError, e:
+        except expat.ExpatError, e:
             log.error("XML file parse error: %s" % e)
             raise Error(ERROR_INTERNAL)
 
@@ -983,7 +1001,7 @@ def openURL(url):
     browser_opt = {'firefox': '-new-window', 'mozilla' : '', 'konqueror': '', 'galeon': '-w', 'skipstone': ''}
     
     for b in browsers:
-        print b
+        #print b
         if which(b):
             cmd = "%s %s %s &" % (b, browser_opt[b], url)
             log.debug(cmd)
@@ -1011,27 +1029,27 @@ def list_move_down(l, m):
             l[i],l[i+1] = l[i+1],l[i] 
             
 
-def levenshtein_distance(a,b):
-    """
-    Calculates the Levenshtein distance between a and b.
-    Written by Magnus Lie Hetland.
-    """
-    n, m = len(a), len(b)
-    if n > m:
-        a,b = b,a
-        n,m = m,n
-        
-    current = range(n+1)
-    for i in range(1,m+1):
-        previous, current = current, [i]+[0]*m
-        for j in range(1,n+1):
-            add, delete = previous[j]+1, current[j-1]+1
-            change = previous[j-1]
-            if a[j-1] != b[i-1]:
-                change = change + 1
-            current[j] = min(add, delete, change)
-            
-    return current[n]
+##def levenshtein_distance(a,b):
+##    """
+##    Calculates the Levenshtein distance between a and b.
+##    Written by Magnus Lie Hetland.
+##    """
+##    n, m = len(a), len(b)
+##    if n > m:
+##        a,b = b,a
+##        n,m = m,n
+##        
+##    current = range(n+1)
+##    for i in range(1,m+1):
+##        previous, current = current, [i]+[0]*m
+##        for j in range(1,n+1):
+##            add, delete = previous[j]+1, current[j-1]+1
+##            change = previous[j-1]
+##            if a[j-1] != b[i-1]:
+##                change = change + 1
+##            current[j] = min(add, delete, change)
+##            
+##    return current[n]
             
             
 class XMLToDictParser:
@@ -1090,7 +1108,7 @@ class XMLToDictParser:
     
 
     def parseXML(self, text):
-        parser = xml.parsers.expat.ParserCreate()
+        parser = expat.ParserCreate()
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
         parser.CharacterDataHandler = self.charData
@@ -1102,13 +1120,13 @@ class XMLToDictParser:
 
 USAGE_OPTIONS = ("[OPTIONS]", "", "heading", False)
 USAGE_LOGGING1 = ("Set the logging level:", "-l<level> or --logging=<level>", 'option', False)
-USAGE_LOGGING2 = ("", "<level>: none, info*, error, warn, debug (\*default)", "option", False)
+USAGE_LOGGING2 = ("", "<level>: none, info\*, error, warn, debug (\*default)", "option", False)
 USAGE_LOGGING3 = ("Run in debug mode:", "-g (same as option: -ldebug)", "option", False)
 USAGE_ARGS = ("[PRINTER|DEVICE-URI] (See Notes)", "", "heading", False)
 USAGE_DEVICE = ("To specify a device-URI:", "-d<device-uri> or --device=<device-uri>", "option", False)
 USAGE_PRINTER = ("To specify a CUPS printer:", "-p<printer> or --printer=<printer>", "option", False)
 USAGE_BUS1 = ("Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>", "option", False)
-USAGE_BUS2 = ("", "<bus>: cups\*, usb*, net, bt, fw, par\* (\*defaults) (Note: bt and fw not supported in this release.)", 'option', False)
+USAGE_BUS2 = ("", "<bus>: cups\*, usb\*, net, bt, fw, par\* (\*defaults) (Note: bt and fw not supported in this release.)", 'option', False)
 USAGE_HELP = ("This help information:", "-h or --help", "option", True)
 USAGE_SPACE = ("", "", "space", False)
 USAGE_EXAMPLES = ("Examples:", "", "heading", False)
@@ -1207,6 +1225,10 @@ format: rest
 file-extension: html
 encoding: utf8
 /restindex\n""" % (title, crumb))
+        
+        log.info("%s: %s (ver. %s)" % (crumb, title, version))
+        log.info("="*80)
+        log.info("")
         
         links = []
         
@@ -1340,5 +1362,43 @@ def getEndian():
         return LITTLE_ENDIAN
         
         
+def run(cmd):
+    log.debug(cmd)
+    output = cStringIO.StringIO()
+    fh = os.popen('{ ' + cmd + '; } 2>&1', 'r', 1)
+
+    t = ''
+    while True:
+        if t:
+            if 'password' not in t.lower():
+                update_spinner()
+            else:
+                print t
+                t = ''
+
+        r, w, x = select.select([fh], [], [], 1)
+
+        if r:
+            t = r[0].readline()
+        else:
+            continue
+
+        if not t:
+            break
+
+        log.debug(t.replace("\n", ""))
+        output.write(t)
+
+    cleanup_spinner()
+
+    status = fh.close()
+    if status is None: status = 0
+
+    if status == 0:
+        log.debug("Exit status =  0")
+    else:
+        log.debug("Exit status = %d" % status)
+
+    return status, output.getvalue()
 
 

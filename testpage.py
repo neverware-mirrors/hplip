@@ -59,15 +59,13 @@ def usage(typ='text'):
     utils.format_text(USAGE, typ, __title__, 'hp-testpage', __version__)
     sys.exit(0)
     
-
-    
     
 log.set_module('hp-testpage')
  
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:gx',
                                ['printer=', 'device=', 'help', 'help-rest', 
-                                'help-man', 'logging=', 'bus='])
+                                'help-man', 'logging=', 'bus=', 'help-desc'])
 except getopt.GetoptError:
     usage()
 
@@ -89,6 +87,10 @@ for o, a in opts:
         
     elif o == '--help-man':
         usage('man')
+    
+    elif o == '--help-desc':
+        print __doc__,
+        sys.exit(0)
         
     elif o in ('-p', '--printer'):
         printer_name = a
@@ -239,10 +241,12 @@ try:
                         break
                     
                     elif d.error_state == ERROR_STATE_ERROR:
+                        cleanup_spinner()
                         log.error("An error has occured (code=%d). Please check the printer and try again." % d.status_code)
                         break
                         
                     elif d.error_state == ERROR_STATE_WARNING:
+                        cleanup_spinner()
                         log.warning("There is a problem with the printer (code=%d). Please check the printer." % d.status_code)
                     
                     else: # ERROR_STATE_BUSY
@@ -252,6 +256,9 @@ try:
                     
                     if i > 24:  # 2min
                         break
+                        
+                cleanup_spinner()
+                
             else:
                 log.info("Test page has been sent to printer.")
 
@@ -264,8 +271,8 @@ finally:
     d.close()
     
     log.info("")
-    log.info(utils.red("If an error occured, or the test page failed to print, refer to the HPLIP website"))
-    log.info(utils.red("at: http://hplip.sourceforge.net for troubleshooting and support."))
+    log.notice("If an error occured, or the test page failed to print, refer to the HPLIP website")
+    log.notice("at: http://hplip.sourceforge.net for troubleshooting and support.")
     log.info("")
 
 log.info("Done.")
