@@ -501,13 +501,8 @@ DRIVER_ERROR HeaderDJ990::Send()
     BOOL            bDeviceText;
 
     thePrintContext->GetPrintModeSettings (eQualityMode, eMediaType, eColorMode, bDeviceText);
-    if (eMediaType == MEDIA_CDDVD)
-    {
-        thePrintContext->SetMediaSource (sourceTrayCDDVD);
-        SetMediaSource (sourceTrayCDDVD);
-    }
 
-#ifdef APDK_LINUX
+#ifdef APDK_EXTENDED_MEDIASIZE
 /*
  *  A different media type may have been set via ppd that is different than
  *  what is initialized in the PrintMode constructor, for example, eMediaType
@@ -518,6 +513,12 @@ DRIVER_ERROR HeaderDJ990::Send()
 
     SetMediaType (MediaTypeToPcl (eMediaType));
 #endif
+
+    if (eMediaType == MEDIA_CDDVD)
+    {
+        thePrintContext->SetMediaSource (sourceTrayCDDVD);
+        SetMediaSource (sourceTrayCDDVD);
+    }
 
     StartSend();
 
