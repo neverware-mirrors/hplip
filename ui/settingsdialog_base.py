@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
+# Form implementation generated from reading ui file 'ui/settingsdialog_base.ui'
 #
-# Created: Wed Jul 13 09:36:14 2005
+# Created: Fri Aug 19 15:40:05 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
 
 
@@ -197,14 +196,14 @@ class SettingsDialog_base(QDialog):
         FunctionCommandsLayout.addMultiCellLayout(layout10,7,7,0,1)
 
         self.textLabel1_2_3 = QLabel(self.FunctionCommands,"textLabel1_2_3")
-        self.textLabel1_2_3.setEnabled(0)
+        self.textLabel1_2_3.setEnabled(1)
 
         FunctionCommandsLayout.addMultiCellWidget(self.textLabel1_2_3,8,8,0,1)
 
         layout11 = QHBoxLayout(None,0,6,"layout11")
 
         self.SendFaxCommand = QLineEdit(self.FunctionCommands,"SendFaxCommand")
-        self.SendFaxCommand.setEnabled(0)
+        self.SendFaxCommand.setEnabled(1)
         layout11.addWidget(self.SendFaxCommand)
 
         FunctionCommandsLayout.addMultiCellLayout(layout11,9,9,0,1)
@@ -331,11 +330,3 @@ class SettingsDialog_base(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("SettingsDialog_base",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = SettingsDialog_base()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

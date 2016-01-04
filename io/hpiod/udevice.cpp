@@ -27,7 +27,7 @@
 
 int UniUsbDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+   const char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
    int len=0;
    unsigned char status = NFAULT_BIT;
 
@@ -40,7 +40,7 @@ int UniUsbDevice::GetDeviceStatus(char *sendBuf, int *result)
 
 int UniUsbDevice::GetDeviceID(char *sendBuf, int slen, int *result)
 {
-   char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
+   const char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
    int len=0, idLen;
 
    *result = R_AOK;
@@ -88,67 +88,9 @@ hijmp:
    return len;
 }
 
-int UniUsbDevice::Open(char *sendBuf, int *result)
-{
-   char dev[255];
-   char uriModel[128];
-   char model[128];
-   int len=0;
-
-   *result = R_AOK;
-
-   if (pthread_mutex_trylock(&mutex) != 0)
-      goto bugout;   /* device is already open. */ 
-
-   pSys->GetURIModel(URI, uriModel, sizeof(uriModel));
-
-   //   if (ClientCnt==1)
-   if (ID[0] == 0)
-   {
-      /* First DeviceOpen, open actual kernal device, use blocking i/o. */
-      pSys->GetURIDataLink(URI, dev, sizeof(dev));
-      if ((OpenFD = open(dev, O_RDWR | O_EXCL)) < 0)            
-      {
-         *result = R_IO_ERROR;
-         goto blackout;
-      }
-
-      len = DeviceID(ID, sizeof(ID));  /* get new copy and cache it  */ 
-
-      if (len == 0)
-      {
-         *result = R_IO_ERROR;
-         goto blackout;
-      }
-   }
-
-   /* Make sure uri model matches device id model. Ignor test if uri model equals "ANY" (probe). */
-   if (strcmp(uriModel, "ANY") != 0)
-   {
-      pSys->GetModel(ID, model, sizeof(model));
-      if (strcmp(uriModel, model) != 0)
-      {
-         *result = R_INVALID_DEVICE_NODE;  /* probably a laserjet, or different device plugged in */  
-         syslog(LOG_ERR, "invalid model %s != %s UniUsbDevice::Open\n", uriModel, model);
-         goto blackout;
-      }
-   }
-
-blackout:
-   pthread_mutex_unlock(&mutex);
-
-bugout:
-   if (*result == R_AOK)
-      len = sprintf(sendBuf, "msg=DeviceOpenResult\nresult-code=%d\ndevice-id=%d\n", *result, Index);  
-   else
-      len = sprintf(sendBuf, "msg=DeviceOpenResult\nresult-code=%d\n", *result);  
-
-   return len;
-}
-
 int UniUsbDevice::ReadData(int length, int channel, int timeout, char *sendBuf, int slen, int *result)
 {   
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int sLen;
 
    syslog(LOG_ERR, "invalid commnad UniUsbDevice::ReadData: %m\n");

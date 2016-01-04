@@ -350,6 +350,14 @@ BOOL DJGenericVIP::GetMargins (PAPER_SIZE ps, float *fMargins)
         fMargins[3] = (float) 0.125;
     }
 
+    if (ps == SUPERB_SIZE)
+    {
+        fMargins[0] = (float) 0.125;
+        fMargins[1] = (float) 0.5;
+        fMargins[2] = (float) 0.125;
+        fMargins[3] = (float) 0.75;
+    }
+
     return TRUE;
 }
 

@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.13 $
-# $Date: 2005/09/14 23:02:57 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,54 +19,51 @@
 # Author: Don Welch
 #
 
-
 # Std Lib
-import os
-import os.path
-import gzip
-import re
-import time
-import urllib#2
-import tempfile
+import os, os.path, gzip, re, time, urllib, tempfile, glob
 
 # Local
 from base.g import *
 import cupsext
 
 # PPD parsing patterns
-mfg_pat = re.compile( r'\*\s*Manufacturer:\s*\".*?(.*?)\"', re.IGNORECASE )
-model_pat = re.compile( r'\*\s*Product:\s*\"\(.*?(.*?)\)\"', re.IGNORECASE )
+mfg_pat = re.compile(r'\*\s*Manufacturer:\s*\".*?(.*?)\"', re.IGNORECASE)
+model_pat = re.compile(r'\*\s*Product:\s*\"\(.*?(.*?)\)\"', re.IGNORECASE)
+
+IPP_PRINTER_STATE_IDLE = 3
+IPP_PRINTER_STATE_PROCESSING = 4
+IPP_PRINTER_STATE_STOPPED = 5
 
 def restartCUPS(): # must be root. How do you check for this?
-    os.system( 'killall -HUP cupsd' )
+    os.system('killall -HUP cupsd')
 
-def getPPDPath( addtional_paths=[] ):
-    search_paths = [ prop.ppd_search_path.split(';') ] + addtional_paths
+def getPPDPath(addtional_paths=[]):
+    search_paths = [prop.ppd_search_path.split(';')] + addtional_paths
     for path in search_paths:
-        ppd_path = os.path.join( path, 'cups/model' )
-        if os.path.exists( ppd_path ):
+        ppd_path = os.path.join(path, 'cups/model')
+        if os.path.exists(ppd_path):
             return ppd_path
 
 
-def collectPPDs( ppd_path ):
+def collectPPDs(ppd_path):
     from base import utils
     ppds = {} # { <model> : <PPD file> , ... }
 
-    for f in utils.walkFiles( ppd_path, recurse=True, abs_paths=True,
-                              return_folders=False , pattern=prop.ppd_search_pattern ):
+    for f in utils.walkFiles(ppd_path, recurse=True, abs_paths=True,
+                              return_folders=False , pattern=prop.ppd_search_pattern):
 
-        if f.endswith( '.gz' ):
-            g = gzip.open( f, 'r' )
+        if f.endswith('.gz'):
+            g = gzip.open(f, 'r')
         else:
-            g = open( f, 'r' )
+            g = open(f, 'r')
 
         try:
-            d = g.read( 4096 )
+            d = g.read(4096)
         except IOError:
             g.close()
             continue
         try:
-            mfg = mfg_pat.search( d ).group( 1 ).lower()
+            mfg = mfg_pat.search(d).group(1).lower()
         except ValueError:
             g.close()
             continue
@@ -79,35 +72,52 @@ def collectPPDs( ppd_path ):
             continue
 
         try:
-            model = model_pat.search( d ).group( 1 ).replace( ' ', '_' )
+            model = model_pat.search(d).group(1).replace(' ', '_')
         except ValueError:
             g.close()
             continue
 
-        ppds[ model ] = f
+        ppds[model] = f
 
         g.close()
 
     return ppds
 
 
-def downloadPPD( model_name, url=prop.ppd_download_url ):
-    model_name = 'HP-' + model_name.replace( ' ', '_' )
-    u = urllib.urlopen( url, urllib.urlencode( { 'driver' : 'hpijs',
-                                                 'printer' : urllib.quote( model_name ),
-                                                 'show' : '0' } ) )
+def downloadPPD(lporg_model_name, driver='hpijs', url=prop.ppd_download_url):
+    # model name must match model name on lp.org
+    u = urllib.urlopen(url, urllib.urlencode({'driver' : driver,
+                                              'printer' : urllib.quote(lporg_model_name),
+                                              'show' : '0'}))
 
-    ppd_file = os.path.join( tempfile.gettempdir(), model_name + prop.ppd_file_suffix )
-    f = file( ppd_file, 'w' )
-    f.write( u.read() )
+    ppd_file = os.path.join(tempfile.gettempdir(), lporg_model_name + prop.ppd_file_suffix)
+    f = file(ppd_file, 'w')
+    f.write(u.read())
     f.close()
 
     return ppd_file
 
 
-##def CUPSWebInterface():
-##    import webbrowser
-##    webbrowser.open_new( 'http://localhost:631/' )
+def getAllowableMIMETypes():    
+    # Scan all /etc/cups/*.convs files for allowable file formats
+    files = glob.glob("/etc/cups/*.convs")
+    
+    allowable_mime_types = []
+    
+    for f in files:
+        #log.debug( "Capturing allowable MIME types from: %s" % f )
+        conv_file = file(f, 'r')
+    
+        for line in conv_file:
+            if not line.startswith("#") and len(line) > 1:
+                try:
+                    source, dest, cost, prog =  line.split()
+                except ValueError:
+                    continue
+    
+                allowable_mime_types.append(source)
+            
+    return allowable_mime_types
 
 
 # cupsext wrapper
@@ -115,14 +125,17 @@ def downloadPPD( model_name, url=prop.ppd_download_url ):
 def getDefault():
     return cupsext.getDefault()
 
-def openPPD( printer ):
-    return cupsext.openPPD( printer )
+def openPPD(printer):
+    return cupsext.openPPD(printer)
 
 def closePPD():
     return cupsext.closePPD()
+    
+def getPPD(printer):
+    return cupsext.getPPD(printer)
 
-def getPPDOption( option ):
-    return cupsext.getPPDOption( option )
+def getPPDOption(option):
+    return cupsext.getPPDOption(option)
 
 def getPPDPageSize():
     return cupsext.getPPDPageSize()
@@ -130,11 +143,11 @@ def getPPDPageSize():
 def getPrinters():
     return cupsext.getPrinters()
 
-def getJobs( my_job=0, completed=0 ):
-    return cupsext.getJobs( my_job, completed )
+def getJobs(my_job=0, completed=0):
+    return cupsext.getJobs(my_job, completed)
 
-def getAllJobs( my_job=0 ):
-    return cupsext.getJobs( my_job, 0 ) + cupsext.getJobs( my_job, 1 )
+def getAllJobs(my_job=0):
+    return cupsext.getJobs(my_job, 0) + cupsext.getJobs(my_job, 1)
 
 def getVersion():
     return cupsext.getVersion()
@@ -142,13 +155,32 @@ def getVersion():
 def getServer():
     return cupsext.getServer()
 
-def cancelJob( jobid, dest=None ):
+def cancelJob(jobid, dest=None):
     if dest is not None:
-        return cupsext.cancelJob( dest, jobid )
+        return cupsext.cancelJob(dest, jobid)
     else:
-        jobs = cupsext.getJobs( 0, 0 )
+        jobs = cupsext.getJobs(0, 0)
         for j in jobs:
             if j.id == jobid:
-                return cupsext.cancelJob( j.dest, jobid )
+                return cupsext.cancelJob(j.dest, jobid)
 
     return False
+    
+def resetOptions():
+    return cupsext.resetOptions()
+    
+def addOption(option):
+    return cupsext.addOption(option)
+    
+def printFile(printer, filename, title):
+    if os.path.exists(filename):
+        return cupsext.printFileWithOptions(printer, filename, title)
+    else:
+        return -1
+        
+def addPrinter(printer_name, device_uri, location, ppd_file, info):
+    return cupsext.addPrinter(printer_name, device_uri, location, ppd_file, info)
+    
+def delPrinter(printer_name):
+    return cupsext.delPrinter(printer_name)
+        

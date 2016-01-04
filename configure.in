@@ -5,8 +5,7 @@
 #
 
 AC_PREREQ(2.59)
-AC_INIT([HP Linux Imaging and Printing], 0.9.7,, hplip)
-AC_CONFIG_SRCDIR(io/hpiod/hpiod.cpp)
+AC_INIT([HP Linux Imaging and Printing], [0.9.9], [0.9.9.10], [hplip])AC_CONFIG_SRCDIR(io/hpiod/hpiod.cpp)
 AM_INIT_AUTOMAKE([1.9 foreign])
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
@@ -30,6 +29,7 @@ AC_PATH_TOOL([INSTALLINITD], [install_initd],, [$PATH:/sbin:/usr/lib/lsb])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([crypto], [CRYPTO_free])
 AC_CHECK_LIB([netsnmp], [snmp_timeout], [libsnmp=yes], [libsnmp=no])
+AC_CHECK_LIB([usb], [usb_init],, [AC_MSG_ERROR([cannot find libusb support])])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -72,6 +72,16 @@ else
 fi
 
 CUPSSEARCHPATH="/usr/share /usr/local/share /usr/lib /usr/local/lib /usr/libexec /usr/lib64 /opt"
+
+AC_MSG_CHECKING("for cups ppd path")
+CUPS_PPD_PATH="/usr/share/cups"
+for i in $CUPSSEARCHPATH; do
+   if test -d "$i/cups/model"; then
+      CUPS_PPD_PATH="$i/cups"
+      break
+   fi
+done
+AC_MSG_RESULT("using $CUPS_PPD_PATH")
 
 AC_MSG_CHECKING("for cups backend path")
 CUPS_BACKEND_PATH="/usr/lib/cups/backend"
@@ -125,7 +135,10 @@ fi
 ac_configure_args="$ac_configure_args --enable-hplip-build"
 
 AC_SUBST(rpm_install)
+AC_SUBST(network_build)
+AC_SUBST(pp_build)
 AC_SUBST(CUPS_BACKEND_PATH)
+AC_SUBST(CUPS_PPD_PATH)
 AC_SUBST(ICON_PATH)
 AC_SUBST(ICON_FILE)
 

@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.27 $
-# $Date: 2005/11/14 20:27:09 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -134,9 +130,10 @@ def xmitMessage(sock, msg_type, payload=None,
                  other_fields={},
                  timeout=prop.read_timeout):
 
+    msg_type = msg_type.lower().strip()
     m = buildMessage(msg_type, payload, other_fields)
 
-    log.debug("Sending data on channel (%d)" % sock.fileno())
+    log.debug("(xmit) Sending data on channel (%d)" % sock.fileno())
     log.debug(repr(m))
 
     r, w, e = select.select([], [sock], [], timeout)
@@ -149,36 +146,62 @@ def xmitMessage(sock, msg_type, payload=None,
     except socket.error:
         log.exception()
         raise Error(ERROR_INTERNAL)
-
-    r, w, e = select.select([sock], [], [], timeout)
-
-    if r == []:
-        raise Error(ERROR_INTERNAL)
-
-    m = sock.recv(prop.max_message_read)
-    log.debug("Reading data on channel (%d)" % sock.fileno())
-    log.debug(repr(m))
-    fields, data, remaining = parseMessage(m)
     
-    if remaining:
-        log.warn("xmitMessage() remaining message != '' ('%s')" % remaining)
-        
-    try:
-        result_code = fields['result-code']
-    except KeyError:
-        result_code = ERROR_INTERNAL
-    else:
-        del fields['result-code']
+    read_tries = 0
+    read_flag = True
     
-    try:
-        result_msg_type = fields['msg']
-    except KeyError:
-        result_msg_type = ''
-    else:
-        del fields['msg']
+    while read_flag:
+        remaining = ''
+        read_tries += 1
         
-    if result_msg_type.lower().strip() != ''.join([msg_type.lower(), 'result']):
-        log.error("Unexpected message")
+        if read_tries > 3:
+            break
+        
+        r, w, e = select.select([sock], [], [], timeout)
+    
+        if r == []:
+            raise Error(ERROR_INTERNAL)
+    
+        m = sock.recv(prop.max_message_read)
+        
+        if m == '':
+            continue
 
+        log.debug("(xmit) Reading data on channel (%d)" % sock.fileno())
+                
+        while True:
+            log.debug(repr(m))
+            fields, data, remaining = parseMessage(m)
+            
+            try:
+                result_code = fields['result-code']
+            except KeyError:
+                result_code = ERROR_INTERNAL
+            else:
+                del fields['result-code']
+            
+            try:
+                result_msg_type = fields['msg'].lower().strip()
+            except KeyError:
+                result_msg_type = ''
+            else:
+                del fields['msg']
+                
+            # Found the msg we were looking for or error
+            if result_msg_type == ''.join([msg_type, 'result']) or \
+                result_msg_type == 'messageerror': 
+                read_flag = False # exit read loop
+                break
+            else:
+                log.debug("Ignored out of sequence message")
+                
+            if remaining: # more messages to look at in this read
+                log.debug("Remaining message")
+                m = remaining # parse remainder
+            else:
+                # keep reading until we find the result msg...
+                break
+            
+            
     return fields, data, result_code
 

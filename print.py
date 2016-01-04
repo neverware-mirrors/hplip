@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.16 $
-# $Date: 2005/07/21 17:31:38 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,103 +20,265 @@
 # Author: Don Welch
 #
 
-
-_VERSION = '1.2'
-
+__version__ = '2.0'
+__title__ = 'Print Utility'
+__doc__ = "A simple front end to 'lpr'. Provides a print UI from the Device Manager if kprinter, gtklp, or xpp are not installed."
 
 # Std Lib
-import sys
-import os
-import getopt
-import re
+import sys, os, getopt, re, socket
 
 # Local
 from base.g import *
+from base.msg import *
 from base import utils, device
+import base.async_qt as async
 from prnt import cups
 
 # PyQt
 if not utils.checkPyQtImport():
-    sys.exit(0)
+    log.error("PyQt/Qt initialization error. Please check install of PyQt/Qt and try again.")
+    sys.exit(1)
 
 from qt import *
 from ui.printerform import PrinterForm
 
 app = None
 printdlg = None
+client = None
 
-def usage():
-    formatter = utils.usage_formatter()
-    log.info( utils.TextFormatter.bold( """\nUsage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] [FILE LIST]\n\n""") )
-    log.info( utils.bold("[PRINTER|DEVICE-URI]"))
-    utils.usage_device(formatter)
-    utils.usage_printer(formatter, True)
-    utils.usage_options()
-    utils.usage_logging(formatter)
-    utils.usage_help(formatter, True)
-    log.info(utils.bold("[FILELIST]"))
-    log.info( formatter.compose( ( "Optional list of files:", """Space delimited list of files to print. """ \
-                                   """Files can also be selected for print by adding them to the file list """ \
-                                   """in the UI.""" ), True ) )
+USAGE = [(__doc__, "", "name", True),
+         ("Usage: hp-print [PRINTER|DEVICE-URI] [OPTIONS] [FILE LIST]", "", "summary", True),
+         utils.USAGE_ARGS,
+         utils.USAGE_DEVICE,
+         ("To specify a CUPS printer:", "-P<printer>, -p<printer> or --printer=<printer>", "option", False),
+         utils.USAGE_SPACE,
+         utils.USAGE_OPTIONS,
+         ("Device ID mode:", "-i or --id (prints device ID only and exits)", "option", False),
+         utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
+         utils.USAGE_HELP,
+         ("[FILELIST]", "", "heading", False),
+         ("Optional list of files:", """Space delimited list of files to print. Files can also be selected for print by adding them to the file list in the UI.""", "option", False),
+         utils.USAGE_SPACE,
+         utils.USAGE_NOTES,
+         utils.USAGE_STD_NOTES1, utils.USAGE_STD_NOTES2, 
+         ]
+                 
 
+def usage(typ='text'):
+    if typ == 'text':
+        utils.log_title(__title__, __version__)
+        
+    utils.format_text(USAGE, typ, __title__, 'hp-print', __version__)
     sys.exit(0)
 
-def main( args ):
 
-    utils.log_title( 'File Print Utility', _VERSION )
 
+class print_client(async.dispatcher):
+
+    def __init__(self):
+        async.dispatcher.__init__(self)
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect((prop.hpssd_host, prop.hpssd_port)) 
+        self.in_buffer = ""
+        self.out_buffer = ""
+        self.fields = {}
+        self.data = ''
+        self.error_dialog = None
+        self.signal_exit = False
+
+        # handlers for all the messages we expect to receive
+        self.handlers = {
+                        'eventgui' : self.handle_eventgui,
+                        'unknown' : self.handle_unknown,
+                        'exitguievent' : self.handle_exitguievent,
+                        }
+
+        self.register_gui()
+
+    def handle_read(self):
+        log.debug("Reading data on channel (%d)" % self._fileno)
+        log.debug(repr(self.in_buffer))
+
+        self.in_buffer = self.recv(prop.max_message_len)
+
+        if self.in_buffer == '':
+            return False
+
+        remaining_msg = self.in_buffer
+
+        while True:
+            try:
+                self.fields, self.data, remaining_msg = parseMessage(remaining_msg)
+            except Error, e:
+                log.debug(repr(self.in_buffer))
+                log.warn("Message parsing error: %s (%d)" % (e.opt, e.msg))
+                self.out_buffer = self.handle_unknown()
+                log.debug(self.out_buffer)
+                return True
+
+            msg_type = self.fields.get('msg', 'unknown')
+            log.debug("%s %s %s" % ("*"*40, msg_type, "*"*40))
+            log.debug(repr(self.in_buffer))
+
+            try:
+                self.out_buffer = self.handlers.get(msg_type, self.handle_unknown)()
+            except Error:
+                log.error("Unhandled exception during processing")
+
+            if len(self.out_buffer): # data is ready for send
+                self.sock_write_notifier.setEnabled(True)
+
+            if not remaining_msg:
+                break
+
+        return True
+
+    def handle_write(self):
+        if not len(self.out_buffer):
+            return
+
+        log.debug("Sending data on channel (%d)" % self._fileno)
+        log.debug(repr(self.out_buffer))
+        
+        try:
+            sent = self.send(self.out_buffer)
+        except:
+            log.error("send() failed.")
+
+        self.out_buffer = self.out_buffer[sent:]
+
+
+    def writable(self):
+        return not ((len(self.out_buffer) == 0)
+                     and self.connected)
+
+    def handle_exitguievent(self):
+        self.signal_exit = True
+        if self.signal_exit:
+            if printdlg is not None:
+                printdlg.close()
+            qApp.quit()
+
+        return ''
+
+    # EVENT
+    def handle_eventgui(self):
+        global printdlg
+        try:
+            job_id = self.fields['job-id']
+            event_code = self.fields['event-code']
+            event_type = self.fields['event-type']
+            retry_timeout = self.fields['retry-timeout']
+            lines = self.data.splitlines()
+            error_string_short, error_string_long = lines[0], lines[1]
+            device_uri = self.fields['device-uri']
+
+            log.debug("Event: %d '%s'" % (event_code, event_type))
+
+            printdlg.EventUI(event_code, event_type, error_string_short,
+                             error_string_long, retry_timeout, job_id,
+                             device_uri)
+
+        except:
+            log.exception()
+
+        return ''
+
+    def handle_unknown(self):
+        #return buildResultMessage('MessageError', None, ERROR_INVALID_MSG_TYPE)
+        return ''
+
+    def handle_messageerror(self):
+        return ''
+
+    def handle_close(self):
+        log.debug("closing channel (%d)" % self._fileno)
+        self.connected = False
+        async.dispatcher.close(self)
+
+    def register_gui(self):
+        out_buffer = buildMessage("RegisterGUIEvent", None, 
+                                  {'type': 'print', 
+                                   'username': prop.username})
+        self.send(out_buffer)
+
+
+def main(args):
     try:
-        opts, args = getopt.getopt( sys.argv[1:], 'P:p:d:hb:l:',
-                                   [ 'printer=', 'device=', 'help', 'logging=' ] )
+        opts, args = getopt.getopt(sys.argv[1:], 'P:p:d:hl:g',
+                                   ['printer=', 'device=', 'help', 
+                                    'help-rest', 'help-man', 'logging='])
     except getopt.GetoptError:
         usage()
 
     printer_name = None
     device_uri = None
     log_level = logger.DEFAULT_LOG_LEVEL
+    bus = 'cups'
 
+    if os.getenv("HPLIP_DEBUG"):
+        log.set_level('debug')
+    
     for o, a in opts:
-        if o in ( '-h', '--help' ):
+        if o in ('-h', '--help'):
             usage()
 
-        elif o in ( '-p', '-P', '--printer' ):
+        elif o == '--help-rest':
+            usage('rest')
+            
+        elif o == '--help-man':
+            usage('man')
+
+        elif o in ('-p', '-P', '--printer'):
             printer_name = a
 
-        elif o in ( '-d', '--device' ):
+        elif o in ('-d', '--device'):
             device_uri = a
 
-        elif o in ( '-l', '--logging' ):
+        elif o in ('-l', '--logging'):
             log_level = a.lower().strip()
+            if not log.set_level(log_level):
+                usage()
+                
+        elif o == '-g':
+            log.set_level('debug')
 
-
-    if not log.set_level( log_level ):
-        usage()
-
-    log.set_module( 'hp-print' )
+    log.set_module('hp-print')
 
     # Security: Do *not* create files that other users can muck around with
-    os.umask ( 0077 )
+    os.umask (0077)
+    
+    utils.log_title(__title__, __version__)
+
+    global client
+    try:
+        client = print_client()
+    except Error:
+        log.error("Unable to create client object.")
+        sys.exit(0)
 
     # create the main application object
     global app
-    app = QApplication( sys.argv )
+    app = QApplication(sys.argv)
 
     global printdlg
-    printdlg = PrinterForm( device_uri, printer_name, args )
+    printdlg = PrinterForm(client.socket, bus, device_uri, printer_name, args)
     printdlg.show()
-    app.setMainWidget( printdlg )
+    app.setMainWidget(printdlg)
 
-    user_config = os.path.expanduser( '~/.hplip.conf' )
-    loc = utils.loadTranslators( app, user_config )
+    user_config = os.path.expanduser('~/.hplip.conf')
+    loc = utils.loadTranslators(app, user_config)
 
     try:
-        log.debug( "Starting GUI loop..." )
+        log.debug("Starting GUI loop...")
         app.exec_loop()
     except KeyboardInterrupt:
         pass
     except:
         log.exception()
+    
+    return 0
 
 if __name__ == "__main__":
-    sys.exit( main( sys.argv[1:] ) )
+    sys.exit(main(sys.argv[1:]))
 

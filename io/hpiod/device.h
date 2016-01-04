@@ -32,7 +32,8 @@ enum IO_MODE
    RAW_MODE,   /* bi-di */
    MLC_MODE,
    DOT4_MODE,
-   DOT4_PHOENIX_MODE
+   DOT4_PHOENIX_MODE,  /* (ie: clj2840, lj3055, clj4730mfp) */
+   DOT4_BRIDGE_MODE  /* (ie: clj2500) */
 };
 
 enum FLOW_CONTROL
@@ -47,7 +48,38 @@ enum SCAN_PORT
    SCAN_PORT1
 };
 
-class Channel;
+enum FD_ID
+{
+   FD_7_1_2,         /* bi-di interface */
+   FD_7_1_3,         /* 1284.4 interface */
+   FD_ff_1_1,        /* HP EWS interface */
+   MAX_FD
+};
+
+enum BRIGE_REG_ID
+{
+   ECRR=2,
+   CCTR=3,
+   ATAA=8
+};
+
+/* USB file descriptor, one for each USB protocol. */
+typedef struct
+{
+   usb_dev_handle *pHD;
+   int Config;
+   int Interface;
+   int AltSetting;
+   int urb_write_active;             /* 0=no, 1=yes */
+#if defined(__APPLE__) && defined(__MACH__)
+#else
+   struct usbdevfs_urb urb_write;     /* host to device */
+   struct usbdevfs_urb urb_read;     /* device to host */
+#endif
+   unsigned char ubuf[BUFFER_SIZE];           /* usb read packet buffer */     
+   int uindex;
+   int ucnt;             
+} FileDescriptor;
 
 /* Channel attributes that must remain persistant for life of the device object. */
 typedef struct
@@ -55,6 +87,8 @@ typedef struct
    unsigned short h2psize;  /* host to peripheral packet size in bytes */
    unsigned short p2hsize;  /* peripheral to host packet size in bytes */
 } ChannelAttributes;
+
+class Channel;
 
 //Device
 //! Abstract base class that encapsulates common device services. Each Device
@@ -69,17 +103,21 @@ friend class ParMlcChannel;
 friend class Dot4Channel;
 friend class ParDot4Channel;
 friend class JetDirectChannel;
+friend class CompChannel;
 
 protected:
    char URI[LINE_SIZE];
    int OpenFD;            /* kernal file descriptor from Open */ 
-   int ClientCnt;           /* number of clients using this device */
+   int ClientCnt;         /* number of clients using this device */
    int Index;             /* System::pDevice[index] of this object */
    char ID[1024];         /* device id */
    pthread_mutex_t mutex;
 
+   struct usb_device *dev;       /* usb device referenced by URI */
+   FileDescriptor FD[MAX_FD];    /* usb file descriptors */
+
    int PrintMode;         /* 0=uni-di | 1=raw | 2=mlc | 3=dot4 (io-mode) */
-   int MfpMode;           /* 0=mlc | 1=dot4 (io-mfp-mode) */
+   int MfpMode;           /* 2=mlc | 3=dot4 (io-mfp-mode) */
    int FlowCtl;           /* 0=gusher | 1=miser (io-control) */
    int ScanPort;          /* 0=normal | 1=CLJ28xx (io-scan-port) */
 
@@ -89,16 +127,31 @@ protected:
    int DelChannel(int i);
    int ChannelMode;            /* raw | mlc */
    int MlcUp;
-   int CurrentProtocol;
-   int NewProtocol;
+   //   int CurrentProtocol;
+   //   int NewProtocol;
    ChannelAttributes CA[MAX_SOCKETID];
 
    System *pSys;
    virtual int DeviceID(char *buffer, int size);
+   int DeviceStatus(unsigned int *status);
    int SFieldPrinterState(char *id);
    int PowerUp();
    virtual int Write(int fd, const void *buf, int size);
-   virtual int Read(int fd, void *buf, int size, int sec=EXCEPTION_TIMEOUT, int usec=0);
+   virtual int Read(int fd, void *buf, int size, int usec=EXCEPTION_TIMEOUT);
+   int CutBuf(int fd, void *buf, int size);
+
+   int Detach(usb_dev_handle *hd, int interface);
+   int GetInterface(int dclass, int subclass, int protocol, int *config, int *interface, int *altset);
+   int GetOutEP(struct usb_device *dev, int config, int interface, int altset, int type);
+   int GetInEP(struct usb_device *dev, int config, int interface, int altset, int type);
+   int IsUri(struct usb_device *dev, char *uri);
+   struct usb_device *GetDevice(char *uri);
+   int WriteECPChannel(int fd, int value);
+   int BridgeChipUp(int fd);
+   int BridgeChipDown(int fd);
+   int ClaimInterface(int fd, int config, int interface, int altset);
+   int ReleaseInterface(int fd);
+   int WritePhoenixSetup(int fd);
 
 public:
    Device(System *pSys);
@@ -109,6 +162,7 @@ public:
    inline int GetClientCnt() { return ClientCnt; }
    inline void SetClientCnt(int i) { ClientCnt=i; }
    inline int GetOpenFD() { return OpenFD; }
+   inline int GetMlcUp() { return MlcUp; }
    inline char *GetURI() { return URI; }
    inline void SetURI(char *uri) { strcpy(URI, uri); }
    inline char *GetID() { return ID; }
@@ -156,7 +210,7 @@ public:
 
    int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
    int GetDeviceStatus(char *sendBuf, int *result);
-   int Open(char *sendBuf, int *result);
+   //   int Open(char *sendBuf, int *result);
    int ReadData(int length, int channel, int timeout, char *sendBuf, int sendBufLength, int *result);   
 }; //UniUsbDevice
 
@@ -192,7 +246,7 @@ protected:
    int compat_write(int fd, const void *buffer, int size);
 
    int Write(int fd, const void *buf, int size);
-   int Read(int fd, void *buf, int size, int sec=EXCEPTION_TIMEOUT, int usec=0);
+   int Read(int fd, void *buf, int size, int usec=EXCEPTION_TIMEOUT);
 
 public:
    ParDevice(System *pSys) : Device(pSys) {}

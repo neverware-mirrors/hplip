@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'printerform_base.ui'
 #
-# Created: Mon Oct 3 14:03:00 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Wed Jan 11 14:42:39 2006
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 

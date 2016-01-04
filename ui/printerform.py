@@ -1,12 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.9 $
-# $Date: 2005/10/18 19:55:21 $
-# $Author: dwelch $
-#
-#
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,17 +42,33 @@ class RangeValidator(QValidator):
 
 class PrinterForm(PrinterForm_base):
 
-    def __init__(self, device_uri, printer_name, args, parent = None,name = None,modal = 0,fl = 0):
+    def __init__(self, sock, bus='cups', device_uri=None, printer_name=None, args=None, 
+                 parent=None,name=None,modal=0,fl=0):
+
         PrinterForm_base.__init__(self,parent,name,modal,fl)
+        self.sock = sock
         self.device_uri = device_uri
         self.printer_name = printer_name
-        print device_uri, printer_name
         self.file_list = []
         self.auto_duplex_button_group = 0
         self.orientation_button_group = 0
         self.pages_button_group = 0
+        self.init_failed = False
 
         self.pageRangeEdit.setValidator(RangeValidator(self.pageRangeEdit))
+
+        icon = QPixmap(os.path.join(prop.image_dir, 'HPmenu.png'))
+        self.setIcon(icon)
+        pix = QPixmap(os.path.join(prop.image_dir, 'folder_open.png'))
+        self.addFileButton.setPixmap(pix)
+        pix = QPixmap(os.path.join(prop.image_dir, 'folder_remove.png'))
+        self.delFileButton.setPixmap(pix)
+        pix = QPixmap(os.path.join(prop.image_dir, 'status_refresh.png'))
+        self.refreshToolButton.setPixmap(pix)
+        self.fileListView.setSorting(-1)
+
+        self.allowable_mime_types = cups.getAllowableMIMETypes()
+        log.debug(self.allowable_mime_types)
 
         self.MIME_TYPES_DESC = \
         {
@@ -87,6 +97,10 @@ class PrinterForm(PrinterForm_base):
             "image/x-sun-raster" : self.__tr("Sun Raster Format"),
         }
 
+        if args is not None:
+            for f in args:
+                self.addFile(f)
+
         icon = QPixmap(os.path.join(prop.image_dir, 'HPmenu.png'))
         self.setIcon(icon)
 
@@ -101,70 +115,90 @@ class PrinterForm(PrinterForm_base):
 
         self.fileListView.setSorting(-1)
 
-        for f in args:
-            self.addFile(f)
 
-        # Scan all /etc/cups/*.convs files for allowable file formats
-        files = glob.glob("/etc/cups/*.convs")
+        if self.device_uri and self.printer_name:
+            log.error("You may not specify both a printer (-p) and a device (-d).")
+            self.FailureUI(self.__tr("<p><b>You may not specify both a printer (-p) and a device (-d)."))
+            self.device_uri, self.printer_name = None, None
+            self.init_failed = True
 
-        self.allowable_mime_types = []
+        self.cups_printers = cups.getPrinters()
+        log.debug(self.cups_printers)
 
-        for f in files:
-            log.debug("Capturing allowable MIME types from: %s" % f)
-            conv_file = file(f, 'r')
+        if not self.device_uri and not self.printer_name:
+            t = device.probeDevices(self.sock, bus=bus, filter='none')
+            probed_devices = []
+            
+            for d in t:
+                if d.startswith('hp:'):
+                    probed_devices.append(d)
+            
+            log.debug(probed_devices)
 
-            for line in conv_file:
-                if not line.startswith("#") and len(line) > 1:
-                    try:
-                        source, dest, cost, prog =  line.split()
-                    except ValueError:
-                        continue
+            max_deviceid_size, x, devices = 0, 0, {}
 
-                    self.allowable_mime_types.append(source)
+            for d in probed_devices:
+                printers = []
+                for p in self.cups_printers:
+                    if p.device_uri == d:
+                        printers.append(p.name)
+                devices[x] = (d, printers)
+                x += 1
+                max_deviceid_size = max(len(d), max_deviceid_size)
+
+            if x == 0:
+                from nodevicesform import NoDevicesForm
+                self.FailureUI(self.__tr("<p><b>No devices found.</b><p>Please make sure your device is properly installed and try again."))
+                self.init_failed = True
+
+            elif x == 1:
+                log.info(utils.bold("Using device: %s" % devices[0][0]))
+                self.device_uri = devices[0][0]
+
+
+            else:
+                from chooseprinterdlg import ChoosePrinterDlg
+                dlg = ChoosePrinterDlg(self.cups_printers)
+                
+                if dlg.exec_loop() == QDialog.Accepted:
+                    self.device_uri = dlg.device_uri
+                else:
+                    self.init_failed = True
+
 
         QTimer.singleShot(0, self.InitialUpdate)
 
+
     def InitialUpdate(self):
-        self.cups_printers = []
-        self.printer_list = cups.getPrinters()
+        if self.init_failed:
+            #log.error("Init failed")
+            self.close()
+            return        
 
-        if self.device_uri is None:
+        self.printer_list = []
 
-            if self.printer_name is None:
-                self.FailureUI(self.__tr("<b>You must provide a device URI or printer name.</b><p>Run 'hp-print --help' for a list of options."))
-                self.close()
-                return
+        self.dev = device.Device(device_uri=self.device_uri, 
+                                 printer_name=self.printer_name, 
+                                 hpssd_sock=self.sock)
 
-            else:
-                found = False
-                for p in self.printer_list:
-                    if p.name == self.printer_name:
-                        found = True
-                        self.device_uri = p.device_uri
-                        break
-                else:
-                    self.FailureUI(self.__tr("<b>Unknown printer name.</b><p>Run 'lpstat -a' or 'hp-probe' for a list of printers."))
-                    self.close()
-                    return
-
+        self.device_uri = self.dev.device_uri
 
         log.debug(self.device_uri)
         self.DeviceURIText.setText(self.device_uri)
 
-        for p in self.printer_list:
-            if p.device_uri == self.device_uri:
-                self.cups_printers.append(p.name)
-
         for p in self.cups_printers:
-            self.printerNameComboBox.insertItem(p)
+            if p.device_uri == self.device_uri:
+                self.printer_list.append(p.name)
 
-        self.dev = device.Device(self.device_uri)
+        for p in self.printer_list:
+            self.printerNameComboBox.insertItem(p)
 
         self.UpdatePrinterStatus()
 
         if self.printer_name is None:
             self.printerNameComboBox.setCurrentItem(0)
-        elif self.printer_name in self.cups_printers:
+
+        elif self.printer_name in self.printer_list:
             self.printerNameComboBox.setCurrentText(self.printer_name)
 
         self.current_printer = str(self.printerNameComboBox.currentText())
@@ -172,15 +206,42 @@ class PrinterForm(PrinterForm_base):
         self.UpdatePrinterInfo()
 
     def UpdatePrinterStatus(self):
-        self.dev.queryDevice()
+        QApplication.setOverrideCursor(QApplication.waitCursor)
+        
+        try:
+            try:
+                self.dev.open()
+            except Error, e:
+                log.warn(e.msg)
 
+            try:
+                self.dev.queryDevice(quick=True)
+            except Error, e:
+                log.error("Query device error (%s)." % e.msg)
+                self.dev.error_state = ERROR_STATE_ERROR
+
+        finally:
+            self.dev.close()
+            QApplication.restoreOverrideCursor()
+        
+        
         if self.dev.device_state == DEVICE_STATE_NOT_FOUND:
             self.FailureUI(self.__tr("<b>Unable to communicate with device:</b><p>%s" % self.device_uri))
-            self.close()
-            return
 
         self.StateText.setText(self.dev.status_desc)
-        self.dev.close()
+
+
+    def EventUI(self, event_code, event_type, error_string_short,
+                error_string_long, retry_timeout, job_id,
+                device_uri):
+
+        log.debug("Event: device_uri=%s code=%d type=%s string=%s timeout=%d id=%d uri=%s" %
+                 (device_uri, event_code, event_type,  
+                  error_string_short, retry_timeout, job_id, device_uri))
+
+        if device_uri == self.dev.device_uri:
+            self.StateText.setText(error_string_short)
+
 
     def addFile(self, path):
         path = os.path.realpath(path)
@@ -190,7 +251,7 @@ class PrinterForm(PrinterForm_base):
 
             try:
                 mime_type_desc = self.MIME_TYPES_DESC[mime_type]
-            except:
+            except KeyError:
                 self.WarningUI(self.__tr("<b>You are trying to add a file that cannot be directly printed with this utility.</b><p>To print this file, use the print command in the application that created it."))
             else:
                 log.debug("Adding file %s (%s,%s)" % (path, mime_type, mime_type_desc))
@@ -214,10 +275,6 @@ class PrinterForm(PrinterForm_base):
         self.printPushButton.setEnabled(non_empty_file_list)
 
     def addFileButton_clicked(self):
-        ##s = str( QFileDialog.getOpenFileName( os.path.expanduser("~"), "All files (*.*)", self,
-        ##                                      "openfile", self.caption() ) )
-        ##if s:
-        ##    self.addFile( s )
         self.setFocus()
 
         log.debug("isTopLevel %d" % self.isTopLevel())
@@ -251,8 +308,9 @@ class PrinterForm(PrinterForm_base):
         except AttributeError:
             return
         else:
+            temp = self.file_list[:]
             index = 0
-            for p, t, d in self.file_list:
+            for p, t, d in temp:
                 if p == path:
                     del self.file_list[index]
                     break
@@ -270,7 +328,7 @@ class PrinterForm(PrinterForm_base):
         self.UpdatePrinterInfo()
 
     def UpdatePrinterInfo(self):
-        for p in self.printer_list:
+        for p in self.cups_printers:
             if p.name == self.current_printer:
 
                 try:
@@ -318,7 +376,7 @@ class PrinterForm(PrinterForm_base):
         mirror = bool(self.mirrorCheckBox.isChecked())
 
         for p, t, d in self.file_list:
-
+            
             alt_nup = (nup > 1 and t == 'application/postscript' and utils.which('psnup'))
                 
             if alt_nup:
@@ -376,7 +434,7 @@ class PrinterForm(PrinterForm_base):
             if os.system(cmd) != 0:
                 log.error("Print command failed.")
                 self.FailureUI(self.__tr("Print command failed."))
-
+        
         del self.file_list[:]
         self.UpdateFileList()
 

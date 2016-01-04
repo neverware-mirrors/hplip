@@ -3272,6 +3272,32 @@ Left edge, Top edge, Width and Height values are in inches. "n/a" means option i
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPIJS 2.1.9</b> - This release has the following changes.
+<pre>
+ 1. Fixed an array index underflow in ljfastraster.cpp.
+ 2. Save paper width and height in UXServices object after a call to SetPaperSize.
+ 3. When fullbleed printing is requested, if printer supports it, return actual paper dimensions for PrintableArea.
+ 4. Added support for the following new printer(s).
+
+    HP DeskJet F300 Series All-in-one (DJ3600)
+</pre>
+<p>
+<li>
+<b>HPIJS 2.1.8</b> - This release has the following changes.
+<pre>
+ 1. Removed a duplicate ; in ljjetready.h.
+ 2. Commented out forward declaration of jpeg APIs from ljjetready.cpp - some compilers don't compile otherwise.
+ 3. Moved OfficeJet 6100 and 6150 to DJ55xx.h; margins on these devices are same as those on DJ5550.
+ 4. Added support for the following new printers.
+
+    HP LaserJet 3050 (LJMono/PS)
+    HP LaserJet 3060/3062 (LJMono/PS)
+    HP LaserJet 3390/3392 (LJMono/PS)
+    HP Deskjet 6980 series (DJGenericVIP) 
+    HP Deskjet 6940 series (DJGenericVIP)
+</pre>
+<p>
+<li>
 <b>HPIJS 2.1.7</b> - This release has the following changes.
 <pre>
  1. Added configure option "--enable-hplip-build".
@@ -4122,8 +4148,10 @@ $ gs -sDEVICE=ijs -sIjsServer=hpijs -dIjsUseOutputFD -sDeviceManufacturer="HEWLE
 <hr>
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
-&#169 2001-2005 Hewlett-Packard Company<br>
-HPIJS 2.1.7, last updated November 15, 2005
+&#169 2001-2006 Hewlett-Packard Company<br>
+This document is provided "AS IS" without warranties of any kind including warranties of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
+<br>
+HPIJS 2.1.9, last updated March 7, 2006
 </font>
  </BODY>
 </HTML>

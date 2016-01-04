@@ -326,6 +326,41 @@ mordor:
    return len+len2;
 }
 
+int PState()
+{
+   char message[LINE_SIZE*64];  
+   int len=0;
+   MsgAttributes ma;
+ 
+   len = sprintf(message, "msg=PState\n");
+ 
+   if (send(hpiod_socket, message, len, 0) == -1) 
+   {  
+      bug("unable to send PState: %m\n");  
+      goto bugout;  
+   }  
+
+   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
+   {  
+      bug("unable to receive PStateResult: %m\n");  
+      goto bugout;
+   }  
+
+   message[len] = 0;
+
+   hplip_ParseMsg(message, len, &ma);
+
+   len = 0;
+   if (ma.result == R_AOK && ma.length)
+   {
+      len = ma.length;
+      fprintf(stdout, "%s", ma.data);
+   }
+
+bugout:
+   return len;
+}
+
 int DeviceEvent(char *dev, char *jobid, int code, char *type, int timeout)
 {
    char message[512];  
@@ -366,6 +401,13 @@ int main(int argc, char *argv[])
       {
          fprintf(stdout, "HP Linux Imaging and Printing System\nCUPS Backend %s\n", VERSION);
          fprintf(stdout, "(c) 2003-2004 Copyright Hewlett-Packard Development Company, LP\n");
+         exit(0);
+      }
+      if ((arg[0] == '-') && (arg[1] == 's'))
+      {
+         hplip_Init();
+         PState();
+         hplip_Exit();
          exit(0);
       }
    }
@@ -499,7 +541,10 @@ int main(int argc, char *argv[])
       }
    } /* while (copies > 0) */
 
-   /* If uni-di hpiod uses blocking i/o. This means we don't need to wait for i/o to finish. */
+   /* Wait for I/O to complete over the wire. */
+   sleep(2);
+
+   /* If not uni-di mode, monitor printer status and wait for I/O to finish. */
    if (ma.prt_mode != UNI_MODE)
    {
       /*
@@ -521,7 +566,7 @@ int main(int argc, char *argv[])
       else
       {
          /* No valid status, use fixed delay. */
-         sleep(10);
+         sleep(8);
       }
    }
    

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ class PaperEdgeAlignForm(PaperEdgeAlignForm_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         PaperEdgeAlignForm_base.__init__(self,parent,name,modal,fl)
 
-        self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir, "zca.png" ) ) )
+        self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, "zca.png")))
         
         self.value = 1
         

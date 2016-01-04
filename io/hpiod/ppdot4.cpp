@@ -33,7 +33,7 @@ ParDot4Channel::ParDot4Channel(Device *pD) : Dot4Channel(pD)
 
 int ParDot4Channel::Open(char *sendBuf, int *result)
 {
-   char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
+   const char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
    int slen, m;
    ParDevice *pD = (ParDevice *)pDev;
 
@@ -85,7 +85,7 @@ bugout:
 
 int ParDot4Channel::Close(char *sendBuf, int *result)
 {
-   char res[] = "msg=ChannelCloseResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelCloseResult\nresult-code=%d\n";
    int len=0, m;
    ParDevice *pD = (ParDevice *)pDev;
 

@@ -1078,6 +1078,7 @@ BOOL ModeDeltaPlus::Compress (HPUInt8   *outmem,
                                &&
                                (
                                  /* seedrow and run */
+                                 ((col + 2) >= horz_ht_dist) &&
                                  (cur_row[col+2-horz_ht_dist] == cur_row[col+2])
                                  ||
                                  /* seedrow and northeast predict */
@@ -1091,12 +1092,16 @@ BOOL ModeDeltaPlus::Compress (HPUInt8   *outmem,
                          (
                            (cur_row[col] != seedrow[col])
                            &&
+                           ((col + 1) >= horz_ht_dist)
+                           &&
                            (cur_row[col+1-horz_ht_dist] == cur_row[col+1])
                            &&
                            (
                              /* Run of 3 or more */
                              (
                                ((col+2) < row_width)
+                               &&
+                               ((col + 2) >= horz_ht_dist)
                                &&
                                (cur_row[col+2-horz_ht_dist] == cur_row[col+2])
                              )

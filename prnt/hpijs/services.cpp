@@ -287,6 +287,7 @@ UXServices::UXServices():SystemServices()
    strcpy(ph.cs, "sRGB");
    VertAlign = -1;
    DisplayStatus = NODISPLAYSTATUS;
+   OutputPath = -1;
 }
 
 UXServices::~UXServices()
@@ -300,6 +301,11 @@ UXServices::~UXServices()
 
 DRIVER_ERROR UXServices::ToDevice(const BYTE * pBuffer, DWORD * Count)
 {
+    if (OutputPath == -1)
+    {
+        return IO_ERROR;
+    }
+
    /* Write must be not-buffered, don't use streams */
    if (write(OutputPath, pBuffer, *Count) != (ssize_t)*Count) 
    {
@@ -477,6 +483,9 @@ int UXServices::MapPaperSize(float width, float height)
 
    if (size == CUSTOM_SIZE)
       pPC->SetCustomSize(width, height);
+
+   PaperWidth = pPC->PhysicalPageSizeX ();
+   PaperHeight = pPC->PhysicalPageSizeY ();
 
    if ((r = pPC->SetPaperSize((PAPER_SIZE)size, FullBleed)) != NO_ERROR)
    {

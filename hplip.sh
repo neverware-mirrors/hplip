@@ -106,7 +106,12 @@ start() {
         echo
         [ $RETVAL = 0 ] && [ -d /var/lock/subsys ] && touch /var/lock/subsys/hpssd.py
 #        killall -HUP cupsd
-        return $RETVAL
+        if [ -f /var/lock/subsys/hpiod -a -f /var/lock/subsys/hpssd.py ]; then
+           touch /var/lock/subsys/hplip
+           return 0
+        else
+           return 1
+	fi
 }
 
 stop() {
@@ -128,6 +133,9 @@ stop() {
                    rm $pidfile
 	   esac
         done
+        if [ ! -f /var/lock/subsys/hpiod -o ! -f /var/lock/subsys/hpssd.py ]; then
+        	rm -f /var/lock/subsys/hplip
+        fi
         return $RETVAL
 }       
 

@@ -42,7 +42,7 @@ int JetDirectChannel::ReadReply()
    int len, num=0, result;
    char *tail;
 
-   len = ReadData(LINE_SIZE, 2, tmpBuf, sizeof(tmpBuf), &result);
+   len = ReadData(LINE_SIZE, 2000000, tmpBuf, sizeof(tmpBuf), &result);
    tmpBuf[len] = 0;
    pDev->pSys->ParseMsg(tmpBuf, len, &ma);
 
@@ -65,98 +65,113 @@ int JetDirectChannel::Open(char *sendBuf, int *result)
    pin.sin_family = AF_INET;  
    pin.sin_addr.s_addr = inet_addr(pD->GetIP());  
 
-   if (GetSocketID() == PRINT_CHANNEL)
+   switch (GetSocketID())
    {
-      port = PrintPort[pD->GetPort()];
-      pin.sin_port = htons(port);
-      if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to open print port %d JetDirectChannel::Open: %m\n", port);  
-         goto bugout;  
-      }  
-      if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to connect to print port %d JetDirectChannel::Open: %m\n", port);  
-         goto bugout;  
-      }  
-   }
-   else if (GetSocketID() == SCAN_CHANNEL)
-   {
-      if (pDev->GetScanPort() == SCAN_PORT0)
-         port = ScanPort0[pD->GetPort()];
-      else
-         port = ScanPort1[pD->GetPort()];
-      pin.sin_port = htons(port);
-
-      if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to open scan port %d JetDirectChannel::Open: %m\n", port);  
-         goto bugout;  
-      }  
-      if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to connect to scan err=%d port %d JetDirectChannel::Open: %m\n", errno, port);  
-         goto bugout;  
-      }
-      if (pDev->GetScanPort() == SCAN_PORT0)
-      {
-         r = ReadReply();
-         if (r != 0)
+      case PRINT_CHANNEL:
+         port = PrintPort[pD->GetPort()];
+         pin.sin_port = htons(port);
+         if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
          {  
-            syslog(LOG_ERR, "invalid scan response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
+            syslog(LOG_ERR, "unable to open print port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }  
+         if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to connect to print port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }  
+         break;
+      case SCAN_CHANNEL:
+         if (pDev->GetScanPort() == SCAN_PORT0)
+            port = ScanPort0[pD->GetPort()];
+         else
+            port = ScanPort1[pD->GetPort()];
+         pin.sin_port = htons(port);
+
+         if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to open scan port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }  
+         if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to connect to scan err=%d port %d JetDirectChannel::Open: %m %s %s %d\n", errno, port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }
+         if (pDev->GetScanPort() == SCAN_PORT0)
+         {
+            r = ReadReply();
+            if (r != 0)
+            {  
+               syslog(LOG_ERR, "invalid scan response %d port %d JetDirectChannel::Open: %s %s %d\n", r, port, pDev->GetURI(), __FILE__, __LINE__);  
+               goto bugout;  
+            } 
+         }
+         break;
+      case MEMORY_CARD_CHANNEL:
+      case FAX_SEND_CHANNEL:
+      case CONFIG_UPLOAD_CHANNEL:
+      case CONFIG_DOWNLOAD_CHANNEL:
+         port = GenericPort[pD->GetPort()];
+         pin.sin_port = htons(port);
+         if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to open port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }  
+         if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to connect to port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
             goto bugout;  
          } 
-      }
-   }
-   else if (GetSocketID() == MEMORY_CARD_CHANNEL)
-   {
-      port = GenericPort[pD->GetPort()];
-      pin.sin_port = htons(port);
-      if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to open photo card port %d JetDirectChannel::Open: %m\n", port);  
-         goto bugout;  
-      }  
-      if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
-      {  
-         syslog(LOG_ERR, "unable to connect to photo card port %d JetDirectChannel::Open: %m\n", port);  
-         goto bugout;  
-      } 
          
-      r = ReadReply();
-      if (r != 220)
-      {  
-         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
-         goto bugout;  
-      } 
+         r = ReadReply();
+         if (r != 220)
+         {  
+            syslog(LOG_ERR, "invalid response %d port %d JetDirectChannel::Open: %s %s %d\n", r, port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         } 
 
-      len = sprintf(buf, "open %d\n", GetSocketID());
-      send(Socket, buf, len, 0);
-      r = ReadReply();
-      if (r != 200)
-      {  
-         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
-         goto bugout;  
-      } 
+         len = sprintf(buf, "open %d\n", GetSocketID());
+         send(Socket, buf, len, 0);
+         r = ReadReply();
+         if (r != 200)
+         {  
+            syslog(LOG_ERR, "invalid response %d port %d JetDirectChannel::Open: %s %s %d\n", r, port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         } 
 
-      len = sprintf(buf, "data\n");
-      send(Socket, "data\n", len, 0);
-      r = ReadReply();
-      if (r != 200)
-      {  
-         syslog(LOG_ERR, "invalid photo card response %d port %d JetDirectChannel::Open: line %d\n", r, port, __LINE__);  
-         goto bugout;  
-      } 
-   }
-   else if (GetSocketID() == PML_CHANNEL)
-   {
-      /* Do nothing here, use GetPml/SetPml instead of ReadData/WriteData. */
-   }
-   else 
-   {  
-      syslog(LOG_ERR, "unsupported service %d JetDirectChannel::Open\n", GetSocketID());
-      *result = R_INVALID_SN;
-      goto bugout;
+         len = sprintf(buf, "data\n");
+         send(Socket, "data\n", len, 0);
+         r = ReadReply();
+         if (r != 200)
+         {  
+            syslog(LOG_ERR, "invalid response %d port %d JetDirectChannel::Open: %s %s %d\n", r, port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }
+         break;
+      case EWS_CHANNEL:
+         port = 80;
+         pin.sin_port = htons(port);
+         if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to open ews port %d JetDirectChannel::Open: %m %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }  
+         if (connect(Socket, (struct sockaddr *)&pin, sizeof(pin)) == -1) 
+         {  
+            syslog(LOG_ERR, "unable to connect to ews port %d JetDirectChannel::Open: %m, %s %s %d\n", port, pDev->GetURI(), __FILE__, __LINE__);  
+            goto bugout;  
+         }
+         break; 
+      case PML_CHANNEL:
+         /* Do nothing here, use GetPml/SetPml instead of ReadData/WriteData. */
+         break;
+      default:
+         syslog(LOG_ERR, "unsupported service %d JetDirectChannel::Open: %s %s %d\n", GetSocketID(), pDev->GetURI(), __FILE__, __LINE__);
+         *result = R_INVALID_SN;
+         goto bugout;
+         break;
    }  
 
    *result = R_AOK;
@@ -182,7 +197,7 @@ int JetDirectChannel::Close(char *sendBuf, int *result)
 
 int JetDirectChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *result)
 {
-   char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
+   const char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
    int len, size, sLen, total=0;
    struct timeval tmo;
    fd_set master;
@@ -193,7 +208,7 @@ int JetDirectChannel::WriteData(unsigned char *data, int length, char *sendBuf, 
 
    if (Socket<0)
    {
-      syslog(LOG_ERR, "invalid data link JetDirectChannel::WriteData: %d\n", Socket);
+      syslog(LOG_ERR, "invalid data link JetDirectChannel::WriteData: %d %s %s %d\n", Socket, pDev->GetURI(), __FILE__, __LINE__);
       goto bugout;
    }
 
@@ -215,7 +230,7 @@ int JetDirectChannel::WriteData(unsigned char *data, int length, char *sendBuf, 
       len = send(Socket, data+total, size, 0);
       if (len < 0)
       {
-         syslog(LOG_ERR, "unable to JetDirectChannel::WriteData: %m\n");
+         syslog(LOG_ERR, "unable to JetDirectChannel::WriteData: %m %s %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
          goto bugout;
       }
       size-=len;
@@ -234,12 +249,12 @@ bugout:
 //! ReadData() tries to read "length" bytes from the peripheral.  
 //! The returned read count may be zero (timeout, no data available), less than "length" or equal "length".
 //!
-//! The "timeout" specifies how many seconds to wait for a data packet. 
+//! The "timeout" specifies how many microseconds to wait for a data packet. 
 /*!
 ******************************************************************************/
 int JetDirectChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result)
 {
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int len=0, sLen;
    char buffer[BUFFER_SIZE];
    struct timeval tmo;
@@ -251,14 +266,14 @@ int JetDirectChannel::ReadData(int length, int timeout, char *sendBuf, int sendB
 
    if (Socket<0)
    {
-      syslog(LOG_ERR, "invalid data link JetDirectChannel::ReadData: %d\n", Socket);
+      syslog(LOG_ERR, "invalid data link JetDirectChannel::ReadData: %d %s %s %d\n", Socket, pDev->GetURI(), __FILE__, __LINE__);
       sLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }
 
    if ((length + HEADER_SIZE) > sendBufLength)
    {
-      syslog(LOG_ERR, "invalid data size JetDirectChannel::ReadData: %d\n", length);
+      syslog(LOG_ERR, "invalid data size JetDirectChannel::ReadData: %d %s %s %d\n", length, pDev->GetURI(), __FILE__, __LINE__);
       sLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }
@@ -266,24 +281,31 @@ int JetDirectChannel::ReadData(int length, int timeout, char *sendBuf, int sendB
    FD_ZERO(&master);
    FD_SET(Socket, &master);
    maxfd = Socket;
-   tmo.tv_sec = timeout;
-   tmo.tv_usec = 0;
+   tmo.tv_sec = timeout / 1000000;
+   tmo.tv_usec = timeout % 1000000;
 
    readfd = master;
-   if ((ret = select(maxfd+1, &readfd, NULL, NULL, &tmo)) == 0)
+   ret = select(maxfd+1, &readfd, NULL, NULL, &tmo);
+   if (ret < 0)
    {
-      syslog(LOG_ERR, "timeout JetDirectChannel::ReadData: %m\n");
+      syslog(LOG_ERR, "unable to JetDirectChannel::ReadData: %m %s %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
       sLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }
-
-   len = recv(Socket, buffer, length, 0);
-
-   if (len < 0)
+   if (ret == 0)
    {
-      syslog(LOG_ERR, "unable to JetDirectChannel::ReadData: %m\n");
-      sLen = sprintf(sendBuf, res, *result);  
-      goto bugout;
+      if (timeout >= EXCEPTION_TIMEOUT)
+         syslog(LOG_ERR, "timeout JetDirectChannel::ReadData: %m %s %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
+      len = 0;
+   }
+   else
+   {
+      if ((len = recv(Socket, buffer, length, 0)) < 0)
+      {
+         syslog(LOG_ERR, "unable to JetDirectChannel::ReadData: %m %s %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
+         sLen = sprintf(sendBuf, res, *result);  
+         goto bugout;
+      }
    }
 
    *result=R_AOK;

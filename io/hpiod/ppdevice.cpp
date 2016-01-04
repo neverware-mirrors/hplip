@@ -474,7 +474,7 @@ int ParDevice::nibble_read(int fd, int flag, void *buffer, int size, int sec)
    ioctl (OpenFD, PPNEGOT, &mc);
    if (ioctl (OpenFD, PPNEGOT, &m))
    {
-      syslog(LOG_ERR, "ParDevice::nibble_read failed: %m\n");
+     //      syslog(LOG_ERR, "ParDevice::nibble_read failed: %m\n");
       goto bugout;
    }
 
@@ -593,9 +593,10 @@ int ParDevice::Write(int fd, const void *buf, int size)
    return len;
 }
 
-int ParDevice::Read(int fd, void *buf, int size, int sec, int usec)
+int ParDevice::Read(int fd, void *buf, int size, int usec)
 {
    int len=0, m;
+   int sec = usec/1000000;
 
    ioctl(OpenFD, PPGETMODE, &m);
 
@@ -637,7 +638,8 @@ bugout:
 
 int ParDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+   const char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+   const char eres[] = "msg=DeviceStatusResult\nresult-code=%d\n";
    int len=0;
    unsigned char status;
    char vstatus[16];
@@ -659,6 +661,8 @@ int ParDevice::GetDeviceStatus(char *sendBuf, int *result)
          if (ioctl (OpenFD, PPNEGOT, &m))
          {
             syslog(LOG_ERR, "unable to read ParDevice::GetDeviceStatus: %m\n");
+            *result = R_IO_ERROR;
+            len = sprintf(sendBuf, eres, *result);  
             goto bugout;
          }
          status = read_status(OpenFD);
@@ -669,7 +673,7 @@ int ParDevice::GetDeviceStatus(char *sendBuf, int *result)
    {
       syslog(LOG_ERR, "unable to lock ParDevice::GetDeviceStatus: %m\n");
       *result = R_IO_ERROR;
-      len = sprintf(sendBuf, res, *result);  
+      len = sprintf(sendBuf, eres, *result);  
       goto bugout;
    }
 
@@ -692,7 +696,7 @@ bugout:
 
 int ParDevice::GetDeviceID(char *sendBuf, int slen, int *result)
 {
-   char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
+   const char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
    int len=0, idLen, m;
 
    *result = R_AOK;
@@ -890,7 +894,7 @@ bugout:
 
 int ParDevice::Close(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceCloseResult\nresult-code=%d\n";
+   const char res[] = "msg=DeviceCloseResult\nresult-code=%d\n";
    int len=0;
 
    *result = R_AOK;
@@ -902,7 +906,10 @@ int ParDevice::Close(char *sendBuf, int *result)
    {
       ioctl(OpenFD, PPRELEASE);
       close(OpenFD);
+
+      /* Reset variables here while locked, don't count on constructor with threads. */
       OpenFD = -1;
+      ID[0] = 0;
    }
 
    pthread_mutex_unlock(&mutex);

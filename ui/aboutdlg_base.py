@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/aboutdlg_base.ui'
+# Form implementation generated from reading ui file 'aboutdlg_base.ui'
 #
-# Created: Fri Apr 1 14:51:31 2005
+# Created: Wed Mar 1 16:04:21 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
 
 
@@ -64,26 +63,13 @@ class AboutDlg_base(QDialog):
         self.setCaption(self.__tr("HP Device Manager - About"))
         self.pushButton15.setText(self.__tr("OK"))
         self.textLabel3.setText(self.__tr("<b>License and Copyright:</b>\n"
-"(c) Copyright 2004 Hewlett-Packard Development Company, L.P. This software is licensed under the GNU General Public License (GPL) and the MIT License. See the software sources for details."))
+"(c) Copyright 2006 Hewlett-Packard Development Company, L.P. This software is licensed under the GNU General Public License (GPL), BSD, and MIT licenses. See the software sources for details."))
         self.textLabel4.setText(self.__tr("<b>Software Version:</b>"))
         self.textLabel2.setText(self.__tr("<b>Authors and Contributors:</b>\n"
-"David Suffield, Don Welch, Shiyun Yie, \n"
-"John Oleinik, Cory Meisch, Foster Nuffer,\n"
-"Pete Parks, Jacqueline Pitter, Raghothama Cauligi,\n"
-"David Paschal,\n"
-"Steve DeRoos, Kathy Hartshorn, Sharon Asker, \n"
-"Bill Powell, Elizabeth Atwater, Mark Overton"))
+"David Suffield, Don Welch, Shiyun Yie, Raghothama Cauligi, John Oleinik, Cory Meisch, Foster Nuffer, Pete Parks, Jacqueline Pitter, David Paschal, Steve DeRoos, Kathy Hartshorn, Mark Overton, Aaron Albright, Smith Kennedy"))
         self.VersionText.setText(self.__tr("0.0.0"))
-        self.textLabel1.setText(self.__tr("<font size=\"+3\"><p align=\"center\">HP Linux Imaging and Printing System</p></font>"))
+        self.textLabel1.setText(self.__tr("<font size=\"+3\"><p align=\"center\">HP Linux Imaging and Printing System (HPLIP)</p></font>"))
 
 
     def __tr(self,s,c = None):
         return qApp.translate("AboutDlg_base",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = AboutDlg_base()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

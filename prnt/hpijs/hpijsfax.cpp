@@ -54,12 +54,7 @@
 #include "../../ip/hpip.h"
 #include "hpijsfax.h"
 
-#define HPLIPFAX_MONO	1
-#define HPLIPFAX_COLOR	2
-
 extern int bug (const char *fmt, ...);
-
-void RGB2Gray (BYTE *pRGBData, int iNumPixels, BYTE *pBWData);
 
 int hpijsfax_status_cb (void *status_cb_data, IjsServerCtx *ctx, IjsJobId job_id)
 {
@@ -173,6 +168,10 @@ int hpijsfax_set_cb (void *set_cb_data, IjsServerCtx *ctx, IjsJobId job_id,
 	{
 		pFaxStruct->SetColorMode (strtol (svalue, &tail, 10));
 	}
+	else if (!strcmp (key, "FaxEncoding"))
+	{
+	    pFaxStruct->SetFaxEncoding ((int) strtol (svalue, &tail, 10));
+	}
 //	else
 //		bug("unable to set key = **%s**, value = **%s**\n", key, svalue);    
 
@@ -225,6 +224,10 @@ int hpijsfax_get_cb (void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id,
 	{
 		return snprintf (value_buf, value_size, "%d", pFaxStruct->GetMediaType ());
 	}
+	else if (!strcmp (key, "FaxEncoding"))
+	{
+		return snprintf (value_buf, value_size, "%d", pFaxStruct->GetFaxEncoding ());
+	}
 	else if (!strcmp (key, "ColorSpace"))
 	{
 		return snprintf (value_buf, value_size, pFaxStruct->ph.cs);
@@ -252,10 +255,11 @@ int hpijsFaxServer (int argc, char **argv)
 	int				n;
 	int				i;
 	int				width;
+	int				iInputBufSize;
 	LPBYTE 			pbOutputBuf = NULL;
 	LPBYTE 			pThisScanLine = NULL;
-	LPBYTE			pGray = NULL;
-	IP_XFORM_SPEC	xForm[2];
+	LPBYTE			pInputBuf = NULL;
+	IP_XFORM_SPEC	xForm[3];
 	IP_IMAGE_TRAITS	traits;
 	IP_HANDLE		hJob;
 
@@ -267,17 +271,6 @@ int hpijsFaxServer (int argc, char **argv)
 	BYTE					szPageHeader[64];
 	BYTE					*p;
 	unsigned	int			uiPageNum = 0;
-
-	if (argc > 1)
-	{
-		const char *arg = argv[1];
-		if ((arg[0] == '-') && (arg[1] == 'h'))
-		{
-			fprintf (stderr, "\nHewlett-Packard Co. Inkjet Server %s\n", VERSION);
-			fprintf(stdout, "Copyright (c) 2001-2004, Hewlett-Packard Co.\n");
-			exit(0);
-		}
-	}
 
 	pFaxStruct = new HPIJSFax ();
 
@@ -330,16 +323,19 @@ int hpijsFaxServer (int argc, char **argv)
 					goto BUGOUT;
 				}
 
+				memset (szFileHeader, 0, sizeof (szFileHeader));
 				memcpy (szFileHeader, "hplip_g3", 8);
 				p = szFileHeader + 8;
-				memcpy (szFileHeader, "hplip_g3", 8);
-				HPLIPPUTBYTES (p, 1);  p += 4;						// Version Number
-				HPLIPPUTBYTES (p, 0); p += 4;						// Total number of pages in this job
-				HPLIPPUTBYTES (p, (pFaxStruct->EffectiveResolutionX ())); p += 4;
-				HPLIPPUTBYTES (p, (pFaxStruct->EffectiveResolutionY ())); p += 4;
-				HPLIPPUTBYTES (p, (pFaxStruct->GetPaperSize ())); p += 4;	// Output paper size
-				HPLIPPUTBYTES (p, (pFaxStruct->GetQuality ())); p += 4;	// Output qulity
-				HPLIPPUTBYTES (p, 0); p += 4;							// Reserved for future use
+//				memcpy (szFileHeader, "hplip_g3", 8);
+				*p++ = 1;								// Version Number
+				HPLIPPUTINT32 (p, 0); p += 4;			// Total number of pages in this job
+				HPLIPPUTINT16 (p, (pFaxStruct->EffectiveResolutionX ())); p += 2;
+				HPLIPPUTINT16 (p, (pFaxStruct->EffectiveResolutionY ())); p += 2;
+				*p++ = pFaxStruct->GetPaperSize ();		// Output paper size
+				*p++ = pFaxStruct->GetQuality ();		// Output qulity
+				*p++ = pFaxStruct->GetFaxEncoding ();	// MH, MMR or JPEG
+				p += 4;									// Reserved 1
+				p += 4;									// Reserved 2
 				fwrite (szFileHeader, 1, p - szFileHeader, fpFax);
 		    }
 		}
@@ -358,12 +354,19 @@ int hpijsFaxServer (int argc, char **argv)
 		}
 		memset (pThisScanLine, 0xFF, width * 3);
 
-		if ((pGray = (LPBYTE) malloc (width * pFaxStruct->ph.height)) == NULL)
+		iInputBufSize = width * pFaxStruct->ph.height;
+		if (pFaxStruct->GetColorMode () == HPLIPFAX_COLOR)
 		{
-			bug ("unable to allocate pGray buffer size = %d: \n", width * pFaxStruct->ph.height);
+			iInputBufSize *= 3;
+		}
+
+		pInputBuf = (LPBYTE) malloc (iInputBufSize);
+		if (pInputBuf == NULL)
+		{
+			bug ("Unable to allocate pInputBuf, size = %d\n", iInputBufSize);
 			goto BUGOUT;
 		}
-		memset (pGray, 0xFF, width * pFaxStruct->ph.height);
+		memset (pInputBuf, 0xFF, iInputBufSize);
 
 		for (i = 0; i < pFaxStruct->ph.height; i++)      
 		{
@@ -372,7 +375,14 @@ int hpijsFaxServer (int argc, char **argv)
 				bug ("ijs_server_get_data failed\n");
 				break;    /* error */
 			}
-			RGB2Gray (pThisScanLine, width, pGray + i * width);
+			if (pFaxStruct->GetColorMode () == HPLIPFAX_MONO)
+			{
+				RGB2Gray (pThisScanLine, width, pInputBuf + i * width);
+			}
+			else
+			{
+			    memcpy (pInputBuf + (i * width * 3), pThisScanLine, n);
+			}
 		}
 		WORD		wResult;
 		DWORD		dwInputAvail;
@@ -381,42 +391,63 @@ int hpijsFaxServer (int argc, char **argv)
 		DWORD		dwOutputAvail;
 		DWORD		dwOutputUsed;
 		DWORD		dwOutputThisPos;
-		pbOutputBuf = (LPBYTE) malloc (width * pFaxStruct->ph.height);
+		pbOutputBuf = (LPBYTE) malloc (iInputBufSize);
 		if (pbOutputBuf == NULL)
 		{
-			bug ("unable to allocate pbOutputBuf,  buffer size = %d\n",
-			     width * pFaxStruct->ph.height);
+			bug ("unable to allocate pbOutputBuf,  buffer size = %d\n", iInputBufSize);
 		    goto BUGOUT;
 		}
-		memset (pbOutputBuf, 0xFF, width * pFaxStruct->ph.height);
+		memset (pbOutputBuf, 0xFF, iInputBufSize);
 
 		memset (xForm, 0, sizeof (xForm));
 
-		xForm[0].eXform = X_GRAY_2_BI;
+		if (pFaxStruct->GetColorMode () == HPLIPFAX_MONO)
+		{
+			xForm[0].eXform = X_GRAY_2_BI;
 
-		// 0   - Error diffusion
-		// >0  - Threshold value
+			// 0   - Error diffusion
+			// >0  - Threshold value
 
-		xForm[0].aXformInfo[IP_GRAY_2_BI_THRESHOLD].dword = 127;
+			xForm[0].aXformInfo[IP_GRAY_2_BI_THRESHOLD].dword = 127;
 
-		xForm[1].eXform = X_FAX_ENCODE;
-		xForm[1].aXformInfo[IP_FAX_FORMAT].dword = IP_FAX_MH;
+			xForm[1].eXform = X_FAX_ENCODE;
+			if (pFaxStruct->GetFaxEncoding () == RASTER_MMR)
+			{
+				xForm[1].aXformInfo[IP_FAX_FORMAT].dword = IP_FAX_MMR;
+			}
+			else
+			{
+				xForm[1].aXformInfo[IP_FAX_FORMAT].dword = IP_FAX_MH;
+			}
  /*                    0 = EOLs are in data as usual; */
  /*                    1 = no EOLs in data. */
-		xForm[1].aXformInfo[IP_FAX_NO_EOLS].dword = 0;
-//		xForm[1].aXformInfo[IP_FAX_MIN_ROW_LEN].dword = ??
-		xForm[1].pXform = NULL;
-		xForm[1].pfReadPeek = NULL;
-		xForm[1].pfWritePeek = NULL;
+			xForm[1].aXformInfo[IP_FAX_NO_EOLS].dword = 0;
+//		    xForm[1].aXformInfo[IP_FAX_MIN_ROW_LEN].dword = ??
+			xForm[1].pXform = NULL;
+			xForm[1].pfReadPeek = NULL;
+			xForm[1].pfWritePeek = NULL;
 
-		wResult = ipOpen (2, xForm, 0, &hJob);
+			traits.iComponentsPerPixel = 1;
+			wResult = ipOpen (2, xForm, 0, &hJob);
+		}
+		else
+		{
+		    xForm[0].eXform = X_CNV_COLOR_SPACE;
+		    xForm[0].aXformInfo[IP_CNV_COLOR_SPACE_WHICH_CNV].dword = IP_CNV_SRGB_TO_YCC;
+			xForm[1].eXform = X_CNV_COLOR_SPACE;
+		    xForm[1].aXformInfo[IP_CNV_COLOR_SPACE_WHICH_CNV].dword = IP_CNV_YCC_TO_CIELAB;
+			xForm[0].eXform = X_JPG_ENCODE;
+			xForm[0].aXformInfo[IP_JPG_ENCODE_FOR_COLOR_FAX].dword = 1;
+			traits.iComponentsPerPixel = 3;
+			wResult = ipOpen (1, xForm, 0, &hJob);
+		}
+
 		if (wResult != IP_DONE)
 		{
 			bug ("ipOpen failed: wResult = %x\n", wResult);
 			goto BUGOUT;
 		}
 		traits.iBitsPerPixel = 8;
-		traits.iComponentsPerPixel = 1;
 		traits.iPixelsPerRow = width;
 		traits.lHorizDPI = pFaxStruct->EffectiveResolutionX ();
 		traits.lVertDPI = pFaxStruct->EffectiveResolutionY ();
@@ -431,49 +462,104 @@ int hpijsFaxServer (int argc, char **argv)
 			wResult = ipClose (hJob);
 			goto BUGOUT;
 		}
-		dwInputAvail = width * pFaxStruct->ph.height;
+		dwInputAvail = iInputBufSize;
 		dwOutputAvail = dwInputAvail;
 
-		wResult = ipConvert (hJob, dwInputAvail, pGray, &dwInputUsed,
+		wResult = ipConvert (hJob, dwInputAvail, pInputBuf, &dwInputUsed,
 							 &dwInputNextPos, dwOutputAvail, pbOutputBuf,
 							 &dwOutputUsed, &dwOutputThisPos);
 
-//		bug ("dwInputAvail = %d dwInputUsed = %d dwOutputUsed = %d\n",
-//		     dwInputAvail, dwInputUsed, dwOutputUsed);
+		if (wResult == IP_FATAL_ERROR)
+		{
+		    bug ("ipConvert failed, wResult = %d\n", wResult);
+            goto BUGOUT;
+		}
+#if 0
+		bug ("dwInputAvail = %d dwInputUsed = %d dwOutputUsed = %d\n",
+		     dwInputAvail, dwInputUsed, dwOutputUsed);
+#endif
 		wResult = ipClose (hJob);
 		hJob = 0;
 
 		uiPageNum++;
 
 		p = szPageHeader;
-		HPLIPPUTBYTES (p, uiPageNum); p += 4;				// Current page number
-		HPLIPPUTBYTES (p, width); p += 4;					// Num of pixels per row
-		HPLIPPUTBYTES (p, pFaxStruct->ph.height); p += 4;	// Num of rows in this page
-		HPLIPPUTBYTES (p, dwOutputUsed); p += 4;			// Size in bytes of encoded data
-		HPLIPPUTBYTES (p, 0); p += 4;						// Reserved for future use
+		HPLIPPUTINT32 (p, uiPageNum); p += 4;				// Current page number
+		HPLIPPUTINT32 (p, width); p += 4;					// Num of pixels per row
+		HPLIPPUTINT32 (p, pFaxStruct->ph.height); p += 4;	// Num of rows in this page
+		HPLIPPUTINT32 (p, dwOutputUsed); p += 4;			// Size in bytes of encoded data
+		HPLIPPUTINT32 (p, 0); p += 4;			            // Thumbnail data size
+		HPLIPPUTINT32 (p, 0); p += 4;						// Reserved for future use
 		fwrite (szPageHeader, 1, (p - szPageHeader), fpFax);
 		fwrite (pbOutputBuf, 1, dwOutputUsed, fpFax);
+/*
+ *      Write the thumbnail data here
+ */
 
 		// Send this to fax handler
 
 		free (pThisScanLine);
 		pThisScanLine = NULL;
 		free (pbOutputBuf);
-		free (pGray);
+		free (pInputBuf);
 		pbOutputBuf = NULL;
-		pGray = NULL;
+		pInputBuf = NULL;
 
 	} /* end while (1) */
 
-	fseek (fpFax, 12, SEEK_SET);
-	HPLIPPUTBYTES ((szFileHeader + 12), uiPageNum);
-	fwrite (szFileHeader + 12, 1, 4, fpFax);
-	fclose (fpFax);
+	fseek (fpFax, 9, SEEK_SET);
+	HPLIPPUTINT32 ((szFileHeader + 9), uiPageNum);
+	fwrite (szFileHeader + 9, 1, 4, fpFax);
+/*
     chmod (hpFileName, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     hpFileName[strlen (hpFileName)] = '\n';
     write (pFaxStruct->iOutputPath, hpFileName, strlen (hpFileName));
+ */
+    fclose (fpFax);
+
+/*
+ *  Reopen the fax output file and write the data to fax backend.
+ *  Have to do this because the fax header includes number of pages in the
+ *  job, so, have to wait until all pages have been received.
+ */
+
+    BYTE    *pTmp;
+    int     iSize;
+
+    fpFax = fopen (hpFileName, "r");
+    if (!fpFax)
+    {
+        goto BUGOUT;
+    }
+
+    fseek (fpFax, 0, SEEK_END);
+    iSize = ftell (fpFax);
+    fseek (fpFax, 0, SEEK_SET);
+
+    pTmp = new BYTE[iSize];
+    if (pTmp == NULL)
+    {
+        iSize = 1024;
+        pTmp = new BYTE[iSize];
+        if (pTmp == NULL)
+        {
+            goto BUGOUT;
+        }
+    }
+    while (iSize > 0)
+    {
+        i = fread (pTmp, 1, iSize, fpFax);
+        write (pFaxStruct->iOutputPath, pTmp, i);
+        iSize -= i;
+    }
+    delete [] pTmp;
 
 BUGOUT:
+	if (fpFax)
+	{
+		fclose (fpFax);
+	}
+    unlink (hpFileName);
 	if (pFaxStruct != NULL)
 	{
 		#ifdef CAPTURE
@@ -489,9 +575,9 @@ BUGOUT:
 		free (pbOutputBuf);
 	}
 
-	if (pGray)
+	if (pInputBuf)
 	{
-		free (pGray);
+		free (pInputBuf);
 	}
 
 	if (pFaxStruct)

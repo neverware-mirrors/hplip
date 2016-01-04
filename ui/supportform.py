@@ -21,5 +21,5 @@ class SupportForm(SupportForm_base):
         utils.openURL("http://cups.org")
         
     def hpinktjetButton_2_clicked(self):
-        utils.openURL("file://" + os.path.join( prop.home_dir ,"hplip_readme.html"))
+        utils.openURL("file://" + os.path.join(prop.home_dir ,"hplip_readme.html"))
     

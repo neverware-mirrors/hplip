@@ -36,6 +36,7 @@ class Device;
 class System
 {
    pthread_mutex_t mutex;
+   SessionAttributes head;   /* linked list of sessions */
 
    Device *pDevice[MAX_DEVICE];
    int DeviceCnt;
@@ -48,6 +49,8 @@ class System
    int PmlOidToHex(char *szoid, unsigned char *oid, int oidSize);
    int SnmpToPml(char *snmp_oid, unsigned char *oid, int oidSize);
    int SnmpErrorToPml(int snmp_error);
+   int PState(char *sendBuf);
+   int ValidURI(MsgAttributes *ma);
  
 public:
    System();
@@ -62,7 +65,7 @@ public:
    int GetURIDataLink(char *uri, char *buf, int bufSize);
    int GetURIModel(char *uri, char *buf, int bufSize);
    int GetURISerial(char *uri, char *buf, int bufSize);
-   int GeneralizeURI(MsgAttributes *ma);
+   //   int GeneralizeURI(MsgAttributes *ma);
    int ModelQuery(char *uri, MsgAttributes *ma);
    int IsHP(char *id);
    int IsUdev(char *dnode);
@@ -74,8 +77,12 @@ public:
    int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result);
    int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result);
    int MakeUriFromIP(char *ip, int port, char *sendBuf);
-   int MakeUriFromUsb(char *dnode, char *sendBuf);
+   int MakeUriFromUsb(char *bus, char *device, char *sendBuf);
    int MakeUriFromPar(char *dnode, char *sendBuf);
+   int RegisterSession(SessionAttributes *psa);
+   int UnRegisterSession(SessionAttributes *psa);
+   int GeneralizeModel(char *sz, char *buf, int bufSize);
+   int GeneralizeSerial(char *sz, char *buf, int bufSize);
 
 }; //System
 

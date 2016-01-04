@@ -225,9 +225,9 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       size = sizeof(MLCHeader);
       while (size > 0)
       {
-         if ((len = pDev->Read(fd, pBuf, size, 2, 0)) < 0)   /* wait 2 second */
+         if ((len = pDev->Read(fd, pBuf, size, 2000000)) < 0)   /* wait 2 second */
          {
-            syslog(LOG_ERR, "unable to read MlcReverseReply header: %m %s %d\n", __FILE__, __LINE__);
+            syslog(LOG_ERR, "unable to read MlcReverseReply header: %m bytesRead=%d %s %d\n", sizeof(MLCHeader)-size, __FILE__, __LINE__);
             stat = 2;  /* short timeout */
             goto bugout;
          }
@@ -237,7 +237,7 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
 
       /* Determine packet size. */
       pklen = ntohs(pPk->h.length);
-      if (pklen > bufsize)
+      if (pklen < 0 || pklen > bufsize)
       {
          syslog(LOG_ERR, "invalid MlcReverseReply packet size: size=%d, buf=%d %s %d\n", pklen, bufsize, __FILE__, __LINE__);
          stat = 1;
@@ -256,7 +256,7 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
             stat = 1;
             goto bugout;
          }
-         if ((len = pDev->Read(fd, --pBuf, 1, 1, 0)) < 0)   /* wait 1 second */
+         if ((len = pDev->Read(fd, --pBuf, 1, 1000000)) < 0)   /* wait 1 second */
          {
             syslog(LOG_ERR, "unable to read MlcReverseReply header: %m %s %d\n", __FILE__, __LINE__);
             stat = 1;
@@ -272,7 +272,7 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       {
          if ((len = pDev->Read(fd, pBuf, size)) < 0)
          {
-            syslog(LOG_ERR, "unable to read MlcReverseReply data: %m\n");
+            syslog(LOG_ERR, "unable to read MlcReverseReply data: %m exp=%d act=%d %s %d\n", pklen-sizeof(MLCHeader), pklen-sizeof(MLCHeader)-size, __FILE__, __LINE__);
             stat = 1;
             goto bugout;
          }
@@ -311,7 +311,7 @@ int MlcChannel::MlcInit(int fd)
    
    if ((len = pDev->Write(fd, pCmd, n)) != n)
    {
-      syslog(LOG_ERR, "unable to write MLCInit: %m\n");
+      syslog(LOG_ERR, "unable to write MLCInit: %m %s %d\n", __FILE__, __LINE__);
       stat = 1;
       goto bugout;
    }
@@ -327,7 +327,7 @@ int MlcChannel::MlcInit(int fd)
          if (errno == EIO && cnt<1)
          {
             /* hack for usblp.c 2.6.5 */
-            syslog(LOG_INFO, "invalid MLCInitReply retrying...\n");
+            syslog(LOG_INFO, "invalid MLCInitReply retrying... %s %d\n", __FILE__, __LINE__);
             sleep(1);   
             cnt++;
             continue;
@@ -335,12 +335,17 @@ int MlcChannel::MlcInit(int fd)
          if (stat == 2 && cnt<1)
          {
             /* hack for Tahoe */
-            syslog(LOG_INFO, "invalid MLCInitReply retrying command...\n");
+            syslog(LOG_INFO, "invalid MLCInitReply retrying command... %s %d\n", __FILE__, __LINE__);
+            memset(buf, 0, sizeof(MLCInit));
+            n = sizeof(MLCInit);
+            pCmd->h.length = htons(n);
+            pCmd->cmd = MLC_INIT;
+            pCmd->rev = 3;
             pDev->Write(fd, pCmd, n);
             cnt++;
             continue;
          }
-         syslog(LOG_ERR, "invalid MLCInitReply: cmd=%x, result=%x\n, revision=%x\n", pReply->cmd, pReply->result, pReply->rev);
+         syslog(LOG_ERR, "invalid MLCInitReply: cmd=%x, result=%x\n, revision=%x %s %d\n", pReply->cmd, pReply->result, pReply->rev, __FILE__, __LINE__);
          stat = 1;
          goto bugout;
       }
@@ -477,7 +482,7 @@ int MlcChannel::MlcReverseData(int fd, int sockid, unsigned char *buf, int lengt
       {
          /* Use requested client timeout until we start reading. */
          if (total == 0)
-            len = pDev->Read(fd, buf+total, size, timeout, 0);
+            len = pDev->Read(fd, buf+total, size, timeout);
          else
             len = pDev->Read(fd, buf+total, size);
 
@@ -709,12 +714,9 @@ bugout:
 
 int MlcChannel::Open(char *sendBuf, int *result)
 {
-   char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
-   int supportedProtocols=0;
-   int twoints[2];
-   int len, slen;
-   unsigned i;
-   unsigned char buf[255];
+   const char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
+   int slen, fd;
+   int config, interface, altset;
 
    *result = R_IO_ERROR;
    slen = sprintf(sendBuf, res, R_IO_ERROR);  
@@ -725,78 +727,65 @@ int MlcChannel::Open(char *sendBuf, int *result)
       /* Initialize MLC transport if this is the first MLC channel. */
       if (pDev->ChannelCnt==1)
       {
-         /* Get current USB protocol. */
-         if (ioctl(pDev->GetOpenFD(), LPIOC_GET_PROTOCOLS, &twoints) >= 0)
+         /* If 7/1/3 (MLC/1284.4) protocol is available use it. */
+         if (pDev->GetInterface(7, 1, 3, &config, &interface, &altset) == 0)
+            fd = FD_7_1_3;    /* mlc, dot4 */
+         else
+            fd = FD_7_1_2;    /* raw, mlc, dot4 */
+
+         /* If new usb interface, release old and claim new. */
+         if (pDev->OpenFD != fd)
          {
-            pDev->CurrentProtocol=twoints[0];
-            supportedProtocols=twoints[1]; 
-#ifdef HPIOD_DEBUG
-            syslog(LOG_INFO, "currentProtocol=%x supportedProtocols=%x: %s %d\n", pDev->CurrentProtocol, supportedProtocols, __FILE__, __LINE__);
-#endif
+            pDev->ReleaseInterface(pDev->OpenFD);
+            if (pDev->ClaimInterface(fd, config, interface, altset))
+               goto bugout;
+            pDev->OpenFD = fd;
          }
 
-         /* If 7/1/3 (MLC/1284.4) protocol is available use it. */
-         if (supportedProtocols & (1<<USB_PROTOCOL_713))
-         {
-            if (ioctl(pDev->GetOpenFD(), LPIOC_SET_PROTOCOL, USB_PROTOCOL_713) < 0) 
-            {
-               syslog(LOG_ERR, "unable to set %s 7/1/3: %m\n", pDev->GetURI());
-               goto blackout;
-            }
-         }
-         else if (supportedProtocols & (1<<USB_PROTOCOL_712))
+         if (fd == FD_7_1_2)
          { 
             /* Emulate 7/1/3 on 7/1/2 using vendor-specific ECP channel-77. */
-            if (ioctl(pDev->GetOpenFD(), LPIOC_SET_PROTOCOL, USB_PROTOCOL_712) < 0) 
-            {
-               syslog(LOG_ERR, "unable to set %s 7/1/2: %m\n", pDev->GetURI());
-               goto blackout;
-            }
-            if (ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 77) < 0) 
-            {
-               syslog(LOG_ERR, "unable to set %s chan77: %m\n", pDev->GetURI());
-               goto blackout;
-            }
+            if (pDev->WriteECPChannel(fd, 77)) 
+               goto bugout;
          }
-         else
-         {
-            syslog(LOG_ERR, "unable to set %s MLC/1284.4: not supported\n", pDev->GetURI());
-            goto blackout;
-         }
+
+         int len;
+         unsigned int i;
+         unsigned char buf[255];
 
          /* Drain any reverse data. */
          for (i=0,len=1; len > 0 && i < sizeof(buf); i++)
-            len = pDev->Read(pDev->GetOpenFD(), buf+i, 1, 0, 0);    /* no blocking */
+            len = pDev->Read(fd, buf+i, 1, 0);    /* no blocking */
 
          /* MLC initialize */
-         if (MlcInit(pDev->GetOpenFD()) != 0)
-            goto blackout;
+         if (MlcInit(fd) != 0)
+            goto bugout;
 
          pDev->MlcUp=1;
 
       } /* if (pDev->ChannelCnt==1) */
  
       if (MlcConfigSocket(pDev->GetOpenFD()) != 0)
-         goto blackout;
+         goto bugout;
 
       if (MlcOpenChannel(pDev->GetOpenFD()) != 0)
-         goto blackout;
+         goto bugout;
 
    } /* if (ClientCnt==1) */
 
    *result = R_AOK;
    slen = sprintf(sendBuf, "msg=ChannelOpenResult\nresult-code=%d\nchannel-id=%d\n", *result, Index);
 
-blackout:
-
+bugout:
    return slen;  
 }
 
 int MlcChannel::Close(char *sendBuf, int *result)
 {
-   char res[] = "msg=ChannelCloseResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelCloseResult\nresult-code=%d\n";
    int len=0;
    unsigned char nullByte=0;
+   int config, interface, altset;
 
    *result = R_AOK;
 
@@ -820,13 +809,19 @@ int MlcChannel::Close(char *sendBuf, int *result)
       pDev->MlcUp=0;
       memset(pDev->CA, 0, sizeof(pDev->CA));
 
-      /* For Officejet K series and G series, leave in 7/1/3 protocol. These printers do not like being set to raw mode. */
-      if (pDev->CurrentProtocol != USB_PROTOCOL_713)
+      if (pDev->OpenFD == FD_7_1_2)
       {
-         ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 78);  /* reset MLC (ECP channel-78) */
+         pDev->WriteECPChannel(pDev->GetOpenFD(), 78);
          pDev->Write(pDev->GetOpenFD(), &nullByte, 1);  
-         ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 0);   /* set raw mode (ECP channel-0) */
-         ioctl(pDev->GetOpenFD(), LPIOC_SET_PROTOCOL, pDev->CurrentProtocol);
+         pDev->WriteECPChannel(pDev->GetOpenFD(), 0);
+      }
+
+      /* If 7/1/2 protocol is available, use it. */
+      if (pDev->OpenFD == FD_7_1_3 && pDev->GetInterface(7, 1, 2, &config, &interface, &altset) == 0)
+      {
+         pDev->ReleaseInterface(FD_7_1_3);
+         pDev->ClaimInterface(FD_7_1_2, config, interface, altset);
+         pDev->OpenFD = FD_7_1_2;
       }
 
       /* Delay for back-to-back scanning using scanimage (OJ 7110, OJ d135). */
@@ -840,7 +835,7 @@ int MlcChannel::Close(char *sendBuf, int *result)
 
 int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *result)
 {
-   char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
+   const char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
    int ret, len, size, sLen, dlen, total=0;
 
    *result=R_IO_ERROR;
@@ -907,7 +902,7 @@ bugout:
  * ReadData() may read more the "length" if the data packet is greater than "length". For this case the
  * return value will equal "length" and the left over data will be buffered for the next ReadData() call.
  *
- * The "timeout" specifies how many seconds to wait for a data packet. Once the read of the data packet has
+ * The "timeout" specifies how many milliseconds to wait for a data packet. Once the read of the data packet has
  * started the "timeout" is no longer used.
  *
  * Note, if a "timeout" occurs one peripheral to host credit is left outstanding. Which means the peripheral
@@ -915,7 +910,7 @@ bugout:
  */
 int MlcChannel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result)
 {
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int sendLen;
 
    *result=R_IO_ERROR;

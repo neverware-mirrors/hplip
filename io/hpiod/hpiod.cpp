@@ -230,6 +230,8 @@ void session(SessionAttributes *psa)
    char sendBuf[BUFFER_SIZE+HEADER_SIZE];
    int len, slen, total;
 
+   pS->RegisterSession(psa);
+
    psa->descriptor = -1;
    psa->tid = pthread_self();
 
@@ -277,6 +279,7 @@ sdone:
    if (psa->descriptor != -1)
       pS->DeviceCleanUp(psa); 
 
+   pS->UnRegisterSession(psa);
    free(psa);
 }
 

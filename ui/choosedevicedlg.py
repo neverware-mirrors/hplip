@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,17 +55,12 @@ class ChooseDeviceDlg(QDialog):
             
         self.radio_buttons = {}
 
-        for y in range( len(devices) ):
+        for y in range(len(devices)):
             if y == 0:
                 self.device_uri = devices[y][0]
-            self.radio_buttons[y] = QRadioButton(self.DevicesButtonGroup,"radioButton%d" % y )
-            self.radio_buttons[y].setText( devices[y][0] )
-            DevicesButtonGroupLayout.addWidget( self.radio_buttons[y], y, 0 )
-        
-        #for x in range(50):
-        #    self.radio_buttons[x] = QRadioButton(self.DevicesButtonGroup,"radioButton%d" % x)
-        #    DevicesButtonGroupLayout.addWidget( self.radio_buttons[x], x, 0 )
-        #    self.radio_buttons[x].setText( "Text %d" % x )
+            self.radio_buttons[y] = QRadioButton(self.DevicesButtonGroup,"radioButton%d" % y)
+            self.radio_buttons[y].setText(devices[y][0])
+            DevicesButtonGroupLayout.addWidget(self.radio_buttons[y], y, 0)
 
         self.radio_buttons[0].setChecked(1)
         
@@ -91,7 +86,7 @@ class ChooseDeviceDlg(QDialog):
         return qApp.translate("ChooseDeviceDlg",s,c)
 
     def DevicesButtonGroup_clicked(self,a0):
-        self.device_uri = str( self.radio_buttons[a0].text() )
+        self.device_uri = str(self.radio_buttons[a0].text())
         #print self.device_uri
 
 if __name__ == "__main__":
