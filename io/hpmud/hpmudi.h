@@ -55,16 +55,17 @@
 #include "pp.h"
 #endif
 
-//#define HPMUD_DEBUG
+// #define HPMUD_DEBUG
 
 #define _STRINGIZE(x) #x
 #define STRINGIZE(x) _STRINGIZE(x)
 
 #define BUG(args...) syslog(LOG_ERR, __FILE__ " " STRINGIZE(__LINE__) ": " args)
+//#define BUG(args...) fprintf(stderr, __FILE__ " " STRINGIZE(__LINE__) ": " args)
 
 #ifdef HPMUD_DEBUG
    #define DBG(args...) syslog(LOG_INFO, __FILE__ " " STRINGIZE(__LINE__) ": " args)
-//   #define DBG(args...) fprintf(stderr, __FILE__ " " STRINGIZE(__LINE__) ": " args)
+// #define DBG(args...) fprintf(stderr, __FILE__ " " STRINGIZE(__LINE__) ": " args)
    #define DBG_DUMP(data, size) sysdump((data), (size))
    #define DBG_SZ(args...) syslog(LOG_INFO, args)
 #else
@@ -82,6 +83,7 @@
 
 #define HPMUD_EXCEPTION_TIMEOUT 45000000  /* microseconds */
 #define HPMUD_EXCEPTION_SEC_TIMEOUT 45  /* seconds */
+#define HPMUD_MDNS_TIMEOUT 10  /* seconds */
 
 #define NFAULT_BIT  0x08
 #define PERROR_BIT  0x20
@@ -99,6 +101,7 @@ enum HPMUD_CHANNEL_ID
    HPMUD_SOAPSCAN_CHANNEL = 0x13,          /* Soap Scan interface ff/2/1, any unused socket id */
    HPMUD_SOAPFAX_CHANNEL = 0x14,          /* Soap Fax interface ff/3/1, any unused socket id */
    HPMUD_MARVELL_SCAN_CHANNEL = 0x15,    /* Marvell scan interface ff/ff/ff, any unused socket id */
+   HPMUD_WIFI_CHANNEL = 0x2b,      /* WIFI config */
    HPMUD_DEVMGMT_CHANNEL = 0x2c,      /* decimal 44 */
    HPMUD_MAX_CHANNEL_ID
 };

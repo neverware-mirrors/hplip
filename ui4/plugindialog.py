@@ -51,9 +51,10 @@ PAGE_MAX = 1
 
 
 class PluginDialog(QDialog, Ui_Dialog):
-    def __init__(self, parent, install_mode=PLUGIN_NONE):
+    def __init__(self, parent, install_mode=PLUGIN_NONE, plugin_reason=PLUGIN_REASON_NONE):
         QDialog.__init__(self, parent)
         self.install_mode = install_mode
+        self.plugin_reason = plugin_reason
         self.plugin_path = None
         self.result = False
         self.core = CoreInstall()
@@ -81,17 +82,38 @@ class PluginDialog(QDialog, Ui_Dialog):
         # Application icon
         self.setWindowIcon(QIcon(load_pixmap('hp_logo', '128x128')))
 
+        self.PLUGIN_REASON_TEXT = {
+            PLUGIN_REASON_NONE: None,
+            PLUGIN_REASON_PRINTING_SUPPORT: self.__tr("This plugin will enable printing support."),
+            PLUGIN_REASON_FASTER_PRINTING: self.__tr("This plugin will enhance print speed."),
+            PLUGIN_REASON_BETTER_PRINTING_PQ: self.__tr("This plugin will enhance print quality."),
+            PLUGIN_REASON_PRINTING_FEATURES: self.__tr("This plugin will add printing features."),
+            PLUGIN_REASON_RESERVED_10: None,
+            PLUGIN_REASON_RESERVED_20: None,
+            PLUGIN_REASON_SCANNING_SUPPORT: self.__tr("This plugin will enable scanning support."),
+            PLUGIN_REASON_FASTER_SCANNING: self.__tr("This plugin will enhance scanning speed."),
+            PLUGIN_REASON_BETTER_SCANNING_IQ: self.__tr("This plugin will enhance scanning image quality."),
+            PLUGIN_REASON_RESERVED_200: None,
+            PLUGIN_REASON_RESERVED_400: None,
+            PLUGIN_REASON_FAXING_SUPPORT: self.__tr("This plugin will enable faxing support."),
+            PLUGIN_REASON_FAX_FEATURES: self.__tr("This plugin will enhnace faxing features."),
+            PLUGIN_REASON_RESERVED_20000: None,
+            PLUGIN_REASON_RESERVED_40000: None,
+        }
 
     #
     # SOURCE PAGE
     #
     def showSourcePage(self):
-        if self.install_mode == PLUGIN_REQUIRED:
-            self.TitleLabel.setText(self.__tr("An additional driver plug-in is required to operate this printer. You may download the plug-in directly from an HP authorized server (recommended), or, if you already have a copy of the file, you can specify a path to the file (advanced)."))
-            self.SkipRadioButton.setEnabled(False)
+        reason_text = self.plugin_reason_text()
 
-        elif self.install_mode == PLUGIN_OPTIONAL:
-            self.TitleLabel.setText(self.__tr("An optional driver plug-in is available to enhance the operation of this printer. You may download the plug-in directly from an HP authorized server (recommended), skip this installation (not recommended), or, if you already have a copy of the file, you can specify a path to the file (advanced)."))
+        if reason_text is not None:
+            if self.install_mode == PLUGIN_REQUIRED:
+                self.TitleLabel.setText(self.__tr("An additional driver plug-in is required to operate this printer. You may download the plug-in directly from an HP authorized server (recommended), or, if you already have a copy of the file, you can specify a path to the file (advanced). <br><br>%1").arg(reason_text))
+                self.SkipRadioButton.setEnabled(False)
+
+            elif self.install_mode == PLUGIN_OPTIONAL:
+                self.TitleLabel.setText(self.__tr("An optional driver plug-in is available to enhance the operation of this printer. You may download the plug-in directly from an HP authorized server (recommended), skip this installation (not recommended), or, if you already have a copy of the file, you can specify a path to the file (advanced).<br><br>%1").arg(reason_text))
 
         self.connect(self.DownloadRadioButton, SIGNAL("toggled(bool)"), self.DownloadRadioButton_toggled)
         self.connect(self.CopyRadioButton, SIGNAL("toggled(bool)"), self.CopyRadioButton_toggled)
@@ -341,6 +363,13 @@ class PluginDialog(QDialog, Ui_Dialog):
 
     def updateStepText(self, p):
         self.StepText.setText(self.__tr("Step %1 of %2").arg(p+1).arg(PAGE_MAX+1))
+
+
+    def plugin_reason_text(self):
+        try:
+            return self.PLUGIN_REASON_TEXT[self.plugin_reason]
+        except KeyError:
+            return None
 
 
     def __tr(self,s,c = None):

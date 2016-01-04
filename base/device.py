@@ -47,7 +47,12 @@ except ImportError:
     if not os.getenv("HPLIP_BUILD"):
         log.error("HPMUDEXT could not be loaded. Please check HPLIP installation.")
         sys.exit(1)
-
+else:
+    # Workaround for build machine
+    try:
+        MAX_BUFFER = hpmudext.HPMUD_BUFFER_SIZE
+    except AttributeError:
+        MAX_BUFFER = 8192
 
 dbus_avail = False
 dbus_disabled = False
@@ -58,6 +63,11 @@ try:
 except ImportError:
     log.warn("python-dbus not installed.")
 
+import warnings
+# Ignore: .../dbus/connection.py:242: DeprecationWarning: object.__init__() takes no parameters
+# (occurring on Python 2.6/dBus 0.83/Ubuntu 9.04)
+warnings.simplefilter("ignore", DeprecationWarning)
+
 
 DEFAULT_PROBE_BUS = ['usb', 'par', 'cups']
 VALID_BUSES = ('par', 'net', 'cups', 'usb') #, 'bt', 'fw')
@@ -66,7 +76,7 @@ DEFAULT_FILTER = None
 VALID_FILTERS = ('print', 'scan', 'fax', 'pcard', 'copy')
 DEFAULT_BE_FILTER = ('hp',)
 
-pat_deviceuri = re.compile(r"""(.*):/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*)|ip=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[^&]*))(?:&port=(\d))?""", re.IGNORECASE)
+pat_deviceuri = re.compile(r"""(.*):/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*)|ip=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[^&]*)|zc=(\S+))(?:&port=(\d))?""", re.IGNORECASE)
 http_pat_url = re.compile(r"""/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*))&loc=(\S*)""", re.IGNORECASE)
 direct_pat = re.compile(r'direct (.*?) "(.*?)" "(.*?)" "(.*?)"', re.IGNORECASE)
 
@@ -74,13 +84,10 @@ direct_pat = re.compile(r'direct (.*?) "(.*?)" "(.*?)" "(.*?)"', re.IGNORECASE)
 # Note: If ; not present, CTR value is invalid
 pat_dynamic_ctr = re.compile(r"""CTR:\d*\s.*;""", re.IGNORECASE)
 
-MAX_BUFFER = 8192
-
 # Cache for model data
 model_dat = models.ModelData()
 
 ip_pat = re.compile(r"""\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b""", re.IGNORECASE)
-
 dev_pat = re.compile(r"""/dev/.+""", re.IGNORECASE)
 usb_pat = re.compile(r"""(\d+):(\d+)""", re.IGNORECASE)
 
@@ -297,12 +304,6 @@ def makeURI(param, port=1):
     cups_uri, sane_uri, fax_uri = '', '', ''
     found = False
 
-    # see if the param represents a hostname
-    try:
-        param = socket.gethostbyname(param)
-    except socket.gaierror:
-        log.debug("Gethostbyname() failed. Trying other patterns...")
-
     if dev_pat.search(param) is not None: # parallel
         log.debug("Trying parallel with %s" % param)
 
@@ -342,7 +343,19 @@ def makeURI(param, port=1):
         else:
             log.debug("Not found.")
 
-    else: # serial
+    else: # Try Zeroconf hostname
+        log.debug("Trying ZC hostname %s" % param)
+
+        result_code, uri = hpmudext.make_zc_uri(param, port)
+
+        if result_code == hpmudext.HPMUD_R_OK and uri:
+            log.debug("Found: %s" % uri)
+            found = True
+            cups_uri = uri
+        else:
+            log.debug("Not found.")
+
+    if not found:
         log.debug("Trying serial number %s" % param)
         devices = probeDevices(bus=['usb', 'par'])
 
@@ -351,7 +364,7 @@ def makeURI(param, port=1):
 
             # usb has serial in URI...
             try:
-                back_end, is_hp, bus, model, serial, dev_file, host, port = \
+                back_end, is_hp, bus, model, serial, dev_file, host, zc, port = \
                     parseDeviceURI(d)
             except Error:
                 continue
@@ -413,7 +426,7 @@ def queryModelByModel(model):
 def queryModelByURI(device_uri):
     try:
         back_end, is_hp, bus, model, \
-            serial, dev_file, host, port = \
+            serial, dev_file, host, zc, port = \
             parseDeviceURI(device_uri)
     except Error:
         raise Error(ERROR_INVALID_DEVICE_URI)
@@ -426,7 +439,7 @@ def queryModelByURI(device_uri):
 #
 
 def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
-                 ttl=4, filter=DEFAULT_FILTER,  search='', net_search='slp',
+                 ttl=4, filter=DEFAULT_FILTER,  search='', net_search='mdns',
                  back_end_filter=('hp',)):
 
     num_devices, ret_devices = 0, {}
@@ -473,9 +486,15 @@ def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
                             model = models.normalizeModelName(device_id.get('MDL', '?UNKNOWN?'))
 
                             if num_ports_on_jd == 1:
-                                device_uri = 'hp:/net/%s?ip=%s' % (model, ip)
+                                if net_search == 'slp':
+                                    device_uri = 'hp:/net/%s?ip=%s' % (model, ip)
+                                else:
+                                    device_uri = 'hp:/net/%s?zc=%s' % (model, hn)
                             else:
-                                device_uri = 'hp:/net/%s?ip=%s&port=%d' % (model, ip, (port+1))
+                                if net_search == 'slp':
+                                    device_uri = 'hp:/net/%s?ip=%s&port=%d' % (model, ip, (port + 1))
+                                else:
+                                    device_uri = 'hp:/net/%s?zc=%s&port=%d' % (model, hn, (port + 1))
 
                             include = True
                             mq = queryModelByModel(model)
@@ -514,7 +533,7 @@ def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
                     log.debug(uri)
 
                     try:
-                        back_end, is_hp, bb, model, serial, dev_file, host, port = \
+                        back_end, is_hp, bb, model, serial, dev_file, host, zc, port = \
                             parseDeviceURI(uri)
                     except Error:
                         continue
@@ -548,7 +567,7 @@ def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
 
                 if device_uri != '':
                     try:
-                        back_end, is_hp, bs, model, serial, dev_file, host, port = \
+                        back_end, is_hp, bs, model, serial, dev_file, host, zc, port = \
                             parseDeviceURI(device_uri)
                     except Error:
                         log.debug("Unrecognized URI: %s" % device_uri)
@@ -603,7 +622,7 @@ def getSupportedCUPSDevices(back_end_filter=['hp'], filter=DEFAULT_FILTER):
 
     for p in printers:
         try:
-            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+            back_end, is_hp, bus, model, serial, dev_file, host, zc, port = \
                 parseDeviceURI(p.device_uri)
 
         except Error:
@@ -649,7 +668,7 @@ def getSupportedCUPSPrinters(back_end_filter=['hp'], filter=DEFAULT_FILTER):
 
     for p in printers:
         try:
-            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+            back_end, is_hp, bus, model, serial, dev_file, host, zc, port = \
                 parseDeviceURI(p.device_uri)
 
         except Error:
@@ -692,7 +711,7 @@ def getDeviceURIByPrinterName(printer_name, scan_uri_flag=False):
 
     for p in printers:
         try:
-            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+            back_end, is_hp, bus, model, serial, dev_file, host, zc, port = \
                 parseDeviceURI(p.device_uri)
 
         except Error:
@@ -785,7 +804,10 @@ def parseDeviceURI(device_uri):
     serial = m.group(4) or ''
     dev_file = m.group(5) or ''
     host = m.group(6) or ''
-    port = m.group(7) or 1
+    zc = ''
+    if not host:
+        zc = host = m.group(7) or ''
+    port = m.group(8) or 1
 
     if bus == 'net':
         try:
@@ -796,7 +818,10 @@ def parseDeviceURI(device_uri):
         if port == 0:
             port = 1
 
-    return back_end, is_hp, bus, model, serial, dev_file, host, port
+    log.debug("%s: back_end:%s is_hp:%s bus:%s model:%s serial:%s dev_file:%s host:%s zc:%s port:%s" %
+        (device_uri, back_end, is_hp, bus, model, serial, dev_file, host, zc, port))
+
+    return back_end, is_hp, bus, model, serial, dev_file, host, zc, port
 
 
 def isLocal(bus):
@@ -1032,7 +1057,7 @@ class Device(object):
 
         try:
             self.back_end, self.is_hp, self.bus, self.model, \
-                self.serial, self.dev_file, self.host, self.port = \
+                self.serial, self.dev_file, self.host, self.zc, self.port = \
                 parseDeviceURI(self.device_uri)
         except Error:
             self.io_state = IO_STATE_NON_HP
@@ -1080,18 +1105,7 @@ class Device(object):
         self.device_state = DEVICE_STATE_NOT_FOUND
         self.status_code = EVENT_ERROR_DEVICE_NOT_FOUND
 
-        for p in printers:
-            if self.device_uri == p.device_uri:
-                self.cups_printers.append(p.name)
-                self.state = p.state # ?
-
-                if self.io_state == IO_STATE_NON_HP:
-                    self.model = p.makemodel.split(',')[0]
-
-        try:
-            self.first_cups_printer = self.cups_printers[0]
-        except IndexError:
-            self.first_cups_printer = ''
+        self.updateCUPSPrinters()
 
         if self.mq.get('fax-type', FAX_TYPE_NONE) != FAX_TYPE_NONE:
             self.dq.update({ 'fax-uri' : self.device_uri.replace('hp:/', 'hpfax:/').replace('hpaio:/', 'hpfax:/')})
@@ -1106,7 +1120,7 @@ class Device(object):
             'dev-file'         : self.dev_file,
             'host'             : self.host,
             'port'             : self.port,
-            'cups-printer'     : ','.join(self.cups_printers),
+            'cups-printers'    : ','.join(self.cups_printers),
             'status-code'      : self.status_code,
             'status-desc'      : '',
             'deviceid'         : '',
@@ -1161,10 +1175,6 @@ class Device(object):
 
 
     def open(self, open_for_printing=False):
-#       print "open()"
-#       raise Error(ERROR_DEVICE_NOT_FOUND)
-#       return
-
         if self.supported and self.io_state in (IO_STATE_HP_READY, IO_STATE_HP_NOT_AVAIL):
             prev_device_state = self.device_state
             self.io_state = IO_STATE_HP_NOT_AVAIL
@@ -1294,6 +1304,9 @@ class Device(object):
     def openPML(self):
         return self.__openChannel(hpmudext.HPMUD_S_PML_CHANNEL)
 
+    def openWifiConfig(self):
+        return self.__openChannel(hpmudext.HPMUD_S_WIFI_CHANNEL)
+
     def closePML(self):
         return self.__closeChannel(hpmudext.HPMUD_S_PML_CHANNEL)
 
@@ -1317,6 +1330,9 @@ class Device(object):
 
     def closeSoapFax(self):
         return self.__closeChannel(hpmudext.HPMUD_S_SOAP_FAX)
+
+    def closeWifiConfig(self):
+        return self.__closeChannel(hpmudext.HPMUD_S_WIFI_CHANNEL)
 
     def __closeChannel(self, service_name):
         #if not self.mq['io-mode'] == IO_MODE_UNI and \
@@ -1486,10 +1502,6 @@ class Device(object):
 
 
     def __queryFax(self, quick=False, reread_cups_printers=False):
-#       print "__queryFax()"
-#       raise Error(ERROR_DEVICE_IO_ERROR)
-#       return
-
         io_mode = self.mq.get('io-mode', IO_MODE_UNI)
         self.status_code = STATUS_PRINTER_IDLE
 
@@ -1508,11 +1520,9 @@ class Device(object):
 
                 status_desc = self.queryString(self.status_code)
 
-                #print self.status_code
-
                 self.dq.update({
                     'serial'           : self.serial,
-                    'cups-printer'     : ','.join(self.cups_printers),
+                    'cups-printers'    : ','.join(self.cups_printers),
                     'status-code'      : self.status_code,
                     'status-desc'      : status_desc,
                     'deviceid'         : self.raw_deviceID,
@@ -1533,13 +1543,9 @@ class Device(object):
             elif rx_active:
                 self.status_code = STATUS_FAX_RX_ACTIVE
 
-            #print self.status_code
-
             self.error_state = STATUS_TO_ERROR_STATE_MAP.get(self.status_code, ERROR_STATE_CLEAR)
             self.error_code = self.status_code
             self.sendEvent(self.error_code)
-
-            #print "Error state=", self.error_state, self.device_uri
 
             try:
                 self.dq.update({'status-desc' : self.queryString(self.status_code),
@@ -1571,45 +1577,40 @@ class Device(object):
                                   'panel-line2': line2,})
 
             if not quick and reread_cups_printers:
-                self.cups_printers = []
-                log.debug("Re-reading CUPS printer queue information.")
-                printers = cups.getPrinters()
-                for p in printers:
-                    if self.device_uri == p.device_uri:
-                        self.cups_printers.append(p.name)
-                        self.state = p.state # ?
-
-                        if self.io_state == IO_STATE_NON_HP:
-                            self.model = p.makemodel.split(',')[0]
-
-                self.dq.update({'cups-printer' : ','.join(self.cups_printers)})
-
-                try:
-                    self.first_cups_printer = self.cups_printers[0]
-                except IndexError:
-                    self.first_cups_printer = ''
-
+                self.updateCUPSPrinters()
 
         for d in self.dq:
             self.__dict__[d.replace('-','_')] = self.dq[d]
 
         self.last_event = Event(self.device_uri, '', self.status_code, prop.username, 0, '', time.time())
-        #print self.last_event
 
         log.debug(self.dq)
 
-        #import pprint
 
-        #pprint.pprint(self.dq)
+
+    def updateCUPSPrinters(self):
+        self.cups_printers = []
+        log.debug("Re-reading CUPS printer queue information.")
+        printers = cups.getPrinters()
+        for p in printers:
+            if self.device_uri == p.device_uri:
+                self.cups_printers.append(p.name)
+                self.state = p.state # ?
+
+                if self.io_state == IO_STATE_NON_HP:
+                    self.model = p.makemodel.split(',')[0]
+
+        self.dq.update({'cups-printers' : ','.join(self.cups_printers)})
+
+        try:
+            self.first_cups_printer = self.cups_printers[0]
+        except IndexError:
+            self.first_cups_printer = ''
 
 
 
 
     def queryDevice(self, quick=False, reread_cups_printers=False):
-#       print "queryDevice()"
-#       raise Error(ERROR_DEVICE_IO_ERROR)
-#       return
-
         if not self.supported:
             self.dq = {}
 
@@ -1651,7 +1652,7 @@ class Device(object):
 
             self.dq.update({
                 'serial'           : self.serial,
-                'cups-printer'     : ','.join(self.cups_printers),
+                'cups-printers'    : ','.join(self.cups_printers),
                 'status-code'      : self.status_code,
                 'status-desc'      : status_desc,
                 'deviceid'         : self.raw_deviceID,
@@ -1726,8 +1727,6 @@ class Device(object):
             self.error_code = status_code
             self.sendEvent(self.error_code)
 
-            #print "Error state=", self.error_state, self.device_uri
-
             try:
                 self.dq.update({'status-desc' : self.queryString(status_code),
                                 'error-state' : self.error_state,
@@ -1773,23 +1772,7 @@ class Device(object):
                               })
 
             if not quick and reread_cups_printers:
-                self.cups_printers = []
-                log.debug("Re-reading CUPS printer queue information.")
-                printers = cups.getPrinters()
-                for p in printers:
-                    if self.device_uri == p.device_uri:
-                        self.cups_printers.append(p.name)
-                        self.state = p.state # ?
-
-                        if self.io_state == IO_STATE_NON_HP:
-                            self.model = p.makemodel.split(',')[0]
-
-                self.dq.update({'cups-printer' : ','.join(self.cups_printers)})
-
-                try:
-                    self.first_cups_printer = self.cups_printers[0]
-                except IndexError:
-                    self.first_cups_printer = ''
+                self.updateCUPSPrinters()
 
             if not quick:
                 # Make sure there is some valid agent data for this r_value
@@ -2108,15 +2091,16 @@ class Device(object):
     def readSoapFax(self, bytes_to_read, stream=None, timeout=prop.read_timeout, allow_short_read=True):
         return self.__readChannel(self.openSoapFax, bytes_to_read, stream, timeout, allow_short_read)
 
+    def readWifiConfig(self, bytes_to_read, stream=None, timeout=prop.read_timeout, allow_short_read=True):
+        return self.__readChannel(self.openWifiConfig, bytes_to_read, stream, timeout, allow_short_read)
+
     def __readChannel(self, opener, bytes_to_read, stream=None,
                       timeout=prop.read_timeout, allow_short_read=False):
-#       print "__readChannel()"
-#       raise Error(ERROR_DEVICE_IO_ERROR)
-#       return 0
 
         channel_id = opener()
 
-        log.debug("Reading channel %d..." % channel_id)
+        log.debug("Reading channel %d (device-id=%d, bytes_to_read=%d, allow_short=%s, timeout=%d)..." %
+            (channel_id, self.device_id, bytes_to_read, allow_short_read, timeout))
 
         num_bytes = 0
 
@@ -2126,6 +2110,8 @@ class Device(object):
         while True:
             result_code, data = \
                 hpmudext.read_channel(self.device_id, channel_id, bytes_to_read, timeout)
+
+            log.debug("Result code=%d" % result_code)
 
             l = len(data)
 
@@ -2185,21 +2171,21 @@ class Device(object):
     def writeSoapFax(self, data):
         return self.__writeChannel(self.openSoapFax, data)
 
+    def writeWifiConfig(self, data):
+        return self.__writeChannel(self.openWifiConfig, data)
 
     def __writeChannel(self, opener, data):
-#       print "__writeChannel()"
-#       raise Error(ERROR_DEVICE_IO_ERROR)
-#       return 0
-
         channel_id = opener()
-
         buffer, bytes_out, total_bytes_to_write = data, 0, len(data)
-        log.debug("Writing %d bytes to channel %d..." % (total_bytes_to_write,channel_id))
+
+        log.debug("Writing %d bytes to channel %d (device-id=%d)..." % (total_bytes_to_write, channel_id, self.device_id))
 
         while len(buffer) > 0:
             result_code, bytes_written = \
                 hpmudext.write_channel(self.device_id, channel_id,
                     buffer[:prop.max_message_len])
+
+            log.debug("Result code=%d" % result_code)
 
             if result_code != hpmudext.HPMUD_R_OK:
                 log.error("Channel write error")
@@ -2287,9 +2273,9 @@ class Device(object):
         is_gzip = os.path.splitext(file_name)[-1].lower() == '.gz'
 
         if printer_name is None:
-            try:
-                printer_name = self.cups_printers[0]
-            except IndexError:
+            printer_name = self.first_cups_printer
+
+            if not printer_name:
                 raise Error(ERROR_NO_CUPS_QUEUE_FOUND_FOR_DEVICE)
 
         log.debug("Printing file '%s' to queue '%s' (gzip=%s, direct=%s, raw=%s, remove=%s)" %
@@ -2401,6 +2387,10 @@ class Device(object):
                 data = self
             else:
                 url2 = "http://%s%s" % (self.host, url)
+                if self.zc:
+                    status, ip = hpmudext.get_zc_ip_address(self.zc)
+                    if status == hpmudext.HPMUD_R_OK:
+                        url2 = "http://%s%s" % (ip, url)
                 data = None
 
             log.debug("Opening: %s" % url2)
