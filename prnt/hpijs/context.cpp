@@ -1,7 +1,7 @@
 /*****************************************************************************\
   context.cpp : Implimentation for the PrintContext class
 
-  Copyright (c) 1996 - 2001, Hewlett-Packard Co.
+  Copyright (c) 1996 - 2006, Hewlett-Packard Co.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -1245,14 +1245,17 @@ DRIVER_ERROR PrintContext::SelectDevice
     {
         return UNSUPPORTED_PRINTER;
     }
-    thePrinter = pPFI->CreatePrinter(pSS, familyHandle);
+    thePrinter = pPFI->CreatePrinter (pSS, familyHandle);
+    if (thePrinter->constructor_error != NO_ERROR)
+    {
+        return thePrinter->constructor_error;
+    }
 
+    const char* model = pPFI->GetFamilyName (familyHandle);
 
-    const char* model = pPFI->GetFamilyName(familyHandle);
+    pSS->AdjustIO (thePrinter->IOMode, model);
 
-    pSS->AdjustIO(thePrinter->IOMode, model);
-
-    PAPER_SIZE ps = thePrinter->MandatoryPaperSize();
+    PAPER_SIZE ps = thePrinter->MandatoryPaperSize ();
     if (ps != UNSUPPORTED_SIZE)
     {
         if ((PSM[ps].fPhysicalPageX < PSM[thePaperSize].fPhysicalPageX))
@@ -2030,6 +2033,16 @@ void PrintContext::ResetIOMode (BOOL bDevID, BOOL bStatus)
         thePrinter->bCheckForCancelButton = bDevID;
     }
 }
-  
+
+#ifdef APDK_LINUX
+DRIVER_ERROR PrintContext::SetPrinterHint (int iHint, int iValue)
+{
+    if (thePrinter)
+    {
+        return thePrinter->SetHint (iHint, iValue);
+    }
+    return NO_ERROR;
+}
+#endif // APDK_LINUX
 
 APDK_END_NAMESPACE

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ def getPowerSettings(d):
     value = d.getDynamicCounter(256, False)
     log.debug("Current power settings: %s" % value)
     d.closePrint()
-    return value[5:8]
+    return value[6:9]
 
 def setPowerSettings(d, value):
     log.debug("Setting power setting to %s" % value)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ from __future__ import division
 # Std Lib
 import struct, cStringIO 
 import xml.parsers.expat as expat
+import re
 
 # Local
 from g import *
@@ -173,6 +174,7 @@ def parseSStatus(s, z=''):
 
         if pen_data_size == 4:
             pen['type'] = REVISION_2_TYPE_MAP.get(int((info & 0xf000L) >> 12L), 0)
+            
             if index < (num_pens / 2):
                 pen['kind'] = AGENT_KIND_HEAD
             else:
@@ -235,7 +237,7 @@ def parseVStatus(s):
     pens, pen, c = [], {}, 0
     fields = s.split(',')
     f0 = fields[0]
-    
+
     if len(f0) == 20:
         # TODO: $H00000000$M00000000 style (OJ Pro 1150/70)
         # Need spec
@@ -260,10 +262,10 @@ def parseVStatus(s):
             elif c == 3:
                 if p == '0': pen['state'] = 1
                 else: pen['state'] = 0
-    
+
                 pen['level'] = 0
                 i = 8
-    
+
                 while True:
                     try:
                         f = fields[i]
@@ -275,13 +277,13 @@ def parseVStatus(s):
                         elif f[:2] == 'CP' and pen['type'] == AGENT_TYPE_CMY:
                             pen['level'] = int(f[2:])
                     i += 1
-    
+
                 pens.append(pen)
                 pen = {}
                 c = 0
     else:
         pass
-        
+
     if fields[2] == 'DN':
         top_lid = 1
     else:
@@ -395,15 +397,15 @@ MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP = {
 def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
     try:
         dev.openPML()
-        result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
-        result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
+        #result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
+        #result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
         result_code, printer_status = dev.getPML( pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
         result_code, device_status = dev.getPML( pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
         result_code, cover_status = dev.getPML( pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
-        result_code,  value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
+        result_code, value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
     except Error:
        dev.closePML()
-       
+
        return {'revision' :    STATUS_REV_UNKNOWN,
                  'agents' :      [],
                  'top-door' :    0,
@@ -414,13 +416,13 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
                  'in-tray1' :    0,
                  'in-tray2' :    0,
                  'media-path' :  0,
-               }        
-        
+               }
+
     try:
         detected_error_state = struct.unpack( 'B', value[0])[0]
-    except IndexError:
+    except (IndexError, TypeError):
         detected_error_state = pml.DETECTED_ERROR_STATE_OFFLINE_MASK
-    
+
     agents, x = [], 1
 
     while True:
@@ -441,7 +443,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
             agent_kind = AGENT_KIND_UNKNOWN
 
         # TODO: Deal with printers that return -1 and -2 for level and max (LJ3380)
-        
+
         log.debug("OID_MARKER_SUPPLIES_LEVEL_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
         result_code, agent_level = dev.getPML( oid )
@@ -449,12 +451,12 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
         if result_code != ERROR_SUCCESS:
             log.debug("Failed")
             break
-            
+
         log.debug( 'agent%d-level: %d' % ( x, agent_level ) )
         log.debug("OID_MARKER_SUPPLIES_MAX_%d:" % x)
         oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
         result_code, agent_max = dev.getPML( oid )
-        
+
         if agent_max == 0: agent_max = 1
 
         if result_code != ERROR_SUCCESS:
@@ -476,7 +478,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
             log.debug("OID_MARKER_COLORANT_VALUE_%d" % x)
             oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
             result_code, colorant_value = dev.getPML( oid )
-    
+
             if result_code != ERROR_SUCCESS:
                 log.debug("Failed. Defaulting to black.")
                 agent_type = AGENT_TYPE_BLACK
@@ -484,43 +486,43 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
             if 1:
                 if agent_kind in (AGENT_KIND_MAINT_KIT, AGENT_KIND_ADF_KIT,
                                   AGENT_KIND_DRUM_KIT, AGENT_KIND_TRANSFER_KIT):
-        
+
                     agent_type = AGENT_TYPE_UNSPECIFIED
-        
+
                 else:
                     agent_type = AGENT_TYPE_BLACK
-        
+
                     if result_code != ERROR_SUCCESS:
                         log.debug("OID_MARKER_SUPPLIES_DESCRIPTION_%d:" % x)
                         oid = (pml.OID_MARKER_SUPPLIES_DESCRIPTION_x % x, pml.OID_MARKER_SUPPLIES_DESCRIPTION_x_TYPE)
                         result_code, colorant_value = dev.getPML( oid )
-                        
+
                         if result_code != ERROR_SUCCESS:
                             log.debug("Failed")
                             break
-        
+
                         if colorant_value is not None:
                             log.debug("colorant value: %s" % colorant_value)
                             colorant_value = colorant_value.lower().strip()
-        
+
                             for c in COLORANT_INDEX_TO_AGENT_TYPE_MAP:
                                 if colorant_value.find(c) >= 0:
                                     agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP[c]
                                     break
                             else:
                                 agent_type = AGENT_TYPE_BLACK
-        
+
                     else: # SUCCESS
                         if colorant_value is not None:
                             log.debug("colorant value: %s" % colorant_value)
-                            agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
-        
+                            agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, AGENT_TYPE_BLACK )
+
                         if agent_type == AGENT_TYPE_NONE:
                             if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
                                 agent_type = AGENT_TYPE_BLACK
                             else:
                                 agent_type = AGENT_TYPE_UNSPECIFIED
-    
+
         log.debug("OID_MARKER_STATUS_%d:" % x)
         oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
         result_code, agent_status = dev.getPML( oid )
@@ -551,7 +553,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
                 agent_health = AGENT_HEALTH_OK
 
         agent_level = int(agent_level/agent_max * 100)
-
+        
         log.debug("agent%d: kind=%d, type=%d, health=%d, level=%d, level-trigger=%d" % \
             (x, agent_kind, agent_type, agent_health, agent_level, agent_trigger))
 
@@ -563,13 +565,18 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
                        'level-trigger' : agent_trigger,})
 
         x += 1
-    
+        
+        if x > 20:
+            break
 
-    log.debug("on_off_line=%d" % on_off_line)
-    log.debug("sleep_mode=%d" % sleep_mode)
+
+    printer_status = printer_status or STATUS_PRINTER_IDLE
     log.debug("printer_status=%d" % printer_status)
+    device_status = device_status or pml.DEVICE_STATUS_RUNNING
     log.debug("device_status=%d" % device_status)
+    cover_status = cover_status or pml.COVER_STATUS_CLOSED
     log.debug("cover_status=%d" % cover_status)
+    detected_error_state = detected_error_state or pml.DETECTED_ERROR_STATE_NO_ERROR
     log.debug("detected_error_state=%d (0x%x)" % (detected_error_state, detected_error_state))
 
     stat = LaserJetDeviceStatusToPrinterStatus(device_status, printer_status, detected_error_state)
@@ -692,10 +699,10 @@ BATTERY_PML_TRIGGER_MAP = {
         (4,   -1)  : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
         }
 
-        
+
 def BatteryCheck(dev, status_block):
     try_dynamic_counters = False
-    
+
     try:
         try:
             dev.openPML()
@@ -705,27 +712,27 @@ def BatteryCheck(dev, status_block):
         else:
             result, battery_level = dev.getPML(pml.OID_BATTERY_LEVEL)
             result, power_mode =  dev.getPML(pml.OID_POWER_MODE)
-    
+
             if battery_level is not None and \
                 power_mode is not None:
-    
+
                 if power_mode & pml.POWER_MODE_BATTERY_LEVEL_KNOWN and \
                     battery_level >= 0:
-    
+
                     for x in BATTERY_PML_TRIGGER_MAP:
                         if x[0] >= battery_level > x[1]:
                             battery_trigger_level = BATTERY_PML_TRIGGER_MAP[x]
                             break
-    
+
                     if power_mode & pml.POWER_MODE_CHARGING:
                         agent_health = AGENT_HEALTH_CHARGING
-    
+
                     elif power_mode & pml.POWER_MODE_DISCHARGING:
                         agent_health = AGENT_HEALTH_DISCHARGING
-    
+
                     else:
                         agent_health = AGENT_HEALTH_OK
-    
+
                     status_block['agents'].append({
                                                     'kind'   : AGENT_KIND_INT_BATTERY,
                                                     'type'   : AGENT_TYPE_UNSPECIFIED,
@@ -741,7 +748,7 @@ def BatteryCheck(dev, status_block):
                                                     'level'  : 0,
                                                     'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
                                                     })
-    
+
             else:
                 try_dynamic_counters = True
 
@@ -773,7 +780,7 @@ def BatteryCheck(dev, status_block):
                                                 })
         finally:
             dev.closePrint()
-            
+
 
 # this works for 2 pen products that allow 1 or 2 pens inserted
 # from: k, kcm, cmy, ggk
@@ -816,28 +823,28 @@ def getPenConfiguration(s): # s=status dict from parsed device ID
 
 def getFaxStatus(dev):
     tx_active, rx_active = False, False
-    
+
     try:
         dev.openPML()
-    
+
         result_code, tx_state = dev.getPML(pml.OID_FAXJOB_TX_STATUS)
-        
-        if result_code == ERROR_SUCCESS:
+
+        if result_code == ERROR_SUCCESS and tx_state:
             if tx_state not in (pml.FAXJOB_TX_STATUS_IDLE, pml.FAXJOB_TX_STATUS_DONE):
                 tx_active = True
-        
+
         result_code, rx_state = dev.getPML(pml.OID_FAXJOB_RX_STATUS)
 
-        if result_code == ERROR_SUCCESS:
+        if result_code == ERROR_SUCCESS and rx_state:
             if rx_state not in (pml.FAXJOB_RX_STATUS_IDLE, pml.FAXJOB_RX_STATUS_DONE):
                 rx_active = True
-    
+
     finally:
         dev.closePML()
-        
+
     return tx_active, rx_active
-    
-    
+
+
 TYPE6_STATUS_CODE_MAP = {
      0    : STATUS_PRINTER_IDLE, #</DevStatusUnknown>
     -19928: STATUS_PRINTER_IDLE,
@@ -958,29 +965,28 @@ TYPE6_STATUS_CODE_MAP = {
     -13841: STATUS_PRINTER_BUSY, #</DevStatusNoFaxDetected>
     -13848: STATUS_PRINTER_BUSY, #</DevStatusFaxMemoryFullReceive>
     -13849: STATUS_PRINTER_BUSY, #</DevStatusFaxReceiveError>
-    
+
 }    
 
 def StatusType6(dev): #  LaserJet Status (XML)
     info_device_status = cStringIO.StringIO()
     info_ssp = cStringIO.StringIO()
-    
+
     dev.getEWSUrl("/hp/device/info_device_status.xml", info_device_status)
     dev.getEWSUrl("/hp/device/info_ssp.xml", info_ssp)
-    
+
     info_device_status = info_device_status.getvalue()
     info_ssp = info_ssp.getvalue()
-    
+
     device_status = {}
     ssp = {}
-    
+
     if info_device_status:
         try:
             device_status = utils.XMLToDictParser().parseXML(info_device_status)
             log.debug_block("info_device_status", info_device_status)
             log.debug(device_status)
         except expat.ExpatError:
-            print repr(e)
             log.error("Device Status XML parse error")
             device_status = {}
 
@@ -992,23 +998,23 @@ def StatusType6(dev): #  LaserJet Status (XML)
         except expat.ExpatError:
             log.error("SSP XML parse error")            
             ssp = {}
-    
+
     status_code = device_status.get('devicestatuspage-devicestatus-statuslist-status-code-0', 0)
-    
+
     if not status_code:
         status_code = ssp.get('devicestatuspage-devicestatus-statuslist-status-code-0', 0)
-    
+
     black_supply_level = device_status.get('devicestatuspage-suppliesstatus-blacksupply-percentremaining', 0)
     black_supply_low = ssp.get('suppliesstatuspage-blacksupply-lowreached', 0)
     agents = []
-    
+
     agents.append({  'kind' : AGENT_KIND_TONER_CARTRIDGE,
                      'type' : AGENT_TYPE_BLACK,
                      'health' : 0,
                      'level' : black_supply_level,
                      'level-trigger' : 0,
                   })
-    
+
     if dev.tech_type == TECH_TYPE_COLOR_LASER:
         cyan_supply_level = device_status.get('devicestatuspage-suppliesstatus-cyansupply-percentremaining', 0)
         agents.append({  'kind' : AGENT_KIND_TONER_CARTRIDGE,
@@ -1037,7 +1043,6 @@ def StatusType6(dev): #  LaserJet Status (XML)
     return {'revision' :    STATUS_REV_UNKNOWN,
              'agents' :      agents,
              'top-door' :    0,
-             'status-code' : 0,
              'supply-door' : 0,
              'duplexer' :    1,
              'photo-tray' :  0,
@@ -1046,9 +1051,255 @@ def StatusType6(dev): #  LaserJet Status (XML)
              'media-path' :  1,
              'status-code' : TYPE6_STATUS_CODE_MAP.get(status_code, STATUS_PRINTER_IDLE),
            }     
+
+# PJL status codes
+TYPE8_STATUS_CODE_MAP = {
+    10001: STATUS_PRINTER_IDLE, # online
+    10002: STATUS_PRINTER_OFFLINE, # offline
+    10003: STATUS_PRINTER_WARMING_UP,
+    10004: STATUS_PRINTER_BUSY, # self test
+    10005: STATUS_PRINTER_BUSY, # reset
+    10006: STATUS_PRINTER_LOW_TONER,
+    10007: STATUS_PRINTER_CANCELING,
+    10010: STATUS_PRINTER_SERVICE_REQUEST,
+    10011: STATUS_PRINTER_OFFLINE,
+    10013: STATUS_PRINTER_BUSY,
+    10014: STATUS_PRINTER_REPORT_PRINTING,
+    10015: STATUS_PRINTER_BUSY,
+    10016: STATUS_PRINTER_BUSY,
+    10017: STATUS_PRINTER_REPORT_PRINTING,
+    10018: STATUS_PRINTER_BUSY,
+    10019: STATUS_PRINTER_BUSY,
+    10020: STATUS_PRINTER_BUSY,
+    10021: STATUS_PRINTER_BUSY,
+    10022: STATUS_PRINTER_REPORT_PRINTING,
+    10023: STATUS_PRINTER_PRINTING,
+    10024: STATUS_PRINTER_SERVICE_REQUEST,
+    10025: STATUS_PRINTER_SERVICE_REQUEST,
+    10026: STATUS_PRINTER_BUSY,
+    10027: STATUS_PRINTER_MEDIA_JAM,
+    10028: STATUS_PRINTER_REPORT_PRINTING,
+    10029: STATUS_PRINTER_PRINTING,
+    10030: STATUS_PRINTER_BUSY,
+    10031: STATUS_PRINTER_BUSY,
+    10032: STATUS_PRINTER_BUSY,
+    10033: STATUS_PRINTER_SERVICE_REQUEST,
+    10034: STATUS_PRINTER_CANCELING,
+    10035: STATUS_PRINTER_PRINTING,
+    10036: STATUS_PRINTER_WARMING_UP,
+    10200: STATUS_PRINTER_LOW_BLACK_TONER,
+    10201: STATUS_PRINTER_LOW_CYAN_TONER,
+    10202: STATUS_PRINTER_LOW_MAGENTA_TONER,
+    10203: STATUS_PRINTER_LOW_YELLOW_TONER,
+    10204: STATUS_PRINTER_LOW_TONER, # order image drum
+    10205: STATUS_PRINTER_LOW_BLACK_TONER, # order black drum
+    10206: STATUS_PRINTER_LOW_CYAN_TONER, # order cyan drum
+    10207: STATUS_PRINTER_LOW_MAGENTA_TONER, # order magenta drum
+    10208: STATUS_PRINTER_LOW_YELLOW_TONER, # order yellow drum
+    10209: STATUS_PRINTER_LOW_BLACK_TONER,
+    10210: STATUS_PRINTER_LOW_CYAN_TONER,
+    10211: STATUS_PRINTER_LOW_MAGENTA_TONER,
+    10212: STATUS_PRINTER_LOW_YELLOW_TONER,
+    10213: STATUS_PRINTER_SERVICE_REQUEST, # order transport kit
+    10214: STATUS_PRINTER_SERVICE_REQUEST, # order cleaning kit
+    10215: STATUS_PRINTER_SERVICE_REQUEST, # order transfer kit
+    10216: STATUS_PRINTER_SERVICE_REQUEST, # order fuser kit
+    10217: STATUS_PRINTER_SERVICE_REQUEST, # maintenance
+    10218: STATUS_PRINTER_LOW_TONER,
+    10300: STATUS_PRINTER_LOW_BLACK_TONER, # replace black toner
+    10301: STATUS_PRINTER_LOW_CYAN_TONER, # replace cyan toner
+    10302: STATUS_PRINTER_LOW_MAGENTA_TONER, # replace magenta toner
+    10303: STATUS_PRINTER_LOW_YELLOW_TONER, # replace yellow toner
+    10304: STATUS_PRINTER_SERVICE_REQUEST, # replace image drum
+    10305: STATUS_PRINTER_SERVICE_REQUEST, # replace black drum
+    10306: STATUS_PRINTER_SERVICE_REQUEST, # replace cyan drum
+    10307: STATUS_PRINTER_SERVICE_REQUEST, # replace magenta drum
+    10308: STATUS_PRINTER_SERVICE_REQUEST, # replace yellow drum
+    10309: STATUS_PRINTER_SERVICE_REQUEST, # replace black cart
+    10310: STATUS_PRINTER_SERVICE_REQUEST, # replace cyan cart
+    10311: STATUS_PRINTER_SERVICE_REQUEST, # replace magenta cart
+    10312: STATUS_PRINTER_SERVICE_REQUEST, # replace yellow cart
+    10313: STATUS_PRINTER_SERVICE_REQUEST, # replace transport kit
+    10314: STATUS_PRINTER_SERVICE_REQUEST, # replace cleaning kit
+    10315: STATUS_PRINTER_SERVICE_REQUEST, # replace transfer kit
+    10316: STATUS_PRINTER_SERVICE_REQUEST, # replace fuser kit
+    10317: STATUS_PRINTER_SERVICE_REQUEST,
+    10318: STATUS_PRINTER_SERVICE_REQUEST, # replace supplies
+    10400: STATUS_PRINTER_NON_HP_INK, # [sic]
+    10401: STATUS_PRINTER_IDLE,
+    10402: STATUS_PRINTER_SERVICE_REQUEST,
+    10403: STATUS_PRINTER_IDLE,
+    # 11xyy - Background paper-loading
+    # 12xyy - Background paper-tray status
+    # 15xxy - Output-bin status
+    # 20xxx - PJL parser errors
+    # 25xxx - PJL parser warnings
+    # 27xxx - PJL semantic errors
+    # 30xxx - Auto continuable conditions
+    30119: STATUS_PRINTER_MEDIA_JAM,
+    # 32xxx - PJL file system errors
+    # 35xxx - Potential operator intervention conditions
+    # 40xxx - Operator intervention conditions
+    40021: STATUS_PRINTER_DOOR_OPEN,
+    40022: STATUS_PRINTER_MEDIA_JAM,
+    40038: STATUS_PRINTER_LOW_TONER,
+    40600: STATUS_PRINTER_NO_TONER,
+    # 41xyy - Foreground paper-loading messages
+    # 43xyy - Optional paper handling device messages
+    # 44xyy - LJ 4xxx/5xxx paper jam messages
+    # 50xxx - Hardware errors
+    # 55xxx - Personality errors
     
+}
+
+
+           
+pjl_code_pat = re.compile("""^CODE\s*=\s*(\d.*)$""", re.IGNORECASE)
+
+def StatusType8(dev): #  LaserJet PJL
+    try:
+        dev.openPrint()
+    except Error, e:
+        log.warn(e.msg)
+        
+    dev.writePrint("\x1b%-12345X@PJL INFO STATUS \r\n\x1b%-12345X")
+    pjl_return = dev.readPrint(1024, timeout=5, allow_short_read=True)
+    dev.close()
+
+    log.debug_block("PJL return:", pjl_return)
+    
+    code = '10001'
+    
+    for line in pjl_return.splitlines():
+        line = line.strip()
+        match = pjl_code_pat.match(line)
+        
+        if match is not None:
+            code = match.group(1)
+            break
+    
+    log.debug("Code = %s" % code)
+    
+    try:
+        error_code = int(code)
+    except ValueError:
+        error_code = 10001
+        
+    log.debug("Error code = %d" % error_code)
+        
+    status_code = TYPE8_STATUS_CODE_MAP.get(error_code, None)
+    
+    if status_code is None:
+        status_code = STATUS_PRINTER_BUSY
+        
+        if 10999 < error_code < 12000: # 11xyy - Background paper-loading
+            # x = tray #
+            # yy = media code
+            tray = int(code[2])
+            media = int(code[3:])
+            log.debug("Background paper loading for tray #%d" % tray)
+            log.debug("Media code = %d" % media)
+            
+        elif 11999 < error_code < 13000: # 12xyy - Background paper-tray status
+            # x = tray #
+            # yy = status code
+            tray = int(code[2])
+            status = int(code[3:])
+            log.debug("Background paper tray status for tray #%d" % tray)
+            log.debug("Status code = %d" % status)
+            
+        elif 14999 < error_code < 16000: # 15xxy - Output-bin status
+            # xx = output bin
+            # y = status code
+            bin = int(code[2:4])
+            status = int(code[4])
+            log.debug("Output bin full for bin #%d" % bin)
+            status_code = STATUS_PRINTER_OUTPUT_BIN_FULL
+            
+        elif 19999 < error_code < 28000: # 20xxx, 25xxx, 27xxx PJL errors
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+            
+        elif 29999 < error_code < 31000: # 30xxx - Auto continuable conditions
+            log.debug("Auto continuation condition #%d" % error_code)
+            
+        elif 34999 < error_code < 36000: # 35xxx - Potential operator intervention conditions
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+            
+        elif 39999 < error_code < 41000: # 40xxx - Operator intervention conditions
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+            
+        elif 40999 < error_code < 42000: # 41xyy - Foreground paper-loading messages
+            # x = tray
+            # yy = media code
+            tray = int(code[2])
+            media = int(code[3:])
+            log.debug("Foreground paper loading for tray #%d" % tray)
+            log.debug("Media code = %d" % media)
+            status_code = STATUS_PRINTER_OUT_OF_PAPER
+            
+        elif 41999 < error_code < 43000:
+            status_code = STATUS_PRINTER_MEDIA_JAM
+        
+        elif 42999 < error_code < 44000: # 43xyy - Optional paper handling device messages
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+            
+        elif 43999 < error_code < 45000: # 44xyy - LJ 4xxx/5xxx paper jam messages
+            status_code = STATUS_PRINTER_MEDIA_JAM
+            
+        elif 49999 < error_code < 51000: # 50xxx - Hardware errors
+            status_code = STATUS_PRINTER_HARD_ERROR
+            
+        elif 54999 < error_code < 56000 : # 55xxx - Personality errors
+            status_code = STATUS_PRINTER_HARD_ERROR
+            
+        
+    agents = []
+    
+    # TODO: Only handles mono lasers...
+    if status_code in (STATUS_PRINTER_LOW_TONER, STATUS_PRINTER_LOW_BLACK_TONER):
+        health = AGENT_HEALTH_OK
+        level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
+        level = 0
+        
+    elif status_code == STATUS_PRINTER_NO_TONER:
+        health = AGENT_HEALTH_MISINSTALLED
+        level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
+        level = 0
+        
+    else:
+        health = AGENT_HEALTH_OK
+        level_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
+        level = 100
+        
+    log.debug("Agent: health=%d, level=%d, trigger=%d" % (health, level, level_trigger))
         
     
+    agents.append({  'kind' : AGENT_KIND_TONER_CARTRIDGE,
+                     'type' : AGENT_TYPE_BLACK,
+                     'health' : health,
+                     'level' : level,
+                     'level-trigger' : level_trigger,
+                  })
     
+    if status_code == 40021:
+        top_door = 0
+    else:
+        top_door = 1
+        
+    log.debug("Status code = %d" % status_code)
     
+    return { 'revision' :    STATUS_REV_UNKNOWN,
+             'agents' :      agents,
+             'top-door' :    top_door,
+             'supply-door' : top_door,
+             'duplexer' :    0,
+             'photo-tray' :  0,
+             'in-tray1' :    1,
+             'in-tray2' :    1,
+             'media-path' :  1,
+             'status-code' : status_code,
+           }     
     
+
+
+

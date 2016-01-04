@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,33 +20,23 @@
 # Author: Don Welch
 #
 
-__version__ = '2.2'
+__version__ = '4.0'
 __title__ = "Fax Address Book"
 __doc__ = "A simple fax address book for HPLIP."
 
 import cmd
-
-
 from base.g import *
-from base import utils
-
+from base import utils, tui
 import getopt
 
 log.set_module("hp-fab")
 
-
-def additional_copyright():
-    log.info("Includes code from KirbyBase 1.8.1")
-    log.info("Copyright (c) Jamey Cribbs (jcribbs@twmi.rr.com)")
-    log.info("Licensed under the Python Software Foundation License.")
-    log.info("")
 
 USAGE = [(__doc__, "", "name", True),
          ("Usage: hp-fab [MODE] [OPTIONS]", "", "summary", True),
          ("[MODE]", "", "header", False),
          ("Enter interactive mode:", "-i or --interactive (see Note 1)", "option", False),
          ("Enter graphical UI mode:", "-u or --gui (Default)", "option", False),
-         #("Run in non-interactive mode (batch mode):", "-n or --non-interactive", "option", False),
          utils.USAGE_SPACE,
          utils.USAGE_OPTIONS,
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
@@ -57,35 +47,30 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_SEEALSO,
          ("hp-sendfax", "", "seealso", False),
          ]
-         
+
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        additional_copyright()
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-fab', __version__)
     sys.exit(0)
 
-    
-    
-    
-    
-## Console class (from ASPN Python Cookbook)
-## Author:   James Thiele
-## Date:     27 April 2004
-## Version:  1.0
-## Location: http://www.eskimo.com/~jet/python/examples/cmd/
-## Copyright (c) 2004, James Thiele
 
+# Console class (from ASPN Python Cookbook)
+# Author:   James Thiele
+# Date:     27 April 2004
+# Version:  1.0
+# Location: http://www.eskimo.com/~jet/python/examples/cmd/
+# Copyright (c) 2004, James Thiele
 class Console(cmd.Cmd):
 
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.intro  = "Type 'help' for a list of commands. Type 'exit' or 'quit' to quit."
-        self.db =  fax.FaxAddressBook() # kirbybase instance
-        self.prompt = utils.bold("hp-fab > ")
+        self.db =  fax.FaxAddressBook2() # database instance
+        self.prompt = log.bold("hp-fab > ")
 
-    ## Command definitions ##
+    # Command definitions
     def do_hist(self, args):
         """Print a list of commands that have been entered"""
         print self._hist
@@ -98,7 +83,7 @@ class Console(cmd.Cmd):
         """Exits from the console"""
         return -1
 
-    ## Command definitions to support Cmd object functionality ##
+    # Command definitions to support Cmd object functionality
     def do_EOF(self, args):
         """Exit on system end of file character"""
         return self.do_exit(args)
@@ -108,26 +93,26 @@ class Console(cmd.Cmd):
            'help' or '?' with no arguments prints a list of commands for which help is available
            'help <command>' or '? <command>' gives help on <command>
         """
-        ## The only reason to define this method is for the help text in the doc string
+        # The only reason to define this method is for the help text in the doc string
         cmd.Cmd.do_help(self, args)
 
-    ## Override methods in Cmd object ##
+    # Override methods in Cmd object
     def preloop(self):
         """Initialization before prompting user for commands.
            Despite the claims in the Cmd documentaion, Cmd.preloop() is not a stub.
         """
-        cmd.Cmd.preloop(self)   ## sets up command completion
-        self._hist    = []      ## No history yet
-        self._locals  = {}      ## Initialize execution namespace for user
+        cmd.Cmd.preloop(self)   # sets up command completion
+        self._hist    = []      # No history yet
+        self._locals  = {}      # Initialize execution namespace for user
         self._globals = {}
-        
+
         self.do_list('')
 
     def postloop(self):
         """Take care of any unfinished business.
            Despite the claims in the Cmd documentaion, Cmd.postloop() is not a stub.
         """
-        cmd.Cmd.postloop(self)   ## Clean up command completion
+        cmd.Cmd.postloop(self)   # Clean up command completion
         print "Exiting..."
 
     def precmd(self, line):
@@ -149,316 +134,310 @@ class Console(cmd.Cmd):
         pass
 
     def default(self, line):
-        print utils.red("error: Unrecognized command. Use 'help' to list commands.")
+        print log.red("error: Unrecognized command. Use 'help' to list commands.")
 
     def get_nickname(self, args, fail_if_match=True, alt_text=False):
         if not args:
             while True:
                 if alt_text:
-                    nickname = raw_input(utils.bold("Enter the entry name (nickname) to add (<enter>=done*, c=cancel) ? ")).strip()
+                    nickname = raw_input(log.bold("Enter the name (nickname) to add (<enter>=done*, c=cancel) ? ")).strip()
                 else:
-                    nickname = raw_input(utils.bold("Enter the entry name (nickname) (c=cancel) ? ")).strip()
-                
+                    nickname = raw_input(log.bold("Enter the name (nickname) (c=cancel) ? ")).strip()
+
                 if nickname.lower() == 'c':
-                    print utils.red("Canceled")
+                    print log.red("Canceled")
                     return ''
-                    
+
                 if not nickname:
                     if alt_text:
                         return ''
                     else:
-                        print utils.red("error: Nickname must not be blank.")
+                        print log.red("error: Nickname must not be blank.")
                         continue
-                    
-                    
+
+
                 if fail_if_match:
-                    if self.db.select(['name'], [nickname]):
-                        print utils.red("error: Entry already exists. Please choose a different name.")
+                    if self.db.get(nickname) is not None:
+                        print log.red("error: Name already exists. Please choose a different name.")
                         continue
-                    
+
                 else:
-                    if not self.db.select(['name'], [nickname]):
-                        print utils.red("error: Entry not found. Please enter a different name.")
+                    if self.db.get(nickname) is None:
+                        print log.red("error: Name not found. Please enter a different name.")
                         continue
-                
+
                 break
-        
+
         else:
             nickname = args.strip()
-            
+
             if fail_if_match:
-                if self.db.select(['name'], [nickname]):
-                    print utils.red("error: Entry already exists. Please choose a different name.")
+                if self.db.get(nickname) is not None:
+                    print log.red("error: Name already exists. Please choose a different name.")
                     return ''
-                
+
             else:
-                if not self.db.select(['name'], [nickname]):
-                    print utils.red("error: Entry not found. Please enter a different name.")
+                if self.db.get(nickname) is None:
+                    print log.red("error: Name not found. Please enter a different name.")
                     return ''
 
         return nickname
-        
-        
-    def get_groupname(self, args, fail_if_match=True, alt_text=False):
-        all_groups = self.db.AllGroups()
 
+
+    def get_groupname(self, args, fail_if_match=True, alt_text=False):
+        all_groups = self.db.get_all_groups()
+        
         if not args:
             while True:
                 if alt_text:
-                    groupname = raw_input(utils.bold("Enter the group name to join (<enter>=done*, c=cancel) ? ")).strip()
+                    groupname = raw_input(log.bold("Enter the group name to join (<enter>=done*, c=cancel) ? ")).strip()
                 else:
-                    groupname = raw_input(utils.bold("Enter the group name (c=cancel) ? ")).strip()
-                
-                
+                    groupname = raw_input(log.bold("Enter the group name (c=cancel) ? ")).strip()
+
+
                 if groupname.lower() == 'c':
-                    print utils.red("Canceled")
+                    print log.red("Canceled")
                     return ''
-                    
+
                 if not groupname:
                     if alt_text:
                         return ''
                     else:
-                        print utils.red("error: The group name must not be blank.")
+                        print log.red("error: The group name must not be blank.")
                         continue
-                    
+
                 if fail_if_match: 
                     if groupname in all_groups:
-                        print utils.red("error: Entry already exists. Please choose a different name.")
+                        print log.red("error: Name already exists. Please choose a different name.")
                         continue
-                    
+
                 else:
                     if groupname not in all_groups:
-                        print utils.red("error: Entry not found. Please enter a different name.")
+                        print log.red("error: Name not found. Please enter a different name.")
                         continue
-                
+
                 break
-        
+
         else:
             groupname = args.strip()
 
             if fail_if_match: 
                 if groupname in all_groups:
-                    print utils.red("error: Entry already exists. Please choose a different name.")
+                    print log.red("error: Name already exists. Please choose a different name.")
                     return ''
-                
+
             else:
                 if groupname not in all_groups:
-                    print utils.red("error: Entry not found. Please enter a different name.")
+                    print log.red("error: Name not found. Please enter a different name.")
                     return ''
-            
+
         return groupname
 
     def do_list(self, args):
         """ 
-        List entries and/or groups.
-        list [groups|entries|all|]
-        dir [groups|entries|all|]
+        List names and/or groups.
+        list [names|groups|all|]
+        dir [names|groups|all|]
         """
-        
+
         if args:
             scope = args.strip().split()[0]
-        
-            if args.startswith('ent'):
-                self.do_entries('')
+
+            if args.startswith('nam'):
+                self.do_names('')
                 return
+                
             elif args.startswith('gro'):
                 self.do_groups('')
                 return
-        
-        self.do_entries('')
+
+        self.do_names('')
         self.do_groups('')
 
     do_dir = do_list
-    
-    def do_entries(self, args):
+
+    def do_names(self, args):
         """
-        List entries.
-        entries
+        List names.
+        names
         """
-        all_entries = self.db.AllRecordEntries()
+        all_entries = self.db.get_all_records()
         log.debug(all_entries)
 
-        print utils.bold("\nEntries:\n")
+        print log.bold("\nNames:\n")
         if len(all_entries) > 0:
-
-            formatter = utils.TextFormatter(
-                            (
-                                {'width': 28, 'margin' : 2},
-                                {'width': 28, 'margin' : 2},
-                                {'width': 58, 'margin' : 2},
-                            )
-                        )
         
-            print formatter.compose(("Name", "Fax Number", "Member of Group(s)"))
-            print formatter.compose(('-'*28, '-'*28, '-'*58))
-            
-            # TODO: Sort the list by (nick)name
-            for abe in all_entries:
-                print formatter.compose((abe.name, abe.fax, abe.groups))
+            f = tui.Formatter()
+            f.header = ("Name", "Fax Number", "Member of Group(s)")
+            for name, e in all_entries.items():
+                f.add((name, e['fax'], ', '.join(e['groups'])))
+                
+            f.output()
+
         else:
             print "(None)"
-            
+
         print
-        
+
     def do_groups(self, args):
         """ 
         List groups.
         groups
         """
-        all_groups = self.db.AllGroups()
+        #all_groups = self.db.AllGroups() XXXXXXXXXXXXXX
+        all_groups = self.db.get_all_groups()
         log.debug(all_groups)
-        
-        print utils.bold("\nGroups:\n")
+
+        print log.bold("\nGroups:\n")
         if len(all_groups):
 
-            formatter = utils.TextFormatter(
-                            (
-                                {'width': 28, 'margin' : 2},
-                                {'width': 58, 'margin' : 2},
-                            )
-                        )
-            print formatter.compose(("Group", "Members"))
-            print formatter.compose(('-'*28, '-'*58))
-
-            # TODO: Sort the list by group name
+            f = tui.Formatter()
+            f.header = ("Group", "Members")
             for group in all_groups:
-                print formatter.compose((group, ', '.join(self.db.GroupEntries(group))))
+                f.add((group, ', '.join(self.db.group_members(group))))
+            f.output()
+            
         else:
             print "(None)"
-        
+
         print
 
-        
+
     def do_edit(self, args):
         """
-        Edit an entry.
-        edit [entry]
-        modify [entry]
+        Edit an name.
+        edit [name]
+        modify [name]
         """
         nickname = self.get_nickname(args, fail_if_match=False)
         if not nickname: return
-        
-        abe = fax.AddressBookEntry(self.db.select(['name'], [nickname])[0])
-        log.debug(abe)
-        
-        print utils.bold("\nEdit/modify entry information for %s:\n" % abe.name)
-        
-        save_title = abe.title
-        title = raw_input(utils.bold("Title (<enter>='%s', c=cancel)? " % save_title)).strip()
-        
+
+        e = self.db.get(nickname)
+        log.debug(e)
+
+        print log.bold("\nEdit/modify information for %s:\n" % nickname)
+
+        save_title = e['title']
+        title = raw_input(log.bold("Title (<enter>='%s', c=cancel)? " % save_title)).strip()
+
         if title.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-            
+
         if not title:
             title = save_title
-        
-        save_firstname = abe.firstname
-        firstname = raw_input(utils.bold("First name (<enter>='%s', c=cancel)? " % save_firstname)).strip()
-        
+
+        save_firstname = e['firstname']
+        firstname = raw_input(log.bold("First name (<enter>='%s', c=cancel)? " % save_firstname)).strip()
+
         if firstname.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-        
+
         if not firstname:
             firstname = save_firstname
-        
-        save_lastname = abe.lastname
-        lastname = raw_input(utils.bold("Last name (<enter>='%s', c=cancel)? " % save_lastname)).strip()
-        
+
+        save_lastname = e['lastname']
+        lastname = raw_input(log.bold("Last name (<enter>='%s', c=cancel)? " % save_lastname)).strip()
+
         if lastname.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-            
+
         if not lastname:
             lastname = save_lastname
-        
-        save_faxnum = abe.fax
+
+        save_faxnum = e['fax']
         while True:
-            faxnum = raw_input(utils.bold("Fax Number (<enter>='%s', c=cancel)? " % save_faxnum)).strip()
-            
+            faxnum = raw_input(log.bold("Fax Number (<enter>='%s', c=cancel)? " % save_faxnum)).strip()
+
             if faxnum.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
-                
+
             if not faxnum and not save_faxnum:
-                print utils.red("error: Fax number must not be empty.")
+                print log.red("error: Fax number must not be empty.")
                 continue
-                
+
             if not faxnum:
                 faxnum = save_faxnum
 
             ok = True
             for c in faxnum:
-                if c not in '0123456789-(+) ':
-                    print utils.red("error: Invalid characters in fax number. Fax number may only contain '0123456789-(+) '")
+                if c not in '0123456789-(+) *#':
+                    print log.red("error: Invalid characters in fax number. Fax number may only contain '0123456789-(+) '")
                     ok = False
                     break
-                    
+
 
             if ok: break
-            
-        save_notes = abe.notes
-        notes = raw_input(utils.bold("Notes (<enter>='%s', c=cancel)? " % save_notes)).strip()
-        
+
+        save_notes = e['notes']
+        notes = raw_input(log.bold("Notes (<enter>='%s', c=cancel)? " % save_notes)).strip()
+
         if notes.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
 
         if not notes:
             notes = save_notes
-        
-        if abe.group_list:
+
+        if e['groups']:
             print "\nLeave or Stay in a Group:\n"
-        
+
         new_groups = []
-        for g in abe.group_list:
-            user_input = raw_input(utils.bold("Stay in group '%s' (y=yes*, n=no (leave), c=cancel) ? " % g)).strip().lower()
-            
-            if not user_input or user_input == 'y':
-                new_groups.append(g)
-                
-            if user_input == 'c':
-                print utils.red("Canceled")
+        for g in e['groups']:
+            ok, ans = tui.enter_yes_no("Stay in group %s" % g, 
+                choice_prompt="(y=yes* (stay), n=no (leave), c=cancel)")
+
+            if not ok:
+                print log.red("Canceled")
                 return
-                
             
+            if ans:
+                new_groups.append(g)
+
         print "\nJoin New Group(s):\n"
-        
+
         while True:
             add_group = self.get_groupname('', fail_if_match=False, alt_text=True) 
-            
+
             if add_group.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
-                
+
             if not add_group.lower():
                 break
-                
-            all_groups = self.db.AllGroups()
-            
+
+            get_all_groups = self.db.get_all_groups()
+
             if add_group not in all_groups:
                 log.warn("Group not found.")
-                user_input = raw_input(utils.bold("Is this a new group (y=yes*, n=no) ?")).strip().lower()
+                ok, ans = tui.enter_yes_no("Is this a new group", 
+                    choice_prompt="(y=yes* (new), n=no, c=cancel)")
+
+                if not ok:
+                    print log.red("Canceled")
+                    return
                 
-                if user_input == 'n':
+                if not ans:
                     continue
-                    
-            if add_group in abe.groups:
+
+            if add_group in e['groups']:
                 log.error("error: Group already specified. Choose a different group name or press <enter> to continue.")
                 continue
-            
+
             new_groups.append(add_group)
-
-
-        self.db.update(['name'], [nickname], fax.AddressBookEntry((-1, nickname, title, firstname, lastname, faxnum, ','.join(new_groups), notes)))
+        
+        
+        self.db.set(nickname, title, firstname, lastname, faxnum, new_groups, notes)
         self.do_show(nickname)
-        
+
         print
-    
+
     do_modify = do_edit
-        
-        
+
+
     def do_editgrp(self, args):
         """
         Edit a group.
@@ -467,140 +446,142 @@ class Console(cmd.Cmd):
         """
         group = self.get_groupname(args, fail_if_match=False)
         if not group: return
-        
-        old_entries = self.db.GroupEntries(group)
-        
+
+        old_entries = self.db.group_members(group)
+
         new_entries = []
-        
-        print "\nLeave or Remove Existing Entries in Group:\n"
-        
+
+        print "\nLeave or Remove Existing Names in Group:\n"
+
         for e in old_entries:
-            user_input = raw_input(utils.bold("Leave entry '%s' in this group (y=yes*, n=no (remove), c=cancel) ? " % e)).lower().strip()
             
-            if not user_input or user_input == 'y':
-                new_entries.append(e)
+            ok, ans = tui.enter_yes_no("Leave name '%s' in this group" % e, 
+                choice_prompt="(y=yes* (leave), n=no (remove), c=cancel)")
                 
-            if user_input == 'c':
-                print utils.red("Canceled")
+            if not ok:
+                print log.red("Canceled")
                 return
-                
-        print "\nAdd New Entries in Group:\n"
-        
+            
+            if ans:
+                new_entries.append(e)
+
+        print "\nAdd New Names in Group:\n"
+
         while True:
             nickname = self.get_nickname('', fail_if_match=False, alt_text=True)
-            
+
             if nickname.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
-                
+
             if not nickname.lower():
                 break
-                
+
             new_entries.append(nickname)
             
-        self.db.UpdateGroupEntries(group, new_entries)
-        
+        self.db.update_groups(group, new_entries)
+
         print
-    
+
     do_modifygrp = do_editgrp
-    
-    
+
+
     def do_add(self, args):
         """
-        Add an entry.
-        add [entry]
-        new [entry]
+        Add an name.
+        add [name]
+        new [name]
         """
         nickname = self.get_nickname(args, fail_if_match=True)
         if not nickname: return
-        
-        print utils.bold("\nEnter entry information for %s:\n" % nickname)
-        
-        title = raw_input(utils.bold("Title (c=cancel)? ")).strip()
-        
+
+        print log.bold("\nEnter information for %s:\n" % nickname)
+
+        title = raw_input(log.bold("Title (c=cancel)? ")).strip()
+
         if title.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-        
-        firstname = raw_input(utils.bold("First name (c=cancel)? ")).strip()
-        
+
+        firstname = raw_input(log.bold("First name (c=cancel)? ")).strip()
+
         if firstname.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-        
-        lastname = raw_input(utils.bold("Last name (c=cancel)? ")).strip()
-        
+
+        lastname = raw_input(log.bold("Last name (c=cancel)? ")).strip()
+
         if lastname.lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
-        
+
         while True:
-            faxnum = raw_input(utils.bold("Fax Number (c=cancel)? ")).strip()
-            
+            faxnum = raw_input(log.bold("Fax Number (c=cancel)? ")).strip()
+
             if faxnum.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
-                
+
             if not faxnum:
-                print utils.red("error: Fax number must not be empty.")
+                print log.red("error: Fax number must not be empty.")
                 continue
 
             ok = True
             for c in faxnum:
-                if c not in '0123456789-(+) ':
-                    print utils.red("error: Invalid characters in fax number. Fax number may only contain '0123456789-(+) '")
+                if c not in '0123456789-(+) *#':
+                    print log.red("error: Invalid characters in fax number. Fax number may only contain '0123456789-(+) *#'")
                     ok = False
                     break
-                    
+
 
             if ok: break
-            
-        notes = raw_input(utils.bold("Notes (c=cancel)? ")).strip()
-        
+
+        notes = raw_input(log.bold("Notes (c=cancel)? ")).strip()
+
         if notes.strip().lower() == 'c':
-            print utils.red("Canceled")
+            print log.red("Canceled")
             return
 
         groups = []
-        all_groups = self.db.AllGroups()
+        all_groups = self.db.get_all_groups()
         while True:
-            add_group = raw_input(utils.bold("Member of group (<enter>=done*, c=cancel) ?" )).strip()
-            
+            add_group = raw_input(log.bold("Member of group (<enter>=done*, c=cancel) ?" )).strip()
+
             if add_group.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
 
             if not add_group:
                 break
-            
+
             if add_group not in all_groups:
                 log.warn("Group not found.")
-                
+
                 while True:
-                    user_input = raw_input(utils.bold("Is this a new group (y=yes*, n=no) ?")).lower().strip()
-                    
+                    user_input = raw_input(log.bold("Is this a new group (y=yes*, n=no) ?")).lower().strip()
+
                     if user_input not in ['', 'n', 'y']:
                         log.error("Please enter 'y', 'n' or press <enter> for 'yes'.")
                         continue
-                    
+
                     break
-                
+
                 if user_input == 'n':
                     continue
-                    
+
             if add_group in groups:
                 log.error("Group already specified. Choose a different group name or press <enter> to continue.")
                 continue
-                
+
             groups.append(add_group)
-        
-        self.db.insert(fax.AddressBookEntry((-1, nickname, title, firstname, lastname, faxnum, ','.join(groups), notes)))
+
+        self.db.set(nickname, title, firstname, lastname, faxnum, groups, notes)
         self.do_show(nickname)
-        
-        
+
+
     do_new = do_add
-        
-        
+
+
     def do_addgrp(self, args):
         """
         Add a group.
@@ -609,117 +590,96 @@ class Console(cmd.Cmd):
         """
         group = self.get_groupname(args, fail_if_match=True)
         if not group: return
-        
+
         entries = []
         while True:
             nickname = self.get_nickname('', fail_if_match=False, alt_text=True)
-            
+
             if nickname.lower() == 'c':
-                print utils.red("Canceled")
+                print log.red("Canceled")
                 return
-                
+
             if not nickname.lower():
                 break
-                
+
             entries.append(nickname)
-            
-        self.db.UpdateGroupEntries(group, entries)
-        
+
+        self.db.update_groups(group, entries)
+
         print
-        
+
     do_newgrp = do_addgrp
-        
+
 
     def do_view(self, args):
         """
-        View all entry data.
+        View all name data.
         view
         """
-        all_entries = self.db.AllRecordEntries()
+        all_entries = self.db.get_all_records()
         log.debug(all_entries)
 
-        print utils.bold("\nView all Data:\n")
+        print log.bold("\nView all Data:\n")
         if len(all_entries) > 0:
 
-            formatter = utils.TextFormatter(
-                            (
-                                {'width': 20, 'margin' : 2}, # name
-                                {'width': 20, 'margin' : 2}, # title
-                                {'width': 20, 'margin' : 2}, # first
-                                {'width': 20, 'margin' : 2}, # last
-                                {'width': 20, 'margin' : 2}, # fax
-                                {'width': 20, 'margin' : 2}, # notes
-                                {'width': 20, 'margin' : 2}, # groups
-                                {'width': 8, 'margin' : 2}, # recno
-                            )
-                        )
-        
-            print formatter.compose(("Name", "Title", "First Name", "Last Name", "Fax", "Notes", "Member of Group(s)", "(recno)"))
-            print formatter.compose(('-'*20, '-'*20, '-'*20, '-'*20, '-'*20, '-'*20, '-'*20, '-'*8))
+            f = tui.Formatter()
+            f.header = ("Name", "Title", "First Name", "Last Name", "Fax", "Notes", "Member of Group(s)")
             
-            # TODO: Sort the list by (nick)name
-            for abe in all_entries:
-                print formatter.compose((abe.name, abe.title, abe.firstname, abe.lastname, abe.fax, abe.notes, abe.groups, str(abe.recno)))
-        else:
-            print "(None)"
-            
+            for name, e in all_entries.items():
+                f.add((name, e['title'], e['firstname'], e['lastname'], e['fax'], 
+                       e['notes'], ', '.join(e['groups'])))
+                          
+            f.output()
+
         print
-        
-        
-    
+
+
+
     def do_show(self, args):
         """
-        Show an entry (all details).
-        show [entry]
-        details [entry]
+        Show a name (all details).
+        show [name]
+        details [name]
         """
         name = self.get_nickname(args, fail_if_match=False)
         if not name: return
-        
-        rec = self.db.select(['name'], [name])
-        if rec:
-            abe = fax.AddressBookEntry(rec[0])
-        
-            formatter = utils.TextFormatter(
-                            (
-                                {'width': 28, 'margin' : 2},
-                                {'width': 58, 'margin' : 2},
-                            )
-                        )
-                        
-            print utils.bold("\n%s\n" % name)
+
+        e = self.db.get(name)
+        if e:
+            f = tui.Formatter()
+            f.header = ("Key", "Value")
+            f.add(("Name:", name))
+            f.add(("Title:", e['title']))
+            f.add(("First Name:", e['firstname']))
+            f.add(("Last Name:", e['lastname']))
+            f.add(("Fax Number:", e['fax']))
+            f.add(("Notes:", e['notes']))
+            f.add(("Member of Group(s):", ', '.join(e['groups'])))
             
-            print formatter.compose(("Name:", abe.name))
-            print formatter.compose(("Title:", abe.title))
-            print formatter.compose(("First Name:", abe.firstname))
-            print formatter.compose(("Last Name:", abe.lastname))
-            print formatter.compose(("Fax Number:", abe.fax))
-            print formatter.compose(("Member of Group(s):", abe.groups))
-            print formatter.compose(("Notes:", abe.notes))
-            print formatter.compose(("(recno):", str(abe.recno)))
+            f.output()
             
         else:
-            print utils.red("error: Entry name not found. Use 'list entries' to view all entry names.")
-        
+            print log.red("error: Name not found. Use the 'names' command to view all names.")
+
         print
-        
+
     do_details = do_show
-        
+
     def do_rm(self, args):
         """
-        Remove an entry.
-        rm [entry]
-        del [entry]
+        Remove a name.
+        rm [name]
+        del [name]
         """
         nickname = self.get_nickname(args, fail_if_match=False)
         if not nickname: return
-        
-        self.db.delete(['name'], [nickname])
-        
+
+        self.db.delete(nickname)
+
         print
-        
+
     do_del = do_rm
-    
+
     def do_rmgrp(self, args):
         """
         Remove a group.
@@ -728,22 +688,19 @@ class Console(cmd.Cmd):
         """
         group = self.get_groupname(args, fail_if_match=False)
         if not group: return
-        
-        self.db.DeleteGroup(group)
-        
+
+        self.db.delete_group(group)
+
         print
-    
+
     do_delgrp = do_rmgrp
-    
-    
+
+
     def do_about(self, args):
         """About fab."""
         utils.log_title(__title__, __version__)
-        additional_copyright()
 
 
-
-        
 mode = GUI_MODE
 mode_specified = False
 
@@ -752,42 +709,43 @@ try:
         ['level=', 'help', 'help-rest', 'help-man',
          'help-desc', 'gui', 'interactive'])
 
-except getopt.GetoptError:
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 if os.getenv("HPLIP_DEBUG"):
     log.set_level('debug')
-    
+
 for o, a in opts:
     if o in ('-l', '--logging'):
         log_level = a.lower().strip()
         if not log.set_level(log_level):
             usage()
-            
+
     elif o == '-g':
         log.set_level('debug')
 
     elif o in ('-h', '--help'):
         usage()
-        
+
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
-        
+
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
-        
+
     elif o in ('-i', '--interactive'):
         if mode_specified:
             log.error("You may only specify a single mode as a parameter (-i or -u).")
             sys.exit(1)
-            
+
         mode = INTERACTIVE_MODE
         mode_specified = True
-        
+
     elif o in ('-u', '--gui'):
         if mode_specified:
             log.error("You may only specify a single mode as a parameter (-i or -u).")
@@ -797,10 +755,9 @@ for o, a in opts:
         mode_specified = True
 
 utils.log_title(__title__, __version__)
-additional_copyright()
 
 # Security: Do *not* create files that other users can muck around with
-os.umask (0077)
+os.umask(0037)
 
 if mode == GUI_MODE:
     if not os.getenv('DISPLAY'):
@@ -811,28 +768,46 @@ if mode == GUI_MODE:
 if mode == GUI_MODE:
     from qt import *
     from ui.faxaddrbookform import FaxAddrBookForm
-    
+
     app = None
     addrbook = None
-    
     # create the main application object
     app = QApplication(sys.argv)
     
+    loc = user_cfg.ui.get("loc", "system")
+    if loc.lower() == 'system':
+        loc = str(QTextCodec.locale())
+        log.debug("Using system locale: %s" % loc)
+
+    if loc.lower() != 'c':
+        log.debug("Trying to load .qm file for %s locale." % loc)
+        trans = QTranslator(None)
+        qm_file = 'hplip_%s.qm' % loc
+        log.debug("Name of .qm file: %s" % qm_file)
+        loaded = trans.load(qm_file, prop.localization_dir)
+
+        if loaded:
+            app.installTranslator(trans)
+        else:
+            loc = 'c'
+    else:
+        loc = 'c'
+
+    if loc == 'c':
+        log.debug("Using default 'C' locale")
+    else:
+        log.debug("Using locale: %s" % loc)
+
     addrbook = FaxAddrBookForm()
     addrbook.show()
     app.setMainWidget(addrbook)
-    
-    user_config = os.path.expanduser('~/.hplip.conf')
-    loc = utils.loadTranslators(app, user_config)
-    
+
     try:
         log.debug("Starting GUI loop...")
         app.exec_loop()
     except KeyboardInterrupt:
         pass
-    except:
-        log.exception()
-    
+
     sys.exit(0)
 
 else: # INTERACTIVE_MODE
@@ -842,15 +817,12 @@ else: # INTERACTIVE_MODE
         # This can fail on Python < 2.3 due to the datetime module
         log.error("Fax address book disabled - Python 2.3+ required.")
         sys.exit(1)    
-    
+
     console = Console()
     try:
         try:
             console.cmdloop()
         except KeyboardInterrupt:
             log.error("Aborted.")
-        except Exception, e:
-            #log.error("An error occured: %s" % e)
-            log.exception()
     finally:
         pass

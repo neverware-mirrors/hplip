@@ -89,6 +89,10 @@ public:
 protected:
     DISPLAY_STATUS m_dsCurrentStatus;
     virtual void InitPrintModes ();
+    virtual void AdjustResolution ()
+    {
+        return;
+    }
 
 #ifdef APDK_HP_UX
 protected:
@@ -175,12 +179,13 @@ public:
 		"Deskjet 3940\0"
 		"Deskjet 3900\0"
         "Deskjet D1360\0"
+        "Deskjet d14\0"
+        "Deskjet d21\0"
 #ifdef APDK_MLC_PRINTER
 		"psc 1100\0"
 		"psc 1200\0"
 		"officejet 4100\0"
 		"officejet 4105\0"
-		"officejet 4200\0"
 #endif
         "Officejet 43\0"
         "officejet 4115\0"

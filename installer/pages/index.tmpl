@@ -1,0 +1,107 @@
+<!--
+/*
+ (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+ Author: Pete Parks
+*/
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+    <meta http-equiv="PRAGMA" content="NO-CACHE" />
+    <link rel="stylesheet" type="text/css" href="styles/hplip.css" />
+    <script type="text/javascript" src="scripts/hplip.js"></script>
+    <script type="text/javascript" src="scripts/misc_code.js"></script>
+    <script type="text/javascript">
+    <!--
+    var win = null;
+
+    window.reload = todoOnReload();
+
+    function todoOnReload() {
+        var width = 680;
+        var height = 520;
+        var x = 0.5 * (window.screen.width - width);
+        var y = 0.5 * (window.screen.height - height);
+        window.resizeTo(width + 2, height + 100);
+        window.moveTo(x,y);
+    };
+
+    function todoOnLoad() {
+        setLocationRef("welcome");
+        setButtonHiliteTime("400");
+        setButtonImages("../images/button1.png", "../images/button1d.png");
+        //
+        //
+        //
+        if( isFireFoxBase() || isKonquerorBase() || isGaleonBased()  || isSafariBase() ) {
+            // pass thorugh
+        } else {
+            window.location.href = "unsupported";
+        }
+    };
+
+    function todoOnClick(url_ref) {
+        if(isKonquerorBase()) {
+            indexClickActions("startButton", url_ref);
+        } else {
+            if(win == null) {
+                win = openNewWindow(0);  // pass '1' if you don't want the toolbar.
+                if(win != null) {
+                    window.opener = self;
+                } else {
+                    indexClickActions("startButton", url_ref);
+                }
+            }
+        }
+    };
+    -->
+    </script>
+    <title>$installer_title</title>
+</head>
+
+<body onload="todoOnLoad()">
+<!-- Header Div -->
+<div id="header_box" class="background_box">
+  <div class='header_title_class'>
+    <div id='hp_blue_logo'><img src='images/hplogo.png' alt=''/></div>
+    <div id='header_title'>$header_string</div>
+    <div id='header_title2'>$header_string</div>
+    <div id='header_subtitle'>$sub_header_string</div>
+    <div id='header_subtitle2'>$sub_header_string</div>
+    <div id='tux_logo'><img src='images/tux.png' alt=''/></div>
+  </div>
+</div>
+
+<!-- Body Div -->
+<div class="body_content">
+    <div id="message_title">$index_message_title</div>
+
+    <div id="message_body"></div>
+
+    <div id="message_footer"></div>
+</div>
+
+<!-- Buttons Div -->
+<div id="startButton" OnSelectStart='return false;' onClick='todoOnClick("welcome");'>
+    <img src="../images/button1.png" width="100" height="35">
+    <div id="startHiliteText">$start_button</div>
+    <div id="startText">$start_button</div>
+</div>
+
+</body>
+</html>

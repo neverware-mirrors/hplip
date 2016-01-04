@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,3 +31,4 @@ class AboutDlg(AboutDlg_base):
 
         self.pyPixmap.setPixmap(QPixmap(os.path.join(prop.image_dir, 'powered_by_python.png')))
         self.osiPixmap.setPixmap(QPixmap(os.path.join(prop.image_dir, 'opensource-75x65.png')))
+        self.logoPixmap.setPixmap(QPixmap(os.path.join(prop.image_dir, 'hp-tux-printer.png')))

@@ -1,7 +1,7 @@
 /*****************************************************************************\
   djgenericvip.cpp : Implimentation for the generic VIP class
 
-  Copyright (c) 2001-2002, Hewlett-Packard Co.
+  Copyright (c) 2001-2006, Hewlett-Packard Co.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,14 @@ DJGenericVIP::DJGenericVIP (SystemServices* pSS, BOOL proto)
             pMode[i]->CompatiblePens[j] = (PEN_TYPE) j;
         }
     }
+#ifdef APDK_EXTENDED_MEDIASIZE
+/*
+ *  Set quality to marvellous for high res (1200 dpi) mode.
+ *  This mode was not available in the older printers, which only supported the
+ *  media_high_res paper type, but used qualityPresentation for 1200 dpi mode.
+ */
+    pMode[4]->theQuality = qualityMarvellous;
+#endif
 }
 
 VIPFastDraftMode::VIPFastDraftMode () : PrintMode (NULL)
@@ -574,6 +582,63 @@ void DJGenericVIP::AdjustModeSettings (BOOL bDoFullBleed, MEDIATYPE ReqMedia,
     }
 
 } // AdjustModeSettings
+
+#ifdef APDK_LINUX
+DRIVER_ERROR DJGenericVIP::SendPerPageHeader (BOOL bLastPage)
+{
+    DRIVER_ERROR    err = NO_ERROR;
+    BYTE            szStr[16];
+    if (m_iNumPages > 1)
+    {
+        memcpy (szStr, "\x1B*o5W\x0D\x02\x00\x00\x00", 10);
+		szStr[7] = (BYTE) ((m_iNumPages & 0x00FF0000) >> 16);
+		szStr[8] = (BYTE) ((m_iNumPages & 0x0000FF00) >> 8);
+		szStr[9] = (BYTE) (m_iNumPages & 0x000000FF);
+        err = Send ((const BYTE *) szStr, 10);
+        if (bLastPage)
+        {
+            err = Send ((const BYTE *) "\x1B*o5W\x0D\x05\x00\x00\x01", 10);
+        }
+        else
+        {
+            err = Send ((const BYTE *) "\x1B*o5W\x0D\x05\x00\x00\x00", 10);
+        }
+    }
+	return err;
+}
+#endif // APDK_LINUX
+
+Header *DJGenericVIP::SelectHeader (PrintContext *pc)
+{
+    return new HeaderDJGenericVIP (this, pc);
+}
+
+HeaderDJGenericVIP::HeaderDJGenericVIP (Printer *p, PrintContext *pc) : HeaderDJ990 (p, pc)
+{
+    m_uiCAPy = 0;
+}
+
+DRIVER_ERROR HeaderDJGenericVIP::SendCAPy (unsigned int iAbsY)
+{
+    char    str[16];
+    DRIVER_ERROR err = NO_ERROR;
+    if (m_uiCAPy == 0)
+    {
+        sprintf (str, "\x1B*p%dY", iAbsY);
+        err = thePrinter->Send ((const BYTE *) str, strlen (str));
+        m_uiCAPy = iAbsY;
+    }
+    return err;
+}
+
+DRIVER_ERROR HeaderDJGenericVIP::FormFeed ()
+{
+    BYTE FF = 12;
+    m_uiCAPy = 0;
+    return thePrinter->Send ((const BYTE *) &FF, 1);
+}
+
 APDK_END_NAMESPACE
+
 
 #endif // defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
