@@ -69,6 +69,7 @@ public:
    int ModelQuery(char *uri, MsgAttributes *ma);
    int IsHP(char *id);
    int IsUdev(char *dnode);
+   int IsInterface(struct usb_device *dev, int dclass);
    int GetModel(char *id, char *buf, int bufSize);
    int GetSerialNum(char *id, char *buf, int bufSize);
    int DeviceCleanUp(SessionAttributes *sa);

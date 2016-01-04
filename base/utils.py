@@ -1171,6 +1171,7 @@ def format_text(text_list, typ='text', title='', crumb='', version=''):
                 colwidth1 = max(len(text1), colwidth1)
                 colwidth2 = max(len(text2), colwidth2)
             
+        colwidth1 += 3
         tablewidth = colwidth1 + colwidth2
         
         # write the rst2web header
@@ -1213,7 +1214,13 @@ encoding: utf8
                 
             elif format in ('option', 'example', 'seealso'):
                     
-                log.info(''.join(["|", text1, " "*(colwidth1-len1), "|", text2, " "*(colwidth2-len2), "|"]))
+                if text1 and '`_' not in text1:
+                    log.info(''.join(["| *", text1, '*', " "*(colwidth1-len1-3), "|", text2, " "*(colwidth2-len2), "|"]))
+                elif text1:
+                    log.info(''.join(["|", text1, " "*(colwidth1-len1), "|", text2, " "*(colwidth2-len2), "|"]))
+                else:
+                    log.info(''.join(["|", " "*(colwidth1), "|", text2, " "*(colwidth2-len2), "|"]))
+                
                 log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
                 
             elif format == 'note':

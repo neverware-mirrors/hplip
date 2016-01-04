@@ -21,21 +21,22 @@
 #
 
 
-__version__ = '1.2'
+__version__ = '2.0'
 __title__ = 'Printer/Fax Setup Utility'
 __doc__ = "Installs HPLIP printers and faxes in the CUPS spooler. Tries to automatically determine the correct PPD file to use. Allows the printing of a testpage. Performs basic fax parameter setup."
 
 # Std Lib
 import sys, getopt, time
 import socket, os.path, re
-import readline
+import readline, gzip
 
 # Local
 from base.g import *
 from base import device, utils, msg
 from prnt import cups
 
-    
+number_pat = re.compile(r""".*?(\d+)""", re.IGNORECASE)
+nickname_pat = re.compile(r'''\*NickName:\s*\"(.*)"''', re.MULTILINE)
 
 USAGE = [ (__doc__, "", "name", True),
           ("Usage: hp-setup [OPTIONS] [SERIAL NO.|USB ID|IP|DEVNODE]", "", "summary", True),
@@ -52,7 +53,7 @@ USAGE = [ (__doc__, "", "name", True),
           ("To specify a CUPS fax queue name:", "-f<fax> or --fax=<fax>", "option", False),
           ("Type of queue(s) to install:", "-t<typelist> or --type=<typelist>. <typelist>: print*, fax\* (\*default)", "option", False),
           utils.USAGE_BUS1, utils.USAGE_BUS2,
-          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2,
+          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
           utils.USAGE_HELP,
           utils.USAGE_EXAMPLES,
           ("USB:", "$ hp-setup 001:002", "example", False),
@@ -83,7 +84,7 @@ def usage(typ='text'):
 
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'p:n:d:hl:b:t:f:ax',
+    opts, args = getopt.getopt(sys.argv[1:], 'p:n:d:hl:b:t:f:axg',
         ['printer=', 'fax=', 'device=', 'help', 'help-rest', 'help-man',
          'logging=', 'bus=', 'type=', 'auto', 'port='])
 except getopt.GetoptError:
@@ -137,6 +138,9 @@ for o, a in opts:
         if not log.set_level(log_level):
             usage()
             
+    elif o == '-g':
+        log.set_level('debug')
+            
     elif o in ('-t', '--type'):
         setup_fax, setup_print = False, False
         a = a.strip().lower()
@@ -189,7 +193,6 @@ if len(args):
     device_uri, sane_uri, fax_uri = device.makeuri(hpiod_sock, hpssd_sock, param, jd_port)
         
 # ******************************* DEVICE CHOOSER
-      
 if not device_uri: 
     try:
         device_uri = device.getInteractiveDeviceURI(bus)
@@ -201,7 +204,8 @@ if not device_uri:
 
 # ******************************* QUERY MODEL AND COLLECT PPDS
 
-log.info("")
+log.info(utils.bold("\nSetting up device: %s\n" % device_uri))
+
 if not auto:
     log.info("(Note: Defaults for each question are maked with a '*'. Press <enter> to accept the default.)")
 
@@ -215,17 +219,25 @@ back_end, is_hp, bus, model, \
     device.parseDeviceURI(device_uri)
 
 log.debug("Model=%s" % model)
-        
+
 mq, data, result_code = msg.xmitMessage(hpssd_sock, "QueryModel", payload=None,
                                         other_fields={"device-uri": device_uri},
                                         timeout=prop.read_timeout)
 
-if not mq['fax-type'] and setup_fax:
+
+if result_code == ERROR_UNSUPPORTED_MODEL or \
+    mq.get('support-type', SUPPORT_TYPE_NONE) == SUPPORT_TYPE_NONE:
+    
+    log.error("Unsupported printer model.")
+    sys.exit(1)
+    
+if not mq.get('fax-type', 0) and setup_fax:
     log.warning("Cannot setup fax - device does not have fax feature.")
     setup_fax = False
     
 log.debug("Searching for PPDs in: %s" % sys_cfg.dirs.ppd)
 ppds = []    
+
 for f in utils.walkFiles(sys_cfg.dirs.ppd, pattern="HP*ppd*", abs_paths=True):
     ppds.append(f)
 
@@ -297,7 +309,6 @@ if setup_print:
     eds = {}
     min_edit_distance = sys.maxint
     
-    
     for f in ppds:
         t = os.path.basename(f).replace('HP-', '').replace('-hpijs', '').\
             replace('.gz', '').replace('.ppd', '').replace('HP_', '').lower()
@@ -315,11 +326,45 @@ if setup_print:
             else:
                 mins.append(f)
     
-    x = len(mins)     
+    x = len(mins) 
 
+    if x > 1: # try pattern matching the model number 
+        try:
+            model_number = number_pat.match(stripped_model).group(1)
+            model_number = int(model_number)
+        except AttributeError:
+            pass
+        except ValueError:
+            pass
+        else:
+            for x in range(3): # 1, 10, 100
+                factor = 10**x
+                adj_model_number = int(model_number/factor)*factor
+                number_matching, match = 0, ''
+                
+                for m in mins:
+                    try:
+                        mins_model_number = number_pat.match(os.path.basename(m)).group(1)
+                        mins_model_number = int(mins_model_number)
+                    except AttributeError:
+                        continue
+                    except ValueError:
+                        continue
+                
+                    mins_adj_model_number = int(mins_model_number/factor)*factor
+                    
+                    if mins_adj_model_number == adj_model_number: 
+                        number_matching += 1
+                        match = m
+                        
+                if number_matching == 1:
+                    mins, x = [match], 1
+                    break
+
+    enter_ppd = False
+    
     if x == 0:
-        log.error("Unable to find PPD file. Please download and install an appropriate PPD file and try again.")
-        sys.exit(1)
+        enter_ppd = True
         
     elif x == 1:
         print_ppd = mins[0]
@@ -339,8 +384,8 @@ if setup_print:
                     break
                     
                 if user_input == 'n':
-                    log.error("Unable to find PPD file. Please download and install an appropriate PPD file and try again.")
-                    sys.exit(1)
+                    enter_ppd = True
+                    break
                     
                 log.error("Please enter 'y' or 'n'")
                 
@@ -359,18 +404,29 @@ if setup_print:
                 (
                     {'width': 4},
                     {'width': max_ppd_filename_size, 'margin': 2},
+                    {'width': 40, 'margin': 2},
                 )
             )
         
-        log.info(formatter.compose(("Num.", "PPD Filename")))
-        log.info(formatter.compose(('-'*4, '-'*(max_ppd_filename_size), )))
+        log.info(formatter.compose(("Num.", "PPD Filename", "Description")))
+        log.info(formatter.compose(('-'*4, '-'*(max_ppd_filename_size), '-'*40 )))
     
         for y in range(x):
-            log.info(formatter.compose((str(y), mins[y])))
+            if mins[y].endswith('.gz'):
+                nickname = gzip.GzipFile(mins[y], 'r').read(4096)
+            else:
+                nickname = file(mins[y], 'r').read(4096)
+                
+            try:
+                desc = nickname_pat.search(nickname).group(1)
+            except AttributeError:
+                desc = ''
+                
+            log.info(formatter.compose((str(y), mins[y], desc)))
             
         x += 1
         none_of_the_above = y+1
-        log.info(formatter.compose((str(none_of_the_above), "(None of the above match)")))
+        log.info(formatter.compose((str(none_of_the_above), "(None of the above match)", '')))
 
         while 1:
             user_input = raw_input(utils.bold("\nEnter number 0...%d for PPD file (q=quit) ?" % (x-1)))
@@ -391,8 +447,8 @@ if setup_print:
                 continue
                 
             if i == none_of_the_above:
-                log.error("Unable to match PPD file. Please download and install an appropriate PPD file and try again.")
-                sys.exit(1)
+                enter_ppd = True
+                break
                 
             if i < 0 or i > (x-1):
                 log.warn("Invalid input - enter a value between 0 and %d or 'q' to quit." % (x-1))
@@ -400,9 +456,83 @@ if setup_print:
 
             break
 
-        print_ppd = mins[i]             
+        if not enter_ppd:
+            print_ppd = mins[i]             
     
     
+    if enter_ppd:
+        log.error("Unable to find an appropriate PPD file.")
+        enter_ppd = False
+        
+        while True:
+            user_input = raw_input(utils.bold("\nWould you like to specify the path to the correct PPD file to use (y=yes, n=no*, q=quit) ?"))
+            user_input = user_input.strip().lower()
+            
+            if user_input == 'q':
+                log.info("OK, done.")
+                sys.exit(0)
+            
+            if not user_input or user_input == 'n':
+                break
+                
+            if user_input == 'y':
+                enter_ppd = True
+                break
+                
+            log.error("Please enter 'y' or 'n'")
+            
+        if enter_ppd:
+            ok = False
+            
+            while True:
+                user_input = raw_input(utils.bold("\nPlease enter the full filesystem path to the PPD file to use (q=quit) :"))
+                
+                if user_input.lower().strip() == 'q':
+                    log.info("OK, done.")
+                    sys.exit(0)
+                    
+                file_path = user_input
+                
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    
+                    if file_path.endswith('.gz'):
+                        nickname = gzip.GzipFile(file_path, 'r').read(4096)
+                    else:
+                        nickname = file(file_path, 'r').read(4096)
+                        
+                    try:
+                        desc = nickname_pat.search(nickname).group(1)
+                    except AttributeError:
+                        desc = ''
+                    
+                    if desc:
+                        log.info("Description for the file: %s" % desc)
+                    else:
+                        log.error("No PPD 'NickName' found. This file may not be a valid PPD file.")
+                        
+                    while True:
+                        user_input = raw_input(utils.bold("\nUse this file (y=yes*, n=no, q=quit) ?"))
+                        user_input = user_input.strip().lower()
+                        
+                        if not user_input or user_input == 'y':
+                            print_ppd = file_path
+                            ok = True
+                            break
+                            
+                        elif user_input == 'q':
+                            log.info("OK, done.")
+                            sys.exit(0)
+                        
+                        elif user_input == 'n':
+                            break
+                    
+                else:
+                    log.error("File not found or not an appropriate (PPD) file.")
+                
+                
+                if ok:
+                    break
+            
     if auto:
         location, info = '', 'Automatically setup by HPLIP'
     else:
@@ -436,6 +566,16 @@ if setup_print:
     log.info("Information: %s" % info)
 
     cups.addPrinter(printer_name, print_uri, location, print_ppd, info)
+    
+    installed_print_devices = device.getSupportedCUPSDevices(['hp']) 
+    
+    log.debug(installed_print_devices)
+    
+    if print_uri not in installed_print_devices or \
+        printer_name not in installed_print_devices[print_uri]:
+        
+        log.error("Printer queue setup failed. Please restart CUPS and try again.")
+        sys.exit(1)
     
 # ******************************* TEST PAGE    
     
@@ -476,11 +616,39 @@ if setup_print:
                 log.error("Unable to print to printer. Please check device and try again.")
             else:
                 if d.isIdleAndNoError():
-                    d.close()
+                    #d.close()
                     log.info( "Printing test page..." )
                     d.printTestPage()
                 
-                    log.info("Test page has been sent to printer...")
+                    log.info("Test page has been sent to printer. Waiting for printout to complete...")
+                    
+                    time.sleep(5)
+                    i = 0
+
+                    while True:
+                        time.sleep(5)
+                        
+                        try:
+                            d.queryDevice(quick=True)
+                        except Error, e:
+                            log.error("An error has occured.")
+                        
+                        if d.error_state == ERROR_STATE_CLEAR:
+                            break
+                        
+                        elif d.error_state == ERROR_STATE_ERROR:
+                            log.error("An error has occured (code=%d). Please check the printer and try again." % d.status_code)
+                            break
+                            
+                        elif d.error_state == ERROR_STATE_WARNING:
+                            log.warning("There is a problem with the printer (code=%d). Please check the printer." % d.status_code)
+                        
+                        else: # ERROR_STATE_BUSY
+                            update_spinner()
+                            
+                        i += 1
+                        if i > 100: break
+
                 
                 else:
                     log.error("Unable to print to printer. Please check device and try again.")
@@ -603,6 +771,17 @@ if setup_fax:
     log.info("Information: %s" % info)
 
     cups.addPrinter(fax_name, fax_uri, location, fax_ppd, info)
+    
+    installed_fax_devices = device.getSupportedCUPSDevices(['hpfax']) 
+    
+    log.debug(installed_fax_devices) 
+    
+    if fax_uri not in installed_fax_devices or \
+        fax_name not in installed_fax_devices[fax_uri]:
+        
+        log.error("Fax queue setup failed. Please restart CUPS and try again.")
+        sys.exit(1)
+    
 
 # ******************************* FAX HEADER SETUP
     

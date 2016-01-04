@@ -412,6 +412,29 @@ int System::ValidURI(MsgAttributes *ma)
    return 1;
 }
 
+/* Check for USB interface descriptor with specified class. */
+int System::IsInterface(struct usb_device *dev, int dclass)
+{
+   struct usb_interface_descriptor *pi;
+   int i, j, k;
+
+   for (i=0; i<dev->descriptor.bNumConfigurations; i++)
+   {
+      for (j=0; j<dev->config[i].bNumInterfaces; j++)
+      {
+         for (k=0; k<dev->config[i].interface[j].num_altsetting; k++)
+         {
+            pi = &dev->config[i].interface[j].altsetting[k];
+            if (pi->bInterfaceClass == dclass)
+            {
+               return 1;            /* found interface */
+            }
+         }
+      }
+   }
+   return 0;    /* no interface found */
+}
+
 /* Walk the USB bus(s) looking for HP products. */
 int System::UsbDiscovery(char *lst, int *cnt)
 {
@@ -438,7 +461,7 @@ int System::UsbDiscovery(char *lst, int *cnt)
 
          model[0] = serial[0] = sz[0] = 0;
 
-         if (dev->descriptor.idVendor == 0x3f0)
+         if (dev->descriptor.idVendor == 0x3f0 && IsInterface(dev, 7))
          {
             /* Found hp device. */
             if (usb_get_string_simple(hd, dev->descriptor.iProduct, sz, sizeof(sz)) < 0)

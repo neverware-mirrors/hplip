@@ -215,12 +215,12 @@ int JetDirectChannel::WriteData(unsigned char *data, int length, char *sendBuf, 
    FD_ZERO(&master);
    FD_SET(Socket, &master);
    maxfd = Socket;
-   tmo.tv_sec = EXCEPTION_TIMEOUT;
-   tmo.tv_usec = 0;
    size = length;
 
    while (size > 0)
    {
+      tmo.tv_sec = EXCEPTION_TIMEOUT/1000000;  /* note linux select will modify tmo */
+      tmo.tv_usec = 0;
       writefd = master;
       if ((ret = select(maxfd+1, NULL, &writefd, NULL, &tmo)) == 0)
       {
