@@ -206,10 +206,10 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       size = sizeof(MLCHeader);
       while (size > 0)
       {
-         if ((len = pDev->pSys->Read(fd, pBuf, size)) < 0)
+         if ((len = pDev->pSys->Read(fd, pBuf, size, 1, 0)) < 0)   /* wait 1 second */
          {
             syslog(LOG_ERR, "unable to read MlcReverseReply header: %m\n");
-            stat = 1;
+            stat = 2;  /* short timeout */
             goto bugout;
          }
          size-=len;
@@ -287,6 +287,14 @@ int MlcChannel::MlcInit(int fd)
             /* hack for usblp.c 2.6.5 */
             syslog(LOG_INFO, "invalid MLCInitReply retrying...\n");
             sleep(1);   
+            cnt++;
+            continue;
+         }
+         if (stat == 2 && cnt<1)
+         {
+            /* hack for Tahoe */
+            syslog(LOG_INFO, "invalid MLCInitReply retrying command...\n");
+            pDev->pSys->Write(fd, pCmd, n);
             cnt++;
             continue;
          }
@@ -660,7 +668,8 @@ int MlcChannel::Open(char *sendBuf, int *result)
    char res[] = "msg=OpenChannelResult\nresult-code=%d\n";
    int supportedProtocols=0;
    int twoints[2];
-   int len, slen, i;
+   int len, slen;
+   unsigned i;
    unsigned char buf[255];
 
    *result = R_IO_ERROR;
@@ -777,7 +786,6 @@ int MlcChannel::Close(char *sendBuf, int *result)
       }
    }
 
-bugout:
    len = sprintf(sendBuf, res, *result);  
 
    return len;

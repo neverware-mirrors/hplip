@@ -23,6 +23,8 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +39,10 @@
 #include <ctype.h>
 #include "ptest.h"
 #include "fat.h"
+
+#if defined(__APPLE__) && defined(__MACH__)
+    typedef unsigned long uint32_t;
+#endif
 
 #define HPIODFILE "/var/run/hpiod.port"
 #define HPSSDFILE "/var/run/hpssd.port"
@@ -485,14 +491,12 @@ int OpenHP(char *dev)
 {
    char message[512];  
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0, fd=-1;
    MSG_ATTRIBUTES ma;
  
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpiod_port_num);  
  
    if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -643,13 +647,11 @@ int ModelQuery(char *uri, MSG_ATTRIBUTES *ma)
    char message[HEADER_SIZE];  
    char model[128];
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0,stat=1;
 
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpssd_port_num);   /* hpssd */  
 
    if ((hpssd_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -792,7 +794,6 @@ int DevDiscovery(char *uri, int urisize)
    char message[LINE_SIZE*64];  
    int socket_descriptor;  
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int i, len=0;  
    MSG_ATTRIBUTES ma;
    char *pBeg;
@@ -800,11 +801,9 @@ int DevDiscovery(char *uri, int urisize)
    message[0] = 0;
    uri[0] = 0;
 
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = htonl(INADDR_ANY);  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpiod_port_num);  
  
    if ((socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) == -1) 

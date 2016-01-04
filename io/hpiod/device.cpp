@@ -73,7 +73,7 @@ int Device::DeviceID(char *buffer, int size)
    {
      //      if (errno == ENODEV)
      //         len = -1;
-      syslog(LOG_ERR, "unable to read Device::DeviceID: %m\n");
+      syslog(LOG_ERR, "unable to read uri:%s Device::DeviceID: %m\n", URI);
       goto bugout;
    }
 
@@ -173,7 +173,6 @@ int Device::Open(char *sendBuf, int *result)
    char uriModel[128];
    char model[128];
    int len=0;
-   unsigned char nullByte=0;
 
    *result = R_AOK;
 
@@ -461,7 +460,6 @@ rjmp:
 Channel *Device::NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl)
 {
    Channel *pC=NULL;
-   MsgAttributes ma;
    int i, n, mode;
 
    /* Check for existing name service already open. */
@@ -575,7 +573,7 @@ int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, c
    }
    else
    {
-      syslog(LOG_ERR, "unsupported service Device::ChannelOpen: %s\n", sn);
+      syslog(LOG_ERR, "unsupported service uri:%s Device::ChannelOpen: %s\n", URI, sn);
       len = sprintf(sendBuf, res, R_INVALID_SN);
       goto bugout;
    }
@@ -585,7 +583,7 @@ int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, c
    {
       if ((pC = NewChannel(sockid, io_mode, flow_ctl)) == NULL)
       {
-         syslog(LOG_ERR, "service busy Device::ChannelOpen: %s\n", sn);
+         syslog(LOG_ERR, "service busy uri:%s mode:%s ctl:%s Device::ChannelOpen: %s\n", URI, io_mode, flow_ctl, sn);
          *result = R_CHANNEL_BUSY;
          len = sprintf(sendBuf, res, *result);
       }
@@ -605,7 +603,7 @@ int Device::ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel, c
    }
    else
    {
-      syslog(LOG_ERR, "unable to lock Device::ChannelOpen: %m\n");
+      syslog(LOG_ERR, "unable to lock uri:%s Device::ChannelOpen: %m\n", URI);
       *result = R_IO_ERROR;
       len = sprintf(sendBuf, res, *result);  
       goto bugout;
@@ -623,7 +621,7 @@ int Device::ChannelClose(int channel, char *sendBuf, int *result)
 
    if (pC == NULL)
    {
-      syslog(LOG_ERR, "invalid channel descriptor Device::ChannelClose: %d\n", channel);
+      syslog(LOG_ERR, "invalid channel descriptor uri:%s Device::ChannelClose: %d\n", URI, channel);
       *result = R_INVALID_CHANNEL_ID;
       len = sprintf(sendBuf, res, *result);  
       goto bugout;
@@ -646,7 +644,7 @@ int Device::ChannelClose(int channel, char *sendBuf, int *result)
    }
    else
    {
-      syslog(LOG_ERR, "unable to lock Device::ChannelClose: %m\n");
+      syslog(LOG_ERR, "unable to lock uri:%s Device::ChannelClose: %m\n", URI);
       *result = R_IO_ERROR;
       len = sprintf(sendBuf, res, *result);  
       goto bugout;

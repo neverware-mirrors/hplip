@@ -51,14 +51,13 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *APPrinterIconPath: "/Library/Printers/hp/Icons/HP LaserJet 9000 MFP.icns"
-*cupsFilter: "application/vnd.cups-postscript 0 /Library/Printers/hp/filter/hppostprocessing"
 
 *%=================================================
 *% 		 Product Version Information
 *%=================================================
 *ModelName: "HP LaserJet 9040 "
 *ShortNickName: "HP LaserJet 9040 "
-*NickName: "HP LaserJet 9040"
+*NickName: "HP LaserJet 9040 Postscript (recommended)"
 *Product: "(hp LaserJet 9040)"
 *Manufacturer: "HP"
 

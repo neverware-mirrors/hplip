@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>875</width>
-            <height>568</height>
+            <width>910</width>
+            <height>546</height>
         </rect>
     </property>
     <property name="caption">
@@ -373,6 +373,151 @@
                                 </widget>
                             </grid>
                         </widget>
+                    </grid>
+                </widget>
+                <widget class="QWidget">
+                    <property name="name">
+                        <cstring>TabPage</cstring>
+                    </property>
+                    <attribute name="title">
+                        <string>Settings</string>
+                    </attribute>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QGroupBox" row="0" column="0">
+                            <property name="name">
+                                <cstring>groupBox10</cstring>
+                            </property>
+                            <property name="title">
+                                <string>Device Settings</string>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                                    <property name="name">
+                                        <cstring>textLabel1_4</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Some devices have special device settings. If your device supports this, you may alter these settings here.</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>WordBreak|AlignVCenter</set>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>deviceSettingsButton</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Device Settings...</string>
+                                    </property>
+                                </widget>
+                                <spacer row="1" column="0">
+                                    <property name="name">
+                                        <cstring>spacer15</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>411</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </grid>
+                        </widget>
+                        <widget class="QGroupBox" row="1" column="0">
+                            <property name="name">
+                                <cstring>groupBox11_2</cstring>
+                            </property>
+                            <property name="title">
+                                <string>Fax Settings</string>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>If your device supports fax, you must setup fax support before you may use the fax functionality. Use the "Fax Setup Wizard" to setup initial support, then you may alter the settings later in "Fax Settings".</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>WordBreak|AlignVCenter</set>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton" row="1" column="2">
+                                    <property name="name">
+                                        <cstring>faxSettingsButton</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Fax Settings...</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>faxSetupWizardButton</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Fax Setup Wizard...</string>
+                                    </property>
+                                </widget>
+                                <spacer row="1" column="0">
+                                    <property name="name">
+                                        <cstring>spacer16</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>231</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </grid>
+                        </widget>
+                        <spacer row="2" column="0">
+                            <property name="name">
+                                <cstring>spacer17</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>141</height>
+                                </size>
+                            </property>
+                        </spacer>
                     </grid>
                 </widget>
                 <widget class="QWidget">
@@ -1037,14 +1182,15 @@
         <cstring>MenuBar</cstring>
     </property>
     <item text="Device" name="Device">
+        <action name="setupDevice"/>
+        <separator/>
         <action name="deviceRescanAction"/>
         <action name="deviceRefreshAll"/>
-        <separator/>
         <action name="autoRefresh"/>
         <separator/>
         <action name="deviceExitAction"/>
     </item>
-    <item text="Settings" name="Settings">
+    <item text="Configure" name="Configure">
         <action name="settingsConfigure"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
@@ -1096,13 +1242,10 @@
             <cstring>helpAboutAction</cstring>
         </property>
         <property name="text">
-            <string>About</string>
+            <string>About HP Device Manager</string>
         </property>
         <property name="menuText">
-            <string>&amp;About</string>
-        </property>
-        <property name="accel">
-            <string></string>
+            <string>&amp;About HP Device Manager</string>
         </property>
     </action>
     <action>
@@ -1207,6 +1350,26 @@
         </property>
         <property name="accel">
             <string>Ctrl+A</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>setupDevice</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Action</string>
+        </property>
+        <property name="menuText">
+            <string>Settings...</string>
+        </property>
+        <property name="toolTip">
+            <string>Device Settings (F3)</string>
+        </property>
+        <property name="accel">
+            <string>F3</string>
         </property>
     </action>
 </actions>
@@ -1367,6 +1530,30 @@
         <receiver>DevMgr4_base</receiver>
         <slot>PrintTestPageButton_clicked()</slot>
     </connection>
+    <connection>
+        <sender>deviceSettingsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>DevMgr4_base</receiver>
+        <slot>deviceSettingsButton_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>faxSetupWizardButton</sender>
+        <signal>clicked()</signal>
+        <receiver>DevMgr4_base</receiver>
+        <slot>faxSetupWizardButton_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>faxSettingsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>DevMgr4_base</receiver>
+        <slot>faxSettingsButton_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>setupDevice</sender>
+        <signal>activated()</signal>
+        <receiver>DevMgr4_base</receiver>
+        <slot>setupDevice_activated()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">devmgr4_base.ui.h</include>
@@ -1411,6 +1598,10 @@
     <slot>PrintJobList_selectionChanged( QListViewItem * )</slot>
     <slot>DeviceList_rightButtonClicked( QIconViewItem *, const QPoint &amp; )</slot>
     <slot>OpenEmbeddedBrowserButton_clicked()</slot>
+    <slot>deviceSettingsButton_clicked()</slot>
+    <slot>faxSetupWizardButton_clicked()</slot>
+    <slot>faxSettingsButton_clicked()</slot>
+    <slot>setupDevice_activated()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

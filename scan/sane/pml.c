@@ -439,7 +439,6 @@ int PmlRequestSet( int deviceid, int channelid, PmlObject_t obj )
         status = OK;
     }
 
-bugout:
     return status;
 }
 
@@ -489,7 +488,6 @@ int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj )
         status = OK;
     }
 
-bugout:
     return status;
 }
 

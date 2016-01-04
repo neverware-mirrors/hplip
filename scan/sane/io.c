@@ -327,7 +327,6 @@ static int ReadConfig()
 {
     DBG( 0, "Reading port files...\n"  );
     char rcbuf[255];
-    char section[32];
     FILE * inFile;
     char * tail;
 
@@ -470,14 +469,12 @@ int Init( void )
     DBG( 0, "Init()\n" );
     
     struct sockaddr_in pin;  
-    struct hostent *server_host_name;
     
     ReadConfig();
 
-    server_host_name = gethostbyname( "localhost" );
     bzero( &pin, sizeof(pin) );  
     pin.sin_family = AF_INET;  
-    pin.sin_addr.s_addr = ( (struct in_addr *)(server_host_name->h_addr) )->s_addr;  
+    pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     pin.sin_port = htons( hpiod_port_num );  
     
     if ( ( hpiod_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) == -1 ) 
@@ -494,7 +491,7 @@ int Init( void )
 
     bzero( &pin, sizeof(pin) );  
     pin.sin_family = AF_INET;  
-    pin.sin_addr.s_addr = ( (struct in_addr *)(server_host_name->h_addr) )->s_addr;  
+    pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     pin.sin_port = htons( hpssd_port_num );  
     
     if ( ( hpssd_socket = socket( AF_INET, SOCK_STREAM, 0 ) ) == -1 ) 
@@ -630,7 +627,6 @@ int ResetDevices( SANE_Device *** devices )
 int SendScanEvent( char * device_uri, int event, char * type )
 {
     char message[ MAXSIZE ];
-    MsgAttributes ma;
     memset( message, '\0', MAXSIZE );
     int len = sprintf( message, "msg=Event\ndevice-uri=%s\nevent-code=%d\nevent-type=%s\n", device_uri, event, type );
     DBG( 0, "\n>>>\n%s\n", message ); 

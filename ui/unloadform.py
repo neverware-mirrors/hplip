@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.20 $ 
-# $Date: 2005/03/21 17:22:20 $
+# $Revision: 1.21 $ 
+# $Date: 2005/04/25 20:40:13 $
 # $Author: dwelch $
 #
 #
@@ -61,14 +61,17 @@ class IconViewItem( QIconViewItem ):
 class UnloadForm(UnloadForm_base):
     def __init__(self, bus='usb', device_uri=None, printer_name=None, parent = None,name = None,fl = 0):
         UnloadForm_base.__init__(self,parent,name,fl)
+        #ok = True
+        self.device_uri = device_uri
+        self.printer_name = printer_name
 
-        if device_uri and printer_name:
+        if self.device_uri and self.printer_name:
             log.error( "You may not specify both a printer (-p) and a device (-d)." )
-            device_uri, printer_name = None, None
+            self.device_uri, self.printer_name = None, None
 
         self.s = service.Service()
 
-        if not device_uri and not printer_name:
+        if not self.device_uri and not self.printer_name:
             probed_devices = self.s.probeDevices( bus, 5, 4, 'pcard' )
             cups_printers = cups.getPrinters()
             log.debug( probed_devices )
@@ -91,31 +94,36 @@ class UnloadForm(UnloadForm_base):
 
             elif x == 1:
                 log.info( "Using device: %s" % devices[0][0] )
-                device_uri = devices[0][0]
+                self.device_uri = devices[0][0]
 
             else:                
                 dlg = ChooseDeviceDlg( devices )
                 dlg.exec_loop()
-                device_uri = dlg.device_uri
+                self.device_uri = dlg.device_uri
 
+        QTimer.singleShot( 0, self.initialUpdate )
+
+    def initialUpdate( self ):
 
         try:
-            self.pc = photocard.PhotoCard( None, device_uri, printer_name )
+            self.pc = photocard.PhotoCard( None, self.device_uri, self.printer_name )
         except Error, e:
             log.error( "An error occured: %s" % e[0] )
             self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Could not connect to device." ) )
             self.cleanup( EVENT_PCARD_UNABLE_TO_MOUNT )
+            return
 
-        if self.pc.device.device_uri is None and printer_name:
-            log.error( "Printer '%s' not found." % printer_name )
+        if self.pc.device.device_uri is None and self.printer_name:
+            log.error( "Printer '%s' not found." % self.printer_name )
             self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Device not found."  ) )
             self.cleanup( EVENT_PCARD_JOB_FAIL )
+            return
 
-        if self.pc.device.device_uri is None and device_uri:
-            log.error( "Malformed/invalid device-uri: %s" % device_uri )
+        if self.pc.device.device_uri is None and self.device_uri:
+            log.error( "Malformed/invalid device-uri: %s" % self.device_uri )
             self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Malformed/invalid device-uri."  ) )
             self.cleanup( EVENT_PCARD_JOB_FAIL )
-
+            return
 
         try:
             self.pc.mount()
@@ -124,7 +132,7 @@ class UnloadForm(UnloadForm_base):
             self.failure( self.__tr( "<p><b>Unable to mount photocard.</b><p>Check that device is powered on and photo card is correctly inserted."  ) )
             self.pc.umount()
             self.cleanup( EVENT_PCARD_UNABLE_TO_MOUNT )
-
+            return
 
         self.s.sendEvent( EVENT_START_PCARD_JOB, 'event', 0, prop.username, self.pc.device.device_uri )
 
@@ -162,7 +170,6 @@ class UnloadForm(UnloadForm_base):
         self.removal_option = 0
 
         self.UpdateStatusBar()
-        QTimer.singleShot( 0, self.initialUpdate )
 
         if self.pc.write_protect:
             self.FileRemovalGroup.setEnabled( False )
@@ -174,25 +181,26 @@ class UnloadForm(UnloadForm_base):
         # name that are on the pcard in more than one location
         self.item_map = {}
 
+        self.load_icon_view( first_load=True )
+
     def CancelButton_clicked(self):
         self.cleanup()
 
     def cleanup( self, error=0 ):
-        if error > 0:
-            self.s.sendEvent( error, 'error', 0, prop.username, 
-                              self.pc.device.device_uri )    
+        if self.s is not None:
+            if error > 0:
+                self.s.sendEvent( error, 'error', 0, prop.username, 
+                                  self.pc.device.device_uri )    
 
-        self.s.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
-                              self.pc.device.device_uri )  
+            self.s.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
+                                  self.pc.device.device_uri )  
 
-        self.s.close()
+            self.s.close()
+            self.s = None
+
         self.close()
 
-    def closeEvent( self, e ):
-        #self.s.sendEvent( EVENT_END_PCARD_JOB, 'event', 0, prop.username, 
-        #                  self.pc.device.device_uri )  
-        e.accept()
-    
+
     def success( self ):
         QMessageBox.information( self, 
                              self.caption(),
@@ -209,9 +217,6 @@ class UnloadForm(UnloadForm_base):
                               QMessageBox.NoButton, 
                               QMessageBox.NoButton )
 
-
-    def initialUpdate( self ):
-        self.load_icon_view( first_load=True )
 
     def load_icon_view( self, first_load ):
         self.first_load = first_load
@@ -285,7 +290,6 @@ class UnloadForm(UnloadForm_base):
                         item.setPixmap( pixmap )
                         item.thumbnail_set = True
 
-
                     return
 
                 #elif 'TIFFThumbnail' in exif_info: 
@@ -327,8 +331,6 @@ class UnloadForm(UnloadForm_base):
             else:
                 IconViewItem( self.IconView, dirname, fname + " (%d)" % num, 
                               path, QPixmap(f), typ, subtyp, size )
-
-
 
 
     def resizePixmap( self, pixmap ):
@@ -376,7 +378,7 @@ class UnloadForm(UnloadForm_base):
         was_cancelled = False
         self.unload_dir = str( self.UnloadDirectoryEdit.text() )
         dir_error = False
-        
+
         try:
             os.chdir( self.unload_dir )
         except OSError:
@@ -410,11 +412,11 @@ class UnloadForm(UnloadForm_base):
         if self.removal_option == 0:
             total_size, total_time, was_cancelled = \
                 self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, True )
-        
+
         elif self.removal_option == 1: # remove selected
             total_size, total_time, was_cancelled = \
                 self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
-        
+
         else: # remove all
             total_size, total_time, was_cancelled = \
                 self.pc.unload( unload_list, self.UpdateUnloadProgressDlg, None, False )
@@ -429,14 +431,14 @@ class UnloadForm(UnloadForm_base):
             self.failure( self.__tr( "<b>Unload cancelled at user request.</b>" ) )
         else:            
             self.success()
-            
+
 
     def UpdateUnloadProgressDlg( self, src, trg, size ):
         global progress_dlg
         progress_dlg.setProgress( progress_dlg.progress() + size )
         progress_dlg.setLabelText( src )
         qApp.processEvents()
-        
+
         return progress_dlg.wasCancelled()
 
     def IconView_rightButtonClicked( self, item, pos ):

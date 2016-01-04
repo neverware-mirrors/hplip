@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.2 $ 
-# $Date: 2005/03/31 18:04:55 $
+# $Revision: 1.3 $ 
+# $Date: 2005/04/21 21:02:07 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -99,7 +99,6 @@ try:
     import sip
 except ImportError:
     log.error( "SIP not installed." )
-    sys.exit(0)
 else:
     log.info( "--> OK" )
 
@@ -109,7 +108,6 @@ try:
     from qt import *
 except ImportError:
     log.error( "PyQt not installed." )
-    sys.exit(0)
 else:
     log.info( "--> OK" )
 
@@ -122,7 +120,6 @@ log.info( "--> Version %s installed." % qVersion() )
 
 if qtMajor < MINIMUM_QT_MAJOR_VER: 
     log.error( "Incorrect version of Qt installed. Ver. 3.0 or greater required.")
-    sys.exit(0)
 else:
     log.info( "--> OK" )
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $ 
-# $Date: 2005/03/22 23:54:45 $
-# $Author: dwelch $
+# $Revision: 1.15 $ 
+# $Date: 2005/04/29 16:45:58 $
+# $Author: syie $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
 #
@@ -40,27 +40,35 @@ from base import device, utils, slp, msg
 def usage():
     formatter = utils.TextFormatter( 
                 (
-                    {'width': 38, 'margin' : 2},
-                    {'width': 38, 'margin' : 2},
+                    {'width': 24, 'margin' : 2},
+                    {'width': 58, 'margin' : 2},
                 )
             )
 
     log.info( utils.bold( """\nUsage: hp-probe [OPTIONS]\n\n""" ) )
 
-    log.info( formatter.compose( ( "[OPTIONS]",                            "" ) ) )
-    log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "Bus to probe:                          ","-b<bus> or --bus=<bus>" ) ) )
-    log.info( formatter.compose( ( "",                                     "<bus>: usb*, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
-    log.info( formatter.compose( ( "TTL:",                                 "-t<ttl> or --ttl=<ttl>" ) ) )
-    log.info( formatter.compose( ( "",                                     "(Network only)" ) ) )
-    log.info( formatter.compose( ( "Timeout:"                              ,"-o<timeout in secs> or --timeout=<timeout in secs>" ) ) )
-    log.info( formatter.compose( ( "",                                     "(Network only)" ) ) )
-    log.info( formatter.compose( ( "Filter:"                               ,"-e<filter list> or --filter=<filter list>" ) ) )
-    log.info( formatter.compose( ( "",                                     "none is the default" ) ) )
-    log.info( formatter.compose( ( "Search:"                               ,"-s<search re> or --search=<search re>" ) ) )
-    log.info( formatter.compose( ( "",                                     "not case sensitive" ) ) )
-    log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
+    log.info( formatter.compose( ( "[OPTIONS]",              "" ) ) )
+    log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
+    log.info( formatter.compose( ( "",                       "<level>: none, info*, error, warn, debug (*default)" ) ) )
+    log.info( formatter.compose( ( "Bus to probe:",          "-b<bus> or --bus=<bus>" ) ) )
+    log.info( formatter.compose( ( "",                       "<bus>: cups*, usb*, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
+    log.info( formatter.compose( ( "TTL:",                   "-t<ttl> or --ttl=<ttl>" ) ) )
+    log.info( formatter.compose( ( "",                       "(Network only)" ) ) )
+    log.info( formatter.compose( ( "Timeout:",               "-o<timeout in secs> or --timeout=<timeout in secs>" ) ) )
+    log.info( formatter.compose( ( "",                       "(Network only)" ) ) )
+    log.info( formatter.compose( ( "Filter:",                "-e<filter list> or --filter=<filter list>" ) ) )
+    log.info( formatter.compose( ( "",                       "<filter list>: comma separated list of one or more of: scan, pcard, fax, copy, or none*. (*none is the default)" ) ) )
+    log.info( formatter.compose( ( "Search:",                "-s<search re> or --search=<search re>" ) ) )
+    log.info( formatter.compose( ( "",                       "<search re> must be a valid regular expression (not case sensitive)" ) ) )
+    log.info( formatter.compose( ( "This help information:", "-h or --help" ) ) )
+
+    log.info(  """\n\nExamples:\n\nFind all devices on the network:\n   hp-probe -bnet\n\n""" \
+               """Find all devices on USB that support scanning:\n   hp-probe -busb -escan\n\n""" \
+               """Find all networked devices that contain the name 'lnx' and that support photo cards or scanning:\n   hp-probe -bnet -slnx -escan,pcard\n\n"""
+               """Find all devices that are on the USB bus or that are installed in CUPS:\n   hp-probe\n\n"""
+            )
+        
+        
 
 
 utils.log_title( 'Device Detection (Probe) Utility', _VERSION )
@@ -184,7 +192,12 @@ dd = data.splitlines()
 if len(dd) > 0:
 
     if search is not None:
-        search_pat = re.compile( search, re.IGNORECASE )
+        try:
+            search_pat = re.compile( search, re.IGNORECASE )
+        except:
+            log.error( "Invalid search pattern. Search uses standard regular expressions. For more info, see: http://www.amk.ca/python/howto/regex/" )
+            sys.exit(0)
+
         ee = []
         for d in dd:
             match_obj = search_pat.search( d )
@@ -226,7 +239,7 @@ if len(dd) > 0:
     else:
         log.info( formatter.compose( ( "Device URI", "Model", "" ) ) )    
         log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, "" ) ) )            
-        for d in dd:
+        for d in ee:
             x = pat.search( d )
             uri = x.group(2)
             model = x.group(3)

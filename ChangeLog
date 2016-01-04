@@ -1,3 +1,93 @@
+2005-05-12 dsuffield
+    * Release 0.9.3.2 (public release 0.9.3)
+
+2005-05-12 dsuffield
+    * Added more debug information in hpiod.
+
+2005-05-11 dsuffield
+    * Increased bi-di window in hpijs. This should enable 4-sided full bleed support.
+	
+2005-05-11 dsuffield
+    * Release 0.9.3.1 
+
+2005-05-11 dwelch
+    * Added kooka and xscanimage to default scanning functions
+    * Fixed ping problem in 0.9.3
+    * Fixed import * warning in utils.py
+
+2005-05-10 dsuffield
+    * Modified hpijs to ignore bi-di errors so the "hp" backend can handle them. This fixed a problem where hpijs would hang forever.
+	
+2005-05-09 dsuffield
+    * Release 0.9.3
+
+2005-05-05 jpitter
+    * modified models.xml Deskjet_1220C panel_check_type to be 0 to solve a forum issue.
+
+2005-05-02 pparks 
+    * Made a fix for socket.htons( myChecksum ) which states it returns a 16 bit value but instead returns a 32 bit value. This should fix random networking issues.
+
+2005-04-29 dsuffield
+    * Release 0.9.2.4
+
+2005-04-29 dsuffield
+    * Added MlcInit retry to hpiod.
+
+2005-04-28 jpitter
+    * created HP-Deskjet_1280.xml and HP-Color_LaserJet_2800.xml in foomatic-db/printer tip
+    * added HP Deskjet 1280 and HP Color LaserJet 2800 to foomatic-db-hplip/hplip-printermap.
+    * added _Deskjet_1280, HP_Color_LaserJet_2800, HP_Color_LaserJet_2820, HP_Color_LaserJet_2830, HP_Color_LaserJet_2840 to models.xml
+    * added HP-Color_LaserJet_2800 to foomati-db/driver/Postscript.xml
+    * added HP_Color_LaserJet_2800.ppd to linuxprinting.org/download/color_laser
+
+2005-04-27 dsuffield
+    * Fixed some gcc warnings (debian request).
+    * Converted hp backend, hpiod, hpijs and libsane-hpaio to INADDR_LOOPBACK (debian request).
+    * Removed images.tgz (issue 597).
+
+2005-04-26 dsuffield
+    * Added configure check for libjpeg-devel support (issue 593).
+    * Changed hplip_readme.html "Photo" support to yes for OJ 7200/7300/7400 (issue 607).
+	
+2005-04-26 dwelch
+    * Fixed defect 603 (The filter list should be specified clearly in the usage of command "hp-probe -e".)
+    
+2005-04-26 dsuffield
+    * Release 0.9.2.3
+	
+2005-04-26 dsuffield
+    * Fixed intermittent device hang problem with LJ 1010/1012/1015 in hp.c. These devices cannot handle in-bound USB deviceid queries.   
+	
+2005-04-26 jpitter
+    * added OfficeJet V40 to models.xml solving a forum issue.
+
+2005-02-26 dwelch
+    * Fixed defect 609 (An inadequate information is displayed in the terminal while clicking one job of Print Queue list in the "Print Jobs" tab from toolbox after sending a print job)
+
+2005-04-26 jpitter
+    * fixed models.xml so that LJ 1010, 1012, 1015, and 1022 all are raw
+
+2005-04-25 dsuffield
+    * Release 0.9.2.2
+
+2005-04-25 dwelch
+    * Fixed defect 606 (An error occurs when executing "hp-probe -s*" in terminal.)
+    * Fixed defect 608 (An error occurs in the terminal while clicking the"Access Photo Cards" without any photo card.)
+    * Fixed defect 604 (An error occurs while running hp-testpage command to print to testpage after disconnect the usb cable. )
+
+2005-04-25 jpitter
+    * added LJ 1010 and 1012 to models.xml, and made sure the OJ K80xi had both a single spaces and a double spaced entry.
+
+2005-04-22 dsuffield
+    * Release 0.9.2.1
+
+2005-04-21 dsuffield
+    * Now "make install DESTDIR=path" automatically creates prerequisite directories and files (issue 570). 
+
+2005-04-19 dwelch
+    * Fixed defect 600 (An error occurs after launching the toolbox in the terminal.)
+    * Fixed defect 601 (The setting window pops up with wrong tab as default tab when launched by Configure button.)
+    
 2005-04-15 jpitter
     * models.xml: cloned HP LaserJet 4050 Series to the same thing with a trailing underscore to solve a forum issue.
 
@@ -16,7 +106,7 @@
 	
 2005-04-13 dsuffield
     * Fixed a scanning issue with Laserjet flatbed scanners (PML scanners). Scan would fail at end of scan.
-    * Added hpijs 5 limit syslog message when output device write() fails.  
+    * Added hpijs 5 limit syslog message when output device write() fails (issue 583).  
     * Removed specified gcc options in hpijs configure.in.
     * Removed images.tgz after install.
 	
@@ -228,7 +318,9 @@
     * Added HP-LaserJet_1022.xml and HP-Deskjet_6600.xml to tip
 
 2005-02-28 jpitter
-    * in foomatic-db (both stable and unstable) updated HP-DeskJet_3740.xml HP-DeskJet_5150.xml HP-DeskJet_5158.xml HP-DeskJet_5160.xml HP-DeskJet_5650.xml HP-DeskJet_5652.xml HP-DeskJet_5670.xml HP-DeskJet_5740.xml HP-DeskJet_5850.xml HP-DeskJet_6520.xml HP-DeskJet_6540.xml HP-DeskJet_6800.xml HP-DeskJet_6840.xml HP-LaserJet_1010.xml HP-LaserJet_1012.xml HP-LaserJet_1015.xml HP-PSC_2210.xml HP-PSC_2300.xml HP-PSC_2350.xml HP-PSC_2400.xml HP-PSC_2500.xml HP-PhotoSmart_7260.xml HP-PhotoSmart_7268.xml HP-PhotoSmart_7660.xml HP-PhotoSmart_7760.xml HP-PhotoSmart_7960.xml HP-PhotoSmart_8100.xml HP-PhotoSmart_8400.xml to reflect correct "functionality" tags
+    * in foomatic-db (both stable and unstable) updated HP-DeskJet_3740.xml HP-DeskJet_5150.xml HP-DeskJet_5158.xml HP-DeskJet_5160.xml HP-DeskJet_5650.xml HP-DeskJet_5652.xml HP-DeskJet_5670.xml HP-DeskJet_5740.xml HP-DeskJet_5850.xml HP-DeskJet_6520.xml
+ HP-DeskJet_6540.xml HP-DeskJet_6800.xml HP-DeskJet_6840.xml HP-LaserJet_1010.xml HP-LaserJet_1012.xml HP-LaserJet_1015.xml HP-PSC_2210.xml HP-PSC_2300.xml HP-PSC_2350.xml HP-PSC_2400.xml HP-PSC_2500.xml HP-PhotoSmart_7260.xml HP-PhotoSmart_7268.xml HP-Ph
+otoSmart_7660.xml HP-PhotoSmart_7760.xml HP-PhotoSmart_7960.xml HP-PhotoSmart_8100.xml HP-PhotoSmart_8400.xml to reflect correct "functionality" tags
 
 2005-02-25 dsuffield
     * Removed power-up from probe command in hpiod. This means that when CUPS queries the "hp" backend for devices,the printer will not power-up (issue 380).
@@ -276,7 +368,10 @@
 2005-02-16 jpitter
     * committed hpijs-printermap with HP Color LaserJet 3700, HP Color LaserJet 4650, HP Color LaserJet 8500, HP Color LaserJet 9500, HP LaserJet 9050, HP LaserJet 9055 MFP, and HP LaserJet 9065 MFP addition to foomatic-db-hpijs
     * added and committed HP-Color_LaserJet_4650.xml HP-Color_LaserJet_3700.xml HP-Color_LaserJet_8500.xml HP-Color_LaserJet_9500.xml HP-LaserJet_9050.xml HP-LaserJet_9055_MFP.xml HP-LaserJet_9065_MFP.xml to foomatic-db both unstable and stable
-    * updated and committed HP-Business_Inkjet_2250.xml HP-Business_Inkjet_2280.xml HP-Business_Inkjet_2300.xml HP-Business_Inkjet_2600.xml HP-Business_Inkjet_2800.xml HP-Business_Inkjet_3000.xml HP-Color_LaserJet_2500.xml HP-Color_LaserJet_2550.xml HP-Color_LaserJet_4500.xml HP-Color_LaserJet_4550.xml HP-Color_LaserJet_4600.xml HP-Color_LaserJet_5M.xml HP-Color_LaserJet_8550GN.xml HP-Color_LaserJet_9500_MFP.xml HP-DesignJet_2500CP.xml HP-DesignJet_3500CP.xml HP-DesignJet_5500.xml HP-DesignJet_5500ps.xml HP-LaserJet_1320.xml HP-LaserJet_2100.xml HP-LaserJet_3200.xml HP-LaserJet_3200se.xml HP-LaserJet_3310_MFP.xml HP-LaserJet_3320N_MFP.xml HP-LaserJet_3320_MFP.xml HP-LaserJet_3330_MFP.xml HP-LaserJet_4.xml HP-LaserJet_4300.xml HP-LaserJet_4Si.xml HP-LaserJet_4V.xml HP-LaserJet_4_Plus.xml HP-LaserJet_5Si.xml HP-OfficeJet_9100.xml so that the postscript PPD on linuxprinting.org/download is the default PPD option on both unstable and stable foomatic-db
+    * updated and committed HP-Business_Inkjet_2250.xml HP-Business_Inkjet_2280.xml HP-Business_Inkjet_2300.xml HP-Business_Inkjet_2600.xml HP-Business_Inkjet_2800.xml HP-Business_Inkjet_3000.xml HP-Color_LaserJet_2500.xml HP-Color_LaserJet_2550.xml HP-Co
+lor_LaserJet_4500.xml HP-Color_LaserJet_4550.xml HP-Color_LaserJet_4600.xml HP-Color_LaserJet_5M.xml HP-Color_LaserJet_8550GN.xml HP-Color_LaserJet_9500_MFP.xml HP-DesignJet_2500CP.xml HP-DesignJet_3500CP.xml HP-DesignJet_5500.xml HP-DesignJet_5500ps.xml 
+HP-LaserJet_1320.xml HP-LaserJet_2100.xml HP-LaserJet_3200.xml HP-LaserJet_3200se.xml HP-LaserJet_3310_MFP.xml HP-LaserJet_3320N_MFP.xml HP-LaserJet_3320_MFP.xml HP-LaserJet_3330_MFP.xml HP-LaserJet_4.xml HP-LaserJet_4300.xml HP-LaserJet_4Si.xml HP-LaserJ
+et_4V.xml HP-LaserJet_4_Plus.xml HP-LaserJet_5Si.xml HP-OfficeJet_9100.xml so that the postscript PPD on linuxprinting.org/download is the default PPD option on both unstable and stable foomatic-db
 
 2005-02-16 come
     * Fixed issue 474 (OfficeJet 7100 series- access photo cards disabled)

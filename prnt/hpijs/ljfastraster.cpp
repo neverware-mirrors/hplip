@@ -501,12 +501,12 @@ DRIVER_ERROR LJFastRaster::Encapsulate (const RASTERDATA* InputRaster, BOOL bLas
 	wTemp = LOWORD (lBitDepth);
 	pucHeader[BIT_DEPTH_ADDRESS] = LOBYTE (wTemp);
 
-    unsigned long   ulVUDataLength = (long)(InputRaster->rastersize[COLORTYPE_COLOR] + FAST_RASTER_HEADERSIZE);
+    unsigned int   ulVUDataLength = (int)(InputRaster->rastersize[COLORTYPE_COLOR] + FAST_RASTER_HEADERSIZE);
 
 	BYTE FrEnterFRModeSeq[] = {0xC2, 0x06, 0x20, 0x70,0x68, 0xF8, 0x91, 0xC2};
 	err = Send ((const BYTE *)FrEnterFRModeSeq, sizeof(FrEnterFRModeSeq));
 	ERRCHECK;
-	err = Send ((const BYTE *)&ulVUDataLength, sizeof(ulVUDataLength));
+	err = Send ((const BYTE *)&ulVUDataLength, 4);
 	ERRCHECK;
 	strcpy (res, "\xF8\x92\x46");
 	err = Send ((const BYTE *) res, strlen (res));
@@ -1181,6 +1181,7 @@ BOOL ModeDeltaPlus::Process
 			{
 				err = (((LJFastRaster*)thePrinter)->phLJFastRaster)->StartPage();
 				((LJFastRaster*)thePrinter)->m_bStartPageNotSent = FALSE;
+                m_lPrinterRasterRow = 0;
 			}
 
 			m_compressedsize = 2 * inputsize * INDY_STRIP_HEIGHT;

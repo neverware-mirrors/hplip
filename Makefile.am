@@ -46,7 +46,7 @@ psdir = $(hplipdir)/data/ps
 icondir = $(hplipdir)/data
 dist_ps_DATA = data/ps/testpage.ps.gz data/ps/clean_page.pdf.gz
 dist_xml_DATA = data/xml/models.xml
-dist_images_DATA = data/images/images.tgz
+dist_images_DATA = data/images/*
 dist_pcl_DATA = data/pcl/align1_8xx.pcl.gz data/pcl/align1_9xx.pcl.gz data/pcl/align2_8xx.pcl.gz data/pcl/align3_8xx.pcl.gz data/pcl/align4_8xx.pcl.gz \
     data/pcl/align5_8xx.pcl.gz data/pcl/align2_9xx.pcl.gz data/pcl/align3_9xx.pcl.gz data/pcl/align4_450.pcl.gz data/pcl/align6_450.pcl.gz \
     data/pcl/colorcal1_450.pcl.gz data/pcl/colorcal2_450.pcl.gz data/pcl/crbcal.pcl.gz data/pcl/crcaldone.pcl.gz data/pcl/crcbcal.pcl.gz data/pcl/crccal.pcl.gz \
@@ -122,7 +122,7 @@ build-cupsext:
 	cd prnt/cupsext; \
 	python setup.py build
 
-install-exec-hook:
+install-exec-hook: test-destdir
 #
 #       Do full install if not rpm_install.
 	if [ "$(rpm_install)" = "no" ]; then \
@@ -137,8 +137,7 @@ install-exec-hook:
 	   fi \
 	fi
 
-install-data-hook:
-	cd $(DESTDIR)$(imagesdir); tar xzvf images.tgz; rm -f images.tgz
+install-data-hook: test-destdir
 	if [ "$(ICON_FILE)" = "hplip.desktop" ]; then \
 	   echo -e "[Desktop Entry]" > $(srcdir)/$(ICON_FILE); \
 	   echo -e "Version=0.6" >> $(srcdir)/$(ICON_FILE); \
@@ -222,11 +221,15 @@ install-data-hook:
 #
 # Add prerequisites for testing (or building?) "make install DESTDIR=/build".
 test-destdir:
-	$(mkinstalldirs) $(DESTDIR)/etc/init.d
-	$(mkinstalldirs) $(DESTDIR)/etc/sane.d
-	touch $(DESTDIR)/etc/sane.d/dll.conf
-	$(mkinstalldirs) $(DESTDIR)/usr/lib/sane
-	$(mkinstalldirs) $(DESTDIR)/usr/share/applications
+	if [ "$(DESTDIR)" != "" ]; then \
+	   $(mkinstalldirs) $(DESTDIR)/etc/init.d; \
+	   $(mkinstalldirs) $(DESTDIR)/etc/sane.d; \
+	   if [ ! -f $(DESTDIR)/etc/sane.d/dll.conf ]; then \
+	      touch $(DESTDIR)/etc/sane.d/dll.conf; \
+	   fi; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/lib/sane; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
+	fi
 
-.PHONY: build-pcardext build-cupsext
+.PHONY: build-pcardext build-cupsext test-destdir
 

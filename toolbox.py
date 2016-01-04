@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $ 
-# $Date: 2005/04/14 19:36:02 $
+# $Revision: 1.16 $ 
+# $Date: 2005/05/11 20:28:09 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -48,48 +48,11 @@ services = None
 server = None    
 toolbox  = None
 
-
 # PyQt
-try:
-    from qt import *
-except ImportError:
-    log.error( "PyQt not installed. GUI not available. Exiting." )
+if not utils.checkPyQtImport():
     sys.exit(0)
 
-# check version of Qt
-qtMajor = int( qVersion().split('.')[0] )
-
-if qtMajor < MINIMUM_QT_MAJOR_VER: 
-
-    log.error( "Incorrect version of Qt installed. Ver. 3.0.0 or greater required.")
-    sys.exit(0)
-
-#check version of PyQt
-try:
-    pyqtVersion = PYQT_VERSION_STR
-except:
-    pyqtVersion = PYQT_VERSION
-
-while pyqtVersion.count('.') < 2:
-    pyqtVersion += '.0'
-
-(maj_ver, min_ver, pat_ver) = pyqtVersion.split('.')
-
-if pyqtVersion.find( 'snapshot' ) >= 0:
-    log.warning( "A non-stable snapshot version of PyQt is installed.")
-else:    
-    try:
-        maj_ver = int(maj_ver)
-        min_ver = int(min_ver)
-        pat_ver = int(pat_ver)
-    except ValueError:
-        maj_ver, min_ver, pat_ver = 0, 0, 0
-
-    if maj_ver < MINIMUM_PYQT_MAJOR_VER or \
-        (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
-        log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver) )
-        log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
-
+from qt import *
 
 # UI Forms
 from ui.devmgr4 import devmgr4
@@ -283,14 +246,15 @@ class hpguid_handler( async.dispatcher ):
 
 def registerGUI():
     try:
-        services.registerGUI( prop.username, prop.hpguid_host, prop.hpguid_port, os.getpid() )
+        services.registerGUI( prop.username, prop.hpguid_host, 
+                              prop.hpguid_port, os.getpid(), 'tbx' )
     except Error, e:
         log.error( "Register GUI failed (code=%d). Exiting. " % e.opt )
         sys.exit(0)
 
 def unregisterGUI():
     try:
-        services.unregisterGUI( prop.username, os.getpid() )
+        services.unregisterGUI( prop.username, os.getpid(), 'tbx' )
     except Error, e:
         log.error( "UnRegister GUI failed (code=%d). " % e.opt )
 
@@ -299,13 +263,11 @@ def toolboxCleanup():
     unregisterGUI()
 
 def handleEXIT():
-
     if services is not None:
         try:
             services.close()
         except:
             pass
-
 
     if server is not None:
         try:
@@ -386,51 +348,54 @@ def main( args ):
     signal.signal( signal.SIGPIPE, signal.SIG_IGN )
 
     user_config = os.path.expanduser( '~/.hplip.conf' )
-    loc = None
-
-    if os.path.exists( user_config ):
-        # user_config contains executables we will run, so we
-        # must make sure it is a safe file, and refuse to run
-        # otherwise.
-        if not utils.path_exists_safely( user_config ):
-            log.warning( "File %s has insecure permissions! File ignored." % user_config )
-        else:
-            config = ConfigParser.ConfigParser()
-            config.read( user_config )
-
-            if config.has_section( "ui" ):
-                loc = config.get( "ui", "loc" )
-
-                if not loc:
-                    loc = None
-
-    if loc is not None:
-
-        if loc.lower() == 'system':
-            loc = str(QTextCodec.locale())
-
-        if loc.lower() != 'c':
-
-            log.debug( "Trying to load .qm file for %s locale." % loc )
-
-            dirs = [ prop.home_dir, prop.data_dir, prop.i18n_dir ]
-
-            trans = QTranslator(None)
-
-            for dir in dirs:
-                qm_file = 'hplip_%s' % loc
-                loaded = trans.load( qm_file, dir)
-
-                if loaded:
-                    app.installTranslator( trans )
-                    break
-        else:
-            loc = None
-
-    if loc is None:
-        log.debug( "Using default 'C' locale" )
-    else:
-        log.debug( "Using locale: %s" % loc )
+    loc = utils.loadTranslators( app, user_config )
+    
+##    user_config = os.path.expanduser( '~/.hplip.conf' )
+##    loc = None
+##
+##    if os.path.exists( user_config ):
+##        # user_config contains executables we will run, so we
+##        # must make sure it is a safe file, and refuse to run
+##        # otherwise.
+##        if not utils.path_exists_safely( user_config ):
+##            log.warning( "File %s has insecure permissions! File ignored." % user_config )
+##        else:
+##            config = ConfigParser.ConfigParser()
+##            config.read( user_config )
+##
+##            if config.has_section( "ui" ):
+##                loc = config.get( "ui", "loc" )
+##
+##                if not loc:
+##                    loc = None
+##
+##    if loc is not None:
+##
+##        if loc.lower() == 'system':
+##            loc = str(QTextCodec.locale())
+##
+##        if loc.lower() != 'c':
+##
+##            log.debug( "Trying to load .qm file for %s locale." % loc )
+##
+##            dirs = [ prop.home_dir, prop.data_dir, prop.i18n_dir ]
+##
+##            trans = QTranslator(None)
+##
+##            for dir in dirs:
+##                qm_file = 'hplip_%s' % loc
+##                loaded = trans.load( qm_file, dir)
+##
+##                if loaded:
+##                    app.installTranslator( trans )
+##                    break
+##        else:
+##            loc = None
+##
+##    if loc is None:
+##        log.debug( "Using default 'C' locale" )
+##    else:
+##        log.debug( "Using locale: %s" % loc )
 
     try:
         log.debug( "Starting GUI loop..." )
