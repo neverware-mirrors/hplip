@@ -1,3 +1,4 @@
+#!/bin/env python
 # -*- coding: utf-8 -*-
 #
 # (c) Copyright 2003-2009 Hewlett-Packard Development Company, L.P.
@@ -43,7 +44,7 @@ import status
 import pml
 import status
 from prnt import pcl, ldl, cups
-import models, mdns, slp
+from base import models, mdns, slp, avahi
 from strings import StringTable
 
 http_result_pat = re.compile("""HTTP/\d.\d\s(\d+)""", re.I)
@@ -454,7 +455,7 @@ def queryModelByURI(device_uri):
 #
 
 def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
-                 ttl=4, filter=DEFAULT_FILTER,  search='', net_search='mdns',
+                 ttl=4, filter=DEFAULT_FILTER,  search='', net_search='slp',
                  back_end_filter=('hp',)):
 
     num_devices, ret_devices = 0, {}
@@ -479,7 +480,13 @@ def probeDevices(bus=DEFAULT_PROBE_BUS, timeout=10,
                 except Error, socket.error:
                     log.error("An error occured during network probe.")
                     raise ERROR_INTERNAL
-            else:
+            elif net_search == 'avahi':
+                try:
+                    detected_devices = avahi.detectNetworkDevices(ttl, timeout)
+                except Error, socket.error:
+                    log.error("An error occured during network probe.")
+                    raise ERROR_INTERNAL
+            else :#if net_search = 'mdns'
                 try:
                     detected_devices = mdns.detectNetworkDevices(ttl, timeout)
                 except Error, socket.error:
@@ -2177,6 +2184,41 @@ class Device(object):
     def readWifiConfig(self, bytes_to_read, stream=None, timeout=prop.read_timeout, allow_short_read=True):
         return self.__readChannel(self.openWifiConfig, bytes_to_read, stream, timeout, allow_short_read)
 
+#Common handling of reading chunked or unchunked data from LEDM devices
+    def readLEDMData(dev, func, reply, timeout=6):
+
+        END_OF_DATA="0\r\n\r\n"
+        bytes_requested = 1024
+        bytes_remaining = 0
+        chunkedFlag = True
+
+        bytes_read = func(bytes_requested, reply, timeout)
+
+        for line in reply.getvalue().splitlines():
+            if line.lower().find("content-length") != -1:
+                 bytes_remaining = int(line.split(":")[1])
+                 chunkedFlag = False
+                 break
+
+        xml_data_start = reply.getvalue().find("<?xml")
+        if (xml_data_start != -1):
+            bytes_remaining = bytes_remaining - (len(reply.getvalue())  - xml_data_start)
+
+        while bytes_read > 0:
+            temp_buf = xStringIO()
+            bytes_read = func(bytes_requested, temp_buf, timeout)
+
+            reply.write(temp_buf.getvalue())
+
+            if not chunkedFlag:     # Unchunked data
+                bytes_remaining = bytes_remaining - bytes_read
+                if bytes_remaining <= 0:
+                    break
+            elif END_OF_DATA == temp_buf.getvalue():   # Chunked data end
+                    break
+
+
+
     def __readChannel(self, opener, bytes_to_read, stream=None,
                       timeout=prop.read_timeout, allow_short_read=False):
 
@@ -2328,9 +2370,9 @@ Content-length: %d\r
             log.debug("status-type: %d" % status_type)
             self.writeEWS_LEDM(data)
             response = cStringIO.StringIO()
+            func = self.readEWS_LEDM
 
-            while self.readEWS_LEDM(512, response, timeout=5):
-                pass
+            self.readLEDMData(func, response)
 
             response = response.getvalue()
             log.log_data(response)
@@ -2340,9 +2382,9 @@ Content-length: %d\r
             log.debug("status-type: %d" % status_type)
             self.writeLEDM(data)
             response = cStringIO.StringIO()
+            func = self.readLEDM
 
-            while self.readLEDM(512, response, timeout=5):
-                pass
+            self.readLEDMData(func, response)
 
             response = response.getvalue()
             log.log_data(response)
@@ -2728,39 +2770,12 @@ class LocalOpenerEWS_LEDM(urllib.URLopener):
             dev.writeEWS_LEDM("""GET %s HTTP/1.1\r\nAccept: text/plain\r\nHost:localhost\r\nUser-Agent:hplip\r\n\r\n""" % loc)
 
         reply = xStringIO()
+        func = dev.readEWS_LEDM
 
         #while dev.readEWS_LEDM(512, reply, timeout=3):
             #pass
 
-        END_OF_DATA="0\r\n\r\n"
-        bytes_requested = 1024
-        bytes_remaining = 0
-        chunkedFlag = True
-
-        bytes_read = dev.readEWS_LEDM(bytes_requested, reply, timeout=3)
-
-        for line in reply.getvalue().splitlines():
-            if line.lower().find("content-length") != -1:
-                 bytes_remaining = int(line.split(":")[1])
-                 chunkedFlag = False
-                 break
-
-        xml_data_start = reply.getvalue().find("<?xml")
-        if (xml_data_start != -1):
-            bytes_remaining = bytes_remaining - (len(reply.getvalue())  - xml_data_start)
-
-
-        while bytes_read > 0:
-            temp_buf = xStringIO()
-            bytes_read = dev.readEWS_LEDM(bytes_requested, temp_buf, timeout=3)
-            reply.write(temp_buf.getvalue())
-
-            if not chunkedFlag:     # Unchunked data
-                bytes_remaining = bytes_remaining - bytes_read
-                if bytes_remaining <= 0:
-                    break
-            elif END_OF_DATA == temp_buf.getvalue():   # Chunked data end
-                    break
+        dev.readLEDMData(func, reply)
 
         reply.seek(0)
         return reply.getvalue()
@@ -2785,38 +2800,11 @@ class LocalOpener_LEDM(urllib.URLopener):
             dev.writeLEDM("""GET %s HTTP/1.1\r\nAccept: text/plain\r\nHost:localhost\r\nUser-Agent:hplip\r\n\r\n""" % loc)
 
         reply = xStringIO()
+        func = dev.readLEDM
 
         #while dev.readLEDM(512, reply, timeout=3):
             #pass
-
-        END_OF_DATA="0\r\n\r\n"
-        bytes_requested = 1024
-        bytes_remaining = 0
-        chunkedFlag = True
-
-        bytes_read = dev.readLEDM(bytes_requested, reply, timeout=3)
-
-        for line in reply.getvalue().splitlines():
-            if line.lower().find("content-length") != -1:
-                 bytes_remaining = int(line.split(":")[1])
-                 chunkedFlag = False
-                 break
-
-        xml_data_start = reply.getvalue().find("<?xml")
-        if (xml_data_start != -1):
-            bytes_remaining = bytes_remaining - (len(reply.getvalue())  - xml_data_start)
-
-        while bytes_read > 0:
-            temp_buf = xStringIO()
-            bytes_read = dev.readLEDM(bytes_requested, temp_buf, timeout=3)
-            reply.write(temp_buf.getvalue())
-
-            if not chunkedFlag:     # Unchunked data
-                bytes_remaining = bytes_remaining - bytes_read
-                if bytes_remaining <= 0:
-                    break
-            elif END_OF_DATA == temp_buf.getvalue():   # Chunked data end
-                    break
+        dev.readLEDMData(func, reply)
 
         reply.seek(0)
         return reply.getvalue()

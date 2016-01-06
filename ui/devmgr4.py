@@ -1614,8 +1614,14 @@ class DevMgr4(DevMgr4_base):
         self.FailureUI(self.__tr("<b>Device is busy or in an error state.</b><p>Please check device and try again."))
 
 
-    def LoadPaperUI(self):
-        if LoadPaperForm(self).exec_loop() == QDialog.Accepted:
+    def LoadPaperUI(self, msg="", title=""):
+        LPFObj = LoadPaperForm(self)
+        if title:
+            LPFObj.setCaption(title)
+        if msg:
+            LPFObj.textLabel7.setText(msg)
+
+        if LPFObj.exec_loop() == QDialog.Accepted:
             return True
         return False
 
@@ -1735,6 +1741,10 @@ class DevMgr4(DevMgr4_base):
 
                     elif align_type == ALIGN_TYPE_LEDM_FF_CC_0:
                         maint.AlignType17(d, self.LoadPaperUI, self.Align13UI)
+
+                    elif align_type == ALIGN_TYPE_UNSUPPORTED:
+                        self.WarningUI(self.__tr("<p><b>Alignment through HPLIP not supported for this printer. Please use the printer's front panel to perform cartridge alignment.</b>"))
+
                 else:
                     self.CheckDeviceUI()
 
@@ -1830,15 +1840,21 @@ class DevMgr4(DevMgr4_base):
         dlg.exec_loop()
 
 
-    def CleanUI1(self):
-        return CleaningForm(self, self.cur_device, 1).exec_loop() == QDialog.Accepted
+    def CleanUI1(self, msg=""):
+        CFObj = CleaningForm(self, self.cur_device, 1)
+        if msg:
+            CFObj.CleaningText.setText(msg)
+        return CFObj.exec_loop() == QDialog.Accepted
 
 
-    def CleanUI2(self):
-        return CleaningForm(self, self.cur_device, 2).exec_loop() == QDialog.Accepted
+    def CleanUI2(self, msg=""):
+        CFObj = CleaningForm(self, self.cur_device, 2)
+        if msg:
+            CFObj.CleaningText.setText(msg)
+        return CFObj.exec_loop() == QDialog.Accepted
 
 
-    def CleanUI3(self):
+    def CleanUI3(self, msg=""):
         CleaningForm2(self).exec_loop()
         return True
 
@@ -1885,7 +1901,11 @@ class DevMgr4(DevMgr4_base):
                         maint.cleaning(d, clean_type, maint.cleanTypeLedm, maint.cleanTypeLedm1,
                             maint.cleanTypeLedm2, self.LoadPaperUI,
                             self.CleanUI1, self.CleanUI2, self.CleanUI3,
-                            self.WaitUI)
+                            self.WaitUI, maint.isCleanTypeLedmWithPrint)
+
+                    elif clean_type == CLEAN_TYPE_UNSUPPORTED:
+                        self.WarningUI(self.__tr("<p><b>Cleaning through HPLIP not supported for this printer. Please use the printer's front panel to perform cartridge cleaning.</b>"))
+
                 else:
                     self.CheckDeviceUI()
 
