@@ -97,8 +97,10 @@ cups_ppd_printers = \
    ppd/hpcups/hp-deskjet_1600cm.ppd.gz \
    ppd/hpcups/hp-deskjet_1600cn.ppd.gz \
    ppd/hpcups/hp-deskjet_2000_j210_series.ppd.gz \
+   ppd/hpcups/hp-deskjet_2020_series.ppd.gz \
    ppd/hpcups/hp-deskjet_2050_j510_series.ppd.gz \
    ppd/hpcups/hp-deskjet_2510_series.ppd.gz \
+   ppd/hpcups/hp-deskjet_2520_series.ppd.gz \
    ppd/hpcups/hp-deskjet_3000_j310_series.ppd.gz \
    ppd/hpcups/hp-deskjet_3050_j610_series.ppd.gz \
    ppd/hpcups/hp-deskjet_3050a_j611_series.ppd.gz \
@@ -109,6 +111,7 @@ cups_ppd_printers = \
    ppd/hpcups/hp-deskjet_3425.ppd.gz \
    ppd/hpcups/hp-deskjet_3450.ppd.gz \
    ppd/hpcups/hp-deskjet_3500.ppd.gz \
+   ppd/hpcups/hp-deskjet_3510_series.ppd.gz \
    ppd/hpcups/hp-deskjet_3520_series.ppd.gz \
    ppd/hpcups/hp-deskjet_3550.ppd.gz \
    ppd/hpcups/hp-deskjet_3600.ppd.gz \
@@ -162,6 +165,7 @@ cups_ppd_printers = \
    ppd/hpcups/hp-deskjet_640c.ppd.gz \
    ppd/hpcups/hp-deskjet_648c.ppd.gz \
    ppd/hpcups/hp-deskjet_6500.ppd.gz \
+   ppd/hpcups/hp-deskjet_6520_series.ppd.gz \
    ppd/hpcups/hp-deskjet_656c.ppd.gz \
    ppd/hpcups/hp-deskjet_660.ppd.gz \
    ppd/hpcups/hp-deskjet_6600.ppd.gz \
@@ -255,6 +259,7 @@ cups_ppd_printers = \
    ppd/hpcups/hp-dj450.ppd.gz \
    ppd/hpcups/hp-envy_100_d410_series.ppd.gz \
    ppd/hpcups/hp-envy_110_series.ppd.gz \
+   ppd/hpcups/hp-envy_120_series.ppd.gz \
    ppd/hpcups/hp-laserjet_1000.ppd.gz \
    ppd/hpcups/hp-laserjet_1005_series.ppd.gz \
    ppd/hpcups/hp-laserjet_1010.ppd.gz \
@@ -373,7 +378,6 @@ cups_ppd_printers = \
    ppd/hpcups/hp-laserjet_m1120n_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_m1319f_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_m1522nf_mfp-pcl3.ppd.gz \
-   ppd/hpcups/hp-laserjet_m1536dnf_mfp-pcl3.ppd.gz \
    ppd/hpcups/hp-laserjet_m1537dnf_mfp-pcl3.ppd.gz \
    ppd/hpcups/hp-laserjet_m1538dnf_mfp-pcl3.ppd.gz \
    ppd/hpcups/hp-laserjet_m1539dnf_mfp-pcl3.ppd.gz \
@@ -439,7 +443,11 @@ cups_ppd_printers = \
    ppd/hpcups/hp-laserjet_professional_m1214nfh_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_m1216nfh_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_m1217nfw_mfp.ppd.gz \
+   ppd/hpcups/hp-laserjet_professional_m1218nfg_mfp.ppd.gz \
+   ppd/hpcups/hp-laserjet_professional_m1218nfs_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_m1219nf_mfp.ppd.gz \
+   ppd/hpcups/hp-laserjet_professional_m1219nfg_mfp.ppd.gz \
+   ppd/hpcups/hp-laserjet_professional_m1219nfs_mfp.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_p1102.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_p1102w.ppd.gz \
    ppd/hpcups/hp-laserjet_professional_p1106.ppd.gz \
@@ -463,6 +471,7 @@ cups_ppd_printers = \
    ppd/hpcups/hp-mopier_320-pcl3.ppd.gz \
    ppd/hpcups/hp-officejet.ppd.gz \
    ppd/hpcups/hp-officejet_100_mobile_l411.ppd.gz \
+   ppd/hpcups/hp-officejet_150_mobile_l511.ppd.gz \
    ppd/hpcups/hp-officejet_4000_k210.ppd.gz \
    ppd/hpcups/hp-officejet_4100_series.ppd.gz \
    ppd/hpcups/hp-officejet_4105.ppd.gz \
@@ -597,12 +606,14 @@ cups_ppd_printers = \
    ppd/hpcups/hp-photosmart_5510d_series.ppd.gz \
    ppd/hpcups/hp-photosmart_5520_series.ppd.gz \
    ppd/hpcups/hp-photosmart_6510_series.ppd.gz \
+   ppd/hpcups/hp-photosmart_6520_series.ppd.gz \
    ppd/hpcups/hp-photosmart_7150.ppd.gz \
    ppd/hpcups/hp-photosmart_7200_series.ppd.gz \
    ppd/hpcups/hp-photosmart_7345.ppd.gz \
    ppd/hpcups/hp-photosmart_7350.ppd.gz \
    ppd/hpcups/hp-photosmart_7400_series.ppd.gz \
    ppd/hpcups/hp-photosmart_7510_series.ppd.gz \
+   ppd/hpcups/hp-photosmart_7520_series.ppd.gz \
    ppd/hpcups/hp-photosmart_7550.ppd.gz \
    ppd/hpcups/hp-photosmart_7600_series.ppd.gz \
    ppd/hpcups/hp-photosmart_7700_series.ppd.gz \
