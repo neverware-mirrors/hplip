@@ -71,6 +71,19 @@ ERROR_FAX_FILE_NOT_FOUND = 57
 ERROR_INVALID_ARGUMENT = 58
 # --> add new codes here <--
 ERROR_INTERNAL = 99
+ERROR_FILE_NOT_FOUND = 101
+ERROR_DIRECTORY_NOT_FOUND = 102
+ERROR_NO_NETWORK = 103
+ERROR_CHECKSUM_ERROR = 104
+ERROR_GPG_CMD_NOT_FOUND = 105
+ERROR_UNABLE_TO_RECV_KEYS = 106
+ERROR_DIGITAL_SIGN_NOT_FOUND = 107
+ERROR_FAILED_TO_DOWNLOAD_FILE = 107
+ERROR_DIGITAL_SIGN_BAD = 108
+ERROR_INCORRECT_PASSWORD = 109
+ERROR_UNKNOWN_VALIDATION_ERROR = 110
+ERROR_NO_SI_DEVICE = 111
+ERROR_FAILED_TO_DISABLE_SI = 112
 # If you add new codes, also add the appropriate description
 # to g.py for exception description strings.
 # Thank you, The Management
@@ -276,7 +289,6 @@ EVENT_ERROR_DEVICEOPEN_FAILED_DEV_NODE_MOVED = 5038
 # end
 
 # diagnosis tool codes
-EVENT_ADD_PRINTQUEUE = 5501
 EVENT_DIAGNOSE_PRINTQUEUE = 5502
 #end
 
@@ -306,7 +318,7 @@ EVENT_FAX_MAX = 8999
 
 # UI
 EVENT_MIN_UI_EVENT = 9000
-EVENT_CUPS_QUEUES_CHANGED = 9000 # sent by hp-setup if queues added (or removed)
+EVENT_CUPS_QUEUES_ADDED = 9000 # sent by hp-setup if queues added
 EVENT_RAISE_DEVICE_MANAGER = 9001
 #EVENT_JOB_STORAGE_UI_REQUEST = 9002 # sent by hplipjs CUPS filter for job storage UI
 EVENT_HISTORY_UPDATE = 9003 # sent by hp-systray to hp-toolbox when a device's history changes
@@ -321,6 +333,7 @@ EVENT_DEVICE_UPDATE_ACTIVE = 9030
 EVENT_DEVICE_UPDATE_INACTIVE = 9031
 EVENT_DEVICE_UPDATE_BLIP = 9032
 EVENT_SYSTEMTRAY_EXIT = 9040
+EVENT_CUPS_QUEUES_REMOVED = 9041 # sent by hp-setup if queues removed
 EVENT_MAX_UI_EVENT = 9999
 
 EVENT_MAX_EVENT = 9999
@@ -592,10 +605,13 @@ AGENT_TYPE_K_Y = 14 # black and yellow (for LJ Pro)
 AGENT_TYPE_C_M = 15 # cyan and magenta (for LJ Pro)
 AGENT_TYPE_LG_PK = 16 # light grey and photo black
 AGENT_TYPE_LG = 17 # light grey
-AGENT_TYPE_G = 18 # medium grey
+AGENT_TYPE_G = 18 # grey
 AGENT_TYPE_PG = 19 # photo grey
 AGENT_TYPE_PHOTO_BLACK = 20 # photo black
 AGENT_TYPE_MATTE_BLACK = 21 # matte black
+AGENT_TYPE_LC = 22 #light cyan
+AGENT_TYPE_LM = 23 #light magenta
+AGENT_TYPE_DG = 24 #dark gray
 AGENT_TYPE_BLACK_B8800 = 39 # For PS B8800
 AGENT_TYPE_WHITE = 0x20 # For ISO 10180 compatibility
 AGENT_TYPE_RED = 0x21 # For ISO 10180 compatibility
