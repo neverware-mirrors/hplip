@@ -1,8 +1,9 @@
 Source: hplip
 Section: utils
 Priority: optional
-Maintainer: Debian HPIJS and HPLIP maintainers <pkg-hpijs-devel@lists.alioth.debian.org>
+Maintainer: Debian Printing Team <debian-printing@lists.debian.org>
 Uploaders: Mark Purcell <msp@debian.org>,
+           Didier Raboud <odyx@debian.org>,
            Till Kamppeter <till.kamppeter@gmail.com>
 Build-Depends: autoconf,
                automake,
