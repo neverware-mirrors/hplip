@@ -26,20 +26,12 @@ from base import device, utils, pkit
 from prnt import cups
 from base.codes import *
 from ui_utils import *
-from installer.core_install import CoreInstall
-from installer.core_install import  PLUGIN_INSTALL_ERROR_NONE, \
-                                    PLUGIN_INSTALL_ERROR_PLUGIN_FILE_NOT_FOUND, \
-                                    PLUGIN_INSTALL_ERROR_DIGITAL_SIG_NOT_FOUND, \
-                                    PLUGIN_INSTALL_ERROR_DIGITAL_SIG_BAD, \
-                                    PLUGIN_INSTALL_ERROR_PLUGIN_FILE_CHECKSUM_ERROR, \
-                                    PLUGIN_INSTALL_ERROR_NO_NETWORK, \
-                                    PLUGIN_INSTALL_ERROR_DIRECTORY_ERROR, \
-                                    PLUGIN_INSTALL_ERROR_UNABLE_TO_RECV_KEYS, \
-                                    MODE_CHECK
+from installer import pluginhandler
 
 # Qt
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+import signal
 
 # Ui
 from plugindiagnose_base import Ui_Dialog
@@ -53,8 +45,7 @@ class PluginDiagnose(QDialog, Ui_Dialog):
         self.plugin_reason = plugin_reason
         self.plugin_path = None
         self.result = False
-        self.core = CoreInstall(MODE_CHECK)
-        self.core.set_plugin_version()
+        self.pluginObj = pluginhandler.PluginHandle()
         self.setupUi(self, upgrade)
 
         self.user_settings = UserSettings()
@@ -70,6 +61,7 @@ class PluginDiagnose(QDialog, Ui_Dialog):
         # connect signals/slots
         self.connect(self.CancelButton, SIGNAL("clicked()"), self.CancelButton_clicked)
         self.connect(self.NextButton, SIGNAL("clicked()"), self.NextButton_clicked)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
         # Application icon
         self.setWindowIcon(QIcon(load_pixmap('hp_logo', '128x128')))
@@ -100,7 +92,7 @@ class PluginDiagnose(QDialog, Ui_Dialog):
             plugin_reason = PLUGIN_REASON_NONE
             ok, sudo_ok = pkit.run_plugin_command(plugin == PLUGIN_REQUIRED, plugin_reason)
 	
-            if not ok or self.core.check_for_plugin() != PLUGIN_INSTALLED:
+            if not ok or self.pluginObj.getStatus() != pluginhandler.PLUGIN_INSTALLED:
                 FailureUI(self, self.__tr("Failed to install Plug-in.\nEither you have chosen to skip the Plug-in installation  or entered incorrect Password."))
 
         finally:
