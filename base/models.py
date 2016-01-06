@@ -20,13 +20,12 @@
 # Author: Don Welch, Naga Samrat Chowdary Narla,
 
 # Local
-from base.g import *
-from base import utils
-
+from .g import *
+from . import utils
+from .sixext import to_unicode
 # StdLib
 import os.path
 import re
-import glob
 
 try:
     import datetime
@@ -103,7 +102,9 @@ TECH_CLASSES = [
     "Mimas",
     "StingrayOJ",
     "Copperhead",
+    "CopperheadXLP",
     "Copperhead12",
+    "CopperheadIPH",
     "Ampere",
     "Python11",
     "Saipan",
@@ -165,8 +166,10 @@ TECH_CLASS_PDLS = {
     "Mimas"      : 'pcl3',
     "StingrayOJ"   : 'pcl3',
     "Copperhead"   : 'pcl3',
+    "CopperheadXLP"   : 'pcl3',
     "Copperhead12"   : 'pcl3',
-    "Ampere"	   : 'pcl3',
+    "CopperheadIPH"   : 'pcl3',
+    "Ampere"        : 'pcl3',
     "Hbpl1"         : 'hbpl1',
     "Kapan"         : 'pcl3',
     "MimasTDR"      : 'pcl3'
@@ -266,6 +269,12 @@ def normalizeModelUIName(model):
 
 
 def normalizeModelName(model):
+    if not isinstance(model, str):
+       try:
+           model = model.encode('utf-8')
+       except UnicodeEncodeError:
+          log.error("Failed to encode model = %s  type=%s "%(model,type(model)))
+
     return utils.xstrip(model.replace(' ', '_').replace('__', '_').replace('~','').replace('/', '_'), '_')
 
 
@@ -424,8 +433,8 @@ class ModelData:
             cache = self.__cache
 
         try:
-            fd = file(filename)
-        except IOError, e:
+            fd = open(filename)
+        except IOError as e:
             log.error("I/O Error: %s (%s)" % (filename, e.strerror))
             return False
 
@@ -540,7 +549,7 @@ class ModelData:
                 try:
                     return self.TYPE_CACHE[key]
                 except KeyError:
-                    for pat, typ in self.RE_FIELD_TYPES.items():
+                    for pat, typ in list(self.RE_FIELD_TYPES.items()):
                         match = pat.match(key)
                         if match is not None:
                             self.TYPE_CACHE[key] = typ
