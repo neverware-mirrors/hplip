@@ -35,7 +35,8 @@ Build-Depends: autoconf,
 X-Python-Version: >= 3.0
 Standards-Version: 3.9.4
 Homepage: http://hplipopensource.com/hplip-web/index.html
-Vcs-Svn: svn://anonscm.debian.org/pkg-hpijs/hplip/trunk/
+Vcs-Git: https://alioth.debian.org/anonscm/git/printing/hplip.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=printing/hplip.git
 
 Package: hplip
 Architecture: any
