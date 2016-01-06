@@ -60,7 +60,7 @@ endif
 # The following is a interlibrary dependency that must be compiled first.
 libsane_hpaio_la_LIBADD = libhpip.la libhpmud.la $(DBUS_LIBS) -lcups -ldl
 #libsane_hpaio_la_CFLAGS = -DWITH_NONAMESPACES -DSOAP_DEBUG
-libsane_hpaio_la_CFLAGS = $(DBUS_CFLAGS) -D_IPP_PRIVATE_STRUCTURES=1
+libsane_hpaio_la_CFLAGS = $(DBUS_CFLAGS)
 endif # SCAN_BUILD
 
 # hpmud library
@@ -109,31 +109,18 @@ hp_mkuri_SOURCES = io/hpmud/hp-mkuri.c
 hp_mkuri_LDADD = -ldl libhpmud.la
 hp_mkuri_CFLAGS = -DCONFDIR=\"$(hplip_confdir)\"
 
-# cron files
-crondir = /etc/cron.daily
-dist_cron_DATA = data/rules/hplip_cron
+#hpmud rules data dir
+rulessystemdir=/usr/lib/systemd/system
+dist_rulessystem_DATA =data/rules/hplip-printer@.service
 
 # hpmud.rules
 rulesdir = /etc/udev/rules.d
 if UDEV_SYSFS_RULES
-dist_rules_DATA = data/rules/56-hpmud_support_sysfs.rules
-dist_rules_DATA += data/rules/86-hpmud_plugin_sysfs.rules
-dist_rules_DATA += data/rules/56-hpmud_add_printer_sysfs.rules
-if UDEV_ACL_RULES
-dist_rules_DATA += data/rules/40-hplip_sysfs.rules
+dist_rules_DATA = data/rules/56-hpmud_sysfs.rules
 else
-dist_rules_DATA += data/rules/55-hpmud_sysfs.rules
+dist_rules_DATA = data/rules/56-hpmud.rules
 endif
-else
-dist_rules_DATA = data/rules/56-hpmud_support.rules
-dist_rules_DATA += data/rules/86-hpmud_plugin.rules
-dist_rules_DATA += data/rules/56-hpmud_add_printer.rules
-if UDEV_ACL_RULES
-dist_rules_DATA += data/rules/40-hplip.rules
-else
-dist_rules_DATA += data/rules/55-hpmud.rules
-endif
-endif
+
 halpredir = /usr/share/hal/fdi/preprobe/10osvendor
 dist_halpre_DATA = data/rules/20-hplip-devices.fdi
 
@@ -148,7 +135,6 @@ pstotiff_SCRIPTS = fax/filters/pstotiff
 # hplip.state
 hplip_statedir = /var/lib/hp
 dist_hplip_state_DATA =
-#dist_hplip_state_DATA = hplip.state
 
 # Log Files
 hplip_Logdir=/var/log/hp
@@ -168,6 +154,7 @@ dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unl
 
 homedir = $(hplipdir)
 dist_home_DATA =  check-plugin.py 
+dist_home_DATA +=  hplip_clean.sh
 
 # base
 basedir = $(hplipdir)/base
@@ -177,7 +164,7 @@ dist_base_DATA = base/maint.py base/codes.py base/g.py base/pml.py base/status.p
 	base/device.py base/logger.py base/slp.py base/exif.py base/strings.py base/magic.py \
 	base/imagesize.py base/pexpect.py base/models.py base/mdns.py base/tui.py base/dime.py \
 	base/ldif.py base/vcard.py base/module.py base/pkit.py base/queues.py base/password.py \
-	base/services.py base/os_utils.py base/smart_install.py
+	base/services.py base/os_utils.py base/smart_install.py base/avahi.py
 
 # installer
 installdir = $(hplipdir)/installer
@@ -273,7 +260,7 @@ cupsextdir = $(pyexecdir)
 cupsext_LTLIBRARIES = cupsext.la
 cupsext_la_LDFLAGS = -module -avoid-version
 cupsext_la_SOURCES =  prnt/cupsext/cupsext.c
-cupsext_la_CFLAGS = -I$(PYTHONINCLUDEDIR) -D_IPP_PRIVATE_STRUCTURES=1
+cupsext_la_CFLAGS = -I$(PYTHONINCLUDEDIR)
 cupsext_la_LIBADD = -lcups
 
 if SCAN_BUILD
@@ -344,10 +331,6 @@ endif
 if GUI_BUILD
 if QT4_INSTALL
 ui4dir=$(hplipdir)/ui4
-#dist_ui4_SCRIPTS = ui4/devmgr5.py ui4/systemtray.py ui4/devmgr5_base.py ui4/__init__.py ui4/ui_utils.py \
-#	ui4/settingsdialog_base.py ui4/settingsdialog.py ui4/printsettingstoolbox.py ui4/printdialog_base.py \
-#	ui4/printdialog.py
-#dist_noinst_DATA += ui4/devmgr5_base.ui ui4/settingsdialog_base.ui ui4/printdialog_base.ui
 dist_ui4_DATA = ui4/*.py
 dist_noinst_DATA += ui4/*.ui
 endif
@@ -576,25 +559,13 @@ install-dist_hplip_tmpDATA:
 if FULL_BUILD
 	test -z "$(DESTDIR)$(hplip_tmpdir)" || mkdir -p $(DESTDIR)$(hplip_tmpdir)
 	chgrp "lp" -R $(DESTDIR)$(hplip_tmpdir)
-	chmod 1775 $(DESTDIR)$(hplip_tmpdir)
+	chmod 0775 $(DESTDIR)$(hplip_tmpdir)
 endif	#FULL_BUILD
 if HPLIP_BUILD
 	test -z "$(DESTDIR)$(hplip_tmpdir)" || mkdir -p $(DESTDIR)$(hplip_tmpdir)
 	chgrp "lp" -R $(DESTDIR)$(hplip_tmpdir)
-	chmod 1775 $(DESTDIR)$(hplip_tmpdir)
+	chmod 0775 $(DESTDIR)$(hplip_tmpdir)
 endif	#FULL_BUILD
-
-install-dist_cronDATA:$(dist_cron_DATA)
-	test -z "$(DESTDIR)$(crondir)" || $(MKDIR_P) "$(DESTDIR)$(crondir)"; \
-	list='$(dist_cron_DATA)'; test -n "$(crondir)" || list=; \
-	for p in $$list; do \
-		if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-		echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-		echo " $(INSTALL) -m755 $$files '$(DESTDIR)$(crondir)'"; \
-		$(INSTALL) -m755 $$files "$(DESTDIR)$(crondir)" || exit $$?; \
-	done
 
 install-data-hook:
 if HPLIP_BUILD
