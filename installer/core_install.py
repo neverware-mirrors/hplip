@@ -1546,7 +1546,7 @@ class CoreInstall(object):
         wget = utils.which("wget")
         if wget:
             wget = os.path.join(wget, "wget")
-            cmd = "%s --timeout=10 --output-document=- %s" % (wget, HTTP_GET_TARGET)
+            cmd = "%s --timeout=60 --output-document=- %s" % (wget, HTTP_GET_TARGET)
             log.debug(cmd)
             status, output = self.run(cmd)
             log.debug("wget returned: %d" % status)
@@ -1843,12 +1843,22 @@ class CoreInstall(object):
 
         local_conf_fp, local_conf = utils.make_temp_file()
 
-        if os.path.exists(local_conf):
-            os.remove(local_conf)
+        #if os.path.exists(local_conf):
+            #os.remove(local_conf)
 
         try:
             try:
-                filename, headers = urllib.urlretrieve(plugin_conf_url, local_conf, callback)
+                #filename, headers = urllib.urlretrieve(plugin_conf_url, local_conf, callback)
+                wget = utils.which("wget")
+                if wget:
+                    wget = os.path.join(wget, "wget")
+                    status, output = self.run("%s --timeout=60 --output-document=%s %s" %(wget, local_conf, plugin_conf_url))
+                    if status:
+			log.error("Plugin download failed with error code = %d" %status)
+                	return '', 0, 0, 0, False
+                else:
+                    log.error("Please install wget package to download the plugin.")
+                    return '', 0, 0, 0, False
             except IOError, e:
                 log.error("I/O Error: %s" % e.strerror)
                 return '', 0, 0, 0, False
