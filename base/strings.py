@@ -34,6 +34,19 @@ class StringTable:
             'unknown' : (self.__tr('Unknown'), ''),
             'try_again' : ('', self.__tr('Please correct the problem and try again')),
             'press_continue' : ('',self.__tr('Please correct the problem and press continue on the printer')),
+            'unable_validate' : (self.__tr('Unable to validate'), ''),
+            '101' : (self.__tr('<STR1> file not found'), ''),
+            '102' : (self.__tr('<STR1> directory not found'), ''),
+            '103' : (self.__tr('Unable to connect to network. Please check your network connection and try again'), ''),
+            '104' : (self.__tr('<STR1> file does not match its checksum. File may have been corrupted or altered'), ''),
+            '105' : (self.__tr('GPG command not found'), ''),
+            '106' : (self.__tr('Unable to recieve key from keyserver'), ''),
+            '107' : (self.__tr('Failed to download <STR1>'), ''),
+            '108' : (self.__tr('Digital signature verification failed for the file <STR1>. File may have been corrupted or altered'), ''),
+            '109' : (self.__tr('Incorrect password'), ''),
+            '110' : (self.__tr('Unknown error'), ''),
+            '111' : (self.__tr('No device found having smart install enabled'), ''),
+            '112' : (self.__tr('Failed to disable smart install'), ''),
             '500' : (self.__tr('Started a print job'), ''),
             '501' : (self.__tr('Print job has completed'), ''),
             '502' : (self.__tr("Print job failed - required plug-in not found"), self.__tr("Please run hp-plugin (as root) to install the required plug-in")),
@@ -180,12 +193,13 @@ class StringTable:
             '5026' : (self.__tr("Device status not available"), ''),
             '5031' : ('%5021%', ''),
             '5034' : (self.__tr('Device does not support requested operation'), '%try_again%'),
-            '5501' : (self.__tr('Device added'), ''),
             '6000' : (self.__tr('Photocard unload started'), ''),
             '6001' : (self.__tr('Photocard unload ended'), ''),
             '6002' : (self.__tr('Photocard unload failed'), self.__tr('Make sure photocard is inserted properly and try again')),
             '6003' : (self.__tr('Unable to mount photocard on device'), '%6002%'),
             '6004' : (self.__tr('Photocard unloaded successfully'), ''),
+            '9000' : (self.__tr('Device Added'), ''),
+            '9041' : (self.__tr('Device Removed'), ''),
             'unknown_error' : (self.__tr('Unknown error'), ''),
             'print' : (self.__tr('Print'), ''),
             'scan' : (self.__tr('Scan'), ''),
@@ -210,21 +224,33 @@ class StringTable:
             'agent_cyan_head' : (self.__tr('Cyan print head'), ''),
             'agent_cyan_supply' : (self.__tr('Cyan ink cartridge'), ''),
             'agent_cyan_cartridge' : (self.__tr('Cyan cartridge'), ''),
+            'agent_light_cyan_head' : (self.__tr('Light Cyan print head'), ''),
+            'agent_light_cyan_supply' : (self.__tr('Light Cyan ink cartridge'), ''),
+            'agent_light_cyan_cartridge' : (self.__tr('Light Cyan cartridge'), ''),
             'agent_magenta_head' : (self.__tr('Magenta print head'), ''),
             'agent_magenta_supply' : (self.__tr('Magenta ink cartridge'), ''),
             'agent_magenta_cartridge':(self.__tr('Magenta cartridge'), ''),
             'agent_yellow_head' : (self.__tr('Yellow print head'), ''),
             'agent_yellow_supply' : (self.__tr('Yellow ink cartridge'), ''),
             'agent_yellow_cartridge': (self.__tr('Yellow cartridge'), ''),
+            'agent_red_head' : (self.__tr('Red print head'), ''),
+            'agent_red_supply' : (self.__tr('Red ink cartridge'), ''),
+            'agent_red_cartridge': (self.__tr('Red cartridge'), ''),
             'agent_photo_black_head' : (self.__tr('Photo Black print head'), ''),
             'agent_photo_black_supply' : (self.__tr('Photo Black ink cartridge'), ''),
             'agent_photo_black_cartridge': (self.__tr('Photo Black cartridge'), ''),
             'agent_matte_black_head' : (self.__tr('Matte Black print head'), ''),
             'agent_matte_black_supply' : (self.__tr('Matte Black ink cartridge'), ''),
             'agent_matte_black_cartridge': (self.__tr('Matte Black cartridge'), ''),
-            'agent_light_gray_head' : (self.__tr('Gray print head'), ''),
-            'agent_light_gray_supply' : (self.__tr('Gray ink cartridge'), ''),
-            'agent_light_gray_cartridge': (self.__tr('Gray cartridge'), ''),
+            'agent_gray_head' : (self.__tr('Gray print head'), ''),
+            'agent_gray_supply' : (self.__tr('Gray ink cartridge'), ''),
+            'agent_gray_cartridge': (self.__tr('Gray cartridge'), ''),
+            'agent_light_gray_head' : (self.__tr('Light Gray print head'), ''),
+            'agent_light_gray_supply' : (self.__tr('Light Gray ink cartridge'), ''),
+            'agent_light_gray_cartridge': (self.__tr('Light Gray cartridge'), ''),
+            'agent_dark_gray_head' : (self.__tr('Dark Gray print head'), ''),
+            'agent_dark_gray_supply' : (self.__tr('Dark Gray ink cartridge'), ''),
+            'agent_dark_gray_cartridge': (self.__tr('Dark Gray cartridge'), ''),
             'agent_photo_cyan_head' : (self.__tr('Photo cyan print head'), ''),
             'agent_photo_cyan_supply' : (self.__tr('Photo cyan ink cartridge'), ''),
             'agent_photo_cyan_cartridge' : (self.__tr('Photo cyan cartridge'), ''),
@@ -302,3 +328,81 @@ class StringTable:
 
     def __tr(self,s,c = None):
         return s
+		
+import re
+from base import logger
+log = logger.Logger('', logger.Logger.LOG_LEVEL_INFO, logger.Logger.LOG_TO_CONSOLE)
+
+inter_pat = re.compile(r"""%(.*)%""", re.IGNORECASE)
+st = StringTable()
+strings_init = False
+
+
+def initStrings():
+    global strings_init, st
+    strings_init = True
+    cycles = 0
+
+    while True:
+        found = False
+
+        for s in st.string_table:
+            short_string, long_string = st.string_table[s]
+            short_replace, long_replace = short_string, long_string
+
+            try:
+                short_match = inter_pat.match(short_string).group(1)
+            except (AttributeError, TypeError):
+                short_match = None
+
+            if short_match is not None:
+                found = True
+
+                try:
+                    short_replace, dummy = st.string_table[short_match]
+                except KeyError:
+                    log.error("String interpolation error: %s" % short_match)
+
+            try:
+                long_match = inter_pat.match(long_string).group(1)
+            except (AttributeError, TypeError):
+                long_match = None
+
+            if long_match is not None:
+                found = True
+
+                try:
+                    dummy, long_replace = st.string_table[long_match]
+                except KeyError:
+                    log.error("String interpolation error: %s" % long_match)
+
+            if found:
+                st.string_table[s] = (short_replace, long_replace)
+
+        if not found:
+            break
+        else:
+            cycles +=1
+            if cycles > 1000:
+                break
+
+
+def queryString(string_id, typ=0, str1=None, str2=None):
+    if not strings_init:
+        initStrings()
+
+    s = st.string_table.get(str(string_id), ('', ''))[typ]
+   
+    if str1 is not None:
+         s = s.replace("<STR1>", str1)
+    elif "<STR" in s:
+         raise Exception("Substitution string needed for this string. <STRING: %s>" %s) 
+
+    if str2 is not None:
+         s = s.replace("<STR2>", str2)
+
+    if type(s) == type(''):
+        return s
+
+    return s()
+
