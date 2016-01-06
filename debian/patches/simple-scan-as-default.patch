@@ -1,13 +1,9 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## simple-scan-as-default.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Author:  <till.kamppeter@gmail.com>
+Description: No description.
 
-@DPATCH@
 --- a/base/utils.py
 +++ b/base/utils.py
-@@ -566,18 +566,21 @@
+@@ -567,18 +567,21 @@
  
          # Scan
          self.cmd_scan = ''
@@ -38,7 +34,7 @@
          path = which('hp-unload')
 --- a/ui4/ui_utils.py
 +++ b/ui4/ui_utils.py
-@@ -182,7 +182,7 @@
+@@ -188,7 +188,7 @@
          return ''
  
      def loadDefaults(self):

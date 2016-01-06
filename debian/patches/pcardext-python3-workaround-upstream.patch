@@ -1,8 +1,6 @@
-Index: hplip-3.15.6/pcard/pcardext/pcardext.c
-===================================================================
---- hplip-3.15.6.orig/pcard/pcardext/pcardext.c
-+++ hplip-3.15.6/pcard/pcardext/pcardext.c
-@@ -20,7 +20,7 @@ pcardext - Python extension for HP photo
+--- a/pcard/pcardext/pcardext.c
++++ b/pcard/pcardext/pcardext.c
+@@ -20,7 +20,7 @@
  Requires:
  Python 2.2+
  
@@ -11,7 +9,7 @@ Index: hplip-3.15.6/pcard/pcardext/pcardext.c
  
  \*****************************************************************************/
  
-@@ -38,9 +38,37 @@ typedef int Py_ssize_t;
+@@ -38,9 +38,37 @@
  
  int verbose=0;
  
@@ -49,7 +47,7 @@ Index: hplip-3.15.6/pcard/pcardext/pcardext.c
  int ReadSector(int sector, int nsector, void *buf, int size)
  {
      PyObject * result;
-@@ -56,9 +84,13 @@ int ReadSector(int sector, int nsector,
+@@ -56,9 +84,13 @@
          if( result )
          {
              Py_ssize_t len = 0;
@@ -65,7 +63,7 @@ Index: hplip-3.15.6/pcard/pcardext/pcardext.c
              {
                  goto abort;
              }
-@@ -205,7 +237,9 @@ PyObject * pcardext_read( PyObject * sel
+@@ -205,7 +237,9 @@
      
      if( FatReadFileExt( name, offset, len, buffer ) == len )
      {
@@ -76,7 +74,7 @@ Index: hplip-3.15.6/pcard/pcardext/pcardext.c
      }
      else
      {
-@@ -233,14 +267,15 @@ static PyMethodDef pcardext_methods[] =
+@@ -233,14 +267,15 @@
  
  static char pcardext_documentation[] = "Python extension for HP photocard services";
  
@@ -100,11 +98,9 @@ Index: hplip-3.15.6/pcard/pcardext/pcardext.c
  }
  
  
-Index: hplip-3.15.6/pcard/photocard.py
-===================================================================
---- hplip-3.15.6.orig/pcard/photocard.py
-+++ hplip-3.15.6/pcard/photocard.py
-@@ -30,7 +30,7 @@ from base.codes import *
+--- a/pcard/photocard.py
++++ b/pcard/photocard.py
+@@ -30,7 +30,7 @@
  from base import device, utils, exif
  
  try:
@@ -113,11 +109,9 @@ Index: hplip-3.15.6/pcard/photocard.py
  except ImportError:
      if not os.getenv("HPLIP_BUILD"):
          log.error("PCARDEXT could not be loaded. Please check HPLIP installation.")
-Index: hplip-3.15.6/unload.py
-===================================================================
---- hplip-3.15.6.orig/unload.py
-+++ hplip-3.15.6/unload.py
-@@ -44,6 +44,11 @@ except ImportError:
+--- a/unload.py
++++ b/unload.py
+@@ -44,6 +44,11 @@
  
  # Local
  from base.g import *

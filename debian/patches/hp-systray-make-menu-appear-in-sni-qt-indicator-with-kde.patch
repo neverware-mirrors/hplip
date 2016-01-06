@@ -1,10 +1,6 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.patch.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Author:  <till.kamppeter@gmail.com>
+Description: No description.
 
-@DPATCH@
 --- a/ui4/systemtray.py
 +++ b/ui4/systemtray.py
 @@ -569,6 +569,9 @@

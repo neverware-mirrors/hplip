@@ -1,8 +1,6 @@
-Index: hplip-3.15.6/io/hpmud/musb.c
-===================================================================
---- hplip-3.15.6.orig/io/hpmud/musb.c
-+++ hplip-3.15.6/io/hpmud/musb.c
-@@ -691,7 +691,8 @@ static libusb_device *get_libusb_device(
+--- a/io/hpmud/musb.c
++++ b/io/hpmud/musb.c
+@@ -695,7 +695,8 @@
      int numdevs = 0;        /* number of connected devices */
      int i, conf, iface, altset ;
  
@@ -12,7 +10,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
      numdevs = libusb_get_device_list(libusb_ctx, &libusb_dev_list);
      for (i=0; i< numdevs; i++)
      {
-@@ -2039,7 +2040,8 @@ int __attribute__ ((visibility ("hidden"
+@@ -2048,7 +2049,8 @@
      char serial[128], mfg[128], sz[HPMUD_LINE_SIZE];
      int r, size=0;
  
@@ -22,7 +20,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2135,12 +2137,14 @@ int __attribute__ ((visibility ("hidden"
+@@ -2149,12 +2151,14 @@
      }//end for loop
  
  bugout:
@@ -40,7 +38,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
  
      return size;
  }
-@@ -2166,7 +2170,8 @@ enum HPMUD_RESULT hpmud_make_usb_uri(con
+@@ -2180,7 +2184,8 @@
  
      *bytes_read=0;
  
@@ -50,7 +48,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2269,8 +2274,10 @@ bugout:
+@@ -2283,8 +2288,10 @@
      if (hd != NULL)
          libusb_close(hd);
  
@@ -63,7 +61,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
  
      return stat;
  }
-@@ -2289,7 +2296,8 @@ enum HPMUD_RESULT hpmud_make_usb_serial_
+@@ -2303,7 +2310,8 @@
  
      *bytes_read=0;
  
@@ -73,7 +71,7 @@ Index: hplip-3.15.6/io/hpmud/musb.c
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2315,8 +2323,10 @@ enum HPMUD_RESULT hpmud_make_usb_serial_
+@@ -2329,8 +2337,10 @@
      stat = HPMUD_R_OK;
  
  bugout:

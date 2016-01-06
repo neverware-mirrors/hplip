@@ -1,10 +1,6 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 85_rebuild_python_ui.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Author:  <till.kamppeter@gmail.com>
+Description: No description.
 
-@DPATCH@
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -3,6 +3,11 @@

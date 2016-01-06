@@ -1,13 +1,9 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## hp_photosmart_pro_b9100_support.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Author:  <till.kamppeter@gmail.com>
+Description: No description.
 
-@DPATCH@
 --- a/data/models/models.dat
 +++ b/data/models/models.dat
-@@ -56536,9 +56536,9 @@
+@@ -56545,9 +56545,9 @@
  status-type=2
  support-released=True
  support-subtype=219b2b

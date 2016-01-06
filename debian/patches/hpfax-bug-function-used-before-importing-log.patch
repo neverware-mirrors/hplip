@@ -1,10 +1,6 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## hpfax-bug-function-used-before-importing-log.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Author:  <till.kamppeter@gmail.com>
+Description: No description.
 
-@DPATCH@
 --- a/fax/backend/hpfax.py
 +++ b/fax/backend/hpfax.py
 @@ -55,7 +55,10 @@

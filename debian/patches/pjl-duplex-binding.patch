@@ -1,14 +1,8 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## pjl-duplex-binding.dpatch by  <till.kamppeter@gmail.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: https://bugs.launchpad.net/hplip/+bug/244295
+Author:  <till.kamppeter@gmail.com>
+Description: https://bugs.launchpad.net/hplip/+bug/244295
 
-@DPATCH@
-Index: hplip-3.12.4/prnt/hpijs/ljcolor.cpp
-===================================================================
---- hplip-3.12.4.orig/prnt/hpijs/ljcolor.cpp	2012-04-10 18:39:32.000000000 +1000
-+++ hplip-3.12.4/prnt/hpijs/ljcolor.cpp	2012-05-26 10:21:29.000000000 +1000
+--- a/prnt/hpijs/ljcolor.cpp
++++ b/prnt/hpijs/ljcolor.cpp
 @@ -330,6 +330,19 @@
  
      err = thePrinter->Send ((const BYTE *) res, strlen (res));
@@ -29,10 +23,8 @@ Index: hplip-3.12.4/prnt/hpijs/ljcolor.cpp
  
      err = thePrinter->Send ((const BYTE*) EnterLanguage, sizeof (EnterLanguage));
      ERRCHECK;
-Index: hplip-3.12.4/prnt/hpijs/ljjetready.cpp
-===================================================================
---- hplip-3.12.4.orig/prnt/hpijs/ljjetready.cpp	2012-04-10 18:39:32.000000000 +1000
-+++ hplip-3.12.4/prnt/hpijs/ljjetready.cpp	2012-05-26 10:21:29.000000000 +1000
+--- a/prnt/hpijs/ljjetready.cpp
++++ b/prnt/hpijs/ljjetready.cpp
 @@ -329,6 +329,17 @@
      err = thePrinter->Send ((const BYTE *) szScratchStr, strlen (szScratchStr));
      ERRCHECK;
@@ -51,10 +43,8 @@ Index: hplip-3.12.4/prnt/hpijs/ljjetready.cpp
      //Set the resolution to 600
      err = thePrinter->Send ((const BYTE*)ccpPJLSetRes,sizeof(ccpPJLSetRes));
      ERRCHECK;
-Index: hplip-3.12.4/prnt/hpijs/ljmono.cpp
-===================================================================
---- hplip-3.12.4.orig/prnt/hpijs/ljmono.cpp	2012-04-10 18:39:32.000000000 +1000
-+++ hplip-3.12.4/prnt/hpijs/ljmono.cpp	2012-05-26 10:21:29.000000000 +1000
+--- a/prnt/hpijs/ljmono.cpp
++++ b/prnt/hpijs/ljmono.cpp
 @@ -212,6 +212,19 @@
      err = thePrinter->Send ((const BYTE *) res, strlen (res));
      ERRCHECK;
