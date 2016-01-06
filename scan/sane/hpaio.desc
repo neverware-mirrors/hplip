@@ -133,9 +133,6 @@
 :model "HP Officejet d145 All-in-one Printer"
 :status :good
 
-:model "HP Officejet 150 Mobile l511 All-in-one Printer"
-:status :good
-
 :model "HP Officejet d155xi All-in-one Printer"
 :status :good
 
@@ -410,6 +407,9 @@
 :status :good
 
 :model "HP PSC 1213 All-in-one Printer"
+:status :good
+
+:model "HP LaserJet Professional m1214nfh Multifunction Printer"
 :status :good
 
 :model "HP PSC 1215 All-in-one Printer"
@@ -1579,9 +1579,6 @@
 :model "HP Officejet j4535 All-in-one Printer"
 :status :good
 
-:model "HP Color LaserJet cm4540 Multifunction Printer"
-:status :good
-
 :model "HP Photosmart c4540 All-in-one Printer"
 :status :good
 
@@ -1592,6 +1589,9 @@
 :status :good
 
 :model "HP Officejet j4550 All-in-one Printer"
+:status :good
+
+:model "HP LaserJet m4555 MFP"
 :status :good
 
 :model "HP Officejet j4560 All-in-one Printer"
