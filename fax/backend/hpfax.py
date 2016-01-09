@@ -149,7 +149,7 @@ if len( args ) == 0:
     good_devices = 0
     for uri in probed_devices:
         try:
-            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+            back_end, is_hp, bus, model, serial, dev_file, host, zc, port = \
                 device.parseDeviceURI(uri)
         except Error:
             continue
@@ -194,6 +194,11 @@ else:
     except ImportError:
         bug("HPLIP pc send fax requires dbus and python-dbus")
         sys.exit(CUPS_BACKEND_FAILED)
+
+    import warnings
+    # Ignore: .../dbus/connection.py:242: DeprecationWarning: object.__init__() takes no parameters
+    # (occurring on Python 2.6/dBus 0.83/Ubuntu 9.04)
+    warnings.simplefilter("ignore", DeprecationWarning)
 
     # CUPS provided environment
     try:

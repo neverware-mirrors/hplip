@@ -338,7 +338,13 @@ static void pjl_read_thread(struct pjl_attributes *pa)
    {
       stat = get_pjl_input(pa->dd, pa->cd, buf, sizeof(buf), 0, &len);
       if (!(stat == HPMUD_R_OK || stat == HPMUD_R_IO_TIMEOUT))
+      {
+         BUG("exiting thread %d error=%d\n", (int)pa->tid, stat);
+         pthread_mutex_lock(&pa->mutex);
+         pa->current_status = 5000+stat;   /* io error */
+         pthread_mutex_unlock(&pa->mutex);
          break;
+      }
 
       if (stat == HPMUD_R_OK)
       {
@@ -496,6 +502,9 @@ static int device_event(const char *dev, const char *printer, int code,
     DBusMessage * msg = NULL;
     int id = atoi(jobid);
 
+    if (dbus_conn == NULL)
+      return 0;
+
     msg = dbus_message_new_signal(DBUS_PATH, DBUS_INTERFACE, "Event");
 
     if (NULL == msg)
@@ -614,7 +623,7 @@ int main(int argc, char *argv[])
 {
    int fd;
    int copies;
-   int len, status, cnt;
+   int len, status, cnt, exit_stat=1;
    char buf[HPMUD_BUFFER_SIZE];
    struct hpmud_model_attributes ma;
    struct pjl_attributes pa;
@@ -626,6 +635,8 @@ int main(int argc, char *argv[])
    
    //     0        1     2     3     4      5
    // device_uri job-id user title copies options
+
+   openlog("hp", LOG_PID,  LOG_DAEMON);
 
    pa.tid = 0;
 
@@ -701,26 +712,37 @@ int main(int argc, char *argv[])
             {
                fputs("STATE: +connecting-to-device\n", stderr);
 
-	       /* Open hp device. */
-	       while ((stat = hpmud_open_device(argv[0], ma.prt_mode, &hd)) != HPMUD_R_OK)
-	       {
-		   /* Display user error. */
-		   device_event(argv[0], printer, 5000+stat, argv[2], argv[1], argv[3]);
+               /* Open hp device. */
+               while ((stat = hpmud_open_device(argv[0], ma.prt_mode, &hd)) != HPMUD_R_OK)
+               {
+                  if (stat != HPMUD_R_DEVICE_BUSY)
+                  {
+                     BUG("ERROR: cannot open device stat=%d: %s\n", stat, argv[0]);
+                     goto bugout;
+                  }
 
-		   BUG("INFO: open device failed stat=%d; will retry in %d seconds...\n", stat, RETRY_TIMEOUT);
-		   sleep(RETRY_TIMEOUT);
-		   retry = 1;
-	       }
+                  /* Display user error. */
+                  device_event(argv[0], printer, 5000+stat, argv[2], argv[1], argv[3]);
 
-	       if (retry)
-	       {
-		  /* Clear user error. */
-		  device_event(argv[0], printer, VSTATUS_PRNT, argv[2], argv[1], argv[3]);
-		  retry=0;
-	       }
+                  BUG("INFO: open device failed stat=%d; will retry in %d seconds...\n", stat, RETRY_TIMEOUT);
+                  sleep(RETRY_TIMEOUT);
+                  retry = 1;
+               }
+
+               if (retry)
+               {
+                  /* Clear user error. */
+                  device_event(argv[0], printer, VSTATUS_PRNT, argv[2], argv[1], argv[3]);
+                  retry=0;
+               }
 
                while ((stat = hpmud_open_channel(hd, HPMUD_S_PRINT_CHANNEL, &cd)) != HPMUD_R_OK)
                {
+                  if (stat != HPMUD_R_DEVICE_BUSY)
+                  {
+                     BUG("ERROR: cannot open channel %s\n", HPMUD_S_PRINT_CHANNEL);
+                     goto bugout;
+                  }
                   device_event(argv[0], printer, 5000+stat, argv[2], argv[1], argv[3]);
                   BUG("INFO: open print channel failed stat=%d; will retry in %d seconds...\n", stat, RETRY_TIMEOUT);
                   sleep(RETRY_TIMEOUT);
@@ -775,6 +797,11 @@ int main(int argc, char *argv[])
    DBG("job end %s prt_mode=%d statustype=%d total=%d\n", argv[0], ma.prt_mode, ma.statustype, total); 
 
    /* Note read() could return zero bytes. Check for bogus null print job. */
+   if (total==0)
+   {
+      BUG("ERROR: null print job total=%d\n", total);
+      goto bugout;
+   }
 
    if (pa.pjl_device && pa.tid)
    {
@@ -802,7 +829,7 @@ int main(int argc, char *argv[])
 
       hpmud_write_channel(hd, cd, pjl_ustatus_off_cmd, sizeof(pjl_ustatus_off_cmd)-1, 5, &len);
    }
-   else if ((ma.prt_mode != HPMUD_UNI_MODE) && (ma.statustype == HPMUD_STATUSTYPE_VSTATUS || ma.statustype == HPMUD_STATUSTYPE_SFIELD))
+   else if ((ma.prt_mode != HPMUD_UNI_MODE) && (ma.statustype == HPMUD_STATUSTYPE_SFIELD))
    {
       /* Wait for printer to receive all data before closing print channel. Otherwise data can be truncated. */
       status = get_printer_status(hd, cd, &pa);
@@ -820,10 +847,11 @@ int main(int argc, char *argv[])
    }
    else
    {
-      /* Just use fixed delay for uni-di and laserjets without pjl. */
+      /* Just use fixed delay for uni-di, VSTATUS devices and laserjets without pjl. */
       sleep(8);
    }
       
+   exit_stat = 0;
    fputs("INFO: ready to print\n", stderr);
 
 bugout:
@@ -850,6 +878,6 @@ bugout:
    if (fd != 0)
       close(fd);
 
-   exit (0);
+   exit (exit_stat);
 }
 

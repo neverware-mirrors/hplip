@@ -1,6 +1,6 @@
 /*****************************************************************************\
  hpmudext - Python extension for HP multi-point transport driver (HPMUD)
- 
+
  (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
 
  This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ Authors: Don Welch, David Suffield
 
 #include <Python.h>
 #include "hpmud.h"
+#include "hpmudi.h"
 
 /* Ref: PEP 353 (Python 2.5) */
 #if PY_VERSION_HEX < 0x02050000
@@ -61,6 +62,10 @@ result_code, uri = make_usb_uri(busnum, devnum)
 
 result_code, uri = make_net_uri(ip, port)
 
+result_code, uri = make_zc_uri(ip, port)
+
+result_code, ip_address = get_zc_ip_address(hostname)
+
 result_code, uri = make_par_uri(devnode)
 
 */
@@ -72,14 +77,14 @@ result_code, uri = make_par_uri(devnode)
     enum HPMUD_IO_MODE io_mode;
     HPMUD_DEVICE dd;
     enum HPMUD_RESULT result = HPMUD_R_OK;
-    
+
     if (!PyArg_ParseTuple(args, "si", &uri, &io_mode))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_open_device(uri, io_mode, &dd);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(ii)", result, dd);
 }
 
@@ -87,14 +92,14 @@ static PyObject *close_device(PyObject *self, PyObject *args)
 {
     HPMUD_DEVICE dd;
     enum HPMUD_RESULT result = HPMUD_R_OK;
-    
+
     if (!PyArg_ParseTuple(args, "i", &dd))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_close_device(dd);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("i", result);
 }
 
@@ -104,16 +109,16 @@ static PyObject *get_device_id(PyObject *self, PyObject *args)
     enum HPMUD_RESULT result = HPMUD_R_OK;
     char buf[HPMUD_BUFFER_SIZE];
     int bytes_read = 0;
-    
+
     if (!PyArg_ParseTuple(args, "i", &dd))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_get_device_id(dd, buf, HPMUD_BUFFER_SIZE, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, buf, bytes_read);
-    
+
 }
 
 static PyObject *probe_devices(PyObject *self, PyObject *args)
@@ -123,14 +128,14 @@ static PyObject *probe_devices(PyObject *self, PyObject *args)
     int cnt = 0;
     int bytes_read = 0;
     char buf[HPMUD_BUFFER_SIZE * 4];
-    
+
     if (!PyArg_ParseTuple(args, "i", &bus))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_probe_devices(bus, buf, HPMUD_BUFFER_SIZE * 4, &cnt, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, buf, bytes_read);
 }
 
@@ -140,16 +145,16 @@ static PyObject *open_channel(PyObject *self, PyObject *args)
     HPMUD_DEVICE dd = -1;
     char * channel_name;
     HPMUD_CHANNEL cd = -1;
-    
+
     if (!PyArg_ParseTuple(args, "is", &dd, &channel_name))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_open_channel(dd, channel_name, &cd);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(ii)", result, cd);
-    
+
 }
 
 static PyObject *close_channel(PyObject *self, PyObject *args)
@@ -157,14 +162,14 @@ static PyObject *close_channel(PyObject *self, PyObject *args)
     enum HPMUD_RESULT result = HPMUD_R_OK;
     HPMUD_DEVICE dd;
     HPMUD_CHANNEL cd;
-    
+
     if (!PyArg_ParseTuple(args, "ii", &dd, &cd))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_close_channel(dd, cd);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("i", result);
 }
 
@@ -177,14 +182,14 @@ static PyObject *write_channel(PyObject *self, PyObject *args)
     char * buf;
     int buf_size = 0;
     int bytes_written = 0;
-    
+
     if (!PyArg_ParseTuple(args, "iis#|i", &dd, &cd, &buf, &buf_size, &timeout))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_write_channel(dd, cd, buf, buf_size,  timeout, &bytes_written);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(ii)", result, bytes_written);
 }
 
@@ -197,17 +202,17 @@ static PyObject *read_channel(PyObject *self, PyObject *args)
     char buf[HPMUD_BUFFER_SIZE];
     int bytes_read = 0;
     int bytes_to_read;
-    
+
     if (!PyArg_ParseTuple(args, "iii|i", &dd, &cd, &bytes_to_read, &timeout))
         return NULL;
-    
+
     if (bytes_to_read > HPMUD_BUFFER_SIZE)
         return Py_BuildValue("(is#)", HPMUD_R_INVALID_LENGTH, "", 0);
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_read_channel(dd, cd, (void *)buf, bytes_to_read,  timeout, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, buf, bytes_read);
 }
 
@@ -221,14 +226,14 @@ static PyObject *set_pml(PyObject *self, PyObject *args)
     char * data;
     int data_size;
     int pml_result;
-    
+
     if (!PyArg_ParseTuple(args, "iisis#", &dd, &cd, &oid, &type, &data, &data_size))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_set_pml(dd, cd, oid, type, (void *)data, data_size, &pml_result);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(ii)", result, pml_result);
 }
 
@@ -242,14 +247,14 @@ static PyObject *get_pml(PyObject *self, PyObject *args)
     char buf[HPMUD_BUFFER_SIZE * 4];
     int pml_result;
     int bytes_read = 0;
-    
+
     if (!PyArg_ParseTuple(args, "iisi", &dd, &cd, &oid, &type))
         return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_get_pml(dd, cd, oid, (void *)buf, HPMUD_BUFFER_SIZE * 4, &bytes_read, &type, &pml_result);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#ii)", result, buf, bytes_read, type, pml_result);
 }
 
@@ -260,14 +265,14 @@ static PyObject *make_usb_uri(PyObject *self, PyObject *args)
     char uri[HPMUD_BUFFER_SIZE];
     enum HPMUD_RESULT result = HPMUD_R_OK;
     int bytes_read = 0;
-    
+
     if (!PyArg_ParseTuple(args, "ss", &busnum, &devnum))
             return NULL;
-     
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_make_usb_uri(busnum, devnum, uri, HPMUD_BUFFER_SIZE, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, uri, bytes_read);
 }
 
@@ -282,17 +287,65 @@ static PyObject *make_net_uri(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "si", &ip, &port))
             return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_make_net_uri(ip, port, uri, HPMUD_BUFFER_SIZE, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, uri, bytes_read);
 }
 #else
 static PyObject *make_net_uri(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("(is#)", HPMUD_R_INVALID_URI, "", 0);
+}
+#endif /* HAVE_LIBSNMP */
+
+#ifdef HAVE_LIBNETSNMP
+static PyObject *make_zc_uri(PyObject *self, PyObject *args)
+{
+    char *hn;
+    int port;
+    char uri[HPMUD_BUFFER_SIZE];
+    enum HPMUD_RESULT result = HPMUD_R_OK;
+    int bytes_read = 0;
+
+    if (!PyArg_ParseTuple(args, "si", &hn, &port))
+            return NULL;
+
+    Py_BEGIN_ALLOW_THREADS
+    result = hpmud_make_mdns_uri(hn, port, uri, HPMUD_BUFFER_SIZE, &bytes_read);
+    Py_END_ALLOW_THREADS
+
+    return Py_BuildValue("(is#)", result, uri, bytes_read);
+}
+#else
+static PyObject *make_zc_uri(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("(is#)", HPMUD_R_INVALID_URI, "", 0);
+}
+#endif /* HAVE_LIBSNMP */
+
+#ifdef HAVE_LIBNETSNMP
+static PyObject *get_zc_ip_address(PyObject *self, PyObject *args)
+{
+    char *hn;
+    char ip[HPMUD_BUFFER_SIZE];
+    enum HPMUD_RESULT result = HPMUD_R_OK;
+
+    if (!PyArg_ParseTuple(args, "s", &hn))
+            return NULL;
+
+    Py_BEGIN_ALLOW_THREADS
+    result = hpmud_mdns_lookup(hn, HPMUD_MDNS_TIMEOUT, ip);
+    Py_END_ALLOW_THREADS
+
+    return Py_BuildValue("(is)", result, ip);
+}
+#else
+static PyObject *get_zc_ip_address(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("(is)", HPMUD_R_INVALID_URI, "");
 }
 #endif /* HAVE_LIBSNMP */
 
@@ -306,11 +359,11 @@ static PyObject *make_par_uri(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "s", &devnode))
             return NULL;
-    
+
     Py_BEGIN_ALLOW_THREADS
     result = hpmud_make_par_uri(devnode, uri, HPMUD_BUFFER_SIZE, &bytes_read);
     Py_END_ALLOW_THREADS
-    
+
     return Py_BuildValue("(is#)", result, uri, bytes_read);
 }
 #else
@@ -330,7 +383,7 @@ static PyObject *make_par_uri(PyObject *self, PyObject *args)
 // enum HPMUD_RESULT hpmud_get_dstat(HPMUD_DEVICE dd, struct hpmud_dstat *ds);
 
 
-static PyMethodDef mudext_functions[] = 
+static PyMethodDef mudext_functions[] =
 {
     {"open_device",       (PyCFunction)open_device,  METH_VARARGS },
     {"close_device",       (PyCFunction)close_device,  METH_VARARGS },
@@ -344,9 +397,11 @@ static PyMethodDef mudext_functions[] =
     {"get_pml",              (PyCFunction)get_pml,  METH_VARARGS },
     {"make_usb_uri",        (PyCFunction)make_usb_uri,  METH_VARARGS },
     {"make_net_uri",        (PyCFunction)make_net_uri,  METH_VARARGS },
+    {"make_zc_uri",         (PyCFunction)make_zc_uri,  METH_VARARGS },
+    {"get_zc_ip_address",   (PyCFunction)get_zc_ip_address, METH_VARARGS },
     {"make_par_uri",        (PyCFunction)make_par_uri,  METH_VARARGS },
     { NULL, NULL }
-};  
+};
 
 
 static char mudext_documentation[] = "Python extension for HP multi-point transport driver";
@@ -354,7 +409,7 @@ static char mudext_documentation[] = "Python extension for HP multi-point transp
 static void insint(PyObject *d, char *name, int value)
 {
     PyObject *v = PyInt_FromLong((long) value);
-    
+
     if (!v || PyDict_SetItemString(d, name, v))
         Py_FatalError("Initialization failed.");
 
@@ -364,7 +419,7 @@ static void insint(PyObject *d, char *name, int value)
 static void insstr(PyObject *d, char *name, char *value)
 {
     PyObject *v = PyString_FromString(value);
-    
+
     if (!v || PyDict_SetItemString(d, name, v))
         Py_FatalError("Initialization failed.");
 
@@ -375,12 +430,12 @@ static void insstr(PyObject *d, char *name, char *value)
 void inithpmudext(void)
 {
     PyObject *mod = Py_InitModule3("hpmudext", mudext_functions, mudext_documentation);
-             
+
     if (mod == NULL)
     return;
-    
+
     PyObject * d = PyModule_GetDict(mod);
-    
+
     // enum HPMUD_RESULT
     insint(d, "HPMUD_R_OK", HPMUD_R_OK);
     insint(d, "HPMUD_R_INVALID_DEVICE", HPMUD_R_INVALID_DEVICE);
@@ -399,7 +454,7 @@ void inithpmudext(void)
     insint(d, "HPMUD_R_INVALID_TIMEOUT", HPMUD_R_INVALID_TIMEOUT);
     insint(d, "HPMUD_R_DATFILE_ERROR", HPMUD_R_DATFILE_ERROR);
     insint(d, "HPMUD_R_IO_TIMEOUT", HPMUD_R_IO_TIMEOUT);
-    
+
     // enum HPMUD_IO_MODE
     insint(d, "HPMUD_UNI_MODE", HPMUD_UNI_MODE);
     insint(d, "HPMUD_RAW_MODE",HPMUD_RAW_MODE);
@@ -408,7 +463,7 @@ void inithpmudext(void)
     insint(d, "HPMUD_DOT4_BRIDGE_MODE", HPMUD_DOT4_BRIDGE_MODE);
     insint(d, "HPMUD_MLC_GUSHER_MODE", HPMUD_MLC_GUSHER_MODE);
     insint(d, "HPMUD_MLC_MISER_MODE", HPMUD_MLC_MISER_MODE);
-    
+
     // enum HPMUD_BUS_ID
     insint(d, "HPMUD_BUS_NA", HPMUD_BUS_NA);
     insint(d, "HPMUD_BUS_USB", HPMUD_BUS_USB);
@@ -427,6 +482,10 @@ void inithpmudext(void)
     insstr(d, "HPMUD_S_SOAP_SCAN", HPMUD_S_SOAP_SCAN);
     insstr(d, "HPMUD_S_SOAP_FAX", HPMUD_S_SOAP_FAX);
     insstr(d, "HPMUD_S_DEVMGMT_CHANNEL", HPMUD_S_DEVMGMT_CHANNEL);
+    insstr(d, "HPMUD_S_WIFI_CHANNEL", HPMUD_S_WIFI_CHANNEL);
+
+    // Max buffer size
+    insint(d, "HPMUD_BUFFER_SIZE", HPMUD_BUFFER_SIZE);
 
 }
 

@@ -71,6 +71,41 @@ int bug(const char *fmt, ...)
 }
 #endif
 
+void setLogLevel(UXServices *pSS)
+{
+    FILE    *fp;
+    char    str[258];
+    char    *p;
+    fp = fopen ("/etc/cups/cupsd.conf", "r");
+    if (fp == NULL)
+        return;
+    while (!feof (fp))
+    {
+        if (!fgets (str, 256, fp))
+	{
+	    break;
+	}
+	if ((p = strstr (str, "hpLogLevel")))
+	{
+	    p += strlen ("hpLogLevel") + 1;
+	    pSS->m_iLogLevel = atoi (p);
+	    break;
+	}
+    }
+    fclose (fp);
+
+    if (pSS->m_iLogLevel & SAVE_PCL_FILE)
+    {
+        char    szFileName[32];
+	sprintf (szFileName, "/tmp/hpijs_%d.out", getpid());
+	pSS->outfp = fopen (szFileName, "w");
+	if (pSS->outfp)
+	{
+	    chmod (szFileName, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	}
+    }
+}
+
 /* Set Print Context. */
 int hpijs_set_context(UXServices *pSS)
 {
@@ -218,8 +253,16 @@ int hpijs_set_cb (void *set_cb_data, IjsServerCtx *ctx, IjsJobId job_id,
 		// call dbus here
 		const char    *user_name = " ";
 		const char    *title     = " ";
+                const char *device_uri = getenv ("DEVICE_URI");
+                const char *printer = getenv ("PRINTER");
 		int     job_id = 0;
-                SendDbusMessage (getenv ("DEVICE_URI"), getenv("PRINTER"),
+
+                if (device_uri == NULL)
+                    device_uri = "";
+                if (printer == NULL)
+                    printer = "";
+
+                SendDbusMessage (device_uri, printer,
 	     	                 EVENT_PRINT_FAILED_MISSING_PLUGIN,
 				 user_name, job_id, title);
                 BUG("unable to set device=%s, err=%d\n", svalue, r);
@@ -512,6 +555,8 @@ int main (int argc, char *argv[], char *evenp[])
    int status = EXIT_FAILURE;
    int ret, n, i, kn=0, width, k_width;
 
+   openlog("hpijs", LOG_PID,  LOG_DAEMON);
+
    if (argc > 1)
    {
       const char *arg = argv[1];
@@ -545,6 +590,8 @@ int main (int argc, char *argv[], char *evenp[])
       BUG("unable to open Services object err=%d\n", pSS->constructor_error);
       goto BUGOUT;
    }
+
+   setLogLevel(pSS);
 
 #ifdef CAPTURE
    if ((pSS->InitScript("/tmp/capout", TRUE)) != NO_ERROR)
@@ -588,11 +635,11 @@ int main (int argc, char *argv[], char *evenp[])
 			case WARN_LOW_INK_YELLOW:
 			case WARN_LOW_INK_MULTIPLE_PENS:
                         {
-			   BUG ("STATE: marker-supply-low-warning\n");
+			   BUG ("STATE: +marker-supply-low-warning\n");
                            break;
                         }
 			default:
-			   BUG ("STATE: -marker-supply-low-warning");
+			   BUG ("STATE: -marker-supply-low-warning\n");
 		}
     }
 
