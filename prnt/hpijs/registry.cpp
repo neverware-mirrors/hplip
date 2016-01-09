@@ -57,6 +57,8 @@
 #include "dj9xx.h"
 #include "dj9xxvip.h"
 #include "djgenericvip.h"
+#include "dj55xx.h"
+#include "ojprokx50.h"
 #include "ljmono.h"
 #include "ljcolor.h"
 #include "psp100.h"
@@ -94,6 +96,7 @@ PSP470Proxy DeviceRegistry::s_PSP470Proxy;
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
 DJGenericVIPProxy DeviceRegistry::s_DJGenericVIPProxy;
+DJ55xxProxy DeviceRegistry::s_DJ55xxProxy;
 #endif
 
 #ifdef APDK_DJ9xx
@@ -102,6 +105,7 @@ DJ9xxProxy DeviceRegistry::s_DJ9xxProxy;
 
 #ifdef APDK_DJ9xxVIP
 DJ9xxVIPProxy DeviceRegistry::s_DJ9xxVIPProxy;
+OJProKx50Proxy DeviceRegistry::s_OJProKx50Proxy;
 #endif
 
 #if defined(APDK_DJ8xx)|| defined(APDK_DJ9xx)

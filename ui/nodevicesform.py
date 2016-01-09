@@ -20,6 +20,7 @@
 #
 
 from base.g import *
+from base import utils
 from prnt import cups
 import os.path
 from qt import *
@@ -32,10 +33,8 @@ class NoDevicesForm( NoDevicesForm_base ):
         self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir, "warning.png" ) ) )
         
     def CUPSButton_clicked(self):
-        cups.CUPSWebInterface()
-        #self.parentWidget().close()
+        utils.openURL("http://localhost:631/printers")
         self.close()
         
     def ExitButton_clicked(self):
-        #self.parentWidget().close()
         self.close()

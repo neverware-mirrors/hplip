@@ -181,8 +181,6 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             return MFPDTF_RESULT_READ_TIMEOUT;
         }
         
-//DBG_DUMP( &mfpdtf->read.fixedHeader, datalen );
-
         /* Parse fixed header. */
         blockLength = LEND_GET_LONG( mfpdtf->read.fixedHeader.blockLength );
         mfpdtf->read.fixedBlockBytesRemaining = blockLength - datalen;
@@ -224,8 +222,6 @@ int MfpdtfReadService( Mfpdtf_t mfpdtf )
             
             DBG( 0, "********************************** VARIANT HEADER **********************************.\n" );
             
-//DBG_DUMP( &mfpdtf->read.pVariantHeader, datalen );
-
             result |= MFPDTF_RESULT_NEW_VARIANT_HEADER;
 
             /* Is this a valid array variant header? */
@@ -483,7 +479,6 @@ int MfpdtfReadGeneric( Mfpdtf_t mfpdtf, unsigned char * buffer, int datalen )
                            EXCEPTION_TIMEOUT );
 
         DBG( 0, "read len=%d\n", r );        
-        DBG_DUMP( buffer, r );
 
         if( r > 0 )
         {
@@ -575,7 +570,7 @@ int read_mfpdtf_block(int device, int channel, char *buf, int bufSize, int timeo
 
    /* Read fixed header with timeout in seconds. */
    size = sizeof(MFPDTF_FIXED_HEADER);
-   if ((len = hplip_ReadHP(device, channel, buf, size, timeout)) != size)
+   if ((len = ReadChannelEx(device, channel, (unsigned char *)buf, size, timeout)) != size)
       goto bugout;
 
    bsize = letoh32(phd->BlockLength);

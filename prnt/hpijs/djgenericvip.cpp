@@ -218,6 +218,8 @@ BOOL DJGenericVIP::FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, floa
 {
     BYTE    sDevIdStr[DevIDBuffSize];
     char    *pStr;
+    sDevIdStr[0] = 0;
+
     if ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, FALSE)) == NO_ERROR)
     {
         if ((pStr = strstr ((char *) sDevIdStr, ";S:")) && (pSS->GetVIPVersion ()) >= 3)

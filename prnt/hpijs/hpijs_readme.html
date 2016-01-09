@@ -3272,11 +3272,29 @@ Left edge, Top edge, Width and Height values are in inches. "n/a" means option i
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPIJS 2.1.6</b> - This release has the following changes.
+<pre>
+ 1. Moved DJ450 from DJGenericVIP class to DJ9xxVIP class, because mandatory margins are
+    0.25 inch on left and right sides and it does not support fullbleed on any papersize.
+ 2. Added a new printer family, DJ55xx to take care of margin issues for DJ55xx printers.
+ 3. Fixed a bug in sending custom paper size to JetReady and FastRaster printers.
+ 4. Fixed a bug in LJFastRaster when last band was less than 128 hight, it was incorrectly positioned.
+ 5. Fixed margin adjustment code to allow fullbleed or .125 inch margins for those printers that support it in autoduplex mode.
+ 6. Added support for the following new printers.
+
+    HP Color LaserJet 4730 MFP (LJColor/PS) 
+    HP Deskjet 460 (DJGenericVIP)
+    HP Officejet Pro K550 (DJGenericVIP)
+    HP Officejet Pro K850 (DJGenericVIP) 
+
+</pre>
+<p>
+<li>
 <b>HPIJS 2.1.5</b> - This release has the following changes.
 <pre>
  1. Fixed a 4-sided full bleed printing issue in HPIJS.
  2. Added support for the following new printers.
-bb
+
     HP Photosmart 420 (PSP100) 
     HP Photosmart 470 (PSP100) 
     HP Photosmart 2570 (DJGenericVIP) 
@@ -4091,7 +4109,7 @@ $ gs -sDEVICE=ijs -sIjsServer=hpijs -dIjsUseOutputFD -sDeviceManufacturer="HEWLE
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
 &#169 2001-2005 Hewlett-Packard Company<br>
-HPIJS 2.1.5, last updated September 13, 2005
+HPIJS 2.1.6, last updated October 10, 2005
 </font>
  </BODY>
 </HTML>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.96 $
-# $Date: 2005/08/23 17:52:37 $
+# $Revision: 1.99 $
+# $Date: 2005/10/10 21:38:29 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -417,17 +417,6 @@ class BaseDevice(object):
 
 # **************************************************************************** #
 
-default_pics = {'deskjet'    : 'default_deskjet.png',
-                'business'   : 'default_business_inkjet.png',
-                'psc'        : 'default_psc.png',
-                'laserjet'   : 'default_laserjet.png',
-                'officejet'  : 'default_officejet.png',
-                'photosmart' : 'default_photosmart.png',
-                'default'    : 'default_printer.png',
-                }
-
-# **************************************************************************** #
-
 class Device(BaseDevice):
     def __init__(self, device_uri=None, printer_name=None,
                   hpssd_sock=None, callback=None,
@@ -447,18 +436,6 @@ class Device(BaseDevice):
                              callback)
 
         self.cups_printers = cups_printers
-        
-        self.icon_file = os.path.join(prop.image_dir, self.model + ".png")
-
-        if not os.path.exists(self.icon_file):
-            for p in default_pics:
-                if self.model.find(p) >= 0:
-                    f = default_pics[p]
-                    break
-                else:
-                    f = default_pics['default']
-
-            self.icon_file = os.path.join(prop.image_dir, f)
             
         if not self.cups_printers:
             printers = cups.getPrinters()
@@ -1379,6 +1356,11 @@ class ServerDevice(BaseDevice):
         except Error, e:
             pass
 
+        try:
+            status_desc = self.string_query_func(self.status_code)
+        except Error:
+            status_desc = ''
+        
         self.dq.update({
             'back-end'         : self.back_end,
             'is-hp'            : self.is_hp,
@@ -1387,7 +1369,7 @@ class ServerDevice(BaseDevice):
             'port'             : self.port,
             'cups-printers'    : ','.join(self.cups_printers),
             'status-code'      : self.status_code,
-            'status-desc'      : self.string_query_func(self.status_code),
+            'status-desc'      : status_desc,
             'deviceid'         : self.raw_deviceID,
             'panel'            : 0,
             'panel-line1'      : '',
@@ -1402,6 +1384,12 @@ class ServerDevice(BaseDevice):
         r_type = self.mq.get('r-type', 0)
         tech_type = self.mq.get('tech-type', TECH_TYPE_NONE)
         status_type = self.mq.get('status-type', STATUS_TYPE_NONE)
+        io_mode = self.mq.get('io-mode', IO_MODE_UNI)
+
+        # Turn off status if local connection and bi-di not avail.
+        if io_mode  == IO_MODE_UNI and self.back_end != 'net':
+            status_type = STATUS_TYPE_NONE
+        
         agents = []
 
         if self.device_state != DEVICE_STATE_NOT_FOUND:
@@ -1443,11 +1431,11 @@ class ServerDevice(BaseDevice):
 
             try:
                 self.dq.update({'status-desc' : self.string_query_func(status_code),
-                                  'error-state' : STATUS_TO_ERROR_STATE_MAP.get(status_code, ERROR_STATE_CLEAR),
+                                'error-state' : STATUS_TO_ERROR_STATE_MAP.get(status_code, ERROR_STATE_CLEAR),
                                 })
-            except KeyError:
+            except (KeyError, Error):
                 self.dq.update({'status-desc' : '',
-                                  'error-state' : ERROR_STATE_CLEAR,
+                                'error-state' : ERROR_STATE_CLEAR,
                                 })
 
             r_value, rg, rr, r_value_str = 0, '000', '000000', '000000000'
@@ -1510,10 +1498,11 @@ class ServerDevice(BaseDevice):
                     agent_level_trigger = agent.get('level-trigger',
                         AGENT_LEVEL_TRIGGER_SUFFICIENT_0)
 
+                    query = 'agent_%s_%s' % (AGENT_types.get(agent_type, 'unknown'), 
+                                             AGENT_kinds.get(agent_kind, 'unknown'))
+                    log.debug(query)
                     try:
-                        agent_desc = self.string_query_func('agent_%s_%s' %
-                            (AGENT_types.get(agent_type, 'unknown'),
-                              AGENT_kinds.get(agent_kind, 'unknown')))
+                        agent_desc = self.string_query_func(query)
                     except Error:
                         agent_desc = ''
 
@@ -1538,10 +1527,11 @@ class ServerDevice(BaseDevice):
                     agent_health = AGENT_HEALTH_MISINSTALLED
                     agent_level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
 
+                    query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
+                                             AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                    log.debug(query)
                     try:
-                        agent_desc = self.string_query_func('agent_%s_%s' %
-                            (AGENT_types.get(mq_agent_type, 'unknown'),
-                              AGENT_kinds.get(mq_agent_kind, 'unknown')))
+                        agent_desc = self.string_query_func(query)
                     except Error:
                         agent_desc = ''
 
@@ -1563,8 +1553,9 @@ class ServerDevice(BaseDevice):
                     })
 
                 query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
-                                          AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                                         AGENT_kinds.get(mq_agent_kind, 'unknown'))
 
+                log.debug(query)
                 try:
                     self.dq['agent%d-desc' % a] = self.string_query_func(query)
                 except Error:
@@ -1587,7 +1578,11 @@ class ServerDevice(BaseDevice):
                         code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
 
                     self.dq['status-code'] = code
-                    self.dq['status-desc'] = self.string_query_func(code)
+                    try:
+                        self.dq['status-desc'] = self.string_query_func(code)
+                    except Error:
+                        self.dq['status-desc'] = ''
+                        
                     self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
                     self.createHistory(code)
 
@@ -1595,6 +1590,8 @@ class ServerDevice(BaseDevice):
                     # OK
                     query = 'agent_health_%s' % AGENT_healths.get(agent_health, 'unknown')
 
+                log.debug(query)
+                
                 try:
                     self.dq['agent%d-health-desc' % a] = self.string_query_func(query)
                 except Error:
@@ -1617,11 +1614,11 @@ class ServerDevice(BaseDevice):
 
                 mq_agent_type = self.mq.get('r%d-agent%d-type' % (r_value, a), 0)
                 mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
-
+                query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
+                                         AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                log.debug(query)
                 try:
-                    agent_desc = self.string_query_func('agent_%s_%s' %
-                        (AGENT_types.get(mq_agent_type, 'unknown'),
-                          AGENT_kinds.get(mq_agent_kind, 'unknown')))
+                    agent_desc = self.string_query_func(query)
                 except Error:
                     agent_desc = ''
 

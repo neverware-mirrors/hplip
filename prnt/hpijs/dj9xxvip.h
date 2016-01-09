@@ -316,6 +316,8 @@ public:
         "cp1160\0"                                  // CP 1160
         "HP Color Inkjet CP1700\0"                  // CP 1700
         "HP BUSINESS INKJET 22\0"
+        "dj450\0"
+		"deskjet 450\0"
 #ifdef APDK_MLC_PRINTER
         "officejet d\0"                             // officejet d series
 		"officejet 7100\0"                          // offjetjet 7100 series

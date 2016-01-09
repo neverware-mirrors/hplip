@@ -290,7 +290,7 @@ int HeaderLJJetReady::JRPaperToMediaSize(PAPER_SIZE psize)
 DRIVER_ERROR HeaderLJJetReady::StartPage ()
 {
     DRIVER_ERROR err;
-    char    res[64];
+    BYTE    szCustomSize[64];
 
 	/* Orienatation: is JrFeedOrientationSeq[1]. Can take the following values:
 		Portrait				: 0x00
@@ -314,9 +314,29 @@ DRIVER_ERROR HeaderLJJetReady::StartPage ()
 	if(msizeCode == 96) //Custom paper size
 	{
         BYTE    szScratchStr[] = {"\xF8\x2F\xC0\x00\xF8\x30"};
-        sprintf (res, "\xD5%d%d", (int) (thePrintContext->PhysicalPageSizeX () + 0.5),
-                                  (int) (thePrintContext->PhysicalPageSizeY () + 0.5));
-		err = thePrinter->Send ((const BYTE *) res, strlen (res));
+        union
+        {
+            float       fValue;
+            uint32_t    uiValue;
+        } LJJRUnion;
+        uint32_t    uiXsize;
+        uint32_t    uiYsize;
+        int         k = 0;
+        LJJRUnion.fValue = (float) thePrintContext->PhysicalPageSizeX ();
+        uiXsize = LJJRUnion.uiValue;
+        LJJRUnion.fValue = (float) thePrintContext->PhysicalPageSizeY ();
+        uiYsize = LJJRUnion.uiValue;
+        szCustomSize[k++] = 0xD5;
+        szCustomSize[k++] = (BYTE) (uiXsize & 0x000000FF);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0x0000FF00) >> 8);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0x00FF0000) >> 16);
+        szCustomSize[k++] = (BYTE) ((uiXsize & 0xFF000000) >> 24);
+        szCustomSize[k++] = (BYTE) (uiYsize & 0x000000FF);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0x0000FF00) >> 8);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0x00FF0000) >> 16);
+        szCustomSize[k++] = (BYTE) ((uiYsize & 0xFF000000) >> 24);
+        err = thePrinter->Send ((const BYTE *) szCustomSize, k);
+
         err = thePrinter->Send (szScratchStr, sizeof (szScratchStr));
 		ERRCHECK;
 	}	
@@ -397,15 +417,13 @@ DRIVER_ERROR HeaderLJJetReady::StartPage ()
 	if (eC == GREY_K )
 	{
 		// indicates switch to monochrome mode 
-		strcpy (res, "\xC0\x07\xF8\x03\x6A");
-		err = thePrinter->Send ((const BYTE *) res, strlen (res));
+		err = thePrinter->Send ((const BYTE *) "\xC0\x07\xF8\x03\x6A", 5);
 		ERRCHECK;
 	}
 	else
 	{
 		// indicates switch Color mode
-		strcpy (res, "\xC0\x06\xF8\x03\x6A");
-		err = thePrinter->Send ((const BYTE *) res, strlen (res));
+		err = thePrinter->Send ((const BYTE *) "\xC0\x06\xF8\x03\x6A", 5);
 		ERRCHECK;
 	}
 
@@ -521,7 +539,7 @@ DRIVER_ERROR HeaderLJJetReady::SendCAPy (unsigned int iAbsY)
 
 DRIVER_ERROR LJJetReady::Encapsulate (const RASTERDATA* InputRaster, BOOL bLastPlane)
 {
-    char            res[64];
+    BYTE            res[64];
     BYTE            *pDataPtr = NULL;
     DRIVER_ERROR    err;
 
@@ -575,21 +593,27 @@ DRIVER_ERROR LJJetReady::Encapsulate (const RASTERDATA* InputRaster, BOOL bLastP
 	err = Send ((const BYTE *)JrVU_ver_TagSeq, sizeof(JrVU_ver_TagSeq));
 	ERRCHECK;
 
-	strcpy (res, "\xC2");
-	err = Send ((const BYTE *) res, strlen (res));
+	err = Send ((const BYTE *) "\xC2", 1);
 	ERRCHECK;
 
     ulVUDataLength += 6;
-    //m_unidrvFuncs.DrvWriteSpoolBuf(pdevobj, &ulVUDataLength, sizeof(ulVUDataLength), &dwResult);
-	err = Send ((const BYTE *)&ulVUDataLength, 4);
-	ERRCHECK;
-
-	strcpy (res, "\xF8\x92\x46\x21\x90");
-	err = Send ((const BYTE *) res, strlen (res));
-	ERRCHECK;
+    res[0] = (BYTE) (ulVUDataLength & 0xFF);
+    res[1] = (BYTE) ((ulVUDataLength & 0x0000FF00) >> 8);
+    res[2] = (BYTE) ((ulVUDataLength & 0x00FF0000) >> 16);
+    res[3] = (BYTE) ((ulVUDataLength & 0xFF000000) >> 24);
+    res[4] = 0xF8;
+    res[5] = 0x92;
+    res[6] = 0x46;
+    res[7] = 0x21;
+    res[8] = 0x90;
 
     ulVUDataLength -= 6;
-	err = Send ((const BYTE *)&ulVUDataLength, 4);
+    res[9] = (BYTE) (ulVUDataLength & 0xFF);
+    res[10] = (BYTE) ((ulVUDataLength & 0x0000FF00) >> 8);
+    res[11] = (BYTE) ((ulVUDataLength & 0x00FF0000) >> 16);
+    res[12] = (BYTE) ((ulVUDataLength & 0xFF000000) >> 24);
+
+	err = Send (res, 13);
 	ERRCHECK;
 
 	err = Send (pDataPtr, ulVUDataLength);

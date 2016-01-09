@@ -975,7 +975,7 @@ int pml_read(HPAIO_RECORD *hpaio, SANE_Byte *data, SANE_Int maxLength, SANE_Int 
    int stat=SANE_STATUS_IO_ERROR;
    unsigned int outputAvail=maxLength, outputUsed=0, outputThisPos;
    unsigned char *output = data;
-   unsigned int inputAvail, inputUsed=0, inputNextPos;
+   unsigned int inputAvail=0, inputUsed=0, inputNextPos;
    unsigned char *input;
    int bsize, wResult;
 
@@ -1057,7 +1057,7 @@ int pml_read(HPAIO_RECORD *hpaio, SANE_Byte *data, SANE_Int maxLength, SANE_Int 
    else if ((hpaio->page_done || hpaio->pml_done) && !hpaio->ip_done)
    {
       /* No more scan data, flush ipconvert pipeline. */
-      input = 0;
+      input = NULL;
       wResult = ipConvert(hpaio->hJob, inputAvail, input, &inputUsed, &inputNextPos, outputAvail, output, &outputUsed, &outputThisPos);
       if (wResult & (IP_INPUT_ERROR | IP_FATAL_ERROR))
       {

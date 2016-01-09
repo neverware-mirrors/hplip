@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.14 $
-# $Date: 2005/07/28 16:55:50 $
+# $Revision: 1.15 $
+# $Date: 2005/10/10 20:38:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -206,7 +206,10 @@ string_table = {
 '1507' :            ( lambda : _( 'Photo cyan cartridge is low on ink' ),
                                 '' ),
 
-'1509' :            ( lambda : _( 'Photo magenta cartridge is low on ink' ),
+'1508' :            ( lambda : _( 'Photo magenta cartridge is low on ink' ),
+                                '' ),
+
+'1509' :            ( lambda : _( 'Photo yellow cartridge is low on ink' ),
                                 '' ),
 
 '1510' :            ( lambda : _( 'Photo gray cartridge is low on ink' ),

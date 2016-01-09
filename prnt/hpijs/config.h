@@ -255,16 +255,17 @@ PhotoSmart P1000, P1100.
 #define APDK_DJ9xx
 
 /*!
-Enables support for the Deskjet 960, 980, 990, 995, 6122, 6127,
+Enables support for the Deskjet 450, 960, 980, 990, 995, 6122, 6127,
 PhotoSmart 1115, 1215, 1218, 1315
 CP 1160, CP 1700
 hp business inkjet 2200 series, hp business inkjet 1100
+OfficeJet Pro K550, OfficeJet Pro K850 - Note: these two are in OJProKx50 class
 */
 #define APDK_DJ9xxVIP
 
 /*!
 Enables support for
-deskjet 450, 5550, 5551
+deskjet 5550, 5551 - Note: these two printers are in DJ55xx class
 PhotoSmart 7150, 7350, 7550.
 APDK_DJ9xxVIP must also be defined
 */

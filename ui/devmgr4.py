@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.92 $
-# $Date: 2005/08/25 21:30:27 $
+# $Revision: 1.97 $
+# $Date: 2005/10/06 23:41:48 $
 # $Author: dwelch $
 #
 #
@@ -23,6 +23,8 @@
 #
 # Authors: Don Welch, Pete Parks
 #
+
+from __future__ import generators
 
 # Std Lib
 import sys
@@ -61,6 +63,8 @@ from aboutdlg import AboutDlg
 from cleaningform import CleaningForm
 from cleaningform2 import CleaningForm2
 from waitform import WaitForm
+from informationform import InformationForm
+from supportform import SupportForm
 
 
 MIN_AUTO_REFRESH_RATE = 5
@@ -75,98 +79,343 @@ class JobListViewItem(QListViewItem):
         self.printer = printer
 
 
+class ScrollToolView(QScrollView):
+    def __init__(self,parent = None,name = None,fl = 0):
+        QScrollView.__init__(self,parent,name,fl)
+        self.items = {}
+        self.setStaticBackground(True)
+        self.enableClipper(True)
+        self.viewport().setPaletteBackgroundColor(qApp.palette().color(QPalette.Active, QColorGroup.Background))
+        self.row_height = 120
 
-def createBarGraph(percent, agent_type, w=100, h=18):
-    fw = w/100*percent
-    px = QPixmap(w, h)
-    pp = QPainter(px)
-    pp.setBackgroundMode(Qt.OpaqueMode)
-    pp.setPen(Qt.black)
+    def viewportResizeEvent(self, e):
+        for x in self.items:
+            self.items[x].resize(e.size().width(), self.row_height)
 
-    pp.setBackgroundColor(Qt.white)
+    def addItem(self, name, title, pix, text, button_text, button_func):
+        num_items = len(self.items)
+        LayoutWidget = QWidget(self.viewport(),"layoutwidget")
+        LayoutWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
+        LayoutWidget.setGeometry(QRect(0, 0, self.width(), self.row_height))
+        self.addChild(LayoutWidget)
+        
+        if num_items:
+            self.moveChild(LayoutWidget, 0, self.row_height*num_items)
 
-    # erase the background
-    b = QBrush(QColor(Qt.white))
-    pp.fillRect(0, 0, w, h, b)
+        layout = QGridLayout(LayoutWidget,1,1,10,10,"layout")
 
-    # fill in the bar
-    if agent_type in (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED):
-        b = QBrush(QColor(Qt.black))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_CMY:
-        h3 = h/3
-        b = QBrush(QColor(Qt.cyan))
-        pp.fillRect(0, 0, fw, h3, b)
-        b = QBrush(QColor(Qt.magenta))
-        pp.fillRect(0, h3, fw, 2*h3, b)
-        b = QBrush(QColor(Qt.yellow))
-        pp.fillRect(0, 2*h3, fw, h, b)
-    elif agent_type == AGENT_TYPE_KCM:
-        h3 = h/3
-        b = QBrush(QColor(Qt.cyan).light())
-        pp.fillRect(0, 0, fw, h3, b)
-        b = QBrush(QColor(Qt.magenta).light())
-        pp.fillRect(0, h3, fw, 2*h3, b)
-        b = QBrush(QColor(Qt.yellow).light())
-        pp.fillRect(0, 2*h3, fw, h, b)
-    elif agent_type == AGENT_TYPE_GGK:
-        b = QBrush(QColor(Qt.gray))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_YELLOW:
-        b = QBrush(QColor(Qt.yellow))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_MAGENTA:
-        b = QBrush(QColor(Qt.magenta))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_CYAN:
-        b = QBrush(QColor(Qt.cyan))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_CYAN_LOW:
-        b = QBrush(QColor(225, 246, 255))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_YELLOW_LOW:
-        b = QBrush(QColor(255, 253, 225))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_MAGENTA_LOW:
-        b = QBrush(QColor(255, 225, 240))
-        pp.fillRect(0, 0, fw, h, b)
-    elif agent_type == AGENT_TYPE_BLUE:
-        b = QBrush(QColor(0, 0, 255))
-        pp.fillRect(0, 0, fw, h, b)
+        pushButton = QPushButton(LayoutWidget,"pushButton")
+        pushButton.setSizePolicy(QSizePolicy(QSizePolicy.Maximum,QSizePolicy.Fixed,0,0,
+                                 pushButton.sizePolicy().hasHeightForWidth()))
+        self.connect(pushButton,SIGNAL("clicked()"), button_func) 
 
-    # draw black frame
-    pp.drawRect(0, 0, w, h)
+        layout.addWidget(pushButton,2,2)
 
-    if percent > 75 and agent_type in \
-      (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
-        pp.setPen(Qt.white)
+        textLabel = QLabel(LayoutWidget,"textLabel")
 
-    # 75% ticks
-    w1 = 3*w/4
-    h6 = h/6
-    pp.drawLine(w1, 0, w1, h6)
-    pp.drawLine(w1, h, w1, h-h6)
+        layout.addWidget(textLabel,1,1)
 
-    if percent > 50 and agent_type in \
-      (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
-        pp.setPen(Qt.white)
+        pixmap = QLabel(LayoutWidget,"pixmapLabel2")
+        pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,
+                             pixmap.sizePolicy().hasHeightForWidth()))
+        pixmap.setMinimumSize(QSize(32,32))
+        pixmap.setMaximumSize(QSize(32,32))
+        pixmap.setPixmap(pix)
+        pixmap.setScaledContents(1)
 
-    # 50% ticks
-    w2 = w/2
-    h4 = h/4
-    pp.drawLine(w2, 0, w2, h4)
-    pp.drawLine(w2, h, w2, h-h4)
+        layout.addWidget(pixmap,1,0)
 
-    if percent > 25 and agent_type in \
-      (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
-        pp.setPen(Qt.white)
+        textLabel2 = QLabel(LayoutWidget,"textLabel2")
+        textLabel2.setAlignment(QLabel.WordBreak | QLabel.AlignTop)
+        textLabel2.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Expanding))
 
-    # 25% ticks
-    w4 = w/4
-    pp.drawLine(w4, 0, w4, h6)
-    pp.drawLine(w4, h, w4, h-h6)
+        layout.addWidget(textLabel2,2,1)
+        
+        if num_items:
+            line = QFrame(LayoutWidget,"line")
+            line.setFrameShadow(QFrame.Sunken)
+            line.setFrameShape(QFrame.HLine)
+            layout.addMultiCellWidget(line,0,0,0,2)        
 
-    return px
+        textLabel.setText(title)
+        textLabel2.setText(text)
+        pushButton.setText(button_text)
+        self.resizeContents(self.width(), num_items*self.row_height*2)
+
+        LayoutWidget.show()
+
+        try:
+            self.items[name]
+        except KeyError:
+            self.items[name] = LayoutWidget
+        else:
+            print "ERROR: Duplicate button name:", name
+
+    def clear(self):
+        if len(self.items):
+            for x in self.items:
+                self.removeChild(self.items[x])
+                self.items[x].hide()
+
+            self.items.clear()
+            self.resizeContents(self.width(), 0)
+
+
+
+
+
+class ScrollSuppliesView(QScrollView):
+    def __init__(self,parent = None,name = None,fl = 0):
+        QScrollView.__init__(self,parent,name,fl)
+        self.items = {}
+        self.setStaticBackground(True)
+        self.enableClipper(True)
+        self.viewport().setPaletteBackgroundColor(qApp.palette().color(QPalette.Active, QColorGroup.Background))
+
+        self.pix_black = QPixmap(os.path.join(prop.image_dir, 'icon_black.png'))
+        self.pix_blue = QPixmap(os.path.join(prop.image_dir, 'icon_blue.png'))
+        self.pix_cyan = QPixmap(os.path.join(prop.image_dir, 'icon_cyan.png'))
+        self.pix_grey = QPixmap(os.path.join(prop.image_dir, 'icon_grey.png'))
+        self.pix_magenta = QPixmap(os.path.join(prop.image_dir, 'icon_magenta.png'))
+        self.pix_photo = QPixmap(os.path.join(prop.image_dir, 'icon_photo.png'))
+        self.pix_photo_cyan = QPixmap(os.path.join(prop.image_dir, 'icon_photo_cyan.png'))
+        self.pix_photo_magenta = QPixmap(os.path.join(prop.image_dir, 'icon_photo_magenta.png'))
+        self.pix_photo_yellow = QPixmap(os.path.join(prop.image_dir, 'icon_photo_yellow.png'))
+        self.pix_tricolor = QPixmap(os.path.join(prop.image_dir, 'icon_tricolor.png'))
+        self.pix_yellow = QPixmap(os.path.join(prop.image_dir, 'icon_yellow.png'))
+        self.pix_battery = QPixmap(os.path.join(prop.image_dir, 'icon_battery.png'))
+
+        self.row_height = 100
+
+    def viewportResizeEvent(self, e):
+        for x in self.items:
+            self.items[x].resize(e.size().width(), self.row_height)
+
+
+    def getIcon(self, agent_kind, agent_type):
+        if agent_kind in (AGENT_KIND_SUPPLY,
+                          AGENT_KIND_HEAD,
+                          AGENT_KIND_HEAD_AND_SUPPLY,
+                          AGENT_KIND_TONER_CARTRIDGE,):
+                                  
+            if agent_type == AGENT_TYPE_BLACK:
+                return self.pix_black
+            elif agent_type == AGENT_TYPE_CMY:
+                return self.pix_tricolor
+            elif agent_type == AGENT_TYPE_KCM:
+                return self.pix_photo
+            elif agent_type == AGENT_TYPE_GGK:
+                return self.pix_grey
+            elif agent_type == AGENT_TYPE_YELLOW:
+                return self.pix_yellow
+            elif agent_type == AGENT_TYPE_MAGENTA:
+                return self.pix_magenta
+            elif agent_type == AGENT_TYPE_CYAN:
+                return self.pix_cyan
+            elif agent_type == AGENT_TYPE_CYAN_LOW:
+                return self.pix_photo_cyan
+            elif agent_type == AGENT_TYPE_YELLOW_LOW:
+                return self.pix_photo_yellow
+            elif agent_type == AGENT_TYPE_MAGENTA_LOW:
+                return self.pix_photo_magenta
+            elif agent_type == AGENT_TYPE_BLUE:
+                return self.pix_blue
+        
+        elif agent_kind == AGENT_KIND_INT_BATTERY:
+                return self.pix_battery
+                
+            
+
+    def createBarGraph(self, percent, agent_type, w=100, h=18):
+        fw = w/100*percent
+        px = QPixmap(w, h)
+        pp = QPainter(px)
+        pp.setBackgroundMode(Qt.OpaqueMode)
+        pp.setPen(Qt.black)
+
+        pp.setBackgroundColor(Qt.white)
+
+        # erase the background
+        b = QBrush(QColor(Qt.white))
+        pp.fillRect(0, 0, w, h, b)
+
+        # fill in the bar
+        if agent_type in (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED):
+            b = QBrush(QColor(Qt.black))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_CMY:
+            h3 = h/3
+            b = QBrush(QColor(Qt.cyan))
+            pp.fillRect(0, 0, fw, h3, b)
+            b = QBrush(QColor(Qt.magenta))
+            pp.fillRect(0, h3, fw, 2*h3, b)
+            b = QBrush(QColor(Qt.yellow))
+            pp.fillRect(0, 2*h3, fw, h, b)
+        elif agent_type == AGENT_TYPE_KCM:
+            h3 = h/3
+            b = QBrush(QColor(Qt.cyan).light())
+            pp.fillRect(0, 0, fw, h3, b)
+            b = QBrush(QColor(Qt.magenta).light())
+            pp.fillRect(0, h3, fw, 2*h3, b)
+            b = QBrush(QColor(Qt.yellow).light())
+            pp.fillRect(0, 2*h3, fw, h, b)
+        elif agent_type == AGENT_TYPE_GGK:
+            b = QBrush(QColor(Qt.gray))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_YELLOW:
+            b = QBrush(QColor(Qt.yellow))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_MAGENTA:
+            b = QBrush(QColor(Qt.magenta))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_CYAN:
+            b = QBrush(QColor(Qt.cyan))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_CYAN_LOW:
+            b = QBrush(QColor(225, 246, 255))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_YELLOW_LOW:
+            b = QBrush(QColor(255, 253, 225))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_MAGENTA_LOW:
+            b = QBrush(QColor(255, 225, 240))
+            pp.fillRect(0, 0, fw, h, b)
+        elif agent_type == AGENT_TYPE_BLUE:
+            b = QBrush(QColor(0, 0, 255))
+            pp.fillRect(0, 0, fw, h, b)
+
+        # draw black frame
+        pp.drawRect(0, 0, w, h)
+
+        if percent > 75 and agent_type in \
+          (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
+            pp.setPen(Qt.white)
+
+        # 75% ticks
+        w1 = 3*w/4
+        h6 = h/6
+        pp.drawLine(w1, 0, w1, h6)
+        pp.drawLine(w1, h, w1, h-h6)
+
+        if percent > 50 and agent_type in \
+          (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
+            pp.setPen(Qt.white)
+
+        # 50% ticks
+        w2 = w/2
+        h4 = h/4
+        pp.drawLine(w2, 0, w2, h4)
+        pp.drawLine(w2, h, w2, h-h4)
+
+        if percent > 25 and agent_type in \
+          (AGENT_TYPE_BLACK, AGENT_TYPE_UNSPECIFIED, AGENT_TYPE_BLUE):
+            pp.setPen(Qt.white)
+
+        # 25% ticks
+        w4 = w/4
+        pp.drawLine(w4, 0, w4, h6)
+        pp.drawLine(w4, h, w4, h-h6)
+
+        return px   
+
+
+    def addItem(self, name, title_text, part_num_text, status_text, 
+                agent_kind, agent_type, percent):
+        
+        num_items = len(self.items)
+        LayoutWidget = QWidget(self.viewport(), name)
+        LayoutWidget.setGeometry(QRect(0, 0, self.width(), self.row_height))
+        LayoutWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.addChild(LayoutWidget)
+        
+        if num_items:
+            self.moveChild(LayoutWidget, 0, self.row_height*num_items)
+        
+        layout = QGridLayout(LayoutWidget,1,1,10,10,"layout")
+
+        textStatus = QLabel(LayoutWidget,"textStatus")
+        layout.addWidget(textStatus,1,2)
+
+        pixmapLevel = QLabel(LayoutWidget,"pixmapLevel")
+        pixmapLevel.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,
+            pixmapLevel.sizePolicy().hasHeightForWidth()))
+
+        pixmapLevel.setMinimumSize(QSize(100,20))
+        pixmapLevel.setMaximumSize(QSize(100,20))
+
+        layout.addWidget(pixmapLevel,2,2)
+
+        textTitle = QLabel(LayoutWidget,"textTitle")
+        layout.addWidget(textTitle,1,1)
+
+        textPartNo = QLabel(LayoutWidget,"textPartNo")
+        layout.addWidget(textPartNo,2,1)
+
+        pixmapIcon = QLabel(LayoutWidget,"pixmapIcon")
+        pixmapIcon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,
+            pixmapIcon.sizePolicy().hasHeightForWidth()))
+
+        pixmapIcon.setMinimumSize(QSize(32,32))
+        pixmapIcon.setMaximumSize(QSize(32,32))
+        layout.addWidget(pixmapIcon,1,0)
+
+        if num_items:
+            line = QFrame(LayoutWidget,"line")
+            line.setFrameShadow(QFrame.Sunken)
+            line.setFrameShape(QFrame.HLine)
+            layout.addMultiCellWidget(line,0,0,0,2)
+
+        textTitle.setText(title_text)
+        textPartNo.setText(part_num_text)
+        textStatus.setText(status_text)
+
+        # Bar graph level
+        if agent_kind in (AGENT_KIND_SUPPLY,
+                          #AGENT_KIND_HEAD,
+                          AGENT_KIND_HEAD_AND_SUPPLY,
+                          AGENT_KIND_TONER_CARTRIDGE,
+                          AGENT_KIND_MAINT_KIT,
+                          AGENT_KIND_ADF_KIT,
+                          AGENT_KIND_INT_BATTERY,
+                          AGENT_KIND_DRUM_KIT,
+                          ):
+
+            pixmapLevel.setPixmap(self.createBarGraph(percent, agent_type))
+            
+        # Color icon
+        if agent_kind in (AGENT_KIND_SUPPLY,
+                          AGENT_KIND_HEAD,
+                          AGENT_KIND_HEAD_AND_SUPPLY,
+                          AGENT_KIND_TONER_CARTRIDGE,
+                          #AGENT_KIND_MAINT_KIT,
+                          #AGENT_KIND_ADF_KIT,
+                          AGENT_KIND_INT_BATTERY,
+                          #AGENT_KIND_DRUM_KIT,
+                          ):
+            
+            pix = self.getIcon(agent_kind, agent_type)
+            
+            if pix is not None:
+                pixmapIcon.setPixmap(pix)
+
+        self.resizeContents(self.width(), num_items*self.row_height*2)
+        LayoutWidget.show()
+
+        try:
+            self.items[name]
+        except KeyError:
+            self.items[name] = LayoutWidget
+
+
+    def clear(self):
+        if len(self.items):
+            for x in self.items:
+                self.removeChild(self.items[x])
+                self.items[x].hide()
+
+            self.items.clear()
+            self.resizeContents(self.width(), 0)
+
 
 
 
@@ -192,8 +441,6 @@ class devmgr4(DevMgr4_base):
 
         # Make some adjustments to the UI
         self.StatusHistoryList.setSorting(-1)
-        self.AdvInfoList.setSorting(-1)
-        self.SuppliesList.setSorting(-1)
         self.PrintJobList.setSorting(1) # Sort on job ID column
         self.DeviceList.setAutoArrange(False)
         self.StatusHistoryList.setColumnWidth(0, 16)
@@ -216,45 +463,43 @@ class devmgr4(DevMgr4_base):
         self.PrintJobList.setColumnWidth(4, 200)
         self.PrintJobList.setColumnWidthMode(4, QListView.Maximum)
 
-        self.AdvInfoList.setColumnWidth(0, 200)
-        self.AdvInfoList.setColumnWidthMode(0, QListView.Maximum)
-        self.AdvInfoList.setColumnWidth(1, 500)
-        self.AdvInfoList.setColumnWidthMode(1, QListView.Maximum)
-
         self.initial_device_uri = initial_device_uri
 
         self.warning_pix = QPixmap(os.path.join(prop.image_dir, "warning.png"))
         self.error_pix = QPixmap(os.path.join(prop.image_dir, "error.png"))
         self.ok_pix = QPixmap(os.path.join(prop.image_dir, "ok.png"))
         self.lowink_pix = QPixmap(os.path.join(prop.image_dir, 'inkdrop.png'))
+        self.lowtoner_pix = QPixmap(os.path.join(prop.image_dir, 'toner.png'))
         self.busy_pix = QPixmap(os.path.join(prop.image_dir, 'busy.png'))
 
         self.warning_pix_small = QPixmap(os.path.join(prop.image_dir, "warning_small.png"))
         self.error_pix_small = QPixmap(os.path.join(prop.image_dir, "error_small.png"))
         self.ok_pix_small = QPixmap(os.path.join(prop.image_dir, "ok_small.png"))
         self.lowink_pix_small = QPixmap(os.path.join(prop.image_dir, 'inkdrop_small.png'))
+        self.lowtoner_pix_small = QPixmap(os.path.join(prop.image_dir, 'toner_small.png'))
         self.busy_pix_small = QPixmap(os.path.join(prop.image_dir, 'busy_small.png'))
 
         self.blank_lcd = os.path.join(prop.image_dir, "panel_lcd.xpm")
         self.Panel.setPixmap(QPixmap(self.blank_lcd))
 
-        self.STATUS_HISTORY_ICONS = {ERROR_STATE_CLEAR : None,
-                                      ERROR_STATE_BUSY : self.busy_pix_small,
-                                      ERROR_STATE_ERROR : self.error_pix_small,
-                                      ERROR_STATE_LOW_SUPPLIES : self.lowink_pix_small,
-                                      ERROR_STATE_OK : self.ok_pix_small,
-                                      ERROR_STATE_WARNING : self.warning_pix_small,
+        # pixmaps: (inkjet, laserjet)
+        self.STATUS_HISTORY_ICONS = { ERROR_STATE_CLEAR : (None, None),
+                                      ERROR_STATE_BUSY : (self.busy_pix_small, self.busy_pix_small),
+                                      ERROR_STATE_ERROR : (self.error_pix_small, self.error_pix_small),
+                                      ERROR_STATE_LOW_SUPPLIES : (self.lowink_pix_small, self.lowink_pix_small),
+                                      ERROR_STATE_OK : (self.ok_pix_small, self.ok_pix_small),
+                                      ERROR_STATE_WARNING : (self.warning_pix_small, self.warning_pix_small),
                                     }
 
-        self.STATUS_ICONS = {ERROR_STATE_CLEAR : None,
-                              ERROR_STATE_BUSY : self.busy_pix,
-                              ERROR_STATE_ERROR : self.error_pix,
-                              ERROR_STATE_LOW_SUPPLIES : self.lowink_pix,
-                              ERROR_STATE_OK : self.ok_pix,
-                              ERROR_STATE_WARNING : self.warning_pix,
-                            }
+##        self.STATUS_ICONS = { ERROR_STATE_CLEAR : None,
+##                              ERROR_STATE_BUSY : self.busy_pix,
+##                              ERROR_STATE_ERROR : self.error_pix,
+##                              ERROR_STATE_LOW_SUPPLIES : self.lowink_pix,
+##                              ERROR_STATE_OK : self.ok_pix,
+##                              ERROR_STATE_WARNING : self.warning_pix,
+##                            }
 
-        self.JOB_STATES = {3 : self.__tr("Pending"),
+        self.JOB_STATES = { 3 : self.__tr("Pending"),
                             4 : self.__tr("On hold"),
                             5 : self.__tr("Printing"),
                             6 : self.__tr("Stopped"),
@@ -334,13 +579,23 @@ class devmgr4(DevMgr4_base):
         if not self.auto_refresh:
             self.autoRefresh.toggle()
 
-        #self.update_called = False
-
         self.cur_device_uri = '' # Device URI
         self.devices = {}    # { Device_URI : device.Device(), ... }
         self.device_vars = {}
         self.num_devices = 0
         self.cur_device = None
+        self.rescanning = False
+
+        # Add Scrolling Maintenance (Tools)
+        self.ToolList = ScrollToolView(self.MaintTab, "ToolView")
+        MaintTabLayout = QGridLayout(self.MaintTab,1,1,11,6,"MaintTabLayout")
+        MaintTabLayout.addWidget(self.ToolList,0,0)
+
+        # Add Scrolling Supplies 
+        self.SuppliesList = ScrollSuppliesView(self.SuppliesTab, "SuppliesView")
+        SuppliesTabLayout = QGridLayout(self.SuppliesTab,1,1,11,6,"SuppliesTabLayout")
+        self.SuppliesList.setHScrollBarMode(QScrollView.AlwaysOff)
+        SuppliesTabLayout.addWidget(self.SuppliesList,0,0)
 
         QTimer.singleShot(0, self.InitialUpdate)
 
@@ -374,6 +629,7 @@ class devmgr4(DevMgr4_base):
 
     def RescanDevices(self):
         self.deviceRefreshAll.setEnabled(False)
+        self.deviceRescanAction.setEnabled(False)
         self.DeviceListRefresh()
         self.deviceRescanAction.setEnabled(True)
         self.deviceRefreshAll.setEnabled(True)
@@ -433,7 +689,6 @@ class devmgr4(DevMgr4_base):
 
     def UpdateDevice(self, check_state=True):
         log.debug(utils.bold("Update: %s %s %s" % ("*"*20, self.cur_device_uri, "*"*20)))
-        #self.update_called = True
         self.setCaption("%s - HP Device Manager" % self.cur_device.model_ui)
 
         if self.cur_device.supported and check_state and not self.rescanning:
@@ -458,10 +713,10 @@ class devmgr4(DevMgr4_base):
 
     def CreatePixmap(self):
         try:
-            pix = QPixmap(self.cur_device.icon_file)
+            pix = QPixmap(os.path.join(prop.image_dir, self.cur_device.icon))
         except AttributeError:
             pix = QPixmap(os.path.join(prop.image_dir, 'default_printer.png'))
-        
+
         error_state = self.cur_device.error_state
         icon = QPixmap(pix.width(), pix.height())
         p = QPainter(icon)
@@ -493,31 +748,33 @@ class devmgr4(DevMgr4_base):
 
     def DeviceListRefresh(self):
         log.debug("Rescanning device list...")
-        self.rescanning = True
-        self.DeviceList.clear()
-        self.devices.clear()
-        self.supported_devices = device.getSupportedCUPSDevices()
-        log.debug(self.supported_devices)
-        self.num_devices = len(self.supported_devices)
-        self.devices.clear()
-        self.device_num = 0
-
-        if self.num_devices > 0:
-            self.pb = QProgressBar(self.statusBar(), 'ProgressBar')
-            self.pb.setTotalSteps(self.num_devices)
-            self.statusBar().addWidget(self.pb)
-            self.pb.show()
-
-            self.scan_timer = QTimer(self, "ScanTimer")
-            self.connect(self.scan_timer, SIGNAL('timeout()'),
-                          self.ContinueDeviceListRefresh)
-
-            self.__NextDevice = self.__GetNextDevice()
-            self.scan_timer.start(0)
-        else:
-            dlg = NoDevicesForm(self)
-            dlg.exec_loop()
-            self.close()
+        #self.deviceRefreshAll.setEnabled(False)
+        if not self.rescanning:
+            self.rescanning = True
+            self.DeviceList.clear()
+            self.devices.clear()
+            self.supported_devices = device.getSupportedCUPSDevices()
+            log.debug(self.supported_devices)
+            self.num_devices = len(self.supported_devices)
+            self.devices.clear()
+            self.device_num = 0
+    
+            if self.num_devices > 0:
+                self.pb = QProgressBar(self.statusBar(), 'ProgressBar')
+                self.pb.setTotalSteps(self.num_devices)
+                self.statusBar().addWidget(self.pb)
+                self.pb.show()
+    
+                self.scan_timer = QTimer(self, "ScanTimer")
+                self.connect(self.scan_timer, SIGNAL('timeout()'),
+                              self.ContinueDeviceListRefresh)
+    
+                self.__NextDevice = self.__GetNextDevice()
+                self.scan_timer.start(0)
+            else:
+                dlg = NoDevicesForm(self)
+                dlg.exec_loop()
+                self.close()
 
 
     def __GetNextDevice(self):
@@ -543,11 +800,8 @@ class devmgr4(DevMgr4_base):
 
             self.DeviceList.adjustItems()
             self.DeviceList.updateGeometry()
-
-            self.rescanning = False
-
             self.DeviceList.setCurrentItem(self.DeviceList.firstItem())
-            self.deviceRescanAction.setEnabled(True)
+            self.rescanning = False
 
             if self.num_devices == 1:
                 self.UpdateDevice(False)
@@ -556,8 +810,6 @@ class devmgr4(DevMgr4_base):
                 self.deviceRescanAction.setEnabled(False)
                 dlg = NoDevicesForm(self, "", True)
                 dlg.show()
-
-            return
 
         else:
             self.pb.setProgress(self.device_num)
@@ -575,16 +827,12 @@ class devmgr4(DevMgr4_base):
                 log.exception()
                 return
 
-##            self.cur_device.open()
-
             try:
                 self.cur_device.open()
                 self.cur_device.queryDevice()
                 self.cur_device.close()
             except Error, e:
                 log.warn(e.msg)
-
-##            self.cur_device.close()
 
             self.CheckForDeviceSettingsUI()
 
@@ -640,7 +888,6 @@ class devmgr4(DevMgr4_base):
         jobs = cups.getJobs()
 
         for j in jobs:
-
             if j.dest in self.cur_device.cups_printers:
 
                 JobListViewItem(self.PrintJobList, j.dest, j.id,
@@ -667,11 +914,9 @@ class devmgr4(DevMgr4_base):
 
     def UpdateTabs(self):
         self.UpdateFunctionsTab()
-        self.UpdateSettingsTab()
         self.UpdateStatusTab()
         self.UpdateSuppliesTab()
         self.UpdateMaintTab()
-        self.UpdateInfoTab()
         self.UpdatePrintJobsTab()
         self.UpdatePanelTab()
 
@@ -743,8 +988,9 @@ class devmgr4(DevMgr4_base):
 
     def UpdateStatusTab(self):
         self.StatusHistoryList.clear()
-
-        for x in self.cur_device.hist:
+        d = self.cur_device
+        
+        for x in d.hist:
             job_id = x[9]
             code = x[11]
 
@@ -761,38 +1007,44 @@ class devmgr4(DevMgr4_base):
                                x[10], str(job_id), str(code), x[12])
 
             error_state = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_CLEAR)
-            status_pix = self.STATUS_HISTORY_ICONS[error_state]
+            if d.tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
+                status_pix = self.STATUS_HISTORY_ICONS[error_state][0]
+            else:
+                status_pix = self.STATUS_HISTORY_ICONS[error_state][1]
 
             if status_pix is not None:
                 i.setPixmap(0, status_pix)
 
-        if self.cur_device.last_event is not None:
-            self.StatusText.setText(self.cur_device.last_event[12])
-            self.StatusText2.setText(self.cur_device.last_event[13])
+        if d.last_event is not None:
+            self.StatusText.setText(d.last_event[12])
+            self.StatusText2.setText(d.last_event[13])
 
-        if self.cur_device.error_state == ERROR_STATE_CLEAR:
+        if d.error_state == ERROR_STATE_CLEAR:
             self.StatusIcon.clear()
 
-        elif self.cur_device.error_state == ERROR_STATE_OK:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "ok.png")))
+        elif d.error_state == ERROR_STATE_OK:
+            self.StatusIcon.setPixmap(self.ok_pix)
 
-        elif self.cur_device.error_state == ERROR_STATE_WARNING:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "warning.png")))
+        elif d.error_state == ERROR_STATE_WARNING:
+            self.StatusIcon.setPixmap(self.warning_pix)
 
-        # TODO: Different icon overlay for laser
-        elif self.cur_device.error_state == ERROR_STATE_LOW_SUPPLIES:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "inkdrop.png")))
+        elif d.error_state == ERROR_STATE_LOW_SUPPLIES:
+            
+            if d.tech_type in (TECH_TYPE_COLOR_INK, TECH_TYPE_MONO_INK):
+                self.StatusIcon.setPixmap(self.lowink_pix)
+            else:
+                self.StatusIcon.setPixmap(self.lowtoner_pix)
 
-        elif self.cur_device.error_state == ERROR_STATE_ERROR:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "error.png")))
+        elif d.error_state == ERROR_STATE_ERROR:
+            self.StatusIcon.setPixmap(self.error_pix)
 
-        elif self.cur_device.error_state == ERROR_STATE_BUSY:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "busy.png")))
+        elif d.error_state == ERROR_STATE_BUSY:
+            self.StatusIcon.setPixmap(self.busy_pix)
 
 
     def UpdateSuppliesTab(self):
         self.SuppliesList.clear()
-
+        
         if self.cur_device.supported and \
             self.cur_device.status_type != STATUS_TYPE_NONE:
 
@@ -811,91 +1063,129 @@ class devmgr4(DevMgr4_base):
                     agent_desc = self.cur_device.dq['agent%d-desc' % a]
                     agent_health_desc = self.cur_device.dq['agent%d-health-desc' % a]
 
-                    if agent_health == AGENT_HEALTH_OK and \
-                        agent_kind in (AGENT_KIND_SUPPLY,
-                                        AGENT_KIND_HEAD_AND_SUPPLY,
-                                        AGENT_KIND_TONER_CARTRIDGE,
-                                        AGENT_KIND_MAINT_KIT,
-                                        AGENT_KIND_ADF_KIT,
-                                        AGENT_KIND_INT_BATTERY,
-                                        AGENT_KIND_DRUM_KIT,):
-
-                        x = QListViewItem(self.SuppliesList,
-                                           agent_desc,
-                                           agent_sku)
-
-                        x.setPixmap(2, createBarGraph(agent_level, agent_type))
-
-                    else:
-                        QListViewItem(self.SuppliesList,
-                                       agent_desc,
-                                       agent_sku,
-                                       agent_health_desc,)
+                    self.SuppliesList.addItem("agent %d" % a, "<b>"+agent_desc+"</b>",
+                                              agent_sku, agent_health_desc, 
+                                              agent_kind, agent_type, agent_level) 
 
                 a += 1
 
 
     def UpdateMaintTab(self):
-        self.ToggleMaintButtons(self.cur_device.device_state in \
-            (DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND))
+        self.ToolList.clear()
 
+        if self.cur_device.supported and \
+            self.cur_device.device_state in (DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND):
+            
+            self.ToolList.addItem( "cups", self.__tr("<b>Configure Print Settings</b>"), 
+                QPixmap(os.path.join(prop.image_dir, 'icon_cups.png')), 
+                self.__tr("Use this interface to configure printer settings such as print quality, print mode, paper size, etc. (Note: This may not work on all operating systems)"), 
+                self.__tr("Configure..."), 
+                self.ConfigurePrintSettings_clicked)
+            
+            if self.cur_device.device_settings_ui is not None:
+                self.ToolList.addItem( "device_settings", self.__tr("<b>Device Settings</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_settings.png')), 
+                    self.__tr("Your device has special device settings. You may alter these settings here."), 
+                    self.__tr("Device Settings..."), 
+                    self.deviceSettingsButton_clicked)
+                self.setupDevice.setEnabled(True)
+            else:
+                self.setupDevice.setEnabled(False)
+    
+            if self.cur_device.fax_type:
+                self.ToolList.addItem( "fax_settings", self.__tr("<b>Fax Setup</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_fax.png')), 
+                    self.__tr("Fax support must be setup before you can send faxes."), 
+                    self.__tr("Setup Fax..."), 
+                    self.faxSettingsButton_clicked)
+    
+            self.ToolList.addItem( "testpage", self.__tr("<b>Print Test Page</b>"), 
+                QPixmap(os.path.join(prop.image_dir, 'icon_testpage.png')), 
+                self.__tr("Print a test page to test the setup of your printer."), 
+                self.__tr("Print Test Page..."), 
+                self.PrintTestPageButton_clicked)
+    
+    
+            self.ToolList.addItem( "info", self.__tr("<b>View Device Information</b>"), 
+                QPixmap(os.path.join(prop.image_dir, 'icon_info.png')), 
+                self.__tr("This information is primarily useful for debugging and troubleshooting."), 
+                self.__tr("View Information..."), 
+                self.viewInformation) 
+    
+            if self.cur_device.pq_diag_type:
+                self.ToolList.addItem( "pqdiag", self.__tr("<b>Print Quality Diagnostics</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_pq_diag.png')),
+                    self.__tr("Your printer can print a test page to help diagnose print quality problems."), 
+                    self.__tr("Print Diagnostic Page..."), 
+                    self.pqDiag)
+    
+            if self.cur_device.clean_type:
+                self.ToolList.addItem( "clean", self.__tr("<b>Clean Cartridges</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_clean.png')), 
+                    self.__tr("You only need to perform this action if you are having problems with poor printout quality due to clogged ink nozzles."), 
+                    self.__tr("Clean Cartridges..."), 
+                    self.CleanPensButton_clicked)
+    
+            if self.cur_device.align_type:
+                self.ToolList.addItem( "align", self.__tr("<b>Align Cartridges</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_align.png')), 
+                    self.__tr("This will improve the quality of output when a new cartridge is installed."), 
+                    self.__tr("Align Cartridges..."), 
+                    self.AlignPensButton_clicked)
+    
+            if self.cur_device.color_cal_type:
+                self.ToolList.addItem( "colorcal", self.__tr("<b>Perform Color Calibration</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_colorcal.png')), 
+                    self.__tr("Use this procedure to optimimize your printer's color output."), 
+                    self.__tr("Color Calibration..."), 
+                    self.ColorCalibrationButton_clicked)
+    
+            if self.cur_device.linefeed_cal_type:
+                self.ToolList.addItem( "linefeed", self.__tr("<b>Perform Line Feed Calibration</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_linefeed_cal.png')),
+                    self.__tr("Use line feed calibration to optimize print quality (to remove gaps in the printed output)."), 
+                    self.__tr("Line Feed Calibration..."), 
+                    self.linefeedCalibration) 
+    
+            if self.cur_device.embedded_server_type and self.cur_device.bus == 'net':
+                self.ToolList.addItem( "ews", self.__tr("<b>Access Embedded Web Page</b>"), 
+                    QPixmap(os.path.join(prop.image_dir, 'icon_ews.png')), 
+                    self.__tr("You can use your printer's embedded web server to configure, maintain, and monitor the device from a web browser. <i>This feature is only available if the device is connected via the network.</i>"),
+                    self.__tr("Open in Browser..."), 
+                    self.OpenEmbeddedBrowserButton_clicked)
 
-    def ToggleMaintButtons(self, toggle):
-        if toggle:
-            self.CleanPensButton.setEnabled(self.cur_device.clean_type)
-            self.AlignPensButton.setEnabled(self.cur_device.align_type)
-            self.ColorCalibrationButton.setEnabled(self.cur_device.color_cal_type)
-        else:
-            self.CleanPensButton.setEnabled(False)
-            self.AlignPensButton.setEnabled(False)
-            self.ColorCalibrationButton.setEnabled(False)
+        self.ToolList.addItem("support",  self.__tr("<b>View Support Information</b>"), 
+            QPixmap(os.path.join(prop.image_dir, 'icon_support2.png')), 
+            self.__tr("View available support resources."), 
+            self.__tr("View Support..."), 
+            self.viewSupport) 
+    
 
-    def ToggleInfoButtons(self, toggle):
-        if toggle:
-            self.PrintTestPageButton.setEnabled(True)
-            self.OpenEmbeddedBrowserButton.setEnabled(
-                self.cur_device.embedded_server_type and self.cur_device.bus == 'net')
-        else:
-            self.PrintTestPageButton.setEnabled(False)
-            self.OpenEmbeddedBrowserButton.setEnabled(False)
+    def ConfigurePrintSettings_clicked(self):
+        utils.openURL("http://localhost:631/printers")
 
-
-    def UpdateInfoTab(self):
-        self.ToggleInfoButtons(self.cur_device.device_state in \
-            (DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND))
-
-        self.AdvInfoList.clear()
-
-        if self.cur_device.supported:
-            dq_keys = self.cur_device.dq.keys()
-            dq_keys.sort()
-            dq_keys.reverse()
-            for key,i in zip(dq_keys, range(len(dq_keys))):
-                QListViewItem(self.AdvInfoList, key, str(self.cur_device.dq[key]))
-
-            mq_keys = self.cur_device.mq.keys()
-            mq_keys.sort()
-            mq_keys.reverse()
-            for key,i in zip(mq_keys, range(len(mq_keys))):
-                QListViewItem(self.AdvInfoList, key, str(self.cur_device.mq[key]))
-
-
-    def ToggleSettingsButtons(self, toggle):
-        if toggle:
-            self.setupDevice.setEnabled(self.cur_device.device_settings_ui is not None)
-            self.deviceSettingsButton.setEnabled(self.cur_device.device_settings_ui is not None)
-            self.faxSetupWizardButton.setEnabled(False)
-            self.faxSettingsButton.setEnabled(False)
-        else:
-            self.setupDevice.setEnabled(False)
-            self.deviceSettingsButton.setEnabled(False)
-            self.faxSetupWizardButton.setEnabled(False)
-            self.faxSettingsButton.setEnabled(False)
-
-
-    def UpdateSettingsTab(self):
-        self.ToggleSettingsButtons(self.cur_device.device_state in \
-            (DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND))
+    def viewInformation(self):
+        InformationForm(self.cur_device, self).exec_loop()
+        
+    def viewSupport(self):
+        SupportForm(self).exec_loop()
+        
+    def pqDiag(self):
+        d = self.cur_device
+        ok = False;
+        pq_diag = d.pq_diag_type
+        
+        if pq_diag == 1:
+            maint.printQualityDiagType1(d, self.LoadPaperUI)
+        
+        
+    def linefeedCalibration(self):
+        d = self.cur_device
+        ok = False;
+        linefeed_type = d.linefeed_cal_type
+        
+        if linefeed_type == 1:
+            maint.linefeedCalType1(d, self.LoadPaperUI)
 
 
     def EventUI(self, event_code, event_type,
@@ -1101,7 +1391,7 @@ class devmgr4(DevMgr4_base):
 
         elif align_type == ALIGN_TYPE_DESKJET_450:
             ok = maint.AlignType8(d, self.LoadPaperUI, self.AlignmentNumberUI)
-            
+
         elif align_type == ALIGN_TYPE_LBOW:
             ok = maint.AlignType10(d, self.LoadPaperUI, self.Align10UI) 
 
@@ -1132,7 +1422,7 @@ class devmgr4(DevMgr4_base):
     def ColorCalUI4(self):
         dlg = ColorCal4Form(self)
         if dlg.exec_loop() == QDialog.Accepted:
-            print dlg.values
+            #print dlg.values
             return True, dlg.values
         else:
             return False, None
@@ -1159,6 +1449,9 @@ class devmgr4(DevMgr4_base):
         elif color_cal_type == COLOR_CAL_TYPE_CONNERY:
             ok = maint.colorCalType4(d, self.LoadPaperUI, self.ColorCalUI4,
                                       self.WaitUI)
+
+        elif color_cal_type == COLOR_CAL_TYPE_COUSTEAU:
+            ok = maint.colorCalType5(d, self.LoadPaperUI)
 
 
     def PrintTestPageButton_clicked(self):
@@ -1224,15 +1517,7 @@ class devmgr4(DevMgr4_base):
 
 
     def OpenEmbeddedBrowserButton_clicked(self):
-        browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone']
-        for b in browsers:
-            if utils.which(b):
-                os.system("%s http://%s &" % (b, self.cur_device.host))
-                break
-        else:
-            self.FailureUI(self.__tr("<p><b>Unable to load page in browser.</b><p>To load the page manually, lauch a browser and enter the location (URL): http://%s" % self.cur_device.host ))
-                
-
+        utils.openURL("http://%s" % self.cur_device.host)
 
     def PrintButton_clicked(self):
         self.RunCommand(self.cmd_print)

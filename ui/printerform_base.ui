@@ -383,6 +383,27 @@
                             </widget>
                         </grid>
                     </widget>
+                    <widget class="QButtonGroup" row="0" column="1">
+                        <property name="name">
+                            <cstring>buttonGroup4</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Mirror</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>mirrorCheckBox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Enable mirror printing</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -871,9 +892,6 @@
         <slot>refreshToolButton_clicked()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">printerform_base.ui.h</include>
-</includes>
 <slots>
     <slot>addFileButton_clicked()</slot>
     <slot>delFileButton_clicked()</slot>

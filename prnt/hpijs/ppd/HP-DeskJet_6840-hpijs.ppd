@@ -82,7 +82,7 @@ le=- -"
 
 *FoomaticRIPOption Model: enum CmdLine A 100
 *FoomaticRIPOptionSetting Model=HP-DeskJet_6840: " -sDeviceManufacture&&
-r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 5550&quot;"
+r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 5600&quot;"
 *End
 
 *OpenGroup: General/General

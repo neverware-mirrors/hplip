@@ -26,9 +26,18 @@
 # Description: Start/stop script for HP Linux Imaging and Printing (HPLIP)
 ### END INIT INFO
 
+HPIODDIR=
+HPSSDDIR=
+RUNDIR=/var/run
+
 if [ -f /etc/init.d/functions ] ; then
 . /etc/init.d/functions
 else
+
+export PATH="/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin"
+export LC_ALL="POSIX"
+export LANG="POSIX"
+umask 022
 
 daemon() {
    $* >/dev/null 2>&1
@@ -40,8 +49,8 @@ daemon() {
 }
 
 killproc() {
-   pid=`su - root -c "pidof -s $1"`
-   pidfile=/var/run/${1}.pid
+   pid=`pidof -s $1`
+   pidfile=$RUNDIR/${1}.pid
    if [ -z $pid ]; then
       if [ -f $pidfile ]; then
          read pid < $pidfile
@@ -64,9 +73,9 @@ killproc() {
 fi 
 
 mystatus() {
-   pid=`su - root -c "pidof -s $1"`
+   pid=`pidof -s $1`
    if [ -z $pid ]; then
-      pidfile=/var/run/${1}.pid
+      pidfile=$RUNDIR/${1}.pid
       if [ -f $pidfile ]; then
          read pid < $pidfile
       fi      
@@ -82,9 +91,6 @@ mystatus() {
 }
 
 RETVAL=0
-
-HPIODDIR=
-HPSSDDIR=
 
 start() {
         echo -n $"Starting hpiod: "
@@ -114,7 +120,7 @@ stop() {
         RETVAL=$?
         echo
         [ $RETVAL = 0 ] && rm -f /var/lock/subsys/hpssd.py
-        for pidfile in /var/run/*; do
+        for pidfile in $RUNDIR/*; do
 	   case "$( basename $pidfile )" in 
        		hpguid-*.pid)
                    read pid < $pidfile

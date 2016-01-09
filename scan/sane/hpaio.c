@@ -496,9 +496,6 @@ static SANE_Status hpaioConnOpen( hpaioScanner_t hpaio )
                          hpaio->pml.scanToken,
                          hpaio->pml.lenScanToken );
             
-            DBG( 0, "Scan token=\n" );
-            DBG_DUMP( hpaio->pml.scanToken, hpaio->pml.lenScanToken );             
-                         
             if( PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
                                     hpaio->pml.objScanToken, 0, 0 ) == ERROR )
             {
@@ -524,6 +521,7 @@ abort:
 static SANE_Status hpaioConnPrepareScan( hpaioScanner_t hpaio )
 {
     SANE_Status retcode;
+    int i;
 
     DBG( 0,  "\nhpaio: hpaioConnPrepareScan()\n" );
 
@@ -540,7 +538,6 @@ static SANE_Status hpaioConnPrepareScan( hpaioScanner_t hpaio )
 
     //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
     //    {
-        int i;
 
         /* Reserve scanner and make sure it got reserved. */
         SclSendCommand( hpaio->deviceid, hpaio->scan_channelid, SCL_CMD_SET_DEVICE_LOCK, 1 );
@@ -1387,6 +1384,7 @@ static SANE_Status hpaioAdvanceDocument( hpaioScanner_t hpaio )
 //BREAKPOINT;
     
     SANE_Status retcode;
+    int documentLoaded = 0;
 
     DBG( 0,  "\nhpaio: hpaioAdvanceDocument:\n"
                     "beforeScan=%d, already{Pre,Post}AdvancedDocument={%d,%d}, "
@@ -1422,7 +1420,6 @@ static SANE_Status hpaioAdvanceDocument( hpaioScanner_t hpaio )
 
     //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
     //    {
-        int documentLoaded = 0;
 
         retcode = SclInquire( hpaio->deviceid, hpaio->scan_channelid,
                               SCL_CMD_INQUIRE_DEVICE_PARAMETER,

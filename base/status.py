@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.42 $
-# $Date: 2005/08/25 18:08:45 $
+# $Revision: 1.44 $
+# $Date: 2005/10/10 20:38:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -387,8 +387,13 @@ def StatusType3( dev, parsedID ): # LaserJet Status
     result_code, device_status = dev.getPML( pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
     result_code, cover_status = dev.getPML( pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
     result_code,  value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
-    detected_error_state = struct.unpack( 'B', value[0])[0]
+    
+    try:
+        detected_error_state = struct.unpack( 'B', value[0])[0]
+    except IndexError:
+        detected_error_state = pml.DETECTED_ERROR_STATE_OFFLINE_MASK
 
+    
     agents, x = [], 1
 
     while True:
@@ -406,7 +411,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status
                 agent_kind = MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP[a]
                 break
         else:
-            agent_type = AGENT_KIND_UNKNOWN
+            agent_kind = AGENT_KIND_UNKNOWN
 
         # TODO: Deal with printers that return -1 and -2 for level and max (LJ3380)
         
@@ -435,15 +440,18 @@ def StatusType3( dev, parsedID ): # LaserJet Status
         if result_code != ERROR_SUCCESS:
             log.error("Failed")
             break
+        else:
+            log.debug("Colorant index: %d" % colorant_index)
 
         log.debug("OID_MARKER_COLORANT_VALUE_%d" % x)
         oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
         result_code, colorant_value = dev.getPML( oid )
 
         if result_code != ERROR_SUCCESS:
-            log.debug("Failed. Defaulting to black.")
+            log.error("Failed. Defaulting to black.")
             agent_type = AGENT_TYPE_BLACK
-        else:
+        #else:
+        if 1:
             if agent_kind in (AGENT_KIND_MAINT_KIT, AGENT_KIND_ADF_KIT,
                               AGENT_KIND_DRUM_KIT, AGENT_KIND_TRANSFER_KIT):
     

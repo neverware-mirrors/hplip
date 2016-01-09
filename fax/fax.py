@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.3 $
-# $Date: 2005/07/28 16:54:58 $
+# $Revision: 1.4 $
+# $Date: 2005/09/26 20:25:13 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -47,7 +47,7 @@ class FaxAddressBook(KirbyBase):
 
 
     def create(self):
-        return KirbyBase.create(self._fab,
+        return KirbyBase.create(self, self._fab,
             ['name:str',
              'title:str',
              'firstname:str',

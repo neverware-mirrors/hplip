@@ -35,7 +35,6 @@ class Device;
 ******************************************************************************/
 class System
 {
-   int HpiodPortNumber;       /* IP port number */
    pthread_mutex_t mutex;
 
    Device *pDevice[MAX_DEVICE];
@@ -57,8 +56,6 @@ public:
    int Permsd;
    int Reset;
 
-   inline int GetHpiodPortNumber() { return HpiodPortNumber; }
-   int ReadConfig();
    int GetPair(char *buf, char *key, char *value, char **tail);
    int ParseMsg(char *buf, int len, MsgAttributes *ma);
    int ExecuteMsg(SessionAttributes *psa, char *recvBuf, int rlen, char *sendBuf, int slen);
@@ -74,8 +71,8 @@ public:
    int DeviceCleanUp(SessionAttributes *sa);
    int SetPml(int device, int channel, char *snmp_iod, int type, unsigned char *data, int dataLen, char *sendBuf);
    int GetPml(int device, int channel, char *snmp_iod, char *sendBuf);
-   int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result);
-   int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result);
+   int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result);
+   int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result);
    int MakeUriFromIP(char *ip, int port, char *sendBuf);
    int MakeUriFromUsb(char *dnode, char *sendBuf);
    int MakeUriFromPar(char *dnode, char *sendBuf);

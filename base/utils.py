@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.62 $
-# $Date: 2005/09/08 18:23:07 $
+# $Revision: 1.64 $
+# $Date: 2005/09/26 19:58:43 $
 # $Author: dwelch $
 #
 # (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
@@ -1087,7 +1087,7 @@ def usage_options():
 def usage_bus(formatter, space_after=False):
     log.info( formatter.compose( ( "Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>" ) ) )
     log.info( formatter.compose( ( "",
-        "<bus>: cups*, usb*, net, bt, fw, par* (*default) (Note: bw and bt not supported)" ), space_after ) )
+        "<bus>: cups*, usb*, net, bt, fw, par* (*default) (Note: bt and fw not supported in this release.)" ), space_after ) )
 
 def usage_examples():
     log.info(bold("Examples:"))
@@ -1134,3 +1134,14 @@ def all(S,f=lambda x:x):
     return True
 
 
+def openURL(url):
+    browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone']
+    for b in browsers:
+        if which(b):
+            cmd = "%s %s &" % (b, url)
+            #print cmd
+            log.debug(cmd)
+            os.system(cmd)
+            break
+    else:
+        log.warn("Unable to open URL: %s" % url)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $
-# $Date: 2005/07/21 17:31:38 $
-# $Author: dwelch $
+# $Revision: 1.16 $
+# $Date: 2005/09/20 21:07:38 $
+# $Author: dsuffield $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
@@ -143,7 +143,7 @@ log.info( "Performing type %d, level %d cleaning..." % ( clean_type, level ) )
 
 if clean_type in (CLEAN_TYPE_PCL,CLEAN_TYPE_PCL_WITH_PRINTOUT):
     if level == 3:
-        maint.wipeAndSpitType1()
+        maint.wipeAndSpitType1( d )
     elif level == 2:
         maint.primeType1( d )
     else:

@@ -387,10 +387,12 @@ class PSP470Proxy;
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
 class DJGenericVIPProxy;
+class DJ55xxProxy;
 #endif
 
 #ifdef APDK_DJ9xxVIP
 class DJ9xxVIPProxy;
+class OJProKx50Proxy;
 #endif
 
 #ifdef APDK_DJ9xx
@@ -526,10 +528,12 @@ public:
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
     static DJGenericVIPProxy s_DJGenericVIPProxy;
+    static DJ55xxProxy s_DJ55xxProxy;
 #endif
 
 #ifdef APDK_DJ9xxVIP
     static DJ9xxVIPProxy s_DJ9xxVIPProxy;
+    static OJProKx50Proxy s_OJProKx50Proxy;
 #endif
 
 #ifdef APDK_DJ9xx

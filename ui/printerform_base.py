@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/printerform_base.ui'
+# Form implementation generated from reading ui file 'printerform_base.ui'
 #
-# Created: Wed Jun 8 09:21:53 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Mon Oct 3 14:03:00 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.13
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
 
 
@@ -151,6 +150,19 @@ class PrinterForm_base(QDialog):
         orientationButtonGroupLayout.addWidget(self.radioButton6,1,0)
 
         TabPageLayout.addWidget(self.orientationButtonGroup,0,0)
+
+        self.buttonGroup4 = QButtonGroup(self.TabPage,"buttonGroup4")
+        self.buttonGroup4.setColumnLayout(0,Qt.Vertical)
+        self.buttonGroup4.layout().setSpacing(6)
+        self.buttonGroup4.layout().setMargin(11)
+        buttonGroup4Layout = QGridLayout(self.buttonGroup4.layout())
+        buttonGroup4Layout.setAlignment(Qt.AlignTop)
+
+        self.mirrorCheckBox = QCheckBox(self.buttonGroup4,"mirrorCheckBox")
+
+        buttonGroup4Layout.addWidget(self.mirrorCheckBox,0,0)
+
+        TabPageLayout.addWidget(self.buttonGroup4,0,1)
         self.tabWidget3.insertTab(self.TabPage,QString.fromLatin1(""))
 
         self.TabPage_2 = QWidget(self.tabWidget3,"TabPage_2")
@@ -356,6 +368,8 @@ class PrinterForm_base(QDialog):
         self.orientationButtonGroup.setTitle(self.__tr("Orientation"))
         self.radioButton5.setText(self.__tr("Portrait"))
         self.radioButton6.setText(self.__tr("Landscape"))
+        self.buttonGroup4.setTitle(self.__tr("Mirror"))
+        self.mirrorCheckBox.setText(self.__tr("Enable mirror printing"))
         self.tabWidget3.changeTab(self.TabPage,self.__tr("Orientation"))
         self.duplexButtonGroup.setTitle(self.__tr("Automatic Duplex"))
         self.radioButton7.setText(self.__tr("Off"))
@@ -417,11 +431,3 @@ class PrinterForm_base(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("PrinterForm_base",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = PrinterForm_base()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

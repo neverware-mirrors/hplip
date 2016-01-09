@@ -2896,14 +2896,14 @@ DRIVER_ERROR LDLEncap::StartPage ()
     FillLidilHeader (NULL, eLDLLoadPage, (UInt16) mem_needed);
 
     char    mediatype = MEDIATYPE_PLAIN;
-    char    quality   = QUALITYLEVEL_NORMAL;
+    BYTE    quality   = (BYTE) QUALITYLEVEL_NORMAL;
     if (m_cPrintQuality == QUALITY_BEST && m_cMediaType == MEDIA_PHOTO)
     {
         mediatype = MEDIATYPE_PHOTO;
-        quality   = QUALITYLEVEL_BEST;
+        quality   = (BYTE) QUALITYLEVEL_BEST;
     }
     else if (m_cPrintQuality == QUALITY_DRAFT)
-        quality = QUALITYLEVEL_DRAFT;
+        quality = (BYTE) QUALITYLEVEL_DRAFT;
 
     int     index = SIZEOF_LDLHDR;
     m_szCmdBuf[index++] = mediatype;

@@ -43,11 +43,9 @@ System::System()
    char buf[128];
 
    /* Set some defaults. */
-   HpiodPortNumber = 50000;
    DeviceCnt = 0;
    Reset = 0;
 
-   ReadConfig();
    pthread_mutex_init(&mutex, NULL); /* create fast mutex */
 
    for (i=0; i<MAX_DEVICE; i++)
@@ -72,11 +70,11 @@ System::System()
    sin.sin_family = AF_INET;
 //   sin.sin_addr.s_addr = INADDR_ANY;
    sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-   sin.sin_port = htons(GetHpiodPortNumber());
+   sin.sin_port = htons(HpiodPortNumber);
 
    if (bind(Permsd, (struct sockaddr *)&sin, sizeof(sin)) == -1) 
    {
-      syslog(LOG_ERR, "unable to bind socket %d: %m\n", GetHpiodPortNumber());
+      syslog(LOG_ERR, "unable to bind socket %d: %m\n", HpiodPortNumber);
       exit(EXIT_FAILURE);
    }
 
@@ -87,21 +85,21 @@ System::System()
 
    if (listen(Permsd, 20) == -1) 
    {
-      syslog(LOG_ERR, "unable to listen socket %d: %m\n", GetHpiodPortNumber());
+      syslog(LOG_ERR, "unable to listen socket %d: %m\n", HpiodPortNumber);
       exit(EXIT_FAILURE);
    }
 
-   if((fd = open("/var/run/hpiod.port", O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
+   if((fd = open(HpiodPortFile, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
    {
-      syslog(LOG_ERR, "unable create /var/run/hpiod.port: %m\n");
+      syslog(LOG_ERR, "unable create %s: %m\n", HpiodPortFile);
       exit(EXIT_FAILURE);
    }
 
-   len = sprintf(buf, "%d\n", GetHpiodPortNumber());
+   len = sprintf(buf, "%d\n", HpiodPortNumber);
    write(fd, buf, len);
    close(fd);
 
-   syslog(LOG_INFO, "%s accepting connections at %d...\n", VERSION, GetHpiodPortNumber()); 
+   syslog(LOG_INFO, "%s accepting connections at %d...\n", VERSION, HpiodPortNumber); 
 }
 
 System::~System()
@@ -118,37 +116,6 @@ System::~System()
 
    pthread_mutex_destroy(&mutex);
    close(Permsd);
-}
-
-//System::ReadConfig
-//! Read changeable system parameters.
-/*!
-******************************************************************************/
-int System::ReadConfig()
-{
-   char rcbuf[LINE_SIZE]; /* Hold the value read */
-   char section[32];
-   FILE *inFile;
-   char *tail;
-        
-   if((inFile = fopen(RCFILE, "r")) == NULL) 
-   {
-      syslog(LOG_ERR, "unable to open %s: %m\n", RCFILE);
-      return 1;
-   } 
-
-   /* Read the config file */
-   while ((fgets(rcbuf, sizeof(rcbuf), inFile) != NULL))
-   {
-      if (rcbuf[0] == '[')
-         strncpy(section, rcbuf, sizeof(section)); /* found new section */
-      else if ((strncasecmp(section, "[hpiod]", 7) == 0) && (strncasecmp(rcbuf, "port=", 5) == 0))
-         HpiodPortNumber = strtol(rcbuf+5, &tail, 10);
-   }
-        
-   fclose(inFile);
-         
-   return 0;
 }
 
 //System::GetPair
@@ -705,15 +672,14 @@ int System::SnmpErrorToPml(int snmp_error)
    return err;
 }
 
-int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result)
+int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result)
 {
    struct snmp_session session, *ss=NULL;
    struct snmp_pdu *pdu=NULL;
    struct snmp_pdu *response=NULL;
    oid anOID[MAX_OID_LEN];
    size_t anOID_len = MAX_OID_LEN;
-   int len=0;
-   unsigned int i;
+   unsigned int i, len=0;
    uint32_t val;
 
    *result = R_IO_ERROR;
@@ -738,7 +704,7 @@ int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *bu
       case PML_DT_ENUMERATION:
       case PML_DT_SIGNED_INTEGER:
          /* Convert PML big-endian to SNMP little-endian byte stream. */
-         for(i=0, val=0; i<(unsigned int)size && i<sizeof(val); i++)    
+         for(i=0, val=0; i<size && i<sizeof(val); i++)    
             val = ((val << 8) | buffer[i]);
          snmp_pdu_add_variable(pdu, anOID, anOID_len, ASN_INTEGER, (unsigned char *)&val, sizeof(val));
          break;
@@ -773,12 +739,12 @@ bugout:
    return len;
 }
 
-int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result)
+int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result)
 {
    struct snmp_session session, *ss=NULL;
    struct snmp_pdu *pdu=NULL;
    struct snmp_pdu *response=NULL;
-   int i, len=0;
+   unsigned int i, len=0;
    oid anOID[MAX_OID_LEN];
    size_t anOID_len = MAX_OID_LEN;
    struct variable_list *vars;
@@ -817,7 +783,7 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int 
             *type = PML_DT_SIGNED_INTEGER;
 
             /* Convert SNMP little-endian to PML big-endian byte stream. */
-            len = (sizeof(uint32_t) < (unsigned int)size) ? sizeof(uint32_t) : size;
+            len = (sizeof(uint32_t) < size) ? sizeof(uint32_t) : size;
             val = *vars->val.integer;
             for(i=len; i>0; i--)
             {
@@ -837,7 +803,7 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int 
             break;
          case ASN_OCTET_STR:
             *type = PML_DT_STRING;
-            len = (vars->val_len < (unsigned int)size) ? vars->val_len : size;
+            len = (vars->val_len < size) ? vars->val_len : size;
             memcpy(buffer, vars->val.string, len);
             break;
          default:

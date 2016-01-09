@@ -50,6 +50,10 @@
 
 #include "hpiod.h"
 
+int HpiodPortNumber;               /* IP port number */
+char HpiodPidFile[LINE_SIZE];      /* full pid file path */
+char HpiodPortFile[LINE_SIZE];     /* full port file path */
+
 static System *pS;
 
 #ifdef HPIOD_DEBUG
@@ -93,8 +97,7 @@ void sysdump(void *data, int size)
     for(n=1;n<=size;n++) {
         if (n%16 == 1) {
             /* store address for this line */
-            snprintf(addrstr, sizeof(addrstr), "%.4x",
-               (p-(unsigned char *)data) );
+            snprintf(addrstr, sizeof(addrstr), "%.4x", (p-(unsigned char *)data) && 0xffff);
         }
             
         c = *p;
@@ -123,6 +126,52 @@ void sysdump(void *data, int size)
         /* print rest of buffer if not empty */
         syslog(LOG_INFO, "[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
     }
+}
+
+//ReadConfig
+//! Read changeable system parameters.
+/*!
+******************************************************************************/
+int ReadConfig()
+{
+   char rcbuf[LINE_SIZE]; /* Hold the value read */
+   char rundir[LINE_SIZE];
+   char section[32];
+   FILE *inFile;
+   char *tail;
+   int n;
+        
+   /* Set some defaults. */
+   HpiodPortNumber = 50000;
+   HpiodPidFile[0] = 0;
+   HpiodPortFile[0] = 0;
+
+   if((inFile = fopen(RCFILE, "r")) == NULL) 
+   {
+      syslog(LOG_ERR, "unable to open %s: %m\n", RCFILE);
+      return 1;
+   } 
+
+   /* Read the config file */
+   while ((fgets(rcbuf, sizeof(rcbuf), inFile) != NULL))
+   {
+      if (rcbuf[0] == '[')
+         strncpy(section, rcbuf, sizeof(section)); /* found new section */
+      else if ((strncasecmp(section, "[hpiod]", 7) == 0) && (strncasecmp(rcbuf, "port=", 5) == 0))
+         HpiodPortNumber = strtol(rcbuf+5, &tail, 10);
+      else if ((strncasecmp(section, "[dirs]", 6) == 0) && (strncasecmp(rcbuf, "run=", 4) == 0))
+      {
+         strncpy(rundir, rcbuf+4, sizeof(rundir));
+         n = strlen(rundir);
+         rundir[n-1]=0;  /* remove CR */
+         snprintf(HpiodPidFile, sizeof(HpiodPidFile), "%s/%s", rundir, PIDFILE); 
+         snprintf(HpiodPortFile, sizeof(HpiodPortFile), "%s/%s", rundir, PORTFILE); 
+      }
+   }
+        
+   fclose(inFile);
+         
+   return 0;
 }
 
 /*
@@ -253,14 +302,10 @@ int main(int argc, char *argv[])
       }
    }
 
-   if (getegid() != 0)
-   {
-      fprintf(stderr, "invalid group id: Permission denied\n");
-      exit(EXIT_FAILURE);
-   }
+   ReadConfig();
 
    /* Write initial pidfile and lock it. */
-   get_lock(PIDFILE);
+   get_lock(HpiodPidFile);
 
    pid = fork();
    if(pid < 0) 
