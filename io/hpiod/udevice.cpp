@@ -159,10 +159,10 @@ int UniUsbDevice::ReadData(int length, int channel, int timeout, char *sendBuf, 
 }
 
 //UniUsbDevice::NewChannel
-//!  Create channel object given the service name.
+//!  Create channel object given the requested socket id and service name.
 /*!
 ******************************************************************************/
-Channel *UniUsbDevice::NewChannel(unsigned char sockid)
+Channel *UniUsbDevice::NewChannel(unsigned char sockid, char *sn)
 {
    Channel *pC=NULL;
    int i;
@@ -181,7 +181,6 @@ Channel *UniUsbDevice::NewChannel(unsigned char sockid)
          pC->SetSocketID(sockid);
          pChannel[i] = pC;
          ChannelCnt++;
-         ChannelMode = UNI_MODE;
          break;
       }
    }     

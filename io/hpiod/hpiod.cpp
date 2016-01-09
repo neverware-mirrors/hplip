@@ -168,6 +168,9 @@ int ReadConfig()
          snprintf(HpiodPortFile, sizeof(HpiodPortFile), "%s/%s", rundir, PORTFILE); 
       }
    }
+   
+   if (HpiodPidFile[0] == 0)
+      fprintf(stderr, "unable to read 'run' directory in %s: %s %d\n", RCFILE, __FILE__, __LINE__);
         
    fclose(inFile);
          
@@ -189,8 +192,7 @@ static void get_lock(const char* pidfile_name)
       if (((daemon_lockfd = open(pidfile_name, O_RDWR|O_CREAT, 0644)) == -1)
                 || ((daemon_lockfp = fdopen(daemon_lockfd, "r+"))) == NULL) 
       {
-         fprintf(stderr, "can't open or create %s: %s\n", 
-         pidfile_name, strerror(errno));
+         fprintf(stderr, "can't open or create %s: %m %s %d\n", pidfile_name, __FILE__, __LINE__);
          exit(EXIT_FAILURE);
       }
       fcntl(daemon_lockfd, F_SETFD, 1);
@@ -206,11 +208,11 @@ static void get_lock(const char* pidfile_name)
          {
             rewind(daemon_lockfp);
             fscanf(daemon_lockfp, "%d", &otherpid);
-            fprintf(stderr, "can't lock %s, running daemon's pid may be %d\n", pidfile_name, otherpid);
+            fprintf(stderr, "can't lock %s, running daemon's pid may be %d: %s %d\n", pidfile_name, otherpid, __FILE__, __LINE__);
          }
          else
          {
-            fprintf(stderr, "can't lock %s: %s\n", pidfile_name, strerror(errno));
+            fprintf(stderr, "can't lock %s: %m %s %d\n", pidfile_name, __FILE__, __LINE__);
          }
          exit(EXIT_FAILURE);
       }

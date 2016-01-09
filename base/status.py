@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.44 $
-# $Date: 2005/10/10 20:38:55 $
+# $Revision: 1.45 $
+# $Date: 2005/10/20 19:49:16 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -380,164 +380,166 @@ MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP = {
 
 
 def StatusType3( dev, parsedID ): # LaserJet Status
-    dev.openPML()
-    result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
-    result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
-    result_code, printer_status = dev.getPML( pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
-    result_code, device_status = dev.getPML( pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
-    result_code, cover_status = dev.getPML( pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
-    result_code,  value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
-    
     try:
-        detected_error_state = struct.unpack( 'B', value[0])[0]
-    except IndexError:
-        detected_error_state = pml.DETECTED_ERROR_STATE_OFFLINE_MASK
-
-    
-    agents, x = [], 1
-
-    while True:
-        log.debug( "%s Agent: %d %s" % ("*"*10, x, "*"*10))
-        log.debug("OID_MARKER_SUPPLIES_TYPE_%d:" % x)
-        oid = ( pml.OID_MARKER_SUPPLIES_TYPE_x % x, pml.OID_MARKER_SUPPLIES_TYPE_x_TYPE )
-        result_code, value = dev.getPML( oid, pml.INT_SIZE_BYTE )
-
-        if result_code != ERROR_SUCCESS or value is None:
-            log.debug("End of supply information.")
-            break
-
-        for a in MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP:
-            if value == a:
-                agent_kind = MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP[a]
-                break
-        else:
-            agent_kind = AGENT_KIND_UNKNOWN
-
-        # TODO: Deal with printers that return -1 and -2 for level and max (LJ3380)
+        dev.openPML()
+        result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
+        result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
+        result_code, printer_status = dev.getPML( pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
+        result_code, device_status = dev.getPML( pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
+        result_code, cover_status = dev.getPML( pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
+        result_code,  value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
         
-        log.debug("OID_MARKER_SUPPLIES_LEVEL_%d:" % x)
-        oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
-        result_code, agent_level = dev.getPML( oid )
-
-        if result_code != ERROR_SUCCESS:
-            log.error("Failed")
-            break
-        log.debug( 'agent%d-level: %d' % ( x, agent_level ) )
-        log.debug("OID_MARKER_SUPPLIES_MAX_%d:" % x)
-        oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
-        result_code, agent_max = dev.getPML( oid )
-        if agent_max == 0: agent_max = 1
-
-        if result_code != ERROR_SUCCESS:
-            log.debug("Failed")
-            break
-
-        log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
-        log.debug("OID_MARKER_SUPPLIES_COLORANT_INDEX_%d:" % x)
-        oid = ( pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x % x, pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE )
-        result_code, colorant_index = dev.getPML( oid )
-
-        if result_code != ERROR_SUCCESS:
-            log.error("Failed")
-            break
-        else:
-            log.debug("Colorant index: %d" % colorant_index)
-
-        log.debug("OID_MARKER_COLORANT_VALUE_%d" % x)
-        oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
-        result_code, colorant_value = dev.getPML( oid )
-
-        if result_code != ERROR_SUCCESS:
-            log.error("Failed. Defaulting to black.")
-            agent_type = AGENT_TYPE_BLACK
-        #else:
-        if 1:
-            if agent_kind in (AGENT_KIND_MAINT_KIT, AGENT_KIND_ADF_KIT,
-                              AGENT_KIND_DRUM_KIT, AGENT_KIND_TRANSFER_KIT):
+        try:
+            detected_error_state = struct.unpack( 'B', value[0])[0]
+        except IndexError:
+            detected_error_state = pml.DETECTED_ERROR_STATE_OFFLINE_MASK
     
-                agent_type = AGENT_TYPE_UNSPECIFIED
+        
+        agents, x = [], 1
     
+        while True:
+            log.debug( "%s Agent: %d %s" % ("*"*10, x, "*"*10))
+            log.debug("OID_MARKER_SUPPLIES_TYPE_%d:" % x)
+            oid = ( pml.OID_MARKER_SUPPLIES_TYPE_x % x, pml.OID_MARKER_SUPPLIES_TYPE_x_TYPE )
+            result_code, value = dev.getPML( oid, pml.INT_SIZE_BYTE )
+    
+            if result_code != ERROR_SUCCESS or value is None:
+                log.debug("End of supply information.")
+                break
+    
+            for a in MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP:
+                if value == a:
+                    agent_kind = MARKER_SUPPLES_TYPE_TO_AGENT_KIND_MAP[a]
+                    break
             else:
-                agent_type = AGENT_TYPE_NONE
+                agent_kind = AGENT_KIND_UNKNOWN
     
-                if result_code != ERROR_SUCCESS:
-                    log.debug("OID_MARKER_SUPPLIES_DESCRIPTION_%d:" % x)
-                    oid = (pml.OID_MARKER_SUPPLIES_DESCRIPTION_x % x, pml.OID_MARKER_SUPPLIES_DESCRIPTION_x_TYPE)
-                    result_code, colorant_value = dev.getPML( oid )
-                    
+            # TODO: Deal with printers that return -1 and -2 for level and max (LJ3380)
+            
+            log.debug("OID_MARKER_SUPPLIES_LEVEL_%d:" % x)
+            oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
+            result_code, agent_level = dev.getPML( oid )
+    
+            if result_code != ERROR_SUCCESS:
+                log.error("Failed")
+                break
+            log.debug( 'agent%d-level: %d' % ( x, agent_level ) )
+            log.debug("OID_MARKER_SUPPLIES_MAX_%d:" % x)
+            oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
+            result_code, agent_max = dev.getPML( oid )
+            if agent_max == 0: agent_max = 1
+    
+            if result_code != ERROR_SUCCESS:
+                log.debug("Failed")
+                break
+    
+            log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
+            log.debug("OID_MARKER_SUPPLIES_COLORANT_INDEX_%d:" % x)
+            oid = ( pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x % x, pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE )
+            result_code, colorant_index = dev.getPML( oid )
+    
+            if result_code != ERROR_SUCCESS:
+                log.error("Failed")
+                break
+            else:
+                log.debug("Colorant index: %d" % colorant_index)
+    
+            log.debug("OID_MARKER_COLORANT_VALUE_%d" % x)
+            oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
+            result_code, colorant_value = dev.getPML( oid )
+    
+            if result_code != ERROR_SUCCESS:
+                log.error("Failed. Defaulting to black.")
+                agent_type = AGENT_TYPE_BLACK
+            #else:
+            if 1:
+                if agent_kind in (AGENT_KIND_MAINT_KIT, AGENT_KIND_ADF_KIT,
+                                  AGENT_KIND_DRUM_KIT, AGENT_KIND_TRANSFER_KIT):
+        
+                    agent_type = AGENT_TYPE_UNSPECIFIED
+        
+                else:
+                    agent_type = AGENT_TYPE_NONE
+        
                     if result_code != ERROR_SUCCESS:
-                        log.error("Failed")
-                        break
+                        log.debug("OID_MARKER_SUPPLIES_DESCRIPTION_%d:" % x)
+                        oid = (pml.OID_MARKER_SUPPLIES_DESCRIPTION_x % x, pml.OID_MARKER_SUPPLIES_DESCRIPTION_x_TYPE)
+                        result_code, colorant_value = dev.getPML( oid )
+                        
+                        if result_code != ERROR_SUCCESS:
+                            log.error("Failed")
+                            break
+        
+                        if colorant_value is not None:
+                            log.debug("colorant value: %s" % colorant_value)
+                            colorant_value = colorant_value.lower().strip()
+        
+                            for c in COLORANT_INDEX_TO_AGENT_TYPE_MAP:
+                                if colorant_value.find(c) >= 0:
+                                    agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP[c]
+                                    break
+                            else:
+                                agent_type = AGENT_TYPE_UNSPECIFIED
+        
+                    else:
+                        if colorant_value is not None:
+                            log.debug("colorant value: %s" % colorant_value)
+                            agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
+        
+                        if agent_type == AGENT_TYPE_NONE:
+                            if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
+                                agent_type = AGENT_TYPE_BLACK
+                            else:
+                                agent_type = AGENT_TYPE_UNSPECIFIED
+        
+            log.debug("OID_MARKER_STATUS_%d:" % x)
+            oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
+            result_code, agent_status = dev.getPML( oid )
     
-                    if colorant_value is not None:
-                        log.debug("colorant value: %s" % colorant_value)
-                        colorant_value = colorant_value.lower().strip()
+            if result_code != ERROR_SUCCESS:
+                log.error("Failed")
+                agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
+                agent_health = AGENT_HEALTH_OK
+            else:
+                agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
     
-                        for c in COLORANT_INDEX_TO_AGENT_TYPE_MAP:
-                            if colorant_value.find(c) >= 0:
-                                agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP[c]
-                                break
-                        else:
-                            agent_type = AGENT_TYPE_UNSPECIFIED
+                if agent_status is None:
+                    agent_health = AGENT_HEALTH_OK
+    
+                elif agent_status == pml.OID_MARKER_STATUS_OK:
+                    agent_health = AGENT_HEALTH_OK
+    
+                elif agent_status == pml.OID_MARKER_STATUS_MISINSTALLED:
+                    agent_health = AGENT_HEALTH_MISINSTALLED
+    
+                elif agent_status in ( pml.OID_MARKER_STATUS_LOW_TONER_CONT,
+                                       pml.OID_MARKER_STATUS_LOW_TONER_STOP ):
+    
+                    agent_health = AGENT_HEALTH_OK
+                    agent_trigger = AGENT_LEVEL_TRIGGER_MAY_BE_LOW
     
                 else:
-                    if colorant_value is not None:
-                        log.debug("colorant value: %s" % colorant_value)
-                        agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
+                    agent_health = AGENT_HEALTH_OK
     
-                    if agent_type == AGENT_TYPE_NONE:
-                        if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
-                            agent_type = AGENT_TYPE_BLACK
-                        else:
-                            agent_type = AGENT_TYPE_UNSPECIFIED
+            agent_level = int( agent_level/agent_max * 100 )
     
-        log.debug("OID_MARKER_STATUS_%d:" % x)
-        oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
-        result_code, agent_status = dev.getPML( oid )
-
-        if result_code != ERROR_SUCCESS:
-            log.error("Failed")
-            agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
-            agent_health = AGENT_HEALTH_OK
-        else:
-            agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
-
-            if agent_status is None:
-                agent_health = AGENT_HEALTH_OK
-
-            elif agent_status == pml.OID_MARKER_STATUS_OK:
-                agent_health = AGENT_HEALTH_OK
-
-            elif agent_status == pml.OID_MARKER_STATUS_MISINSTALLED:
-                agent_health = AGENT_HEALTH_MISINSTALLED
-
-            elif agent_status in ( pml.OID_MARKER_STATUS_LOW_TONER_CONT,
-                                   pml.OID_MARKER_STATUS_LOW_TONER_STOP ):
-
-                agent_health = AGENT_HEALTH_OK
-                agent_trigger = AGENT_LEVEL_TRIGGER_MAY_BE_LOW
-
-            else:
-                agent_health = AGENT_HEALTH_OK
-
-        agent_level = int( agent_level/agent_max * 100 )
-
-        log.debug("agent%d: kind=%d, type=%d, health=%d, level=%d, level-trigger=%d" % \
-            (x, agent_kind, agent_type, agent_health, agent_level, agent_trigger))
-
-
-        agents.append(
-                    {  'kind' : agent_kind,
-                       'type' : agent_type,
-                       'health' : agent_health,
-                       'level' : agent_level,
-                       'level-trigger' : agent_trigger,
-                    }
-                    )
-
-        x += 1
-
-    dev.closePML()
+            log.debug("agent%d: kind=%d, type=%d, health=%d, level=%d, level-trigger=%d" % \
+                (x, agent_kind, agent_type, agent_health, agent_level, agent_trigger))
+    
+    
+            agents.append(
+                        {  'kind' : agent_kind,
+                           'type' : agent_type,
+                           'health' : agent_health,
+                           'level' : agent_level,
+                           'level-trigger' : agent_trigger,
+                        }
+                        )
+    
+            x += 1
+    
+    finally:
+        dev.closePML()
 
     log.debug( "on_off_line=%d" % on_off_line )
     log.debug( "sleep_mode=%d" % sleep_mode )

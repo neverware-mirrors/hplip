@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
       bug("unable to open device %s\n", uri);
       goto bugout;
    }   
-   if ((channel = hplip_OpenChannel(hd, "hp-card-access")) < 0)
+   if ((channel = hplip_OpenChannel(hd, "HP-CARD-ACCESS")) < 0)
    {
       bug("unable to open hp-card-access channel %s\n", uri);
       goto bugout;
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
    if (pa.WriteProtect)
    {
       hplip_CloseChannel(hd, channel);
-      if ((channel = hplip_OpenChannel(hd, "hp-card-access")) < 0)
+      if ((channel = hplip_OpenChannel(hd, "HP-CARD-ACCESS")) < 0)
       {
          bug("unable to open hp-card-access channel %s\n", uri);
          goto bugout;

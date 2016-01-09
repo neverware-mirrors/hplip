@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.99 $
-# $Date: 2005/10/10 21:38:29 $
+# $Revision: 1.105 $
+# $Date: 2005/11/22 00:53:34 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -505,6 +505,8 @@ class Device(BaseDevice):
                                   {'device-uri' : self.device_uri,})
 
             self.queryModel()
+            
+            return result_code
 
 
     def close(self):
@@ -1079,14 +1081,6 @@ class ServerDevice(BaseDevice):
 
         if self.mq.get('fax-type', FAX_TYPE_NONE) != FAX_TYPE_NONE:
             self.dq.update({ 'fax-uri' : self.device_uri.replace('hp:/', 'hpfax:/')})
-            self.fax_info = None # { job_id : { 'state' : FAX_STATE_*,
-                                 #              'send_timedate' : datetime,
-                                 #              'receip_list' : [list of receip objects],
-                                 #              'options' : option tuple,
-                                 #              'username' : username,
-                                 #              'mh_file' : fax-file,
-                                 #              'send_thread' : thread object,
-                                 # }
 
         if self.mq.get('scan-type', SCAN_TYPE_NONE) != SCAN_TYPE_NONE:
             self.dq.update({ 'scan-uri' : self.device_uri.replace('hp:/', 'hpaio:/')})
@@ -1108,8 +1102,7 @@ class ServerDevice(BaseDevice):
                              short_string, long_string))
 
 
-    def open(self, network_timeout=5):
-        #print "open()"
+    def open(self, network_timeout=3):
         if self.supported and self.io_state in (IO_STATE_HP_READY, IO_STATE_HP_NOT_AVAIL):
             log.debug("Opening device: %s" % self.device_uri)
             prev_device_state = self.device_state
@@ -1120,6 +1113,7 @@ class ServerDevice(BaseDevice):
             self.device_id = -1
 
             if not self.is_local:
+                log.debug("Pinging %s..." % self.host)
                 try:
                     delay = utils.ping(self.host, network_timeout)
                 except socket.error:
@@ -1150,7 +1144,7 @@ class ServerDevice(BaseDevice):
                 log.debug("device-id=%d" % self.device_id)
                 self.io_state = IO_STATE_HP_OPEN
                 self.error_state = ERROR_STATE_CLEAR
-                log.debug("Opened device: %s\n\t(hp=%s,bus=%s,model=%s,dev=%s,serial=%s)" %
+                log.debug("Opened device: %s (hp=%s,bus=%s,model=%s,dev=%s,serial=%s)" %
                           (self.device_uri, self.is_hp, self.bus, self.model, self.dev_file, self.serial))
 
                 if prev_device_state == DEVICE_STATE_NOT_FOUND:
@@ -1184,6 +1178,7 @@ class ServerDevice(BaseDevice):
 
 
     def reserveChannel(self, service_name, channel_id=-1):
+        service_name = service_name.upper()
         try:
             self.channels[service_name]
         except KeyError:
@@ -1192,6 +1187,7 @@ class ServerDevice(BaseDevice):
             pass # TODO: Handle multiple access to single (non PML) channel
 
     def unreserveChannel(self, service_name):
+        service_name = service_name.upper()
         try:
             self.channels[service_name]
         except KeyError:
@@ -1202,7 +1198,7 @@ class ServerDevice(BaseDevice):
     def __openChannel(self, service_name):
         self.open()
 
-        service_name = service_name.lower()
+        service_name = service_name.upper()
 
         if service_name not in self.channels:
             log.debug("Opening %s channel..." % service_name)
@@ -1256,7 +1252,7 @@ class ServerDevice(BaseDevice):
     def __closeChannel(self, service_name):
 
         if self.io_state == IO_STATE_HP_OPEN:
-            service_name = service_name.lower()
+            service_name = service_name.upper()
 
             if service_name in self.channels:
                 log.debug("Closing %s channel..." % service_name)
@@ -1305,11 +1301,13 @@ class ServerDevice(BaseDevice):
             not self.mq.get('io-mode', IO_MODE_UNI) == IO_MODE_UNI:
 
             try:
-                error_code, self.serial = self.getPML(pml.OID_SERIAL_NUMBER)
+                try:
+                    error_code, self.serial = self.getPML(pml.OID_SERIAL_NUMBER)
+                except Error:
+                    self.serial = ''
+            finally:
                 self.closePML()
-            except Error:
-                self.serial = ''
-
+            
         if self.serial is None:
             self.serial = ''
 
@@ -1341,46 +1339,6 @@ class ServerDevice(BaseDevice):
             self.dq = {}
             return
 
-        try:
-            self.getThreeBitStatus()
-        except Error, e:
-            pass
-
-        try:
-            self.getDeviceID()
-        except Error, e:
-            pass
-
-        try:
-            self.getDevFile()
-        except Error, e:
-            pass
-
-        try:
-            status_desc = self.string_query_func(self.status_code)
-        except Error:
-            status_desc = ''
-        
-        self.dq.update({
-            'back-end'         : self.back_end,
-            'is-hp'            : self.is_hp,
-            'serial'           : self.serial,
-            'host'             : self.host,
-            'port'             : self.port,
-            'cups-printers'    : ','.join(self.cups_printers),
-            'status-code'      : self.status_code,
-            'status-desc'      : status_desc,
-            'deviceid'         : self.raw_deviceID,
-            'panel'            : 0,
-            'panel-line1'      : '',
-            'panel-line2'      : '',
-            '3bit-status-code' : self.three_bit_status_code,
-            '3bit-status-name' : self.three_bit_status_name,
-            'device-state'     : self.device_state,
-            'error-state'      : self.error_state,
-            'dev-file'         : self.dev_file,
-            })
-
         r_type = self.mq.get('r-type', 0)
         tech_type = self.mq.get('tech-type', TECH_TYPE_NONE)
         status_type = self.mq.get('status-type', STATUS_TYPE_NONE)
@@ -1391,8 +1349,48 @@ class ServerDevice(BaseDevice):
             status_type = STATUS_TYPE_NONE
         
         agents = []
-
+            
         if self.device_state != DEVICE_STATE_NOT_FOUND:
+            try:
+                self.getThreeBitStatus()
+            except Error, e:
+                pass
+    
+            try:
+                self.getDeviceID()
+            except Error, e:
+                pass
+    
+            try:
+                self.getDevFile()
+            except Error, e:
+                pass
+    
+            try:
+                status_desc = self.string_query_func(self.status_code)
+            except Error:
+                status_desc = ''
+        
+            self.dq.update({
+                'back-end'         : self.back_end,
+                'is-hp'            : self.is_hp,
+                'serial'           : self.serial,
+                'host'             : self.host,
+                'port'             : self.port,
+                'cups-printers'    : ','.join(self.cups_printers),
+                'status-code'      : self.status_code,
+                'status-desc'      : status_desc,
+                'deviceid'         : self.raw_deviceID,
+                'panel'            : 0,
+                'panel-line1'      : '',
+                'panel-line2'      : '',
+                '3bit-status-code' : self.three_bit_status_code,
+                '3bit-status-name' : self.three_bit_status_name,
+                'device-state'     : self.device_state,
+                'error-state'      : self.error_state,
+                'dev-file'         : self.dev_file,
+                })
+
             status_block = {}
 
             if status_type == STATUS_TYPE_NONE:
@@ -1446,7 +1444,10 @@ class ServerDevice(BaseDevice):
                     self.panel_check = bool(self.mq.get('panel-check-type', 0))
 
                 if self.panel_check and status_type != STATUS_TYPE_NONE:
-                    self.panel_check, line1, line2 = status.PanelCheck(self)
+                    try:
+                        self.panel_check, line1, line2 = status.PanelCheck(self)
+                    finally:
+                        self.closePML()
 
                     self.dq.update({'panel'       : int(self.panel_check),
                                       'panel-line1' : line1,
@@ -1456,22 +1457,32 @@ class ServerDevice(BaseDevice):
 
                     if self.r_values is None:
                         try:
-                            r_value = self.getDynamicCounter(140)
+                            try:
+                                r_value = self.getDynamicCounter(140)
+    
+                                if r_value is not None:
+                                    r_value_str = str(r_value)
+                                    r_value_str = ''.join(['0'*(9 - len(r_value_str)), r_value_str])
+                                    rg, rr, r_value = r_value_str[:3], r_value_str[3:], int(rr)
+                                    self.r_values = r_value, r_value_str, rg, rr
+                                else:
+                                    log.error("Error attempting to read r-value (2).")
+                                    r_value = 0
+                            except Error:
+                                log.error("Error attempting to read r-value (1).")
+                                r_value = 0
+                        
+                        finally:
                             self.closePrint()
-                            r_value_str = str(r_value)
-                            r_value_str = ''.join(['0'*(9 - len(r_value_str)), r_value_str])
-                            rg, rr, r_value = r_value_str[:3], r_value_str[3:], int(rr)
-                            self.r_values = r_value, r_value_str, rg, rr
-                        except:
-                            pass
+                        
                     else:
                         r_value, r_value_str, rg, rr = self.r_values
 
             self.dq.update({'r'  : r_value,
-                              'rs' : r_value_str,
-                              'rg' : rg,
-                              'rr' : rr,
-                            })
+                            'rs' : r_value_str,
+                            'rg' : rg,
+                            'rr' : rr,
+                          })
 
             a = 1
             while True:
@@ -1691,7 +1702,7 @@ class ServerDevice(BaseDevice):
 
             self.printData(pcl.buildDynamicCounter(counter), direct=True)
 
-            value, tries, times_seen, sleepy_time, max_tries = 0, 0, 0, 0.1, 20
+            value, tries, times_seen, sleepy_time, max_tries = 0, 0, 0, 0.1, 10
             time.sleep(0.1)
 
             while True:
@@ -1719,7 +1730,7 @@ class ServerDevice(BaseDevice):
 
                 if tries > max_tries:
                     self.printData(pcl.buildDynamicCounter(0), direct=True)
-                    return 0
+                    return None
 
         else:
             raise Error(ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION)

@@ -181,10 +181,10 @@ rjmp:
 }
 
 //JetdirectDevice::NewChannel
-//!  Create channel object given the service name.
+//!  Create channel object given the requested socket id and service name.
 /*!
 ******************************************************************************/
-Channel *JetDirectDevice::NewChannel(unsigned char sockid)
+Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *sn)
 {
    Channel *pC=NULL;
    int i, n;
@@ -195,12 +195,12 @@ Channel *JetDirectDevice::NewChannel(unsigned char sockid)
       if (pChannel[i] != NULL)
       {
          n++;
-         if (sockid == pChannel[i]->GetSocketID())
+         if (strcasecmp(sn, pChannel[i]->GetService()) == 0)
          {
             if (sockid == PML_CHANNEL)
             {
-               pC = pChannel[i];   /* same channel, re-use it (PML only) */
-               pC->SetClientCnt(pC->GetClientCnt()+1);
+               pC = pChannel[i];
+               pC->SetClientCnt(pC->GetClientCnt()+1);    /* same channel, re-use it (PML only) */
             }
             goto bugout;
          }
@@ -218,6 +218,7 @@ Channel *JetDirectDevice::NewChannel(unsigned char sockid)
          pC = new JetDirectChannel(this);
          pC->SetIndex(i);
          pC->SetSocketID(sockid);
+         pC->SetService(sn);
          pChannel[i] = pC;
          ChannelCnt++;
          break;

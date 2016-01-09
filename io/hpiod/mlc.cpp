@@ -28,7 +28,6 @@
 MlcChannel::MlcChannel(Device *pD) : Channel(pD)
 {
    credit = p2hcredit = 0;
-   //   CurrentProtocol = USB_PROTOCOL_712;
    rcnt = rindex = 0;
 }
 
@@ -226,7 +225,7 @@ int MlcChannel::MlcReverseReply(int fd, unsigned char *buf, int bufsize)
       size = sizeof(MLCHeader);
       while (size > 0)
       {
-         if ((len = pDev->Read(fd, pBuf, size, 1, 0)) < 0)   /* wait 1 second */
+         if ((len = pDev->Read(fd, pBuf, size, 2, 0)) < 0)   /* wait 2 second */
          {
             syslog(LOG_ERR, "unable to read MlcReverseReply header: %m %s %d\n", __FILE__, __LINE__);
             stat = 2;  /* short timeout */
@@ -303,7 +302,7 @@ int MlcChannel::MlcInit(int fd)
    MLCInit *pCmd;
    MLCInitReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCInit));
    pCmd = (MLCInit *)buf;
    n = sizeof(MLCInit);
    pCmd->h.length = htons(n);
@@ -359,7 +358,7 @@ int MlcChannel::MlcExit(int fd)
    MLCExit *pCmd;
    MLCExitReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCExit));
    pCmd = (MLCExit *)buf;
    n = sizeof(MLCExit);
    pCmd->h.length = htons(n);
@@ -396,7 +395,7 @@ int MlcChannel::MlcConfigSocket(int fd)
    if (GetH2PSize() > 0)
      return stat;   /* already got host/peripheral packet sizes */
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCConfigSocket));
    pCmd = (MLCConfigSocket *)buf;
    n = sizeof(MLCConfigSocket);
    pCmd->h.length = htons(n);
@@ -561,7 +560,7 @@ int MlcChannel::MlcOpenChannel(int fd)
    MLCOpenChannel *pCmd;
    MLCOpenChannelReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCOpenChannel));
    pCmd = (MLCOpenChannel *)buf;
    n = sizeof(MLCOpenChannel);
    pCmd->h.length = htons(n);
@@ -601,7 +600,7 @@ int MlcChannel::MlcCloseChannel(int fd)
    MLCCloseChannel *pCmd;
    MLCCloseChannelReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCCloseChannel));
    pCmd = (MLCCloseChannel *)buf;
    n = sizeof(MLCCloseChannel);
    pCmd->h.length = htons(n);
@@ -637,7 +636,7 @@ int MlcChannel::MlcCredit(int fd, unsigned short credit)
    MLCCredit *pCmd;
    MLCCreditReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCCredit));
    pCmd = (MLCCredit *)buf;
    n = sizeof(MLCCredit);
    pCmd->h.length = htons(n);
@@ -676,7 +675,7 @@ int MlcChannel::MlcCreditRequest(int fd, unsigned short credit)
    MLCCreditRequest *pCmd;
    MLCCreditRequestReply *pReply;
 
-   memset(buf, 0, sizeof(buf));
+   memset(buf, 0, sizeof(MLCCreditRequest));
    pCmd = (MLCCreditRequest *)buf;
    n = sizeof(MLCCreditRequest);
    pCmd->h.length = htons(n);
@@ -852,7 +851,7 @@ int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *r
    {
       len = (size > dlen) ? dlen : size;
 
-      if (GetH2PCredit() <= 0 && pDev->GetFlowCtl() == MISER)
+      if (GetH2PCredit() == 0 && pDev->GetFlowCtl() == MISER)
       {
          if (MlcCreditRequest(pDev->GetOpenFD(), 1) != 0)  /* Miser flow control */
          {
@@ -900,34 +899,6 @@ bugout:
    sLen = sprintf(sendBuf, res, *result, total);  
    return sLen;
 }
-
-int MlcChannel::CutBuf(char *sendBuf, int length)
-{
-   char res[] =  "msg=ChannelDataInResult\nresult-code=%d\nlength=%d\ndata:\n";
-   int sendLen, total;
-
-   if (rcnt > length)
-   {
-      /* Return part of rbuf. */
-      total = length;
-      sendLen = sprintf(sendBuf, res, R_AOK, total); 
-      memcpy(&sendBuf[sendLen], &rbuf[rindex], total);
-      sendLen += total; 
-      rindex += total;
-      rcnt -= total;
-   }
-   else
-   {
-      /* Return all of rbuf. */
-      total = rcnt;
-      sendLen = sprintf(sendBuf, res, R_AOK, total); 
-      memcpy(&sendBuf[sendLen], &rbuf[rindex], total);
-      sendLen += total; 
-      rindex = rcnt = 0;
-   }
-
-   return sendLen;
-} 
 
 /*
  * ReadData() tries to read "length" bytes from the peripheral. ReadData() reads data in packet size chunks. 

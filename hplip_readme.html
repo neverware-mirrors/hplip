@@ -912,6 +912,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>Undefined</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3000</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 3500</td>
 <td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
 <td>No</td><td>No</td><td>No</td>
@@ -928,11 +932,19 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3600</td>
+<td>No</td><td>Yes</td><td>No</td><td>LJJetReady</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 3700</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP Color LaserJet 3700n</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP Color LaserJet 3800</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJColor</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
@@ -1417,6 +1429,10 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
 <td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
+<td height=17 style='height:12.75pt'>HP LaserJet 1320 series</td>
+<td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
+<td>No</td><td>No</td><td>No</td>
+<td class='xl19'>Yes</td></tr><tr height=17 style='height:12.75pt'>
 <td height=17 style='height:12.75pt'>HP LaserJet 1320n</td>
 <td>No</td><td>Yes</td><td>Yes</td><td>LJMono</td>
 <td>No</td><td>No</td><td>No</td>
@@ -1700,6 +1716,40 @@ your distribution's documentation for setup and usage instructions.
 <hr>
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
+<li>
+<b>HPLIP 0.9.7</b> - This release has the following changes.
+<pre>
+ 1. Added 1284.4 support to hpiod. Previous support was MLC only.
+ 2. Added configure option "--disable-pp-build" to disable parallel port build.
+ 3. Fixed missing $(DESTDIR)/usr/bin directory in Makefile.am.
+ 4. Converted HPLIP to autoconf 2.59.
+ 5. Changed hp-toolbox startup behavior to increase performance.
+ 6. Added checks in messaging code to prevent invalid messages from crashing hpssd.
+ 7. Fixed gcc error when building with "--disable-network-build".
+ 8. Added hp-toolbox PML cleanup code to LJ status code.
+ 9. Fixed clj28xx scanning issue. Mfpdtf buffer was too small libsane-hpaio. This fixes a problem introduced in  HPLIP 0.9.5.
+10. Modified hp-makeuri to allow hostnames for network addresses.
+11. Added support for "alternate n-up" for PS documents to hp-print.
+12. Fixed an issue where the website link for support information is wrong in "HP" tab of "Support Information" dialog.
+13. Fixed an issue setting the scan token in libsane-hpaio.
+14. Fixed an issue where an error occurs while executing the command "hp-check -lnone" in terminal.
+15. Fixed an issue where an exception is caught but the program does not show a correct prompt when running the command "hp-align" with parameter -p.
+16. Fixed System::GetSnmp sigfault in hpiod. This will fix network scanning/hp-toolbox issues in previous HPLIP releases.
+17. Fixed an issue where an error occurs while executing hp-photo after the usb cable was disconnected.
+
+This HPLIP package includes HPIJS 2.1.7 which has the following changes.
+
+ 1. Added configure option "--enable-hplip-build".
+ 2. Converted HPIJS to autoconf 2.59.
+ 3. Fixed OJ K550 typo in HPIJS.
+ 4. Added photo tray support to DJGenericVIP device class. This effects all DJGenericVIP PPD files.
+ 5. Added support for the following new printers.
+
+    HP Color LaserJet 3000 (LJColor/PS)
+    HP Color LaserJet 3600 (LJJetReady)
+    HP Color LaserJet 3800 (LJColor/PS) 
+</pre>
+<p>
 <li>
 <b>HPLIP 0.9.6</b> - This release has the following changes.
 <pre>
@@ -2420,7 +2470,7 @@ hpinkjet.sourceforge.net</a>.
 &#169 2004-2005 Hewlett-Packard Company<br>
 This document is provided "AS IS" without warranties of any kind including warranties of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.
 <br>
-HPLIP 0.9.6, last updated October 10, 2005
+HPLIP 0.9.7, last updated November 15, 2005
 </font>
 </BODY>
 </HTML>

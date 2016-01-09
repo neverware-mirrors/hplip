@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.28 $
-# $Date: 2005/08/18 20:16:49 $
+# $Revision: 1.29 $
+# $Date: 2005/10/13 18:08:12 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -240,7 +240,11 @@ if not device_uri and not printer_name:
         log.error( "Error occured during interactive mode. Exiting." )
         sys.exit(0)
 
-d = device.Device( device_uri, printer_name )
+try:
+    d = device.Device( device_uri, printer_name )
+except Error, e:
+    log.error("Unable to open device: %s" % e.msg)
+    sys.exit(0)
 
 if d.device_uri is None and printer_name:
     log.error( "Printer '%s' not found." % printer_name )

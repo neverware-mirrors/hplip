@@ -183,7 +183,7 @@ class SupportForm_base(QDialog):
         self.setCaption(self.__tr("HP Device Manager - Support Information"))
         self.pushButton4.setText(self.__tr("Close"))
         self.textLabel6.setText(self.__tr("On this HP sponsored website, you will find FAQs, open discussion forums, installation instructions, a product support table, and other support materials."))
-        self.hpinktjetButton.setText(self.__tr("http://hpinket.sourceforge.net"))
+        self.hpinktjetButton.setText(self.__tr("http://hpinkjet.sourceforge.net"))
         self.textLabel2.setText(self.__tr("HPLIP is free, open source software distributed under the MIT, BSD, and GPL licenses.  <b><i>HP does not provide formal consumer or commercial support for this software. </i></b><p>Support is provided informally through a series of resources on the website:"))
         self.textLabel2_2.setText(self.__tr("<b>HP Sponsored Support</b>"))
         self.tabWidget2.changeTab(self.tab,self.__tr("HP"))

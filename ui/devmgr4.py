@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.97 $
-# $Date: 2005/10/06 23:41:48 $
+# $Revision: 1.103 $
+# $Date: 2005/11/21 16:59:06 $
 # $Author: dwelch $
 #
 #
@@ -660,7 +660,7 @@ class devmgr4(DevMgr4_base):
         popup = QPopupMenu(self)
 
         if item is not None:
-            if self.cur_device.error_state == ERROR_STATE_CLEAR:
+            if self.cur_device.error_state not in (ERROR_STATE_BUSY, ERROR_STATE_ERROR):
                 popup.insertItem(self.__tr("Print..."), self.PrintButton_clicked)
 
                 if self.cur_device.scan_type:
@@ -692,13 +692,24 @@ class devmgr4(DevMgr4_base):
         self.setCaption("%s - HP Device Manager" % self.cur_device.model_ui)
 
         if self.cur_device.supported and check_state and not self.rescanning:
+            QApplication.setOverrideCursor(QApplication.waitCursor)
+            result_code = ERROR_DEVICE_NOT_FOUND
+    
             try:
-                self.cur_device.open()
-                self.cur_device.queryDevice()
-                self.cur_device.close()
-            except Error, e:
-                log.warn(e.msg)
+                try:
+                    result_code = self.cur_device.open()
+                except Error, e:
+                    log.warn(e.msg)
+                
+                if result_code != ERROR_SUCCESS:
+                    self.cur_device.error_state = ERROR_STATE_ERROR
+                else:
+                    self.cur_device.queryDevice()
 
+            finally:
+                self.cur_device.close()
+                QApplication.restoreOverrideCursor()
+                
             log.debug("Device state = %d" % self.cur_device.device_state)
             log.debug("Status code = %d" % self.cur_device.status_code)
             log.debug("Error state = %d" % self.cur_device.error_state)
@@ -748,6 +759,7 @@ class devmgr4(DevMgr4_base):
 
     def DeviceListRefresh(self):
         log.debug("Rescanning device list...")
+        QApplication.setOverrideCursor(QApplication.waitCursor)
         #self.deviceRefreshAll.setEnabled(False)
         if not self.rescanning:
             self.rescanning = True
@@ -802,11 +814,13 @@ class devmgr4(DevMgr4_base):
             self.DeviceList.updateGeometry()
             self.DeviceList.setCurrentItem(self.DeviceList.firstItem())
             self.rescanning = False
+            
+            QApplication.restoreOverrideCursor()
 
-            if self.num_devices == 1:
-                self.UpdateDevice(False)
+            if self.num_devices:
+                self.UpdateDevice()
 
-            elif self.num_devices == 0:
+            else: # == 0:
                 self.deviceRescanAction.setEnabled(False)
                 dlg = NoDevicesForm(self, "", True)
                 dlg.show()
@@ -827,13 +841,20 @@ class devmgr4(DevMgr4_base):
                 log.exception()
                 return
 
+            result_code = ERROR_DEVICE_NOT_FOUND
             try:
-                self.cur_device.open()
-                self.cur_device.queryDevice()
+                try:
+                    result_code = self.cur_device.open()
+                    self.cur_device.error_state = ERROR_STATE_CLEAR
+                except Error, e:
+                    log.warn(e.msg)
+                
+                if result_code != ERROR_SUCCESS:
+                    self.cur_device.error_state = ERROR_STATE_ERROR
+            
+            finally:
                 self.cur_device.close()
-            except Error, e:
-                log.warn(e.msg)
-
+                
             self.CheckForDeviceSettingsUI()
 
             icon = self.CreatePixmap()
@@ -1174,18 +1195,23 @@ class devmgr4(DevMgr4_base):
         d = self.cur_device
         ok = False;
         pq_diag = d.pq_diag_type
-        
-        if pq_diag == 1:
-            maint.printQualityDiagType1(d, self.LoadPaperUI)
+        try:
+            if pq_diag == 1:
+                maint.printQualityDiagType1(d, self.LoadPaperUI)
+            
+        finally:
+            d.close()
         
         
     def linefeedCalibration(self):
         d = self.cur_device
         ok = False;
         linefeed_type = d.linefeed_cal_type
-        
-        if linefeed_type == 1:
-            maint.linefeedCalType1(d, self.LoadPaperUI)
+        try:
+            if linefeed_type == 1:
+                maint.linefeedCalType1(d, self.LoadPaperUI)
+        finally:
+            d.close()
 
 
     def EventUI(self, event_code, event_type,
@@ -1370,31 +1396,34 @@ class devmgr4(DevMgr4_base):
         align_type = d.align_type
 
         log.debug(utils.bold("Align: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, align_type, "*"*20)))
-
-        if align_type == ALIGN_TYPE_AUTO:
-            ok = maint.AlignType1(d, self.LoadPaperUI)
-
-        elif align_type == ALIGN_TYPE_8XX:
-            ok = maint.AlignType2(d, self.LoadPaperUI, self.AlignmentNumberUI,
-                                   self.BothPensRequiredUI)
-
-        elif align_type in (ALIGN_TYPE_9XX,ALIGN_TYPE_9XX_NO_EDGE_ALIGN):
-            ok = maint.AlignType3(d, self.LoadPaperUI, self.AlignmentNumberUI,
-                                   self.PaperEdgeUI, align_type)
-
-        elif align_type in (ALIGN_TYPE_LIDIL_0_3_8, ALIGN_TYPE_LIDIL_0_4_3, ALIGN_TYPE_LIDIL_VIP):
-            ok = maint.AlignxBow(d, align_type, self.LoadPaperUI, self.AlignmentNumberUI,
-                                  self.PaperEdgeUI, self.InvalidPenUI, self.ColorAdjUI)
-
-        elif align_type == ALIGN_TYPE_LIDIL_AIO:
-            ok = maint.AlignType6(d, self.AioUI1, self.AioUI2, self.LoadPaperUI)
-
-        elif align_type == ALIGN_TYPE_DESKJET_450:
-            ok = maint.AlignType8(d, self.LoadPaperUI, self.AlignmentNumberUI)
-
-        elif align_type == ALIGN_TYPE_LBOW:
-            ok = maint.AlignType10(d, self.LoadPaperUI, self.Align10UI) 
-
+        
+        try:
+            if align_type == ALIGN_TYPE_AUTO:
+                ok = maint.AlignType1(d, self.LoadPaperUI)
+    
+            elif align_type == ALIGN_TYPE_8XX:
+                ok = maint.AlignType2(d, self.LoadPaperUI, self.AlignmentNumberUI,
+                                       self.BothPensRequiredUI)
+    
+            elif align_type in (ALIGN_TYPE_9XX,ALIGN_TYPE_9XX_NO_EDGE_ALIGN):
+                ok = maint.AlignType3(d, self.LoadPaperUI, self.AlignmentNumberUI,
+                                       self.PaperEdgeUI, align_type)
+    
+            elif align_type in (ALIGN_TYPE_LIDIL_0_3_8, ALIGN_TYPE_LIDIL_0_4_3, ALIGN_TYPE_LIDIL_VIP):
+                ok = maint.AlignxBow(d, align_type, self.LoadPaperUI, self.AlignmentNumberUI,
+                                      self.PaperEdgeUI, self.InvalidPenUI, self.ColorAdjUI)
+    
+            elif align_type == ALIGN_TYPE_LIDIL_AIO:
+                ok = maint.AlignType6(d, self.AioUI1, self.AioUI2, self.LoadPaperUI)
+    
+            elif align_type == ALIGN_TYPE_DESKJET_450:
+                ok = maint.AlignType8(d, self.LoadPaperUI, self.AlignmentNumberUI)
+    
+            elif align_type == ALIGN_TYPE_LBOW:
+                ok = maint.AlignType10(d, self.LoadPaperUI, self.Align10UI) 
+        
+        finally:
+            d.close()
 
 
     def ColorAdjUI(self, line, maximum=0):
@@ -1434,25 +1463,28 @@ class devmgr4(DevMgr4_base):
         ok = False
         log.debug(utils.bold("Color-cal: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, color_cal_type, "*"*20)))
 
-        if color_cal_type == COLOR_CAL_TYPE_DESKJET_450:
-            ok = maint.colorCalType1(d, self.LoadPaperUI, self.ColorCalUI,
-                                 self.PhotoPenRequiredUI)
-
-        elif color_cal_type == COLOR_CAL_TYPE_MALIBU_CRICK:
-            ok = maint.colorCalType2(d, self.LoadPaperUI, self.ColorCalUI2,
-                                         self.InvalidPenUI)
-
-        elif color_cal_type == COLOR_CAL_TYPE_STRINGRAY_LONGBOW_TORNADO:
-            ok = maint.colorCalType3(d, self.LoadPaperUI, self.ColorAdjUI,
-                                         self.PhotoPenRequiredUI2)
-
-        elif color_cal_type == COLOR_CAL_TYPE_CONNERY:
-            ok = maint.colorCalType4(d, self.LoadPaperUI, self.ColorCalUI4,
-                                      self.WaitUI)
-
-        elif color_cal_type == COLOR_CAL_TYPE_COUSTEAU:
-            ok = maint.colorCalType5(d, self.LoadPaperUI)
-
+        try:
+            if color_cal_type == COLOR_CAL_TYPE_DESKJET_450:
+                ok = maint.colorCalType1(d, self.LoadPaperUI, self.ColorCalUI,
+                                     self.PhotoPenRequiredUI)
+    
+            elif color_cal_type == COLOR_CAL_TYPE_MALIBU_CRICK:
+                ok = maint.colorCalType2(d, self.LoadPaperUI, self.ColorCalUI2,
+                                             self.InvalidPenUI)
+    
+            elif color_cal_type == COLOR_CAL_TYPE_STRINGRAY_LONGBOW_TORNADO:
+                ok = maint.colorCalType3(d, self.LoadPaperUI, self.ColorAdjUI,
+                                             self.PhotoPenRequiredUI2)
+    
+            elif color_cal_type == COLOR_CAL_TYPE_CONNERY:
+                ok = maint.colorCalType4(d, self.LoadPaperUI, self.ColorCalUI4,
+                                          self.WaitUI)
+    
+            elif color_cal_type == COLOR_CAL_TYPE_COUSTEAU:
+                ok = maint.colorCalType5(d, self.LoadPaperUI)
+        
+        finally:
+            d.close()
 
     def PrintTestPageButton_clicked(self):
         if self.LoadPaperUI():
@@ -1481,25 +1513,26 @@ class devmgr4(DevMgr4_base):
         clean_type = d.clean_type
         log.debug(utils.bold("Clean: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, clean_type, "*"*20)))
 
-        if clean_type == CLEAN_TYPE_PCL:
-            maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
-                            maint.wipeAndSpitType1, self.LoadPaperUI,
-                            self.CleanUI1, self.CleanUI2, self.CleanUI3,
-                            self.WaitUI)
-
-        elif clean_type == CLEAN_TYPE_LIDIL:
-            maint.cleaning(d, clean_type, maint.cleanType2, maint.primeType2,
-                            maint.wipeAndSpitType2, self.LoadPaperUI,
-                            self.CleanUI1, self.CleanUI2, self.CleanUI3,
-                            self.WaitUI)
-
-        elif clean_type == CLEAN_TYPE_PCL_WITH_PRINTOUT:
-            maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
-                            maint.wipeAndSpitType1, self.LoadPaperUI,
-                            self.CleanUI1, self.CleanUI2, self.CleanUI3,
-                            self.WaitUI)
-
-        #d.close()
+        try:
+            if clean_type == CLEAN_TYPE_PCL:
+                maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
+                                maint.wipeAndSpitType1, self.LoadPaperUI,
+                                self.CleanUI1, self.CleanUI2, self.CleanUI3,
+                                self.WaitUI)
+    
+            elif clean_type == CLEAN_TYPE_LIDIL:
+                maint.cleaning(d, clean_type, maint.cleanType2, maint.primeType2,
+                                maint.wipeAndSpitType2, self.LoadPaperUI,
+                                self.CleanUI1, self.CleanUI2, self.CleanUI3,
+                                self.WaitUI)
+    
+            elif clean_type == CLEAN_TYPE_PCL_WITH_PRINTOUT:
+                maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
+                                maint.wipeAndSpitType1, self.LoadPaperUI,
+                                self.CleanUI1, self.CleanUI2, self.CleanUI3,
+                                self.WaitUI)
+        finally:
+            d.close()
 
 
     def deviceRescanAction_activated(self):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.23 $
-# $Date: 2005/10/07 21:00:04 $
+# $Revision: 1.24 $
+# $Date: 2005/11/10 18:41:26 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
@@ -71,7 +71,12 @@ class tbx_client(async.dispatcher):
     def __init__(self):
         async.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((prop.hpssd_host, prop.hpssd_port)) 
+        try:
+            self.connect((prop.hpssd_host, prop.hpssd_port)) 
+        except socket.error:
+            log.error("Unable to connect to HPLIP I/O. Check and make sure HPLIP is running.")
+            raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
+        
         self.in_buffer = ""
         self.out_buffer = ""
         self.fields = {}
@@ -236,7 +241,7 @@ def main(args):
     try:
         client = tbx_client()
     except Error:
-        log.error("Unable to create client object.")
+        log.error("Aborting.")
         sys.exit(0)
 
     log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))

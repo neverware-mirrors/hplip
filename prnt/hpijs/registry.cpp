@@ -40,8 +40,12 @@
 #include "apollo21xx.h"
 #include "apollo2560.h"
 #include "apollo2xxx.h"
+#ifdef APDK_DJ3320
 #include "dj3320.h"
+#ifdef APDK_DJ3600
 #include "dj3600.h"
+#endif
+#endif
 #include "dj400.h"
 #include "dj6xx.h"
 #include "dj600.h"

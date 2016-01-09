@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.8 $
-# $Date: 2005/10/04 16:33:26 $
+# $Revision: 1.9 $
+# $Date: 2005/10/18 19:55:21 $
 # $Author: dwelch $
 #
 #
@@ -319,7 +319,12 @@ class PrinterForm(PrinterForm_base):
 
         for p, t, d in self.file_list:
 
-            cmd = ' '.join(['lpr -P', self.current_printer])
+            alt_nup = (nup > 1 and t == 'application/postscript' and utils.which('psnup'))
+                
+            if alt_nup:
+                cmd = ' '.join(['psnup', '-%d' % nup, ''.join(['"', p, '"']), '| lpr -P', self.current_printer])
+            else:
+                cmd = ' '.join(['lpr -P', self.current_printer])
 
             if copies > 1:
                 cmd = ' '.join([cmd, '-#%d' % copies])
@@ -343,14 +348,14 @@ class PrinterForm(PrinterForm_base):
                 cmd = ' '.join([cmd, '-o Collate=True'])
 
             if t in ["application/x-cshell",
-                        "application/x-perl",
-                        "application/x-python",
-                        "application/x-shell",
-                        "text/plain",
-                    ]:
+                     "application/x-perl",
+                     "application/x-python",
+                     "application/x-shell",
+                     "text/plain",]:
+                     
                 cmd = ' '.join([cmd, '-o prettyprint'])
 
-            if nup > 1:
+            if nup > 1 and not alt_nup:
                 cmd = ' '.join([cmd, '-o number-up=%d' % nup])
 
             if self.auto_duplex_button_group == 1: # long
@@ -363,11 +368,14 @@ class PrinterForm(PrinterForm_base):
             if self.orientation_button_group == 1:
                 cmd = ' '.join([cmd, '-o landscape'])
 
-            cmd = ''.join([cmd, ' "', p, '"'])
+            if not alt_nup:
+                cmd = ''.join([cmd, ' "', p, '"'])
 
             log.debug("Printing: %s" % cmd)
 
-            os.system(cmd)
+            if os.system(cmd) != 0:
+                log.error("Print command failed.")
+                self.FailureUI(self.__tr("Print command failed."))
 
         del self.file_list[:]
         self.UpdateFileList()

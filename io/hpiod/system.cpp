@@ -299,14 +299,14 @@ int System::GetURIDataLink(char *uri, char *buf, int bufSize)
 
    buf[0] = 0;
 
-   if (strcasestr(uri, "hp:/usb") != NULL)
+   if (strcasestr(uri, ":/usb") != NULL)
    {
       if ((p = strcasestr(uri, "device=")) != NULL)
          p+=7;
       else
          return 0;
    }
-   else if (strcasestr(uri, "hp:/par") != NULL)
+   else if (strcasestr(uri, ":/par") != NULL)
    {
       if ((p = strcasestr(uri, "device=")) != NULL)
          p+=7;
@@ -412,7 +412,10 @@ int System::GeneralizeURI(MsgAttributes *ma)
    int i, len, found=0, result;
    Device *pD;
 
-   if (strcasestr(ma->uri, "hp:/usb") == NULL && strcasestr(ma->uri, "hp:/net") == NULL && strcasestr(ma->uri, "hp:/par") == NULL)
+   if (strcasestr(ma->uri, "hp:") == NULL && strcasestr(ma->uri, "hpfax:") == NULL && strcasestr(ma->uri, "hpaio:") == NULL)
+      return 1;  /* invalid uri */
+
+   if (strcasestr(ma->uri, ":/usb") == NULL && strcasestr(ma->uri, ":/net") == NULL && strcasestr(ma->uri, ":/par") == NULL)
       return 1;  /* invalid uri */
 
    if (strcasestr(ma->uri, "device=") != NULL)
@@ -506,6 +509,7 @@ int System::UsbDiscovery(char *lst, int *cnt)
    return size;
 }
 
+#ifdef HAVE_PPORT
 //System::ParDiscovery
 //! Walk the parallel ports looking for HP products. 
 /*!
@@ -546,6 +550,12 @@ int System::ParDiscovery(char *lst, int *cnt)
 
    return size;
 }
+#else
+int System::ParDiscovery(char *lst, int *cnt)
+{
+   return 0;
+}
+#endif
 
 //System::ProbeDevices
 //!  Perform hp device discovery. Works simultaneously with other open clients.
@@ -792,9 +802,9 @@ int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsi
             }
 
             /* Remove any in-significant bytes. */
-            for (; tmp[i-1]==0 && i<=len; i++)
+            for (; tmp[i]==0 && i<len; i++)
                ;
-            len -= --i;
+            len -= i;
 
             memcpy(buffer, tmp+i, len);
             break;
@@ -826,13 +836,13 @@ bugout:
 
 #else
 
-int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result)
+int System::SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, unsigned int size, int *pml_result, int *result)
 {
    syslog(LOG_ERR, "no JetDirect support enabled\n");
    return 0;
 }
 
-int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result)
+int System::GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, unsigned int size, int *type, int *pml_result, int *result)
 {
    syslog(LOG_ERR, "no JetDirect support enabled\n");
    return 0;
@@ -1225,9 +1235,7 @@ int System::ParseMsg(char *buf, int len, MsgAttributes *ma)
       if (strcasecmp(key, "device-uri") == 0)
       {
          strncpy(ma->uri, value, sizeof(ma->uri));
-         if (!((strncasecmp(ma->uri, "hp:", 3) == 0) &&
-               (strstr(ma->uri, "?") != NULL) &&
-                  (GeneralizeURI(ma) == 0)))
+         if (GeneralizeURI(ma) != 0)
          {
             syslog(LOG_ERR, "invalid uri:%s\n", ma->uri);
             ret = R_INVALID_URI;
@@ -1453,11 +1461,10 @@ Device *System::NewDevice(MsgAttributes *ma)
    {
       if (pDevice[i] == NULL)
       {
-         if (strcasestr(ma->uri, "hp:/usb") != NULL)
+         if (strcasestr(ma->uri, ":/usb") != NULL)
          {
             if (ma->prt_mode == UNI_MODE)
             {
-//               syslog(LOG_INFO, "using uni-di backend for %s\n", ma->uri);
                pD = new UniUsbDevice(this);
             }
             else
@@ -1468,16 +1475,16 @@ Device *System::NewDevice(MsgAttributes *ma)
                pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
             }
          }
-         else if (strcasestr(ma->uri, "hp:/net") != NULL)
+         else if (strcasestr(ma->uri, ":/net") != NULL)
          {
             pD = new JetDirectDevice(this);
             pD->SetScanPort(ma->scan_port);            /* network scan port selection */ 
          }
-         else if (strcasestr(ma->uri, "hp:/par") !=NULL)
+#ifdef HAVE_PPORT
+         else if (strcasestr(ma->uri, ":/par") !=NULL)
          {
             if (ma->prt_mode == UNI_MODE)
             {
-//               syslog(LOG_INFO, "using uni-di backend for %s\n", ma->uri);
                pD = new UniParDevice(this);
             }
             else
@@ -1488,6 +1495,7 @@ Device *System::NewDevice(MsgAttributes *ma)
                pD->SetFlowCtl(ma->flow_ctl);              /* flow control for mfp mode */
             }
          }
+#endif
          else
          {
             goto bugout;

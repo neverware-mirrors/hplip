@@ -27,9 +27,9 @@ hp_LDADD = libhplip-api.la
 
 # hpiod
 sbin_PROGRAMS = hpiod
-hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp\
-    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h\
-    io/hpiod/system.h 
+hpiod_SOURCES = io/hpiod/hpiod.cpp io/hpiod/channel.cpp io/hpiod/device.cpp io/hpiod/mlc.cpp io/hpiod/system.cpp io/hpiod/jddevice.cpp io/hpiod/jetdirect.cpp \
+    io/hpiod/udevice.cpp io/hpiod/uppdevice.cpp io/hpiod/ppdevice.cpp io/hpiod/pp.cpp io/hpiod/channel.h io/hpiod/device.h io/hpiod/hpiod.h io/hpiod/mlc.h \
+    io/hpiod/system.h io/hpiod/dot4.cpp io/hpiod/ppdot4.cpp io/hpiod/dot4.h
 
 # base
 basedir = $(hplipdir)/base
@@ -143,11 +143,11 @@ dist_plugins_SCRIPTS = plugins/dj450.py plugins/__init__.py plugins/powersetting
 
 build-pcardext: 
 	cd pcard/pcardext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 build-cupsext: 
 	cd prnt/cupsext; \
-	python setup.py build
+	$(PYTHON) setup.py build
 
 install-exec-hook: test-destdir
 #
@@ -200,17 +200,17 @@ install-data-hook: test-destdir
 #       Install pcard extension.
 	cd pcard/pcardext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install; \
+	   $(PYTHON) setup.py install; \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 #
 #       Install cups extension.
 	cd prnt/cupsext; \
 	if [ "$(DESTDIR)" = "" ]; then \
-	   python setup.py install; \
+	   $(PYTHON) setup.py install; \
 	else \
-	   python setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
+	   $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix); \
 	fi
 ##
 #       Remove .py extensions in destdir and if not rpm_install create hp-xxx commands in bindir.
@@ -238,13 +238,18 @@ install-data-hook: test-destdir
 	   if [ -d $(DESTDIR)/etc/init.d ]; then \
 	      $(INSTALL_SCRIPT) $(DESTDIR)$(hplipdir)/$(PACKAGE) $(DESTDIR)/etc/init.d; \
 	      if [ "$(DESTDIR)" = "" ]; then \
-	         if [ -x $(LSB_INSTALL_PATH)/install_initd ]; then \
-	            $(LSB_INSTALL_PATH)/install_initd $(PACKAGE); \
+	         if [ "$(INSTALLINITD)" != "" ]; then \
+	            $(INSTALLINITD) $(PACKAGE); \
 	         else \
-	            $(CHKCONFIG_PATH)/chkconfig $(PACKAGE) reset; \
+	            $(CHKCONFIG) $(PACKAGE) reset; \
 	         fi \
 	      fi \
 	   fi \
+	fi
+#
+#       For internal testing.
+	if [ "$(SHADOW)" != "" ]; then \
+	   cp -f data/xml/unreleased/*.xml $(DESTDIR)$(hplipdir)/data/xml/; \
 	fi
 
 #
@@ -258,6 +263,7 @@ test-destdir:
 	   fi; \
 	   $(mkinstalldirs) $(DESTDIR)$(sanedir); \
 	   $(mkinstalldirs) $(DESTDIR)/usr/share/applications; \
+	   $(mkinstalldirs) $(DESTDIR)/usr/bin; \
 	fi
 
 dist-hook:

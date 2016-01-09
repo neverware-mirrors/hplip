@@ -25,8 +25,8 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # ======================================================================
 #
-# $Revision: 1.10 $ 
-# $Date: 2005/10/07 20:57:07 $
+# $Revision: 1.11 $ 
+# $Date: 2005/10/28 18:34:16 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -190,7 +190,7 @@ class dispatcher( QObject ):
         err = self.socket.connect_ex( address )
         
         if err in ( EINPROGRESS, EALREADY, EWOULDBLOCK ):
-            print "1"
+            #print "1"
             r, w, e = select.select([], [self.socket.fileno()], [], 5.0)
             err = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
         if err in (0, EISCONN):

@@ -275,6 +275,8 @@ dDEVICEHEIGHTPOINTS=567"
 *DefaultInputSlot: Default
 *InputSlot Default/Printer default: "%% FoomaticRIPOptionSetting: InputSlot=Default"
 *FoomaticRIPOptionSetting InputSlot=Default: ",PS:MediaPosition=7"
+*InputSlot PhotoTray/Photo Tray: "%% FoomaticRIPOptionSetting: InputSlot=PhotoTray"
+*FoomaticRIPOptionSetting InputSlot=PhotoTray: ",PS:MediaPosition=6"
 *InputSlot Upper/Upper Tray: "%% FoomaticRIPOptionSetting: InputSlot=Upper"
 *FoomaticRIPOptionSetting InputSlot=Upper: ",PS:MediaPosition=1"
 *InputSlot Lower/Lower Tray: "%% FoomaticRIPOptionSetting: InputSlot=Lower"
