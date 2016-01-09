@@ -1728,10 +1728,7 @@ def StatusType10(func): # Low End Data Model
 			
         elif e.text == "insertOrCloseTray": 
             status_block['status-code'] = STATUS_PRINTER_TRAY_2_3_DOOR_OPEN
-			
-        elif e.text == "failedPrintHead" or e.text == "incompatiblePrintHead":
-            status_block['status-code'] =  STATUS_PRINTER_PRINTHEAD_MISSING 
-			
+
         elif e.text == "inkTooLowToPrime":
             status_block['status-code'] = STATUS_PRINTER_INK_TOO_LOW_TO_PRIME
 			
@@ -1764,5 +1761,8 @@ def StatusType10(func): # Low End Data Model
 
         elif e.text == "unexpectedTypeInTray":
             status_block['status-code'] = STATUS_PRINTER_MEDIA_TYPE_MISMATCH
+
+        elif e.text == "manuallyFeed":
+            status_block['status-code'] = STATUS_MANUALLY_FEED
 
     return status_block
