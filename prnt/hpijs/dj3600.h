@@ -64,8 +64,10 @@ public:
         "Deskjet 3845\0"
 #ifdef APDK_MLC_PRINTER
 		"officejet 5500\0"
+        "Officejet 5600\0"
 		"psc 1300\0"
 		"psc 1310\0"
+        "PSC 1400\0"
 #endif
     ) {m_iPrinterType = eDJ3600;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ3600(pSS); }

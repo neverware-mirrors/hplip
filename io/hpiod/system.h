@@ -44,7 +44,8 @@ class System
    int DelDevice(int i);
 
    int UsbDiscovery(char *list, int *cnt);
-   int ProbeDevices(char *sendBuf);
+   int ParDiscovery(char *list, int *cnt);
+   int ProbeDevices(char *sendBuf, char *bus);
    int PmlOidToHex(char *szoid, unsigned char *oid, int oidSize);
    int SnmpToPml(char *snmp_oid, unsigned char *oid, int oidSize);
    int SnmpErrorToPml(int snmp_error);
@@ -66,8 +67,6 @@ public:
    int GetURISerial(char *uri, char *buf, int bufSize);
    int GeneralizeURI(MsgAttributes *ma);
    int ModelQuery(char *uri, MsgAttributes *ma);
-   int Write(int fd, const void *buf, int size);
-   int Read(int fd, void *buf, int size, int sec=EXCEPTION_TIMEOUT, int usec=0);
    int IsHP(char *id);
    int IsUdev(char *dnode);
    int GetModel(char *id, char *buf, int bufSize);
@@ -78,7 +77,8 @@ public:
    int GetSnmp(char *ip, int port, char *szoid, unsigned char *buffer, int size, int *type, int *pml_result, int *result);
    int SetSnmp(char *ip, int port, char *szoid, int type, unsigned char *buffer, int size, int *pml_result, int *result);
    int MakeUriFromIP(char *ip, int port, char *sendBuf);
-   int MakeUriFromDevice(char *dnode, char *sendBuf);
+   int MakeUriFromUsb(char *dnode, char *sendBuf);
+   int MakeUriFromPar(char *dnode, char *sendBuf);
 
 }; //System
 

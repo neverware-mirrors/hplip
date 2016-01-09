@@ -171,16 +171,74 @@ int UXServices::ProcessRaster(char *raster, char *k_raster)
     }
 }
 
+/*
+ *  Check models.xml for bi-di flag and also check the
+ *  device id string for integrity. Some devices return
+ *  device id without some expected fields.
+ *
+ */
+
+BOOL UXServices::CanDoBiDi ()
+{
+    char            *hpDev;
+    MsgAttributes   ma;
+    char            strDevID[512];
+
+    // Check for CUPS environment
+
+    if ((hpDev = getenv ("DEVICE_URI")) == NULL)
+    {
+        return FALSE;
+    }
+
+    // Check for HP Backend
+
+    if (strncmp (hpDev, "hp:", 3))
+    {
+        return FALSE;
+    }
+    hplip_Init ();
+
+    // Check io-mode in models.xml for this device
+
+    hplip_ModelQuery (hpDev, &ma);
+    if (ma.prt_mode == UNI_MODE)
+    {
+        return FALSE;
+    }
+    if ((hpFD = hplip_OpenHP (hpDev, &ma)) < 0)
+    {
+        return FALSE;
+    }
+    memset (strDevID, 0, 512);
+    if ((ReadDeviceID ((BYTE *) strDevID, 512)) != NO_ERROR)
+    {
+        return FALSE;
+    }
+
+    // Check if this is a laser device
+    if (strstr (strDevID, "Laser") || strstr (strDevID, "laser"))
+    {
+        return TRUE;
+    }
+
+    // Check if device id is complete
+    if (!(strstr (strDevID, ";S:")) && !(strstr (strDevID, "VSTATUS")))
+    {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 UXServices::UXServices():SystemServices()
 {
-   char *hpDev;
-   MsgAttributes ma;
-
    constructor_error = NO_ERROR;
    hpFD = -1;
 
    // instead of InitDeviceComm(), just do...
    IOMode.bDevID = IOMode.bStatus = FALSE;   /* uni-di support is default */
+
+#if 0 // Old code
 
    /* Check for CUPS environment and HP backend. */
    if ((hpDev = getenv("DEVICE_URI")) != NULL)
@@ -192,11 +250,24 @@ UXServices::UXServices():SystemServices()
          if (ma.prt_mode != UNI_MODE)
          {
             if ((hpFD = hplip_OpenHP(hpDev, &ma)) >= 0)
-               InitDeviceComm();            /* lets try bi-di support */
+            {
+                InitDeviceComm();            /* lets try bi-di support */
+            }
             if(IOMode.bDevID == FALSE)
                bug("unable to set bi-di for hp backend\n");
          }
       }
+   }
+
+#endif // Old code
+
+   if (CanDoBiDi ())
+   {
+       InitDeviceComm ();
+       if (IOMode.bDevID == FALSE)
+       {
+           bug ("Unable to set bi-di for hp backend\n");
+       }
    }
 
    Quality = 0;     /* normal */

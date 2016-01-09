@@ -47,10 +47,6 @@
 #include <netdb.h>
 #include <ctype.h>
 
-#include "sane.h"
-#include "pml.h"
-#include "hplip_api.h"
-
 // Uncomment the following line to get verbose debugging output
 //#define HPAIO_DEBUG
 
@@ -91,8 +87,8 @@ int ResetDevices( SANE_Device *** devices );
 int SendScanEvent( char * device_uri, int event, char * type );
 int GetScannerType( SANE_String model );
 int ProbeDevices( SANE_Device *** devices );
-int GetPml(int hd, int channel, char *oid, char *buf, int size, int *type, int *pml_result);
-int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *pml_result);
+int GetPml(int hd, int channel, char *oid, char *buf, int size, int *result, int *type, int *pml_result);
+int SetPml(int hd, int channel, char *oid, int type, char *buf, int size, int *result, int *pml_result);
 int ReadChannelEx(int deviceid, int channelid, unsigned char * buffer, int length, int timeout);
 
 #endif

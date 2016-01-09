@@ -281,9 +281,9 @@ int DevDiscovery(char *uri, int urisize)
       if (ma.ndevice == 1)
       {
          /* Only one device connected make this the default uri. */
-         for (i=0; (strncmp(&ma.data[i], "hp:", 3) != 0) && (i < LINE_SIZE); i++)  /* find start of uri */
+         for (i=0; (strncmp((char *)&ma.data[i], "hp:", 3) != 0) && (i < LINE_SIZE); i++)  /* find start of uri */
             ;
-         pBeg = ma.data + i;
+         pBeg = (char *)ma.data + i;
          for (i=0; *pBeg != ' ' && (i < urisize); i++, pBeg++)  /* copy uri */
             uri[i] = *pBeg;
          uri[i] = 0;      /* zero terminate */

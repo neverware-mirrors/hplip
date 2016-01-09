@@ -2,7 +2,7 @@
 
   mfpdtf.c - HP Multi-Function Peripheral Data Transfer Format filter.
 
-  (c) 2001-2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2001-2005 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -21,8 +21,7 @@
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  Current Author: Don Welch
-  Contributing Author: David Paschal
+  Contributing Author(s): David Paschal, Don Welch, David Suffield
 
 \************************************************************************************/
 
@@ -477,17 +476,11 @@ int MfpdtfReadGeneric( Mfpdtf_t mfpdtf, unsigned char * buffer, int datalen )
                         datalen,
                         mfpdtf->logOffset );
         
-        /*r = ReadChannelEx( mfpdtf->deviceid, 
-                           mfpdtf->channelid, 
-                           buffer, 
-                           datalen, 
-                           -1 );*/
-
         r = ReadChannelEx( mfpdtf->deviceid, 
                            mfpdtf->channelid, 
                            buffer, 
                            datalen, 
-                           -1 );
+                           EXCEPTION_TIMEOUT );
 
         DBG( 0, "read len=%d\n", r );        
         DBG_DUMP( buffer, r );
@@ -571,4 +564,37 @@ int MfpdtfReadInnerBlock( Mfpdtf_t mfpdtf,
     return countup;
 }
 
-/* TODO: Implement write. */
+/*
+ * Phase 2 rewrite. des
+ */
+
+int read_mfpdtf_block(int device, int channel, char *buf, int bufSize, int timeout)
+{
+   MFPDTF_FIXED_HEADER *phd = (MFPDTF_FIXED_HEADER *)buf;
+   int size, bsize=0, len;
+
+   /* Read fixed header with timeout in seconds. */
+   size = sizeof(MFPDTF_FIXED_HEADER);
+   if ((len = hplip_ReadHP(device, channel, buf, size, timeout)) != size)
+      goto bugout;
+
+   bsize = letoh32(phd->BlockLength);
+   if (bsize > bufSize)
+   {
+      bug("invalid bufsize: size=%d max=%d ReadMfpdtfBlock %s %d\n", bsize, bufSize, __FILE__, __LINE__);
+      bsize = -1;
+      goto bugout;
+   }
+
+   size = bsize - sizeof(MFPDTF_FIXED_HEADER);
+   if ((len = ReadChannelEx(device, channel, (unsigned char *)buf+sizeof(MFPDTF_FIXED_HEADER), size, 5)) != size)
+   {
+      bug("invalid read: exp=%d act=%d ReadMfpdtfBlock %s %d\n", size, len, __FILE__, __LINE__);
+      bsize = -1;
+      goto bugout;
+   }
+
+bugout:
+   return bsize;
+}
+

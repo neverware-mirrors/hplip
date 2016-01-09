@@ -2,7 +2,7 @@ docdir	= $(datadir)/doc/$(distdir)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_4_12
+APDKLABEL=HPLIP-0_9_5_2
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -48,7 +48,7 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp \
 	halftoner_open.h header.h hpijs.h hpprint_c_api.h \
 	hpprintapi.h hptypes.h htfed.h ijs.h ijs_server.h internal.h \
 	interp.h interp_data_50.h io_defs.h job.h models.h modes.h pmselect.h \
-	printer.h psp100.h resources.h scaler_open.h scaler_prop.h script.h services.h \
+	printer.h psp100.h psp470.h resources.h scaler_open.h scaler_prop.h script.h services.h \
 	systemservices.h unistd_.h ijs_client.h djgenericvip.h ljmono.h ljmono.cpp \
 	dj3320.cpp dj3320.h dj3320_cmap.cpp dj3600.cpp dj3600.h dj3600_cmap.cpp ldlencap.h \
 	ljcolor.cpp ljcolor.h pscript.h hpiom.c hpiom.h \
@@ -139,6 +139,9 @@ get-ppd:
 	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
 	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
 	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
 
 get-ppd-tip:
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
@@ -172,6 +175,9 @@ get-ppd-tip:
 	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
 	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
 	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
 
 get-ppd-user:
 	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co -r $(FOOMATICLABEL) foomatic-db-engine
@@ -205,6 +211,9 @@ get-ppd-user:
 	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
 	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
 	rm -fr www.linuxprinting.org
+	sed -e 's/DefaultInputSlot: Default/DefaultInputSlot: Upper/' < ppd/HP-PhotoSmart_8700-hpijs.ppd > ppd/ppd.tmp
+	rm ppd/HP-PhotoSmart_8700-hpijs.ppd
+	mv ppd/ppd.tmp ppd/HP-PhotoSmart_8700-hpijs.ppd
 
 get-foomatic:
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co -r $(FOOMATICLABEL) foomatic-db-engine

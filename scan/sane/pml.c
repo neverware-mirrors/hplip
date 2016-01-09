@@ -2,7 +2,7 @@
 
   pml.c - HP SANE backend for multi-function peripherals (libsane-hpaio)
 
-  (c) 2001-2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2001-2005 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -21,8 +21,7 @@
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  Current Author: Don Welch
-  Original Author: David Paschal 
+  Contributing Author(s): David Paschal, Don Welch, David Suffield
 
 \************************************************************************************/
 
@@ -59,8 +58,6 @@ int PmlSetID( PmlObject_t obj, char * oid )
     //DBG( 0,  "PmlSetID(obj=0x%8.8X) returns OK.\n", obj );
     return OK;
 }
-
-
 
 int PmlSetAsciiID( PmlObject_t obj, char * s )
 {
@@ -337,7 +334,7 @@ int PmlGetStringValue( PmlObject_t obj,
         return ERROR;
     }
 
-    len = PmlGetPrefixValue( obj, &type, prefix, 2, buffer, maxlen );
+    len = PmlGetPrefixValue( obj, &type, (char *)prefix, 2, buffer, maxlen );
     if( len == ERROR )
     {
         return ERROR;
@@ -361,7 +358,7 @@ int PmlGetIntegerValue( PmlObject_t obj, int * pType, int * pValue )
         pType = &type;
     }
 
-    len = PmlGetPrefixValue( obj, pType, 0, 0, svalue, sizeof( int ) );
+    len = PmlGetPrefixValue( obj, pType, 0, 0, (char *)svalue, sizeof( int ) );
     /*if( len == ERROR )
             {
                 return ERROR;
@@ -415,7 +412,7 @@ int PmlReadReply( /*ptalDevice_t dev,*/
                   int request )
 {
     //return ptalChannelRead( dev->pmlChannel, data, maxDatalen );
-    return hplip_ReadHP( deviceid, channelid, data, maxDatalen, -1 );
+  return hplip_ReadHP( deviceid, channelid, (char *)data, maxDatalen, EXCEPTION_TIMEOUT );
 
     /* TODO: Check for and handle traps. */
 }
@@ -423,71 +420,702 @@ int PmlReadReply( /*ptalDevice_t dev,*/
 int PmlRequestSet( int deviceid, int channelid, PmlObject_t obj )
 {
     unsigned char data[PML_MAX_DATALEN];
-    int datalen=0, status=ERROR, type, pml_result;
+    int datalen=0, status=ERROR, type, result, pml_result;
 
     DBG( 0,  "PmlRequestSet(obj=0x%8.8X)\n", obj );
 
     PmlSetStatus(obj, PML_ERROR);
                 
-    datalen = PmlGetValue(obj, &type, data, sizeof(data));
+    datalen = PmlGetValue(obj, &type, (char *)data, sizeof(data));
 
-    datalen = SetPml(deviceid, channelid, obj->oid, type, data, datalen, &pml_result); 
+    datalen = SetPml(deviceid, channelid, obj->oid, type, (char *)data, datalen, &result, &pml_result); 
 
-    if (datalen > 0)
-    {
-        PmlSetStatus(obj, pml_result);
+    PmlSetStatus(obj, pml_result);
+
+    if (result == OK)
         status = OK;
-    }
 
-    return status;
+    return status;  /* OK = valid I/O result */
 }
 
 int PmlRequestSetRetry( int deviceid, int channelid, PmlObject_t obj, int count, int delay )
 {
-    int r = ERROR;
+   int stat=ERROR, r;
 
-    if( count <= 0 )
-    {
-        count = 20;
-    }
-    if( delay <= 0 )
-    {
-        delay = 2;
-    }
-    while( 1 )
-    {
-        r = PmlRequestSet( deviceid, channelid, obj );
-        
-        if( r != ERROR || count <= 0 ||
-            ( PmlGetStatus( obj ) != PML_ERROR_ACTION_CAN_NOT_BE_PERFORMED_NOW ) )
-        {
-            break;
-        }
-        sleep( delay );
-        count--;
-    }
+   if(count <= 0)
+   {
+      count = 10;
+   }
+   if(delay <= 0)
+   {
+      delay = 1;
+   }
+   while( 1 )
+   {
+      if ((r = PmlRequestSet(deviceid, channelid, obj)) == ERROR)
+         goto bugout;
+      if (PmlGetStatus(obj) == PML_ERROR_ACTION_CAN_NOT_BE_PERFORMED_NOW && count > 0)
+      {
+         sleep(delay);
+         count--;
+         continue;
+      }
+      break;
+   }
 
-    return r;
+   /* Check PML result. */
+   if (PmlGetStatus(obj) & PML_ERROR)
+      goto bugout;
+
+   stat = OK; 
+
+bugout:
+   return stat;  /* OK = valid I/O result AND PML result */
 }
 
 int PmlRequestGet( int deviceid, int channelid, PmlObject_t obj ) 
 {
     unsigned char data[PML_MAX_DATALEN];
-    int datalen=0, status=ERROR, type, pml_result;
+    int datalen=0, stat=ERROR, result, type, pml_result;
 
     DBG( 0,  "PmlRequestGet(obj=0x%8.8X)\n", obj );
     
-    PmlSetStatus(obj, PML_ERROR);
-                
-    datalen = GetPml(deviceid, channelid, obj->oid, data, sizeof(data), &type, &pml_result); 
+    datalen = GetPml(deviceid, channelid, obj->oid, (char *)data, sizeof(data), &result, &type, &pml_result); 
 
-    if (datalen > 0)
+    PmlSetStatus(obj, pml_result);
+
+    if (result == OK)
     {
-        PmlSetStatus(obj, pml_result);
-        PmlSetValue(obj, type, data, datalen);
-        status = OK;
+      PmlSetValue(obj, type, (char *)data, datalen);
+       stat = OK;
     }
 
-    return status;
+    return stat;  /* OK = valid I/O result */
 }
 
+/*
+ * Phase 2 rewrite. des
+ */
+
+/* Unlock Scanner. */
+int clr_scan_token(HPAIO_RECORD *hpaio)
+{
+   int len, i, stat=ERROR;
+   int max = sizeof(hpaio->pml.scanToken);
+
+   if (PmlRequestGet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken) == ERROR)
+      goto bugout;
+   len = PmlGetValue(hpaio->pml.objScanToken, 0, hpaio->pml.scanToken, max);
+
+   if (len != 0)     
+   {
+      /* Zero token. */
+      len = (len > max) ? max : len; 
+      for(i=0; i<len; i++)
+         hpaio->pml.scanToken[i] = 0;
+      hpaio->pml.lenScanToken = len;
+      if (PmlSetValue(hpaio->pml.objScanToken, PML_TYPE_BINARY, hpaio->pml.scanToken, len) == ERROR)
+         goto bugout;
+      if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken) == ERROR)
+         goto bugout;
+   }
+
+   stat = OK;
+
+bugout:
+   return stat;
+}
+
+/* Lock Scanner. */
+int set_scan_token(HPAIO_RECORD *hpaio)
+{
+   char token[] = "555";
+   int stat=ERROR;
+
+   /* Make sure token==0. */
+   if (clr_scan_token(hpaio) == ERROR)
+      goto bugout;
+
+   if (PmlSetValue(hpaio->pml.objScanToken, PML_TYPE_BINARY, token, sizeof(token)) == ERROR)
+      goto bugout;
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken) == ERROR)
+      goto bugout;
+
+   stat = OK;
+
+bugout:
+   return stat;
+}
+
+int set_scan_parameters(HPAIO_RECORD *hpaio)
+{
+   int pixelDataType, stat=ERROR;
+   struct PmlResolution resolution;
+   int copierReduction = 100;
+   int compression;
+
+   hpaio->effectiveScanMode = hpaio->currentScanMode;
+   hpaio->effectiveResolution = hpaio->currentResolution;
+
+   /* Set upload timeout. */
+   PmlSetIntegerValue(hpaio->pml.objUploadTimeout, PML_TYPE_SIGNED_INTEGER, PML_UPLOAD_TIMEOUT);
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadTimeout) == ERROR)
+      goto bugout;
+
+   /* Set pixel data type. */
+   switch(hpaio->currentScanMode)
+   {
+      case SCAN_MODE_LINEART:
+         pixelDataType = PML_DATA_TYPE_LINEART;
+         break;
+      case SCAN_MODE_GRAYSCALE:
+         pixelDataType = PML_DATA_TYPE_GRAYSCALE;
+         break;
+      case SCAN_MODE_COLOR:
+      default:
+         pixelDataType = PML_DATA_TYPE_COLOR;
+         break;
+   }
+   PmlSetIntegerValue(hpaio->pml.objPixelDataType, PML_TYPE_ENUMERATION, pixelDataType);
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objPixelDataType) == ERROR)
+      goto bugout;
+
+   /* Set resolution. */
+   BEND_SET_LONG(resolution.x, hpaio->currentResolution << 16);
+   BEND_SET_LONG(resolution.y, hpaio->currentResolution << 16);
+   PmlSetValue(hpaio->pml.objResolution, PML_TYPE_BINARY, (char *)&resolution, sizeof(resolution));
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objResolution) == ERROR)
+      goto bugout;
+
+   /* Set compression. */
+   switch(hpaio->currentCompression)
+   {
+      case COMPRESSION_NONE:
+         compression = PML_COMPRESSION_NONE;
+         break;
+      case COMPRESSION_MH:
+         compression = PML_COMPRESSION_MH;
+         break;
+      case COMPRESSION_MR:
+         compression = PML_COMPRESSION_MR;
+         break;
+      case COMPRESSION_MMR:
+         compression = PML_COMPRESSION_MMR;
+         break;
+      case COMPRESSION_JPEG:
+      default:
+         compression = PML_COMPRESSION_JPEG;
+         break;
+   }
+            
+   PmlSetIntegerValue(hpaio->pml.objCompression, PML_TYPE_ENUMERATION, compression);
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objCompression) == ERROR)
+      goto bugout;
+
+   /* Set JPEG compression factor. */
+   PmlSetIntegerValue(hpaio->pml.objCompressionFactor, PML_TYPE_SIGNED_INTEGER, hpaio->currentJpegCompressionFactor);
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objCompressionFactor) == ERROR)
+      goto bugout;
+
+   /* Set copier reduction. */
+   PmlSetIntegerValue(hpaio->pml.objCopierReduction, PML_TYPE_SIGNED_INTEGER, copierReduction);
+   if (PmlRequestSet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objCopierReduction) == ERROR)
+      goto bugout;
+
+   stat = OK;
+
+bugout:
+   return stat;
+}
+
+int pml_to_sane_status(HPAIO_RECORD *hpaio)
+{
+   int stat=SANE_STATUS_IO_ERROR, status;
+
+   if (PmlRequestGet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScannerStatus) == ERROR)
+      goto bugout;
+   PmlGetIntegerValue(hpaio->pml.objScannerStatus, 0, &status);
+
+   if(status & PML_SCANNER_STATUS_FEEDER_JAM)
+   {
+      stat = SANE_STATUS_JAMMED;
+   }
+   else if(status & PML_SCANNER_STATUS_FEEDER_OPEN)
+   {
+      stat = SANE_STATUS_COVER_OPEN;
+   }
+   else if(status & PML_SCANNER_STATUS_FEEDER_EMPTY)
+   {
+      if(hpaio->currentBatchScan == SANE_FALSE && hpaio->currentAdfMode == ADF_MODE_AUTO)
+      {
+         stat = SANE_STATUS_GOOD;
+      }
+      else
+      {
+         stat = SANE_STATUS_NO_DOCS;
+      }
+   }
+   else if(status & PML_SCANNER_STATUS_INVALID_MEDIA_SIZE)
+   {
+      stat = SANE_STATUS_INVAL;
+   }
+   else if(status)
+   {
+      stat = SANE_STATUS_IO_ERROR;
+   }
+   else
+   {
+      stat = SANE_STATUS_GOOD;
+   }
+
+bugout:
+    return stat;
+}
+
+int check_pml_done(HPAIO_RECORD *hpaio)
+{
+   int stat=ERROR, state;
+
+   /* See if pml side is done scanning. */
+   if (PmlRequestGet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState) == ERROR)
+      goto bugout;
+   PmlGetIntegerValue(hpaio->pml.objUploadState, 0, &state);
+   hpaio->upload_state = state;
+           
+   if (state == PML_UPLOAD_STATE_DONE || state == PML_UPLOAD_STATE_NEWPAGE)
+      hpaio->pml_done=1;
+   else if (state != PML_UPLOAD_STATE_ACTIVE)
+      goto bugout;
+   else if (hpaio->ip_done && hpaio->mfpdtf_done)
+   {
+      if (hpaio->pml_timeout_cnt++ > 15)
+      {
+         bug("check_pml_done timeout cnt=%d: %s %d\n", hpaio->pml_timeout_cnt, __FILE__, __LINE__);
+         goto bugout;
+      }
+      else
+         sleep(1);
+   }
+
+   stat = OK;
+
+bugout:
+   return stat;
+}
+
+int pml_start(HPAIO_RECORD *hpaio)
+{
+   MFPDTF_FIXED_HEADER *ph;
+   MFPDTF_START_PAGE *ps;
+   IP_IMAGE_TRAITS traits;
+   IP_XFORM_SPEC xforms[IP_MAX_XFORMS], * pXform = xforms;
+   int stat = SANE_STATUS_DEVICE_BUSY;
+   int i, bsize, state, wResult, index, r;
+   int oldStuff = (hpaio->preDenali || hpaio->fromDenali || hpaio->denali) ? 1 : 0;
+
+   if (hpaio->cmd_channelid < 0)
+   {
+      if ((hpaio->cmd_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-MESSAGE")) < 0)
+         goto bugout;
+      SendScanEvent(hpaio->deviceuri, 2000, "event");  /* hpssd message scan started */
+   }
+   if (!oldStuff)
+   {
+      if (hpaio->scan_channelid < 0)
+      {
+         if ((hpaio->scan_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-SCAN")) < 0)
+            goto bugout;
+      }
+   }
+
+   r = pml_to_sane_status(hpaio);
+   if (r != SANE_STATUS_GOOD)
+   {
+      stat = r;
+      goto bugout;
+   }
+
+   /* Make sure scanner is idle. */
+   if (PmlRequestGet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState) == ERROR)
+   {
+      stat=SANE_STATUS_IO_ERROR;
+      goto bugout;
+   }
+   PmlGetIntegerValue(hpaio->pml.objUploadState, 0, &state);
+   switch (state)
+   {
+      case PML_UPLOAD_STATE_IDLE:
+         if (set_scan_token(hpaio) == ERROR)
+            goto bugout;
+         if (set_scan_parameters(hpaio) == ERROR)
+            goto bugout;
+         break;
+      case PML_UPLOAD_STATE_NEWPAGE:
+         break;
+      case PML_UPLOAD_STATE_DONE:
+         PmlSetIntegerValue(hpaio->pml.objUploadState, PML_TYPE_ENUMERATION, PML_UPLOAD_STATE_IDLE);
+         if (PmlRequestSetRetry(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0) == ERROR)
+            goto bugout;
+         break;
+      case PML_UPLOAD_STATE_START:
+      case PML_UPLOAD_STATE_ACTIVE:
+         goto bugout;                /* scanner is busy */
+      case PML_UPLOAD_STATE_ABORTED:
+      default:
+         stat = hpaioScannerToSaneError(hpaio);
+         PmlSetIntegerValue(hpaio->pml.objUploadState, PML_TYPE_ENUMERATION, PML_UPLOAD_STATE_IDLE);
+         if (PmlRequestSetRetry(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0) == ERROR)
+            goto bugout;
+         break;
+   }
+         
+   hpaio->scanParameters = hpaio->prescanParameters;
+   memset(xforms, 0, sizeof(xforms));
+   traits.iPixelsPerRow = -1;
+    
+   switch(hpaio->effectiveScanMode)
+   {
+       case SCAN_MODE_LINEART:
+           hpaio->scanParameters.format = SANE_FRAME_GRAY;
+           hpaio->scanParameters.depth = 1;
+           traits.iBitsPerPixel = 1;
+           break;
+       case SCAN_MODE_GRAYSCALE:
+           hpaio->scanParameters.format = SANE_FRAME_GRAY;
+           hpaio->scanParameters.depth = 8;
+           traits.iBitsPerPixel = 8;
+           break;
+       case SCAN_MODE_COLOR:
+       default:
+           hpaio->scanParameters.format = SANE_FRAME_RGB;
+           hpaio->scanParameters.depth = 8;
+           traits.iBitsPerPixel = 24;
+           break;
+   }
+   traits.lHorizDPI = hpaio->effectiveResolution << 16;
+   traits.lVertDPI = hpaio->effectiveResolution << 16;
+   traits.lNumRows = -1;
+   traits.iNumPages = 1;
+   traits.iPageNum = 1;
+
+   /* Start scanning. */
+   PmlSetIntegerValue(hpaio->pml.objUploadState, PML_TYPE_ENUMERATION, PML_UPLOAD_STATE_START);
+   if (PmlRequestSetRetry(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0) == ERROR)
+      goto bugout;
+
+   /* Look for a confirmation that the scan started or failed. */
+   for(i=0; i < PML_START_SCAN_WAIT_ACTIVE_MAX_RETRIES; i++)
+   {
+      if (PmlRequestGet(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState) == ERROR)
+      {
+         stat=SANE_STATUS_IO_ERROR;
+         goto bugout;
+      }
+      PmlGetIntegerValue(hpaio->pml.objUploadState, 0, &state);
+            
+      if(state == PML_UPLOAD_STATE_ACTIVE)
+         break;
+
+      if(state != PML_UPLOAD_STATE_START)
+         break;        /* bail */
+
+      sleep(1);
+   }
+
+   if (state != PML_UPLOAD_STATE_ACTIVE)
+   {
+      /* Found and error, see if we can classify it otherwise use default. */
+      r = hpaioScannerToSaneError(hpaio);
+      if (r != SANE_STATUS_GOOD) 
+         stat = r;
+      goto bugout;
+   }
+
+   /* For older all-in-ones open the scan channel now. */
+   if (oldStuff)
+   {
+      if (hpaio->scan_channelid < 0)
+      {
+         if ((hpaio->scan_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-SCAN")) < 0)
+            goto bugout;
+      }
+   }
+
+   /* Find mfpdtf "New Page" block. */
+   while (1)
+   {
+     if ((bsize = read_mfpdtf_block(hpaio->deviceid, hpaio->scan_channelid, (char *)hpaio->inBuffer, sizeof(hpaio->inBuffer), 45)) <= 0)
+         goto bugout;  /* i/o error or timeout */
+
+      ph = (MFPDTF_FIXED_HEADER *)hpaio->inBuffer;
+      if ((ph->DataType == DT_SCAN) && (ph->PageFlag & PF_NEW_PAGE))
+         break;  /* found it */
+   }
+
+   index = sizeof(MFPDTF_FIXED_HEADER);
+   ps = (MFPDTF_START_PAGE *)(hpaio->inBuffer + index);
+   if (ps->ID != ID_START_PAGE)
+      goto bugout; 
+
+   /* Read SOP record and set image pipeline input traits. */
+   traits.iPixelsPerRow = letoh16(ps->BlackPixelsPerRow);
+   traits.iBitsPerPixel = letoh16(ps->BlackBitsPerPixel);
+   traits.lHorizDPI = letoh16(ps->BlackHorzDPI);
+   traits.lVertDPI = letoh16(ps->BlackVertDPI);
+                
+   /* Set up image-processing pipeline. */
+   switch(ps->Code)
+   {
+      case MFPDTF_RASTER_BITMAP:
+      case MFPDTF_RASTER_GRAYMAP:
+      case MFPDTF_RASTER_RGB:
+         /* rawDecode */ 
+         break;
+      case MFPDTF_RASTER_JPEG:
+         /* jpegDecode */
+         pXform->aXformInfo[IP_JPG_DECODE_FROM_DENALI].dword = hpaio->fromDenali;
+         ADD_XFORM( X_JPG_DECODE );
+         pXform->aXformInfo[IP_CNV_COLOR_SPACE_WHICH_CNV].dword = IP_CNV_YCC_TO_SRGB;
+         pXform->aXformInfo[IP_CNV_COLOR_SPACE_GAMMA].dword = 0x00010000;
+         ADD_XFORM( X_CNV_COLOR_SPACE );
+         break;
+      default:
+         /* Skip processing for unknown encodings. */
+         bug("unknown image encoding sane_start: name=%s sop=%d\n", hpaio->saneDevice.name, ps->Code);
+   }
+
+   index += sizeof(MFPDTF_START_PAGE);
+   hpaio->BlockSize = bsize;
+   hpaio->BlockIndex = index; 
+   hpaio->RecordSize = 0;
+   hpaio->RecordIndex = 0; 
+   hpaio->mfpdtf_done = 0;
+   hpaio->pml_done = 0;
+   hpaio->ip_done = 0;
+   hpaio->page_done = 0;
+   hpaio->mfpdtf_timeout_cnt = 0;
+   hpaio->pml_timeout_cnt = 0;
+
+   hpaio->scanParameters.pixels_per_line = traits.iPixelsPerRow;
+   hpaio->scanParameters.lines = traits.lNumRows;
+    
+   if(hpaio->scanParameters.lines < 0)
+   {
+      hpaio->scanParameters.lines = MILLIMETERS_TO_PIXELS(hpaio->bryRange.max, hpaio->effectiveResolution);
+   }
+
+   int mmWidth = PIXELS_TO_MILLIMETERS(traits.iPixelsPerRow, hpaio->effectiveResolution);
+
+   /* Set up X_CROP xform. */
+   pXform->aXformInfo[IP_CROP_LEFT].dword = MILLIMETERS_TO_PIXELS( hpaio->effectiveTlx, hpaio->effectiveResolution );
+   if( hpaio->effectiveBrx < hpaio->brxRange.max && hpaio->effectiveBrx < mmWidth )
+   {
+      pXform->aXformInfo[IP_CROP_RIGHT].dword = MILLIMETERS_TO_PIXELS( mmWidth-hpaio->effectiveBrx, hpaio->effectiveResolution );
+   }
+   pXform->aXformInfo[IP_CROP_TOP].dword = MILLIMETERS_TO_PIXELS( hpaio->effectiveTly, hpaio->effectiveResolution );
+   if( hpaio->currentLengthMeasurement != LENGTH_MEASUREMENT_UNLIMITED )
+   {
+      hpaio->scanParameters.lines = pXform->aXformInfo[IP_CROP_MAXOUTROWS].dword = 
+          MILLIMETERS_TO_PIXELS(hpaio->effectiveBry - hpaio->effectiveTly, hpaio->effectiveResolution);
+   }
+   hpaio->scanParameters.pixels_per_line -= pXform->aXformInfo[IP_CROP_LEFT].dword + pXform->aXformInfo[IP_CROP_RIGHT].dword;
+   ADD_XFORM( X_CROP );
+
+   if( hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_PADDED )
+   {
+       pXform->aXformInfo[IP_PAD_LEFT].dword = 0;
+       pXform->aXformInfo[IP_PAD_RIGHT].dword = 0;
+       pXform->aXformInfo[IP_PAD_TOP].dword = 0;
+       pXform->aXformInfo[IP_PAD_BOTTOM].dword = 0;
+       pXform->aXformInfo[IP_PAD_VALUE].dword = ( hpaio->effectiveScanMode == SCAN_MODE_LINEART ) ? PAD_VALUE_LINEART : PAD_VALUE_GRAYSCALE_COLOR;
+       pXform->aXformInfo[IP_PAD_MIN_HEIGHT].dword = hpaio->scanParameters.lines;
+       ADD_XFORM( X_PAD );
+   }
+
+   /* If we didn't set up any xforms by now, then add the dummy "skel" xform to simplify our subsequent code path. */
+   if( pXform == xforms )
+   {
+      ADD_XFORM( X_SKEL );
+   }
+
+   wResult = ipOpen( pXform - xforms, xforms, 0, &hpaio->hJob );
+    
+   if( wResult != IP_DONE || !hpaio->hJob )
+   {
+      stat = SANE_STATUS_INVAL;
+      goto bugout;
+   }
+
+   traits.iComponentsPerPixel = ( ( traits.iBitsPerPixel % 3 ) ? 1 : 3 );
+   wResult = ipSetDefaultInputTraits( hpaio->hJob, &traits );
+    
+   if( wResult != IP_DONE )
+   {
+      stat = SANE_STATUS_INVAL;
+      goto bugout;
+   }
+
+   hpaio->scanParameters.bytes_per_line = 
+          BYTES_PER_LINE(hpaio->scanParameters.pixels_per_line, hpaio->scanParameters.depth * (hpaio->scanParameters.format == SANE_FRAME_RGB ? 3 : 1));
+    
+   if( hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNKNOWN || hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNLIMITED )
+   {
+      hpaio->scanParameters.lines = -1;
+   }
+
+   stat = SANE_STATUS_GOOD;
+
+bugout:
+   return stat;
+}
+
+int pml_read(HPAIO_RECORD *hpaio, SANE_Byte *data, SANE_Int maxLength, SANE_Int *pLength)
+{
+   MFPDTF_RASTER *pd;
+   int stat=SANE_STATUS_IO_ERROR;
+   unsigned int outputAvail=maxLength, outputUsed=0, outputThisPos;
+   unsigned char *output = data;
+   unsigned int inputAvail, inputUsed=0, inputNextPos;
+   unsigned char *input;
+   int bsize, wResult;
+
+   /* Process any bytes in current record. */
+   if (hpaio->RecordIndex < hpaio->RecordSize)
+   {
+      inputAvail = hpaio->RecordSize - hpaio->RecordIndex;
+      input = hpaio->inBuffer + hpaio->BlockIndex + hpaio->RecordIndex + sizeof(MFPDTF_RASTER);
+
+      /* Transform input data to output. Note, output buffer may consume more bytes than input buffer (ie: jpeg to raster). */
+      wResult = ipConvert(hpaio->hJob, inputAvail, input, &inputUsed, &inputNextPos, outputAvail, output, &outputUsed, &outputThisPos);
+      if(wResult & (IP_INPUT_ERROR | IP_FATAL_ERROR))
+      {
+         bug("ipConvert error=%x: %s %d\n", wResult, __FILE__, __LINE__);
+         goto bugout;
+      }
+      *pLength += outputUsed;
+      hpaio->RecordIndex += inputUsed;  /* bump record index */
+      if (hpaio->RecordIndex >= hpaio->RecordSize)
+         hpaio->BlockIndex += sizeof(MFPDTF_RASTER) + hpaio->RecordSize;  /* bump block index to next record */
+   }
+   else if (hpaio->BlockIndex < hpaio->BlockSize)
+   {
+      /* Process next record in current mfpdtf block. */
+      pd = (MFPDTF_RASTER *)(hpaio->inBuffer + hpaio->BlockIndex);
+      if (pd->ID == ID_RASTER_DATA)
+      {
+         /* Raster Record */
+         hpaio->RecordSize = letoh16(pd->Size);
+         hpaio->RecordIndex = 0;
+      }
+      else if (pd->ID == ID_END_PAGE)
+      {
+         /* End Page Record */
+         hpaio->page_done = 1;
+         hpaio->BlockIndex += sizeof(MFPDTF_END_PAGE);  /* bump index to next record */
+      }  
+      else
+      {
+         bug("unknown mfpdtf record id=%d: pml_read %s %d\n", pd->ID, __FILE__, __LINE__);
+         goto bugout;
+      }
+   } 
+   else if (!hpaio->mfpdtf_done)
+   {
+      /* Read new mfpdtf block. */
+      if ((bsize = read_mfpdtf_block(hpaio->deviceid, hpaio->scan_channelid, (char *)hpaio->inBuffer, sizeof(hpaio->inBuffer), 1)) < 0)
+         goto bugout;  /* i/o error */
+
+      hpaio->BlockSize = 0;
+      hpaio->BlockIndex = 0;
+
+      if (bsize == 0)
+      {
+         if (hpaio->page_done || hpaio->pml_done)
+            hpaio->mfpdtf_done = 1;  /* normal timeout */
+         else if (hpaio->mfpdtf_timeout_cnt++ > 5)
+         {
+            bug("read_mfpdtf_block timeout cnt=%d: %s %d\n", hpaio->mfpdtf_timeout_cnt, __FILE__, __LINE__);
+            goto bugout;
+         }
+         else
+         { 
+            if (check_pml_done(hpaio) == ERROR)
+               goto bugout;
+         }
+      }
+      else
+      {
+         hpaio->mfpdtf_timeout_cnt = 0;
+
+         if (bsize > sizeof(MFPDTF_FIXED_HEADER))
+         {
+            hpaio->BlockSize = bsize;  /* set for next sane_read */
+            hpaio->BlockIndex = sizeof(MFPDTF_FIXED_HEADER);
+         }
+      }
+   } 
+   else if ((hpaio->page_done || hpaio->pml_done) && !hpaio->ip_done)
+   {
+      /* No more scan data, flush ipconvert pipeline. */
+      input = 0;
+      wResult = ipConvert(hpaio->hJob, inputAvail, input, &inputUsed, &inputNextPos, outputAvail, output, &outputUsed, &outputThisPos);
+      if (wResult & (IP_INPUT_ERROR | IP_FATAL_ERROR))
+      {
+         bug("hpaio: ipConvert error=%x\n", wResult);
+         goto bugout;
+      }
+      *pLength += outputUsed;
+      if (outputUsed == 0)
+         hpaio->ip_done = 1;
+   }
+   else if (!hpaio->pml_done)
+   {
+      if (check_pml_done(hpaio) == ERROR)
+         goto bugout;
+   }
+
+   if(hpaio->ip_done && hpaio->mfpdtf_done && hpaio->pml_done)
+      stat = SANE_STATUS_EOF;  /* done scan_read */
+   else
+      stat = SANE_STATUS_GOOD; /* repeat scan_read */ 
+
+ bugout:
+    return stat;
+}
+
+int pml_cancel(HPAIO_RECORD *hpaio)
+{
+   int oldStuff = (hpaio->preDenali || hpaio->fromDenali || hpaio->denali) ? 1 : 0;
+
+   if(hpaio->hJob)
+   {
+      ipClose(hpaio->hJob);
+      hpaio->hJob = 0;
+   }
+ 
+   /* If batch mode and page remains in ADF, leave pml/scan channels open. */
+   if(hpaio->currentBatchScan == SANE_TRUE && hpaio->upload_state == PML_UPLOAD_STATE_NEWPAGE)
+      return OK;
+
+   /* If newer scanner or old scanner and ADF is empty, set to scanner to idle and unlock the scanner. */
+   if(!oldStuff || (oldStuff && hpaio->upload_state != PML_UPLOAD_STATE_NEWPAGE))
+   {
+      PmlSetIntegerValue(hpaio->pml.objUploadState, PML_TYPE_ENUMERATION, PML_UPLOAD_STATE_IDLE);
+      if (PmlRequestSetRetry(hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0) != ERROR)
+         clr_scan_token(hpaio);
+   }
+
+   if (hpaio->scan_channelid >= 0)
+   {
+      hplip_CloseChannel(hpaio->deviceid, hpaio->scan_channelid);
+      hpaio->scan_channelid = -1;
+   }
+   if (hpaio->cmd_channelid >= 0)
+   {
+      hplip_CloseChannel(hpaio->deviceid, hpaio->cmd_channelid);
+      hpaio->cmd_channelid = -1;
+      SendScanEvent(hpaio->deviceuri, 2001, "event");  /* hpssd message scan done */
+   }
+
+   return OK;
+}

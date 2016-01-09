@@ -29,15 +29,15 @@
 *LanguageEncoding: ISOLatin1
 *PCFileName:	"HPIJS.PPD"
 *Manufacturer:	"HP"
-*Product:	"(LaserJet _9050_MFP)"
+*Product:	"(LaserJet 9050 MFP)"
 *cupsVersion:	1.0
 *cupsManualCopies: True
 *cupsModelNumber:  2
 *cupsFilter:	"application/vnd.cups-postscript 0 foomatic-rip"
 *%pprRIP:        foomatic-rip other
-*ModelName:     "HP LaserJet 9050MFP"
-*ShortNickName: "HP LaserJet _9050_MFP hpijs"
-*NickName:      "HP LaserJet _9050_MFP Foomatic/hpijs"
+*ModelName:     "HP LaserJet 9050 MFP"
+*ShortNickName: "HP LaserJet 9050 MFP hpijs"
+*NickName:      "HP LaserJet 9050 MFP Foomatic/hpijs"
 *PSVersion:	"(3010.000) 550"
 *PSVersion:	"(3010.000) 651"
 *PSVersion:	"(3010.000) 652"
@@ -117,6 +117,10 @@ ICEHEIGHTPOINTS=842"
 *PageSize Photo/Photo/4x6 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo"
 *FoomaticRIPOptionSetting PageSize=Photo: " -dDEVICEWIDTHPOINTS=288 -d&&
 DEVICEHEIGHTPOINTS=432"
+*End
+*PageSize Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+*FoomaticRIPOptionSetting PageSize=Photo5x7: " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
 *End
 *PageSize 3x5/3x5 inch index card: "%% FoomaticRIPOptionSetting: PageSize=3x5"
 *FoomaticRIPOptionSetting PageSize=3x5: " -dDEVICEWIDTHPOINTS=216 -dDE&&
@@ -214,6 +218,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PageRegion Letter/Letter: "%% FoomaticRIPOptionSetting: PageSize=Letter"
 *PageRegion A4/A4: "%% FoomaticRIPOptionSetting: PageSize=A4"
 *PageRegion Photo/Photo/4x6 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo"
+*PageRegion Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
 *PageRegion 3x5/3x5 inch index card: "%% FoomaticRIPOptionSetting: PageSize=3x5"
 *PageRegion 5x8/5x8 inch index card: "%% FoomaticRIPOptionSetting: PageSize=5x8"
 *PageRegion A3/A3: "%% FoomaticRIPOptionSetting: PageSize=A3"
@@ -242,6 +247,7 @@ dDEVICEHEIGHTPOINTS=567"
 *ImageableArea Letter/Letter: "18 14.40 594 777.60"
 *ImageableArea A4/A4: "18 14.40 577 827.60"
 *ImageableArea Photo/Photo/4x6 inch index card: "18 14.40 270 417.60"
+*ImageableArea Photo5x7/Photo/5x7 inch index card: "18 14.40 342 489.60"
 *ImageableArea 3x5/3x5 inch index card: "18 14.40 198 345.60"
 *ImageableArea 5x8/5x8 inch index card: "18 14.40 342 561.60"
 *ImageableArea A3/A3: "18 14.40 824 1175.60"
@@ -269,6 +275,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PaperDimension Letter/Letter: "612 792"
 *PaperDimension A4/A4: "595 842"
 *PaperDimension Photo/Photo/4x6 inch index card: "288 432"
+*PaperDimension Photo5x7/Photo/5x7 inch index card: "360 504"
 *PaperDimension 3x5/3x5 inch index card: "216 360"
 *PaperDimension 5x8/5x8 inch index card: "360 576"
 *PaperDimension A3/A3: "842 1190"

@@ -784,7 +784,7 @@
 *HPwmBrightness Light/Light:              "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .33 mul } forall setcolor } put"
 *HPwmBrightness Lighter/Lighter:          "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .22 mul } forall setcolor } put"
 *HPwmBrightness Lightest/Lightest:        "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .11 mul } forall setcolor } put"
-*CloseUI: *HpwmBrightness
+*CloseUI: *HPwmBrightness
 
 *FreeVM: "4000000"
 *VMOption 16MB/16 - 23 MB: "4000000"

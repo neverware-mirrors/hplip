@@ -129,8 +129,6 @@ public:
         "PHOTOSMART 230\0"
 		"photosmart 240\0"
 		"photosmart 140\0"
-        "Photosmart 420\0"
-        "Photosmart 470\0"
 #ifdef APDK_MLC_PRINTER
 #endif
     ) {m_iPrinterType = ePSP100;}

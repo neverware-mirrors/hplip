@@ -46,7 +46,6 @@ static void hpaioAddScanner( hpaioScanner_t scanner )
         LastScanner->next = scanner;
     }
     LastScanner = scanner;
-    
 }
 
 static hpaioScanner_t hpaioFindScanner( SANE_String_Const name )
@@ -64,7 +63,7 @@ static hpaioScanner_t hpaioFindScanner( SANE_String_Const name )
     return NULL;
 }
 
-static SANE_Status hpaioScannerToSaneError( hpaioScanner_t hpaio )
+SANE_Status hpaioScannerToSaneError( hpaioScanner_t hpaio )
 {
     SANE_Status retcode;
 
@@ -187,14 +186,14 @@ static SANE_Status hpaioScannerToSaneError( hpaioScanner_t hpaio )
 }
 
 
-static SANE_Status hpaioScannerToSaneStatus( hpaioScanner_t hpaio )
+SANE_Status hpaioScannerToSaneStatus( hpaioScanner_t hpaio )
 {
 //BREAKPOINT;
     
     SANE_Status retcode;
 
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         int sclStatus;
 
         retcode = SclInquire( hpaio->deviceid, hpaio->scan_channelid,
@@ -239,64 +238,6 @@ static SANE_Status hpaioScannerToSaneStatus( hpaioScanner_t hpaio )
                     break;
             }
         }
-    }
-    else /* if (hpaio->scannerType==SCANNER_TYPE_PML) */
-    {
-        int pmlStatus, type;
-
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScannerStatus ) == ERROR )
-        {
-            retcode = SANE_STATUS_GOOD;
-        }
-        else if( PmlGetIntegerValue( hpaio->pml.objScannerStatus,
-                                     &type,
-                                     &pmlStatus ) == ERROR )
-        {
-            DBG( 0,  "hpaio: hpaioScannerToSaneStatus: "
-                           "PmlGetIntegerValue failed, type=%d!\n",
-                           type );
-            retcode = SANE_STATUS_IO_ERROR;
-        }
-        else
-        {
-            DBG( 0,  "hpaio: hpaioScannerToSaneStatus: "
-                            "pmlStatus=0x%2.2X.\n",
-                            pmlStatus );
-
-            if( pmlStatus & PML_SCANNER_STATUS_FEEDER_JAM )
-            {
-                retcode = SANE_STATUS_JAMMED;
-            }
-            else if( pmlStatus & PML_SCANNER_STATUS_FEEDER_OPEN )
-            {
-                retcode = SANE_STATUS_COVER_OPEN;
-            }
-            else if( pmlStatus & PML_SCANNER_STATUS_FEEDER_EMPTY )
-            {
-                if( hpaio->currentAdfMode != ADF_MODE_ADF &&
-                    hpaio->beforeScan )
-                {
-                    retcode = SANE_STATUS_GOOD;
-                }
-                else
-                {
-                    retcode = SANE_STATUS_NO_DOCS;
-                }
-            }
-            else if( pmlStatus & PML_SCANNER_STATUS_INVALID_MEDIA_SIZE )
-            {
-                retcode = SANE_STATUS_INVAL;
-            }
-            else if( pmlStatus )
-            {
-                retcode = SANE_STATUS_IO_ERROR;
-            }
-            else
-            {
-                retcode = SANE_STATUS_GOOD;
-            }
-        }
-    }
 
     DBG( 0,  "hpaio: hpaioScannerToSaneStatus returns %d.\n",
                     retcode );
@@ -364,29 +305,15 @@ static SANE_Status hpaioResetScanner( hpaioScanner_t hpaio )
     return SANE_STATUS_GOOD;
 }
 
-
-
 static PmlObject_t hpaioPmlAllocate( hpaioScanner_t hpaio )
 {
     int size = sizeof( struct PmlObject_s );
     PmlObject_t obj;
 
-    //DBG( 0,  "PmlAllocate(dev=%d)\n", hpaio->deviceid );
-
     /* Malloc and zero object. */
     obj = malloc( size );
-    /*if( !obj )
-    {
-        DBG( 0, "hpaioPmlAllocate(dev=0x%8.8X): "
-                 "malloc(obj=%d) failed!\n",
-                       dev,
-                       size );
-        return 0;
-    }*/
-    memset( obj, 0, size );
 
-    /* Initialize fields. */
-    //obj->dev = dev;
+    memset( obj, 0, size );
 
     /* Insert into linked list of PML objects for this device. */
     if( !hpaio->firstPmlObject )
@@ -401,9 +328,6 @@ static PmlObject_t hpaioPmlAllocate( hpaioScanner_t hpaio )
     }
     hpaio->lastPmlObject = obj;
 
-    /*DBG( 0,  "PmlAllocate(dev=0x%8.8X) returns obj=0x%8.8X.\n",
-                    dev,
-                    obj );*/
     return obj;
 }
 
@@ -438,7 +362,6 @@ static void hpaioPmlDeallocateObjects( hpaioScanner_t hpaio )
     }
 }
 
-
 static SANE_Status hpaioPmlAllocateObjects( hpaioScanner_t hpaio )
 {
     DBG( 0,  "hpaio: hpaioPmlAllocateObjects()\n" ); 
@@ -447,7 +370,7 @@ static SANE_Status hpaioPmlAllocateObjects( hpaioScanner_t hpaio )
     {
         int len;
 
-        /* PML embedded SNMP oids. */
+        /* SNMP oids for PML. */
         hpaio->pml.objScannerStatus = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.2.1.0" );
         hpaio->pml.objResolutionRange = hpaioPmlAllocateID( hpaio,        "1.3.6.1.4.1.11.2.3.9.4.2.1.2.2.2.3.0" );
         hpaio->pml.objUploadTimeout = hpaioPmlAllocateID( hpaio,          "1.3.6.1.4.1.11.2.3.9.4.2.1.1.1.18.0" );
@@ -513,18 +436,6 @@ static int hpaioConnClose( hpaioScanner_t hpaio )
 {
     DBG( 0,  "\nhpaio: hpaioConnClose()\n" ); 
 
-    if (hpaio->scan_channelid < 0)
-    {
-       syslog(LOG_INFO, "warning HP-SCAN channel already closed: %s %d", __FILE__, __LINE__);
-       goto bugout;
-    }
-
-    if (hpaio->scan_channelid < 0)
-    {
-       syslog(LOG_INFO, "warning HP-MESSAGE channel already closed: %s %d", __FILE__, __LINE__);
-       goto bugout;
-    }
-    
     if( hpaio->pml.scanTokenIsSet )
     {
         PmlSetValue( hpaio->pml.objScanToken,
@@ -535,13 +446,14 @@ static int hpaioConnClose( hpaioScanner_t hpaio )
         PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objScanToken, 0, 0 );
         hpaio->pml.scanTokenIsSet = 0;
     }
-    
-    hplip_CloseChannel( hpaio->deviceid, hpaio->scan_channelid );
-    hpaio->scan_channelid = -1;
-    hplip_CloseChannel( hpaio->deviceid, hpaio->cmd_channelid );
-    hpaio->cmd_channelid = -1;
 
-bugout:
+    if (hpaio->cmd_channelid > 0)
+       hplip_CloseChannel( hpaio->deviceid, hpaio->cmd_channelid );
+    hpaio->cmd_channelid = -1;
+    if (hpaio->scan_channelid > 0)
+       hplip_CloseChannel( hpaio->deviceid, hpaio->scan_channelid );
+    hpaio->scan_channelid = -1;
+
     return 0;
 } // hpaioConnClose()
 
@@ -551,24 +463,19 @@ static SANE_Status hpaioConnOpen( hpaioScanner_t hpaio )
 
     DBG( 0, "\nhpaio: hpaioConnOpen()\n" );
     DBG( 0, "hpaio: openFirst=%d\n", hpaio->pml.openFirst );
-
-    if (hpaio->scan_channelid < 0)
-       hpaio->scan_channelid = hplip_OpenChannel( hpaio->deviceid, "HP-SCAN" );
-    else
-       syslog(LOG_INFO, "warning HP-SCAN channel already open: %s %d", __FILE__, __LINE__);
-        
-    if( hpaio->scan_channelid < 0 )
-    {
-       retcode = SANE_STATUS_DEVICE_BUSY;
-       goto abort;
-    }
     
-    if (hpaio->cmd_channelid < 0)
-       hpaio->cmd_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-MESSAGE" );
-    else
-       syslog(LOG_INFO, "warning HP-MESSAGE channel already open: %s %d", __FILE__, __LINE__);
-        
-    if( hpaio->cmd_channelid  < 0 )
+    if (hpaio->scannerType==SCANNER_TYPE_SCL) 
+    {
+       hpaio->scan_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-SCAN");
+       if(hpaio->scan_channelid < 0)
+       {
+          retcode = SANE_STATUS_DEVICE_BUSY;
+          goto abort;
+       }
+    }
+
+    hpaio->cmd_channelid = hplip_OpenChannel(hpaio->deviceid, "HP-MESSAGE");
+    if(hpaio->cmd_channelid < 0)
     {
        retcode = SANE_STATUS_IO_ERROR;
        goto abort;
@@ -620,8 +527,8 @@ static SANE_Status hpaioConnPrepareScan( hpaioScanner_t hpaio )
 
     DBG( 0,  "\nhpaio: hpaioConnPrepareScan()\n" );
 
-    /* ADF may already have scan channel open. */
-    if (hpaio->scan_channelid < 0)
+    /* ADF may already have channel(s) open. */
+    if (hpaio->cmd_channelid < 0)
     {
        retcode = hpaioConnOpen( hpaio );
     
@@ -631,10 +538,8 @@ static SANE_Status hpaioConnPrepareScan( hpaioScanner_t hpaio )
        }
     }
 
-    MfpdtfSetChannel( hpaio->mfpdtf, hpaio->scan_channelid );
-
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         int i;
 
         /* Reserve scanner and make sure it got reserved. */
@@ -682,7 +587,6 @@ static SANE_Status hpaioConnPrepareScan( hpaioScanner_t hpaio )
                 sleep( SCL_PREPARE_SCAN_DEVICE_LOCK_DELAY );
             }
         }
-    }
 
     SendScanEvent( hpaio->deviceuri, 2000, "event" );
  
@@ -698,20 +602,6 @@ static void hpaioConnEndScan( hpaioScanner_t hpaio )
     
     SendScanEvent( hpaio->deviceuri, 2001, "event" );
 }
-
-static void hpaioResetScannerIfInNewPageState( hpaioScanner_t hpaio )
-{
-    int uploadState;
-
-    if( hpaioScannerIsUninterruptible( hpaio, &uploadState ) &&
-        uploadState == PML_UPLOAD_STATE_NEWPAGE &&
-        !hpaio->pml.dontResetBeforeNextNonBatchPage )
-    {
-        hpaio->pml.scanDone = 0;
-        hpaioConnEndScan( hpaio );
-    }
-}
-
 
 static SANE_Status hpaioSetDefaultValue( hpaioScanner_t hpaio, int option )
 {
@@ -1360,9 +1250,7 @@ static void hpaioSetupOptions( hpaioScanner_t hpaio )
     hpaio->bryRange.quant = 0;
 }
 
-int hpaioSclSendCommandCheckError( hpaioScanner_t hpaio,
-                                   int cmd,
-                                   int param )
+int hpaioSclSendCommandCheckError( hpaioScanner_t hpaio, int cmd, int param )
 {
     SANE_Status retcode;
 
@@ -1387,8 +1275,8 @@ static SANE_Status hpaioProgramOptions( hpaioScanner_t hpaio )
     hpaio->effectiveScanMode = hpaio->currentScanMode;
     hpaio->effectiveResolution = hpaio->currentResolution;
 
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         /* Set output data type and width. */
         switch( hpaio->currentScanMode )
         {
@@ -1490,245 +1378,6 @@ static SANE_Status hpaioProgramOptions( hpaioScanner_t hpaio )
             SclSendCommand( hpaio->deviceid, hpaio->scan_channelid, 
                             SCL_CMD_SET_CCD_RESOLUTION, 600 );
         }
-    }
-    else /* if (hpaio->scannerType==SCANNER_TYPE_PML) */
-    {
-        if( hpaioScannerIsUninterruptible( hpaio, 0 ) )
-        {
-            int pixelDataType;
-            struct PmlResolution resolution;
-
-            if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                               hpaio->pml.objPixelDataType ) != ERROR &&
-                               PmlGetIntegerValue( hpaio->pml.objPixelDataType,
-                                                   0,
-                                                   &pixelDataType ) != ERROR )
-            {
-                switch( pixelDataType )
-                {
-                    case PML_DATA_TYPE_LINEART:
-                        hpaio->effectiveScanMode = SCAN_MODE_LINEART;
-                        break;
-                    
-                    case PML_DATA_TYPE_GRAYSCALE:
-                        hpaio->effectiveScanMode = SCAN_MODE_GRAYSCALE;
-                        break;
-                    
-                    case PML_DATA_TYPE_COLOR:
-                        hpaio->effectiveScanMode = SCAN_MODE_COLOR;
-                        break;
-                    
-                    default:
-                        break;
-                }
-            }
-
-            if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                               hpaio->pml.objResolution ) != ERROR &&
-                               PmlGetValue( hpaio->pml.objResolution,
-                                            0,
-                                            (char *) &resolution,
-                                            sizeof( resolution ) ) != ERROR )
-            {
-                hpaio->effectiveResolution = BEND_GET_LONG( resolution.x ) >> 16;
-            }
-
-            return SANE_STATUS_GOOD;
-        }
-
-        /* Set upload timeout. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objUploadTimeout ) != ERROR )
-        {
-            PmlSetIntegerValue( hpaio->pml.objUploadTimeout,
-                                    PML_TYPE_SIGNED_INTEGER,
-                                    PML_UPLOAD_TIMEOUT );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objUploadTimeout, 0, 0 );
-        }
-
-        /* Set pixel data type. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objPixelDataType ) != ERROR )
-        {
-            int pixelDataType;
-            switch( hpaio->currentScanMode )
-            {
-                case SCAN_MODE_LINEART:
-                    pixelDataType = PML_DATA_TYPE_LINEART;
-                    break;
-                case SCAN_MODE_GRAYSCALE:
-                    pixelDataType = PML_DATA_TYPE_GRAYSCALE;
-                    break;
-                case SCAN_MODE_COLOR:
-                default:
-                    pixelDataType = PML_DATA_TYPE_COLOR;
-                    break;
-            }
-            PmlSetIntegerValue( hpaio->pml.objPixelDataType,
-                                    PML_TYPE_ENUMERATION,
-                                    pixelDataType );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objPixelDataType, 0, 0 );
-        }
-
-        /* Set resolution. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objResolution ) != ERROR )
-        {
-            struct PmlResolution resolution;
-            BEND_SET_LONG( resolution.x, hpaio->currentResolution << 16 );
-            BEND_SET_LONG( resolution.y, hpaio->currentResolution << 16 );
-            
-            PmlSetValue( hpaio->pml.objResolution,
-                             PML_TYPE_BINARY,
-                             ( char * ) &resolution,
-                             sizeof( resolution ) );
-            
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objResolution, 0, 0 );
-        }
-
-        /* Set contrast. */
-        if( !( hpaio->option[OPTION_CONTRAST].cap & SANE_CAP_INACTIVE ) )
-        {
-            PmlSetIntegerValue( hpaio->pml.objContrast,
-                                    PML_TYPE_SIGNED_INTEGER,
-                                    hpaio->currentContrast );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objContrast, 0, 0 );
-        }
-
-        /* Set compression. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objCompression ) != ERROR )
-        {
-            int compression;
-            
-            switch( hpaio->currentCompression )
-            {
-                case COMPRESSION_NONE:
-                    compression = PML_COMPRESSION_NONE;
-                    break;
-                case COMPRESSION_MH:
-                    compression = PML_COMPRESSION_MH;
-                    break;
-                case COMPRESSION_MR:
-                    compression = PML_COMPRESSION_MR;
-                    break;
-                case COMPRESSION_MMR:
-                    compression = PML_COMPRESSION_MMR;
-                    break;
-                case COMPRESSION_JPEG:
-                default:
-                    compression = PML_COMPRESSION_JPEG;
-                    break;
-            }
-//BREAKPOINT;            
-            
-            PmlSetIntegerValue( hpaio->pml.objCompression,
-                                    PML_TYPE_ENUMERATION,
-                                    compression );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objCompression, 0, 0 );
-        }
-
-        /* Set JPEG compression factor. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objCompressionFactor ) != ERROR )
-        {
-            PmlSetIntegerValue( hpaio->pml.objCompressionFactor,
-                                    PML_TYPE_SIGNED_INTEGER,
-                                    hpaio->currentJpegCompressionFactor );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objCompressionFactor, 0, 0 );
-        }
-
-        /* Set Automatic Background Control thresholds. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objAbcThresholds ) != ERROR )
-        {
-            static struct
-            {
-                    unsigned char   ceiling;
-                    unsigned char   floor;
-            } __attribute__( ( packed ) ) abcThresholds =
-            {
-                0xE6,0x00
-            };
-            PmlSetValue( hpaio->pml.objAbcThresholds,
-                             PML_TYPE_BINARY,
-                             ( char * ) &abcThresholds,
-                             sizeof( abcThresholds ) );
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objAbcThresholds, 0, 0 );
-        }
-
-        /* Set sharpening coefficient. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objSharpeningCoefficient ) != ERROR )
-        {
-            static int sharpeningCoefficient = 0x37;
-            PmlSetIntegerValue( hpaio->pml.objSharpeningCoefficient,
-                                    PML_TYPE_SIGNED_INTEGER,
-                                    sharpeningCoefficient );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objSharpeningCoefficient, 0, 0 );
-        }
-
-        /* Set neutral clip thresholds. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objNeutralClipThresholds ) != ERROR )
-        {
-            static struct
-            {
-                    unsigned char   luminance;
-                    unsigned char   chrominance;
-            } __attribute__( ( packed ) ) neutralClipThresholds =
-            {
-                0xFA,0x05
-            };
-            PmlSetValue( hpaio->pml.objNeutralClipThresholds,
-                             PML_TYPE_BINARY,
-                             ( char * ) &neutralClipThresholds,
-                             sizeof( neutralClipThresholds ) );
-                             
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objNeutralClipThresholds, 0, 0 );
-        }
-
-        /* Set tone map if supported (needed for T series, breaks others). */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objToneMap ) != ERROR )
-        {
-            PmlSetValue( hpaio->pml.objToneMap,
-                             PML_TYPE_BINARY,
-                             ( char * ) hpTSeriesToneMap,
-                             sizeof( hpTSeriesToneMap ) );
-                             
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objToneMap, 0, 0 );
-        }
-
-        /* Set copier reduction. */
-        if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                           hpaio->pml.objCopierReduction ) != ERROR )
-        {
-            static int copierReduction = 100;
-            PmlSetIntegerValue( hpaio->pml.objCopierReduction,
-                                    PML_TYPE_SIGNED_INTEGER,
-                                    copierReduction );
-                                    
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, 
-                                hpaio->pml.objCopierReduction, 0, 0 );
-        }
-    }
 
     return SANE_STATUS_GOOD;
 }
@@ -1771,8 +1420,8 @@ static SANE_Status hpaioAdvanceDocument( hpaioScanner_t hpaio )
         hpaio->alreadyPostAdvancedDocument = 1;
     }
 
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         int documentLoaded = 0;
 
         retcode = SclInquire( hpaio->deviceid, hpaio->scan_channelid,
@@ -1914,43 +1563,6 @@ static SANE_Status hpaioAdvanceDocument( hpaioScanner_t hpaio )
             retcode = SANE_STATUS_NO_DOCS;
             goto abort;
         }
-    }
-    else /* if (hpaio->scannerType==SCANNER_TYPE_PML) */
-    {
-        if( hpaio->beforeScan )
-        {
-            hpaio->currentPageNumber++;
-            hpaio->currentSideNumber = 1;
-        }
-        else if( hpaio->currentSideNumber )
-        {
-            int uploadState;
-
-//BREAKPOINT;
-            
-            if( PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, 
-                               hpaio->pml.objUploadState ) == ERROR ||
-                PmlGetIntegerValue( hpaio->pml.objUploadState,
-                                    0,
-                                    &uploadState ) == ERROR ||
-                uploadState == PML_UPLOAD_STATE_IDLE )
-            {
-                hpaio->currentPageNumber = 0;
-                hpaio->currentSideNumber = 0;
-
-                if( hpaio->currentBatchScan )
-                {
-                    if( hpaio->endOfData )
-                    {
-                        hpaio->noDocsConditionPending = 1;
-                    }
-                }   
-
-                retcode = SANE_STATUS_NO_DOCS;
-                goto abort;
-            }
-        }
-    }
 
     if( !hpaio->beforeScan && !hpaio->endOfData )
     {
@@ -1981,92 +1593,6 @@ static SANE_Status hpaioAdvanceDocument( hpaioScanner_t hpaio )
     }
     return retcode;
 }
-
-static SANE_Status hpaioPmlCheckForScanFailure( hpaioScanner_t hpaio )
-{
-    if( hpaio->scannerType != SCANNER_TYPE_PML ||
-        !hpaio->pml.scanDone ||
-        hpaio->pml.previousUploadState != PML_UPLOAD_STATE_ABORTED )
-    {
-        return SANE_STATUS_GOOD;
-    }
-
-    return hpaioScannerToSaneError( hpaio );
-}
-
-static void hpaioMfpdtfPardonReadTimeout( hpaioScanner_t hpaio,
-                                          int * prService )
-{
-    if( *prService & MFPDTF_RESULT_READ_TIMEOUT &&
-        hpaio->scannerType == SCANNER_TYPE_PML &&
-        hpaio->endOfData &&
-        hpaio->pml.scanDone )
-    {
-        *prService &= ~MFPDTF_RESULT_READ_TIMEOUT;
-    }
-}
-
-static int hpaioPmlSelectCallback( hpaioScanner_t hpaio )
-{
-    int r = SANE_STATUS_GOOD;
-
-    DBG( 0, "hpaioPmlSelectCallback()\n" );
-
-    if( hpaio->pml.scanDone ||
-        PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState ) == ERROR ||
-        PmlGetIntegerValue( hpaio->pml.objUploadState, 0, &hpaio->pml.previousUploadState ) == ERROR ||
-        ( hpaio->pml.previousUploadState == PML_UPLOAD_STATE_ACTIVE &&
-          ( !hpaio->preDenali || !hpaio->endOfData ) 
-        ) 
-       )
-          
-    {
-        goto done;
-    }
-
-    if( hpaio->pml.previousUploadState == PML_UPLOAD_STATE_NEWPAGE )
-    {
-        if( !hpaio->currentBatchScan )
-        {
-            if( !hpaio->pml.dontResetBeforeNextNonBatchPage )
-            {
-                goto setIdle;
-            }
-        }
-        else if( hpaio->pml.startNextBatchPageEarly )
-        {
-            DBG( 0,  "hpaio: hpaioPmlSelectCallback: "
-                            "restarting scan early.\n" );
-            PmlSetIntegerValue( hpaio->pml.objUploadState,
-                                    PML_TYPE_ENUMERATION,
-                                    PML_UPLOAD_STATE_START );
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0 );
-            hpaio->pml.alreadyRestarted = 1;
-        }
-    }
-    else
-    {
-setIdle:
-        hpaioResetScanner( hpaio );
-    }
-
-    hpaio->pml.scanDone = 1;
-
-done:
-    //    if( hpaio->pml.scanDone && hpaio->endOfData )
-    //    {
-    //        r = ERROR;
-    //    }
-    DBG( 0,  "hpaio: hpaioPmlSelectCallback returns %d, "
-                    "scanDone=%d, endOfData=%d, alreadyRestarted=%d.\n",
-                    r,
-                    hpaio->pml.scanDone,
-                    hpaio->endOfData,
-                    hpaio->pml.alreadyRestarted );
-    return r;
-
-} /* hpaioPmlSelectCallback() */
-
 
 /******************************************************* SANE API *******************************************************/
 
@@ -2425,10 +1951,6 @@ extern SANE_Status sane_hpaio_control_option( SANE_Handle handle,
                         return SANE_STATUS_INVAL;
                     }
                     hpaio->currentBatchScan = *pIntValue;
-                    if( !hpaio->currentBatchScan )
-                    {
-                        hpaioResetScannerIfInNewPageState( hpaio );
-                    }
                     break;
 
                 case OPTION_ADF_MODE:
@@ -2620,10 +2142,7 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
     memset( hpaio, 0, sizeof( struct hpaioScanner_s ) );
     
     /* add hp: back onto URI that was removed previously */
-    if( strlen(devicename) > 2 &&
-        devicename[0] != 'h' && 
-        devicename[1] != 'p' && 
-        devicename[2] != ':' )
+    if(strncmp(devicename, "hp:", 3) != 0)
     {
         sprintf( devname, "hp:%s", devicename );
     }
@@ -2715,6 +2234,7 @@ extern SANE_Status sane_hpaio_open( SANE_String_Const devicename,
     else if( strcasecmp( hpaio->saneDevice.model, "OfficeJet_Series_600" ) == 0 )
     {
         hpaio->scannerType = SCANNER_TYPE_PML;
+        hpaio->denali = 1;
         forceJpegForGrayAndColor = 1;
         force300dpiForLineart = 1;
         hpaio->defaultCompression[SCAN_MODE_LINEART] = COMPRESSION_MH;
@@ -3326,6 +2846,14 @@ extern void sane_hpaio_cancel( SANE_Handle handle )
 
     DBG( 0,  "\nhpaio: sane_hpaio_cancel() *******************************************************************************************\n" ); 
 
+    if (hpaio->scannerType==SCANNER_TYPE_PML)
+    {
+        pml_cancel(hpaio);
+        return ;
+    }
+
+    /* TODO: convert to scl_cancel. des */
+
     if( hpaio->mfpdtf )
     {
         MfpdtfLogToFile( hpaio->mfpdtf, 0 );
@@ -3358,8 +2886,12 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
     
     hpaio->endOfData = 0;
 
-    /* If we just scanned the last page of a batch scan, then
-           * return the obligatory SANE_STATUS_NO_DOCS condition. */
+    if (hpaio->scannerType==SCANNER_TYPE_PML)
+        return pml_start(hpaio);
+
+    /* TODO: convert to scl_start. des */
+
+    /* If we just scanned the last page of a batch scan, then return the obligatory SANE_STATUS_NO_DOCS condition. */
     if( hpaio->noDocsConditionPending )
     {
         hpaio->noDocsConditionPending = 0;
@@ -3422,26 +2954,18 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
     traits.iNumPages = 1;
     traits.iPageNum = 1;
 
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         int lines, pixelsPerLine;
 
         /* Inquire exact image dimensions. */
-        if( SclInquire( hpaio->deviceid, hpaio->scan_channelid,
-                        SCL_CMD_INQUIRE_DEVICE_PARAMETER,
-                        SCL_INQ_NUMBER_OF_SCAN_LINES,
-                        &lines,
-                        0,
-                        0 ) == SANE_STATUS_GOOD )
+        if( SclInquire( hpaio->deviceid, hpaio->scan_channelid, SCL_CMD_INQUIRE_DEVICE_PARAMETER, SCL_INQ_NUMBER_OF_SCAN_LINES,
+                        &lines, 0, 0 ) == SANE_STATUS_GOOD )
         {
             traits.lNumRows = lines;
         }
-        SclInquire( hpaio->deviceid, hpaio->scan_channelid,
-                    SCL_CMD_INQUIRE_DEVICE_PARAMETER,
-                    SCL_INQ_PIXELS_PER_SCAN_LINE,
-                    &pixelsPerLine,
-                    0,
-                    0 );
+        SclInquire( hpaio->deviceid, hpaio->scan_channelid, SCL_CMD_INQUIRE_DEVICE_PARAMETER, SCL_INQ_PIXELS_PER_SCAN_LINE,
+                    &pixelsPerLine, 0, 0 );
         
         traits.iPixelsPerRow = pixelsPerLine;
 
@@ -3449,62 +2973,13 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
 
         /* Start scanning. */
         SclSendCommand( hpaio->deviceid, hpaio->scan_channelid, SCL_CMD_SCAN_WINDOW, 0 );
-    }
-    else /* if (hpaio->scannerType==SCANNER_TYPE_PML) */
-    {
-        int i, startedHere = 0;
-
-        hpaio->pml.scanDone = 0;
-
-        /* Start scanning. */
-        PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState );
-        PmlGetIntegerValue( hpaio->pml.objUploadState,
-                                0,
-                                &hpaio->pml.previousUploadState );
-        
-        if( hpaio->pml.previousUploadState == PML_UPLOAD_STATE_IDLE ||
-            !hpaio->pml.alreadyRestarted )
-        {
-            PmlSetIntegerValue( hpaio->pml.objUploadState,
-                                    PML_TYPE_ENUMERATION,
-                                    PML_UPLOAD_STATE_START );
-            PmlRequestSetRetry( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState, 0, 0 );
-            startedHere = 1;
-        }
-        hpaio->pml.alreadyRestarted = 0;
-
-        /* Look for a confirmation that the scan started or failed. */
-        for( i = 0; ; i++ )
-        {
-            PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState );
-            PmlGetIntegerValue( hpaio->pml.objUploadState,
-                                    0,
-                                    &hpaio->pml.previousUploadState );
-            
-            if( hpaio->pml.previousUploadState == PML_UPLOAD_STATE_ACTIVE ||
-                !startedHere )
-            {
-                break;
-            }
-            
-            if( i > PML_START_SCAN_WAIT_ACTIVE_MAX_RETRIES ||
-                hpaio->pml.previousUploadState != PML_UPLOAD_STATE_START )
-            {
-                retcode = hpaioScannerToSaneError( hpaio );
-                if( retcode == SANE_STATUS_GOOD )
-                {
-                    retcode = SANE_STATUS_IO_ERROR;
-                }
-                goto abort;
-            }
-            sleep( PML_START_SCAN_WAIT_ACTIVE_DELAY );
-        }
-    }
 
     if( hpaio->mfpdtf )
     {
+        MfpdtfSetChannel( hpaio->mfpdtf, hpaio->scan_channelid );
+
         //MfpdtfReadSetTimeout( hpaio->mfpdtf, MFPDTF_EARLY_READ_TIMEOUT );
-        MfpdtfReadStart( hpaio->mfpdtf );
+        MfpdtfReadStart( hpaio->mfpdtf );  /* inits mfpdtf */
         
 #ifdef HPAIO_DEBUG
         int log_output=1;
@@ -3527,49 +3002,28 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
         {
             MfpdtfLogToFile( hpaio->mfpdtf,  0 );
         }
-
         
         while( 1 )
         {
             int rService, sopEncoding;
 
-//BREAKPOINT;            
-
             rService = MfpdtfReadService( hpaio->mfpdtf );
-            
-            if( hpaio->scannerType == SCANNER_TYPE_PML )
-                if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
-                    goto abort;
-            
-            retcode = hpaioPmlCheckForScanFailure( hpaio );
             
             if( retcode != SANE_STATUS_GOOD )
             {
                 goto abort;
             }
             
-            hpaioMfpdtfPardonReadTimeout( hpaio, &rService );
-            
-
-            
             if( rService & MFPDTF_RESULT_ERROR_MASK )
             {
-                DBG( 0,  "hpaio: sane_hpaio_start: "
-                               "MfpdtfReadService() returns 0x%4.4X!\n",
-                               rService );
                 retcode = SANE_STATUS_IO_ERROR;
                 goto abort;
             }
-            DBG( 0,  "hpaio: sane_hpaio_start: "
-                            "MfpdtfReadService() returns 0x%4.4X.\n",
-                            rService );
 
             if( rService & MFPDTF_RESULT_NEW_VARIANT_HEADER && hpaio->preDenali )
             {
                 union MfpdtfVariantHeader_u vheader;
-                MfpdtfReadGetVariantHeader( hpaio->mfpdtf,
-                                                &vheader,
-                                                sizeof( vheader ) );
+                MfpdtfReadGetVariantHeader( hpaio->mfpdtf, &vheader, sizeof( vheader ) );
                 
                 traits.iPixelsPerRow = LEND_GET_SHORT( vheader.faxArtoo.pixelsPerRow );
                 traits.iBitsPerPixel = 1;
@@ -3606,9 +3060,7 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
                 }
 
                 /* Read SOP record and set image pipeline input traits. */
-                MfpdtfReadGetStartPageRecord( hpaio->mfpdtf,
-                                              &sop,
-                                              sizeof( sop ) );
+                MfpdtfReadGetStartPageRecord( hpaio->mfpdtf, &sop, sizeof( sop ) );
                 
                 traits.iPixelsPerRow = LEND_GET_SHORT( sop.black.pixelsPerRow );
                 traits.iBitsPerPixel = LEND_GET_SHORT( sop.black.bitsPerPixel );
@@ -3617,16 +3069,6 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
                 sopEncoding = sop.encoding;
 setupDecoder:
                 
-                DBG( 0,  "hpaio: sane_hpaio_start: MFPDTF pixelsPerRow=%d, "
-                                "bitsPerPixel=%d, xres=0x%8.8X, yres=0x%8.8X, encoding=%d.\n",
-                                traits.iPixelsPerRow,
-                                traits.iBitsPerPixel,
-                                traits.lHorizDPI,
-                                traits.lVertDPI,
-                                sopEncoding );
-
-               
-//BREAKPOINT;
                 /* Set up image-processing pipeline. */
                 switch( sopEncoding )
                 {
@@ -3665,24 +3107,16 @@ jpegDecode:
                     case MFPDTF_RASTER_NOT:
                     default:
                         /* Skip processing for unknown encodings. */
-                        DBG( 0,  "hpaio: sane_hpaio_start: "
-                                       "device specified unknown image encoding=%d!\n",
-                                       sopEncoding );
+                        bug("unknown image encoding sane_start: name=%s sop=%d\n", hpaio->saneDevice.name,sopEncoding);
                 }
-
                 continue;
             }
 
             if( rService & MFPDTF_RESULT_IMAGE_DATA_PENDING )
             {
-                /*MfpdtfReadSetTimeout( hpaio->mfpdtf,
-                                      MFPDTF_LATER_READ_TIMEOUT );*/
+                /*MfpdtfReadSetTimeout( hpaio->mfpdtf, MFPDTF_LATER_READ_TIMEOUT );*/
                 break;
             }
-
-            DBG( 0,  "hpaio: sane_hpaio_start: "
-                            "Unhandled MfpdtfReadService() result=0x%4.4X.\n",
-                            rService );
         }
     }
     hpaio->scanParameters.pixels_per_line = traits.iPixelsPerRow;
@@ -3694,8 +3128,8 @@ jpegDecode:
                                                              hpaio->effectiveResolution );
     }
 
-    if( hpaio->scannerType == SCANNER_TYPE_SCL )
-    {
+    //    if( hpaio->scannerType == SCANNER_TYPE_SCL )
+    //    {
         /* We have to invert bilevel data from SCL scanners. */
         if( hpaio->effectiveScanMode == SCAN_MODE_LINEART )
         {
@@ -3711,34 +3145,6 @@ jpegDecode:
                 ADD_XFORM( X_TABLE );
             }
         }
-    }
-    else /* if (hpaio->scannerType==SCANNER_TYPE_PML) */
-    {
-        int mmWidth = PIXELS_TO_MILLIMETERS( traits.iPixelsPerRow,
-                                             hpaio->effectiveResolution );
-
-        /* Set up X_CROP xform. */
-        pXform->aXformInfo[IP_CROP_LEFT].dword = MILLIMETERS_TO_PIXELS( hpaio->effectiveTlx,
-                                                                        hpaio->effectiveResolution );
-        if( hpaio->effectiveBrx < hpaio->brxRange.max &&
-            hpaio->effectiveBrx < mmWidth )
-        {
-            pXform->aXformInfo[IP_CROP_RIGHT].dword = MILLIMETERS_TO_PIXELS( mmWidth -
-                                                                             hpaio->effectiveBrx,
-                                                                             hpaio->effectiveResolution );
-        }
-        pXform->aXformInfo[IP_CROP_TOP].dword = MILLIMETERS_TO_PIXELS( hpaio->effectiveTly,
-                                                                       hpaio->effectiveResolution );
-        if( hpaio->currentLengthMeasurement != LENGTH_MEASUREMENT_UNLIMITED )
-        {
-            hpaio->scanParameters.lines = pXform->aXformInfo[IP_CROP_MAXOUTROWS].dword = MILLIMETERS_TO_PIXELS( hpaio->effectiveBry -
-                                                                                                                hpaio->effectiveTly,
-                                                                                                                hpaio->effectiveResolution );
-        }
-        hpaio->scanParameters.pixels_per_line -= pXform->aXformInfo[IP_CROP_LEFT].dword +
-                                                 pXform->aXformInfo[IP_CROP_RIGHT].dword;
-        ADD_XFORM( X_CROP );
-    }
 
     if( hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_PADDED )
     {
@@ -3746,16 +3152,12 @@ jpegDecode:
         pXform->aXformInfo[IP_PAD_RIGHT].dword = 0;
         pXform->aXformInfo[IP_PAD_TOP].dword = 0;
         pXform->aXformInfo[IP_PAD_BOTTOM].dword = 0;
-        pXform->aXformInfo[IP_PAD_VALUE].dword = ( hpaio->effectiveScanMode ==
-                                                   SCAN_MODE_LINEART ) ?
-                                                 PAD_VALUE_LINEART :
-                                                 PAD_VALUE_GRAYSCALE_COLOR;
+        pXform->aXformInfo[IP_PAD_VALUE].dword = ( hpaio->effectiveScanMode == SCAN_MODE_LINEART ) ? PAD_VALUE_LINEART : PAD_VALUE_GRAYSCALE_COLOR;
         pXform->aXformInfo[IP_PAD_MIN_HEIGHT].dword = hpaio->scanParameters.lines;
         ADD_XFORM( X_PAD );
     }
 
-    /* If we didn't set up any xforms by now, then add the dummy
-     * "skel" xform to simplify our subsequent code path. */
+    /* If we didn't set up any xforms by now, then add the dummy "skel" xform to simplify our subsequent code path. */
     if( pXform == xforms )
     {
         ADD_XFORM( X_SKEL );
@@ -3765,9 +3167,6 @@ jpegDecode:
     
     if( wResult != IP_DONE || !hpaio->hJob )
     {
-        DBG( 0,  "hpaio: sane_hpaio_start: "
-                       "ipOpen() returns 0x%4.4X!\n",
-                       wResult );
         retcode = SANE_STATUS_INVAL;
         goto abort;
     }
@@ -3777,25 +3176,18 @@ jpegDecode:
     
     if( wResult != IP_DONE )
     {
-        DBG( 0,  "hpaio: sane_hpaio_start: "
-                       "ipSetDefaultInputTraits() returns 0x%4.4X!\n",
-                       wResult );
         retcode = SANE_STATUS_INVAL;
         goto abort;
     }
 
     hpaio->scanParameters.bytes_per_line = BYTES_PER_LINE( hpaio->scanParameters.pixels_per_line,
-                                                           hpaio->scanParameters.depth * ( hpaio->scanParameters.format ==
-                                                                                           SANE_FRAME_RGB ?
-                                                                                           3 :
-                                                                                           1 ) );
+                                hpaio->scanParameters.depth * ( hpaio->scanParameters.format == SANE_FRAME_RGB ? 3 : 1 ) );
     
     hpaio->totalBytesRemaining = hpaio->scanParameters.bytes_per_line * hpaio->scanParameters.lines;
     hpaio->bufferOffset = 0;
     hpaio->bufferBytesRemaining = 0;
 
-    if( hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNKNOWN ||
-        hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNLIMITED )
+    if( hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNKNOWN || hpaio->currentLengthMeasurement == LENGTH_MEASUREMENT_UNLIMITED )
     {
         hpaio->scanParameters.lines = -1;
     }
@@ -3814,9 +3206,6 @@ abort:
     {
         sane_hpaio_cancel( handle );
     }
-
-    DBG( 0,  "hpaio: sane_hpaio_start returns %d.\n",
-                    retcode );
     return retcode;
     
 } //sane_hpaio_start()
@@ -3837,19 +3226,21 @@ extern SANE_Status sane_hpaio_read( SANE_Handle handle,
     DWORD dwOutputUsed, dwOutputThisPos;
     WORD wResult;
 
-    DBG( 0,  "\nhpaio: sane_hpaio_read(maxLength=%d) *******************************************************************************************\n",
-                    maxLength );
+    DBG( 0,  "\nhpaio: sane_hpaio_read(maxLength=%d) ****************************************************************************\n", maxLength );
 
     *pLength = 0;
 
     if( !hpaio->hJob )
     {
-        DBG( 0,  "hpaio: sane_hpaio_read(maxLength=%d): "
-                       "No scan pending!\n",
-                       maxLength );
+        DBG( 0,  "hpaio: sane_hpaio_read(maxLength=%d): No scan pending!\n", maxLength );
         retcode = SANE_STATUS_EOF;
         goto abort;
     }
+
+    if (hpaio->scannerType==SCANNER_TYPE_PML)
+        return pml_read(hpaio, data, maxLength, pLength);
+
+    /* TODO: convert to scl_read. des */
 
 needMoreData:
     if( hpaio->bufferBytesRemaining <= 0 && !hpaio->endOfData )
@@ -3857,9 +3248,7 @@ needMoreData:
         if( !hpaio->mfpdtf )
         {
             int r, len = hpaio->totalBytesRemaining;
-            DBG( 0,  "hpaio: sane_hpaio_read: "
-                            "totalBytesRemaining=%d.\n",
-                            hpaio->totalBytesRemaining );
+            DBG( 0,  "hpaio: sane_hpaio_read: totalBytesRemaining=%d.\n", hpaio->totalBytesRemaining );
             if( len <= 0 )
             {
                 hpaio->endOfData = 1;
@@ -3875,7 +3264,7 @@ needMoreData:
                                    hpaio->scan_channelid, 
                                    hpaio->inBuffer, 
                                    len,
-                                   -1 );
+                                   EXCEPTION_TIMEOUT );
                 
                 if( r < 0 )
                 {
@@ -3893,40 +3282,17 @@ needMoreData:
 
                 rService = MfpdtfReadService( hpaio->mfpdtf );
                                 
-                if( hpaio->scannerType == SCANNER_TYPE_PML )
-                    if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
-                        goto abort;
-                
-                retcode = hpaioPmlCheckForScanFailure( hpaio );
-                
-                if( retcode != SANE_STATUS_GOOD )
-                {
-                    goto abort;
-                }
-                
-                hpaioMfpdtfPardonReadTimeout( hpaio, &rService );
-//BREAKPOINT;                
                 if( rService & MFPDTF_RESULT_ERROR_MASK )
                 {
-                    DBG( 0,  "hpaio: sane_hpaio_read: "
-                                   "MfpdtfReadService() returns 0x%4.4X!\n",
-                                   rService );
                     retcode = SANE_STATUS_IO_ERROR;
                     goto abort;
                 }
-                DBG( 0,  "hpaio: sane_hpaio_read: "
-                                "MfpdtfReadService() returns 0x%4.4X.\n",
-                                rService );
 
                 if( rService & MFPDTF_RESULT_IMAGE_DATA_PENDING )
                 {
-                    hpaio->bufferBytesRemaining = MfpdtfReadInnerBlock( hpaio->mfpdtf,
-                                                                        hpaio->inBuffer,
-                                                                        LEN_BUFFER );
+                    hpaio->bufferBytesRemaining = MfpdtfReadInnerBlock( hpaio->mfpdtf, hpaio->inBuffer, LEN_BUFFER );
                     
                     rService = MfpdtfReadGetLastServiceResult( hpaio->mfpdtf );
-                    
-                    hpaioMfpdtfPardonReadTimeout( hpaio, &rService );
                     
                     if( rService & MFPDTF_RESULT_ERROR_MASK )
                     {
@@ -3938,23 +3304,6 @@ needMoreData:
                 {
                     hpaio->endOfData = 1;
                 }
-
-                if( hpaio->endOfData )
-                {
-                    if( hpaio->scannerType == SCANNER_TYPE_PML )
-                    {
-                        while (!hpaio->pml.scanDone)
-                        {
-                            /* Mfpdtf side is done, wait for pml side. */
-                            sleep(1);
-                            if ((retcode = hpaioPmlSelectCallback( hpaio )) != SANE_STATUS_GOOD )
-                               goto abort;
-                        }
-                    }
-                }
-
-                DBG( 0,  "hpaio: sane_hpaio_read: "
-                                "Unhandled MfpdtfReadService() result=0x%4.4X.\n", rService );
 
         } /* if (!hpaio->mfpdtf) */
 
@@ -4046,8 +3395,8 @@ extern void sane_hpaio_close(SANE_Handle handle)
 
     hpaioPmlDeallocateObjects(hpaio);
 
-    /* ADF may leave scan channel open. */  
-    if (hpaio->scan_channelid > 0)
+    /* ADF may leave channel(s) open. */  
+    if (hpaio->cmd_channelid > 0)
        hpaioConnEndScan(hpaio);
     
     if (hpaio->deviceid > 0)

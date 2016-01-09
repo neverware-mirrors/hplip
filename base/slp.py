@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.16 $ 
-# $Date: 2005/07/05 19:17:28 $
+# $Revision: 1.18 $ 
+# $Date: 2005/07/22 16:03:26 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -64,16 +64,21 @@ def detectNetworkDevices( mcast_addr='224.0.1.60', mcast_port=427, ttl=4, timeou
 
     s.setblocking(0)
     ttl = struct.pack( 'b', ttl ) 
-    s.setsockopt( socket.SOL_IP, socket.IP_MULTICAST_TTL, ttl )
-    s.setsockopt( socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton( intf ) + socket.inet_aton( '0.0.0.0' ) )
     
+    try:
+        s.setsockopt( socket.SOL_IP, socket.IP_MULTICAST_TTL, ttl )
+        s.setsockopt( socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton( intf ) + socket.inet_aton( '0.0.0.0' ) )
+    except:
+        log.error("Unable to setup multicast socket for SLP.")
+        return {}
+        
     packet = ''.join( [ '\x01\x06\x00,\x00\x00en\x00\x03', 
                         struct.pack( '!H', xid or random.randint( 1, 65535 ) ),
                         '\x00\x00\x00\x18service:x-hpnp-discover:\x00\x00\x00\x00'  ] )
     
     try:
         s.sendto( packet, ( mcast_addr, mcast_port ) )
-    except socket.error:
+    except socket.error, e:
         log.error( "Unable to send broadcast SLP packet: %s" % e )
        
     time_left = timeout

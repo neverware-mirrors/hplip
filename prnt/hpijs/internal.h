@@ -382,6 +382,7 @@ class LJFastRasterProxy;
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
 class PSP100Proxy;
+class PSP470Proxy;
 #endif
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)
@@ -520,6 +521,7 @@ public:
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
     static PSP100Proxy s_PSP100Proxy;
+    static PSP470Proxy s_PSP470Proxy;
 #endif
 
 #if defined(APDK_DJGENERICVIP) && defined (APDK_DJ9xxVIP)

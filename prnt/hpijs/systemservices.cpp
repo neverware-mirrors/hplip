@@ -62,6 +62,7 @@ SystemServices::SystemServices()
     IOMode.bDevID=FALSE;
     IOMode.bStatus=FALSE;
     IOMode.bUSB=FALSE;
+    memset (strDevID, 0, DevIDBuffSize);
 
 }
 

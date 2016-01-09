@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.23 $
-# $Date: 2005/07/19 23:22:37 $
+# $Revision: 1.24 $
+# $Date: 2005/07/22 00:00:15 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -25,15 +25,10 @@
 
 
 # Std Lib
-import sys
-import cStringIO
-import select
-import time
-import socket
+import sys, cStringIO, select, socket
 
 # Local
 from g import *
-import utils
 from codes import *
 
 valid_encodings = ('', 'none', 'base64')

@@ -145,7 +145,7 @@ case "$1" in
         mystatus hpssd
         ;;
   condrestart)
-        [ -f /var/lock/subsys/hpiod ] && [ -f /var/lock/subsys/hpssd ] && restart || :
+        [ -f /var/lock/subsys/hpiod ] && [ -f /var/lock/subsys/hpssd.py ] && restart || :
         ;;
   *)
         echo $"Usage: $0 {start|stop|status|restart|condrestart}"

@@ -165,7 +165,7 @@ int UniUsbDevice::ReadData(int length, int channel, int timeout, char *sendBuf, 
 Channel *UniUsbDevice::NewChannel(unsigned char sockid)
 {
    Channel *pC=NULL;
-   int i, mode;
+   int i;
 
    /* Only support one channel. */
    if (ChannelCnt >= 1)
@@ -181,7 +181,7 @@ Channel *UniUsbDevice::NewChannel(unsigned char sockid)
          pC->SetSocketID(sockid);
          pChannel[i] = pC;
          ChannelCnt++;
-         ChannelMode = mode;
+         ChannelMode = UNI_MODE;
          break;
       }
    }     

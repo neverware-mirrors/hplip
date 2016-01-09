@@ -320,17 +320,19 @@ pageLeft 72 mul
 pageBottom 72 mul
 translate
 
+%-----------imageable area boxes----------------------------
+
 % Imageable area...
 pageHeight 15 mul			% Height of imageable area
 
-pageWidth 4.5 mul			% x = pageWidth * 1/16 * 72
+pageWidth 2.5 mul			% x = pageWidth * 1/16 * 72
 pageHeight 35.5 mul			% y = pageHeight * 1/2 * 72
 2 index sub				% y -= height
 pageWidth 28 mul			% width = pageWidth * 1/4 * 72
 3 index				% height
 0.5 setgray rectfill			% Draw a shadow
 
-pageWidth 4 mul			% x = pageWidth * 1/16 * 72
+pageWidth 2 mul			% x = pageWidth * 1/16 * 72
 pageHeight 36 mul			% y = pageHeight * 1/2 * 72
 2 index sub				% y -= height
 pageWidth 28 mul			% width = pageWidth * 3/8 * 72
@@ -340,17 +342,23 @@ pageWidth 28 mul			% width = pageWidth * 3/8 * 72
 
 pop					% Discard height
 
+
+%-------------imageable area text--------------------
+
+
 % Label the imageable area...
-pageWidth 4 mul			% x = pageWidth * 1/16 * 72
+pageWidth 2.5 mul			% x = pageWidth * 1/16 * 72
 pageHeight 37 mul			% y = pageHeight * 1/2 * 72
 moveto				% Position the text
 mediumFont setfont			% Font
 (Imageable Area) show			% Show the text
 
 smallFont setfont			% Font
-pageWidth 5 mul			% x = pageWidth * 3/16 * 72
+pageWidth 3.5 mul			% x = pageWidth * 3/16 * 72
 pageHeight 36 mul			% y = pageWidth * 1/2 * 72
 pageHeight -2 mul add			% y -= 2 * smallFont height
+
+%---------------------------------------------
 
 % Page Size inches
 %2 copy moveto				% Move to x & y
@@ -431,36 +439,46 @@ pageHeight 2 mul sub			% Move down...
 1 yResolution 39.27 mul NUMBER	% yResolution
 (dpm\)) show				% "dpm"
 
+
+%----------Printer Information BOXES--------------------
+
+
 pageHeight 15 mul			% Height of interpreter information
 
-pageWidth 40.5 mul			% x = pageWidth * 9/16 * 72
+pageWidth 33.5 mul			% x = pageWidth * 9/16 * 72
 pageHeight 35.5 mul			% y = pageHeight * 1/2 * 72
 2 index sub				% y -= height
-pageWidth 28 mul			% width = pageWidth * 1/4 * 72
+pageWidth 36 mul			% width = pageWidth * 1/4 * 72
 3 index				% height
 0.5 setgray rectfill			% Draw a shadow
 
-pageWidth 40 mul			% x = pageWidth * 9/16 * 72
+pageWidth 33 mul			% x = pageWidth * 9/16 * 72
 pageHeight 36 mul			% y = pageHeight * 1/2 * 72
 2 index sub				% y -= height
-pageWidth 28 mul			% width = pageWidth * 3/8 * 72
+pageWidth 36 mul			% width = pageWidth * 3/8 * 72
 3 index				% height
 4 copy 1 setgray rectfill		% Clear the box to white
 0 setgray rectstroke			% Draw a black box around it...
 
 pop					% Discard height
 
+
+%--------------Printer Information TEXT---------------------
+
 % Label the printer info...
-pageWidth 40 mul			% x = pageWidth * 9/16 * 72
+pageWidth 33.5 mul			% x = pageWidth * 9/16 * 72
 pageHeight 37 mul			% y = pageHeight * 1/2 * 72
 moveto				% Position the text
 mediumFont setfont			% Font
 (Printer Information) show	% Show the text
 
 smallFont setfont			% Font
-pageWidth 41 mul			% x = pageWidth * 11/16 * 72
+pageWidth 34.5 mul			% x = pageWidth * 11/16 * 72
 pageHeight 36 mul			% y = pageWidth * 1/2 * 72
 pageHeight 2 mul sub			% y -= 2 * smallFont height
+
+
+%--------------Printer Information---------------------
 
 % HP LIPS VERSION
 2 copy moveto				% Move to x & y
@@ -527,14 +545,6 @@ pageHeight 4 mul sub
 2 copy moveto
 (and Printing System) CENTER
 
-%pageHeight 2 mul sub			% Move down...
-%2 copy moveto				% Position text
-%smallFont setfont			% Font
-
-%(Test page derived from the CUPS test page.) CENTER
-%pageHeight sub			% Move down...
-%2 copy moveto				% Position text
-%(CUPS is a trademark property of Easy Software Products) CENTER
 
 /img-width  .293 pageWidth 72 mul mul  def
 /img-height .308 pageHeight 72 mul mul def 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.31 $
-# $Date: 2005/07/18 20:28:20 $
+# $Revision: 1.32 $
+# $Date: 2005/08/10 16:39:39 $
 # $Author: dwelch $
 
 #
@@ -139,6 +139,23 @@ def getGUI( username ):
 
     return ( fields.get( 'port', 0 ),  fields.get( 'hostname', '' ) )
 
+def sendEvent(event, typ, jobid, username, device_uri, other_fields={}):
+    __openServices()
+    fields = {'job-id'        : jobid,
+              'event-type'    : typ,
+              'event-code'    : event,
+              'username'      : username,
+              'device-uri'    : device_uri,
+              'retry-timeout' : 0,}
+
+    if other_fields:
+        fields.update(other_fields)
+    #print fields
+
+    #def sendEvent(sock, msg_type, payload=None, other_fields={}):
+    msg.sendEvent(sock, 'Event', None, fields)
+
+    __closeServices()
 
 
 def setAlerts( email_alerts, email_address, smtp_server ):

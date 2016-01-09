@@ -443,17 +443,17 @@ FUNC_STATUS WORD pnm_convert (
                 goto fatal_error;
             }
 
-            snprintf(buffer,MAX_ENCODE_HEADER_SIZE,"\n%d %d\n",
+            snprintf((char *)buffer,MAX_ENCODE_HEADER_SIZE,"\n%d %d\n",
                 g->traits.iPixelsPerRow,g->dwRowsDone);
             if (g->traits.iComponentsPerPixel>1 || maxval>1) {
                 buffer[MAX_ENCODE_HEADER_SIZE-1]=0;
-                len=strlen(buffer);
-                snprintf(buffer+len,MAX_ENCODE_HEADER_SIZE-len,
+                len=strlen((char *)buffer);
+                snprintf((char *)buffer+len,MAX_ENCODE_HEADER_SIZE-len,
                     "%d\n",maxval);
             }
 
             buffer[MAX_ENCODE_HEADER_SIZE-1]=0;
-            len=strlen(buffer);
+            len=strlen((char *)buffer);
             memcpy(pbOutputBuf+MAX_ENCODE_HEADER_SIZE-len,buffer,len);
 
             *pdwOutputUsed=MAX_ENCODE_HEADER_SIZE;

@@ -150,6 +150,7 @@ protected:
   
   virtual void FreeMem (BYTE* pMem, BOOL trackmemory)
   { FreeMem(pMem); }
+  BOOL  CanDoBiDi ();
 
 };
 

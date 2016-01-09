@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.18 $ 
-# $Date: 2005/06/28 23:13:41 $
+# $Revision: 1.20 $
+# $Date: 2005/07/21 23:50:32 $
 # $Author: dwelch $
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,59 +24,46 @@
 #
 
 
-_VERSION = '1.2'
+_VERSION = '1.3'
 
 # Std Lib
-import sys
-import re
-import getopt
-import socket
-import re
+import sys, getopt, re, socket
 
 # Local
 from base.g import *
 from base import device, utils, slp, msg
 
 def usage():
-    formatter = utils.TextFormatter( 
-                (
-                    {'width': 24, 'margin' : 2},
-                    {'width': 58, 'margin' : 2},
-                )
-            )
-
+    formatter = utils.usage_formatter()
     log.info( utils.bold( """\nUsage: hp-probe [OPTIONS]\n\n""" ) )
-
-    log.info( formatter.compose( ( "[OPTIONS]",              "" ) ) )
-    log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "",                       "<level>: none, info*, error, warn, debug (*default)" ) ) )
-    log.info( formatter.compose( ( "Bus to probe:",          "-b<bus> or --bus=<bus>" ) ) )
-    log.info( formatter.compose( ( "",                       "<bus>: cups*, usb*, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
-    log.info( formatter.compose( ( "TTL:",                   "-t<ttl> or --ttl=<ttl>" ) ) )
-    log.info( formatter.compose( ( "",                       "(Network only)" ) ) )
-    log.info( formatter.compose( ( "Timeout:",               "-o<timeout in secs> or --timeout=<timeout in secs>" ) ) )
-    log.info( formatter.compose( ( "",                       "(Network only)" ) ) )
-    log.info( formatter.compose( ( "Filter:",                "-e<filter list> or --filter=<filter list>" ) ) )
-    log.info( formatter.compose( ( "",                       "<filter list>: comma separated list of one or more of: scan, pcard, fax, copy, or none*. (*none is the default)" ) ) )
-    log.info( formatter.compose( ( "Search:",                "-s<search re> or --search=<search re>" ) ) )
-    log.info( formatter.compose( ( "",                       "<search re> must be a valid regular expression (not case sensitive)" ) ) )
-    log.info( formatter.compose( ( "This help information:", "-h or --help" ) ) )
-
-    log.info(  """\n\nExamples:\n\nFind all devices on the network:\n   hp-probe -bnet\n\n""" \
-               """Find all devices on USB that support scanning:\n   hp-probe -busb -escan\n\n""" \
-               """Find all networked devices that contain the name 'lnx' and that support photo cards or scanning:\n   hp-probe -bnet -slnx -escan,pcard\n\n"""
-               """Find all devices that are on the USB bus or that are installed in CUPS:\n   hp-probe\n\n"""
+    utils.usage_options()
+    utils.usage_logging(formatter)
+    utils.usage_bus(formatter)
+    log.info( formatter.compose( ( "TTL:", "-t<ttl> or --ttl=<ttl>" ) ) )
+    log.info( formatter.compose( ( "", "(Network only)" ) ) )
+    log.info( formatter.compose( ( "Timeout:", "-o<timeout in secs> or --timeout=<timeout in secs>" ) ) )
+    log.info( formatter.compose( ( "", "(Network only)" ) ) )
+    log.info( formatter.compose( ( "Filter:", "-e<filter list> or --filter=<filter list>" ) ) )
+    log.info( formatter.compose( ( "", "<filter list>: comma separated list of one or more of: scan, pcard, fax, copy, or none*. (*none is the default)" ) ) )
+    log.info( formatter.compose( ( "Search:", "-s<search re> or --search=<search re>" ) ) )
+    log.info( formatter.compose( ( "", "<search re> must be a valid regular expression (not case sensitive)" ) ) )
+    utils.usage_help(formatter, True)
+    utils.usage_examples()
+    log.info(  """\nFind all devices on the network:\n\thp-probe -bnet\n\n""" \
+               """Find all devices on USB that support scanning:\n\thp-probe -busb -escan\n\n""" \
+               """Find all networked devices that contain the name 'lnx' and that support photo cards or scanning:\n\thp-probe -bnet -slnx -escan,pcard\n\n"""
+               """Find all devices that are on the USB or parallel buses or that are installed in CUPS:\n\thp-probe\n\n"""
             )
-        
-        
 
+
+    sys.exit(0)
 
 utils.log_title( 'Device Detection (Probe) Utility', _VERSION )
 
 try:
-    opts, args = getopt.getopt( sys.argv[1:], 
-                                'hl:b:t:o:e:s:', 
-                                [ 'help', 
+    opts, args = getopt.getopt( sys.argv[1:],
+                                'hl:b:t:o:e:s:',
+                                [ 'help',
                                   'logging=',
                                   'bus=',
                                   'event=',
@@ -84,14 +71,13 @@ try:
                                   'timeout=',
                                   'filter=',
                                   'search='
-                                ] 
-                              ) 
+                                ]
+                              )
 except getopt.GetoptError:
     usage()
-    sys.exit(1)
 
-bus = 'cups,usb'
-log_level = 'info'
+log_level = logger.DEFAULT_LOG_LEVEL
+bus = device.DEFAULT_PROBE_BUS
 align_debug = False
 format='cups'
 timeout=5
@@ -103,8 +89,6 @@ for o, a in opts:
 
     if o in ( '-h', '--help' ):
         usage()
-        sys.exit(0)
-
 
     elif o in ( '-b', '--bus' ):
         bus = a.lower().strip()
@@ -136,52 +120,34 @@ for o, a in opts:
         search = a.lower().strip()
 
 
-
-
-if not log_level in ( 'info', 'warn', 'error', 'debug' ):
-    log.error( "Invalid logging level." )
+if not device.validateBusList(bus):
     usage()
-    sys.exit(0)
 
-log.set_level( log_level )         
+if not log.set_level( log_level ):
+    usage()
 
 if timeout < 0:
     log.error( "You must specify a positive timeout in seconds." )
     usage()
-    sys.exit(0)
 
-for f in filter.split(','):
-    if f not in ( 'none', 'print', 'scan', 'fax', 'pcard', 'copy' ):
-        log.error( "Invalid term '%s' in filter list" % f )
-        usage()
-        sys.exit(0)
-
-
-for x in bus.split(','):
-    bb = x.lower().strip()
-    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
-    if bb not in ( 'usb', 'cups', 'net' ):
-        log.error( "Invalid bus name: %s" % bb )
-        usage()
-        sys.exit(0)
-
-
+if not device.validateFilterList(filter):
+    usage()
 
 hpssd_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 hpssd_sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
 
 fields, data, result_code = \
-    msg.xmitMessage( hpssd_sock, 
+    msg.xmitMessage( hpssd_sock,
                      "ProbeDevicesFiltered",
-                      None, 
-                      { 
+                      None,
+                      {
                             'bus' : bus,
                             'timeout' : timeout,
                             'ttl' : ttl,
                             'format' : 'cups',
                             'filter' : filter,
 
-                      } 
+                      }
                     )
 
 hpssd_sock.close()
@@ -192,6 +158,7 @@ max_c1 = 0
 max_c2 = 0
 max_c3 = 0
 dd = data.splitlines()
+
 if len(dd) > 0:
 
     if search is not None:
@@ -222,7 +189,7 @@ if len(dd) > 0:
         c3 = x.group(4)
         max_c3 = max( len(c3), max_c3 )
 
-    formatter = utils.TextFormatter( 
+    formatter = utils.TextFormatter(
                 (
                     {'width': max_c1, 'margin' : 2},
                     {'width': max_c2, 'margin' : 2},
@@ -231,22 +198,22 @@ if len(dd) > 0:
             )
 
     if bus == 'net':
-        log.info( formatter.compose( ( "Device URI", "Model", "Name" ) ) )    
-        log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, '-'*max_c3 ) ) )            
+        log.info( formatter.compose( ( "Device URI", "Model", "Name" ) ) )
+        log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, '-'*max_c3 ) ) )
         for d in ee:
             x = pat.search( d )
             uri = x.group(2)
             name = x.group(3)
             model = x.group(4)
-            log.info( formatter.compose( ( uri, name, model ) ) )    
+            log.info( formatter.compose( ( uri, name, model ) ) )
     else:
-        log.info( formatter.compose( ( "Device URI", "Model", "" ) ) )    
-        log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, "" ) ) )            
+        log.info( formatter.compose( ( "Device URI", "Model", "" ) ) )
+        log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, "" ) ) )
         for d in ee:
             x = pat.search( d )
             uri = x.group(2)
             model = x.group(3)
-            log.info( formatter.compose( ( uri, model, "" ) ) )    
+            log.info( formatter.compose( ( uri, model, "" ) ) )
 else:
     log.warn( "No devices found. If this isn't the result you are expecting," )
 

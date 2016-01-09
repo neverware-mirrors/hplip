@@ -78,6 +78,12 @@ public:
     VIPGrayFastDraftMode ();
 }; // VIPGrayFastDraftMode
 
+class VIPFastPhotoMode : public PrintMode
+{
+public:
+    VIPFastPhotoMode ();
+}; // VIPFastPhotoMode
+
 class VIPAutoPQMode : public PrintMode
 {
 public:
@@ -95,12 +101,14 @@ public:
         "GenericVIP",                       // family name
         "dj450\0"
 		"deskjet 450\0"
+        "deskjet 5100\0"
+        "Deskjet 5400\0"
         "deskjet 5550\0"
         "deskjet 5551\0"
         "deskjet 5600\0"
-        "deskjet 5100\0"
 		"Deskjet 5700\0"
 		"deskjet 5800\0"
+        "Deskjet 5900\0"
 		"Deskjet 6500\0"
 		"Deskjet 6600\0"
 		"Deskjet 6800\0"
@@ -118,6 +126,8 @@ public:
         "photosmart 7260\0"
 		"photosmart 7268\0"
 		"Photosmart 7400\0"
+        "Photosmart 7800\0"
+        "Photosmart 8000\0"
 		"Photosmart 8100\0"
 		"Photosmart 8400\0"
 		"Photosmart 8700\0"
@@ -127,6 +137,7 @@ public:
 		"Photosmart 370\0"
 		"Photosmart 380\0"
 		"Photosmart 330\0"
+        "Photosmart 420\0"
 #ifdef APDK_MLC_PRINTER
 		"PSC 1500\0"
 		"PSC 1600\0"
@@ -144,8 +155,12 @@ public:
 		"Officejet 7300\0"
 		"Officejet 7200\0"
 		"Officejet 6200\0"
+        "Photosmart 2570\0"
 		"Photosmart 2600\0"
 		"Photosmart 2700\0"
+        "Photosmart 3100\0"
+        "Photosmart 3200\0"
+        "Photosmart 3300\0"
 #endif
     ) {m_iPrinterType = eDJGenericVIP;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJGenericVIP(pSS); }

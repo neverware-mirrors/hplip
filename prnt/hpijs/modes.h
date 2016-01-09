@@ -1,4 +1,8 @@
-#define MAX_PRINTMODES 10
+#ifdef APDK_EXTENDED_MEDIASIZE
+#define MAX_PRINTMODES 12
+#else
+#define MAX_PRINTMODES 8
+#endif
 
 #define GRAYMODE_INDEX 0
 #define DEFAULTMODE_INDEX 1

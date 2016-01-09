@@ -70,6 +70,7 @@ DJGenericVIP::DJGenericVIP (SystemServices* pSS, BOOL proto)
     pMode[ModeCount++] = new VIPFastDraftMode ();        // Fast Draft
     pMode[ModeCount++] = new VIPGrayFastDraftMode ();    // Grayscale Fast Draft
     pMode[ModeCount++] = new VIPAutoPQMode ();           // Printer selects PrintMode
+    pMode[ModeCount++] = new VIPFastPhotoMode ();        // Fast Photo
 
     for (int i = 0; i < (int) ModeCount; i++)
     {
@@ -121,6 +122,18 @@ VIPGrayFastDraftMode::VIPGrayFastDraftMode () : GrayMode (ulMapDJ600_CCM_K)
     pmColor     = GREY_K;
 }
 
+VIPFastPhotoMode::VIPFastPhotoMode () : PrintMode (NULL)
+{
+    bFontCapable = FALSE;
+#if defined(APDK_VIP_COLORFILTERING)
+    Config.bErnie = FALSE;
+#endif
+    medium = mediaHighresPhoto;
+    theQuality = qualityFastDraft;
+    pmQuality = QUALITY_FASTDRAFT;
+    pmMediaType = MEDIA_PHOTO;
+} // VIPFastPhotoMode
+
 VIPAutoPQMode::VIPAutoPQMode () : PrintMode (NULL)
 {
     BaseResX =
@@ -169,7 +182,7 @@ PAPER_SIZE DJGenericVIP::MandatoryPaperSize ()
  *      100 - 13 X 19 size
  */
 
-    if (IOMode.bDevID && ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, TRUE)) == NO_ERROR))
+    if ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, FALSE)) == NO_ERROR)
     {
         if ((pStr = strstr ((char *) sDevIdStr, ";S:")) && (pSS->GetVIPVersion ()) >= 3)
         {
@@ -205,7 +218,7 @@ BOOL DJGenericVIP::FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, floa
 {
     BYTE    sDevIdStr[DevIDBuffSize];
     char    *pStr;
-    if (IOMode.bDevID && ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, TRUE)) == NO_ERROR))
+    if ((pSS->GetDeviceID (sDevIdStr, DevIDBuffSize, FALSE)) == NO_ERROR)
     {
         if ((pStr = strstr ((char *) sDevIdStr, ";S:")) && (pSS->GetVIPVersion ()) >= 3)
         {

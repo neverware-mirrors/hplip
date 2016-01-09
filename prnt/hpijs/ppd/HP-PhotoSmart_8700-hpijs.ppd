@@ -134,6 +134,10 @@ ICEHEIGHTPOINTS=842"
 *FoomaticRIPOptionSetting PageSize=Photo: " -dDEVICEWIDTHPOINTS=288 -d&&
 DEVICEHEIGHTPOINTS=432"
 *End
+*PageSize Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
+*FoomaticRIPOptionSetting PageSize=Photo5x7: " -dDEVICEWIDTHPOINTS=360&&
+ -dDEVICEHEIGHTPOINTS=504"
+*End
 *PageSize PhotoTearOff/Photo with tear-off tab: "%% FoomaticRIPOptionSetting: PageSize=PhotoTearOff"
 *FoomaticRIPOptionSetting PageSize=PhotoTearOff: " -dDEVICEWIDTHPOINTS&&
 =288 -dDEVICEHEIGHTPOINTS=432"
@@ -222,6 +226,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PageRegion Letter/Letter: "%% FoomaticRIPOptionSetting: PageSize=Letter"
 *PageRegion A4/A4: "%% FoomaticRIPOptionSetting: PageSize=A4"
 *PageRegion Photo/Photo/4x6 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo"
+*PageRegion Photo5x7/Photo/5x7 inch index card: "%% FoomaticRIPOptionSetting: PageSize=Photo5x7"
 *PageRegion PhotoTearOff/Photo with tear-off tab: "%% FoomaticRIPOptionSetting: PageSize=PhotoTearOff"
 *PageRegion 3x5/3x5 inch index card: "%% FoomaticRIPOptionSetting: PageSize=3x5"
 *PageRegion 5x8/5x8 inch index card: "%% FoomaticRIPOptionSetting: PageSize=5x8"
@@ -248,6 +253,7 @@ dDEVICEHEIGHTPOINTS=567"
 *ImageableArea Letter/Letter: "18 36 594 783"
 *ImageableArea A4/A4: "9.72 36 585.28 833"
 *ImageableArea Photo/Photo/4x6 inch index card: "0 36 288 432"
+*ImageableArea Photo5x7/Photo/5x7 inch index card: "0 36 360 504"
 *ImageableArea PhotoTearOff/Photo with tear-off tab: "0 0 288 432"
 *ImageableArea 3x5/3x5 inch index card: "0 36 216 360"
 *ImageableArea 5x8/5x8 inch index card: "0 36 360 576"
@@ -273,6 +279,7 @@ dDEVICEHEIGHTPOINTS=567"
 *PaperDimension Letter/Letter: "612 792"
 *PaperDimension A4/A4: "595 842"
 *PaperDimension Photo/Photo/4x6 inch index card: "288 432"
+*PaperDimension Photo5x7/Photo/5x7 inch index card: "360 504"
 *PaperDimension PhotoTearOff/Photo with tear-off tab: "288 432"
 *PaperDimension 3x5/3x5 inch index card: "216 360"
 *PaperDimension 5x8/5x8 inch index card: "360 576"
@@ -297,7 +304,7 @@ dDEVICEHEIGHTPOINTS=567"
 *OpenUI *InputSlot/Media Source: PickOne
 *FoomaticRIPOption InputSlot: enum CmdLine C
 *OrderDependency: 100 AnySetup *InputSlot
-*DefaultInputSlot: Default
+*DefaultInputSlot: Upper
 *InputSlot Default/Printer default: "%% FoomaticRIPOptionSetting: InputSlot=Default"
 *FoomaticRIPOptionSetting InputSlot=Default: ",PS:MediaPosition=7"
 *InputSlot Upper/Upper Tray: "%% FoomaticRIPOptionSetting: InputSlot=Upper"

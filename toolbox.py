@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.21 $ 
-# $Date: 2005/07/19 23:21:55 $
+# $Revision: 1.22 $
+# $Date: 2005/07/21 17:31:38 $
 # $Author: dwelch $
 #
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
 
-_VERSION = '5.0'
+_VERSION = '5.1'
 
 # Std Lib
 import sys
@@ -44,7 +44,7 @@ from base.msg import *
 from base import service
 
 app = None
-server = None    
+server = None
 toolbox  = None
 
 # PyQt
@@ -58,20 +58,12 @@ from ui.devmgr4 import devmgr4
 
 
 def usage():
-    formatter = utils.TextFormatter(
-                (
-                    {'width': 38, 'margin' : 2},
-                    {'width': 38, 'margin' : 2},
-                )
-            )
-
-    log.info(utils.TextFormatter.bold("""\nUsage: hp-toolbox [OPTIONS]\n\n"""))
-
-    log.info(formatter.compose((utils.TextFormatter.bold("[OPTIONS]"), "")))
-
-    log.info(formatter.compose(("Set the logging level:", "-l<level> or --logging=<level>")))
-    log.info(formatter.compose(("",                       "<level>: none, info*, error, warn, debug (*default)")))
-    log.info(formatter.compose(("This help information:", "-h or --help"), True))
+    formatter = utils.usage_formatter()
+    log.info(utils.bold("""\nUsage: hp-toolbox [OPTIONS]\n\n""" ))
+    utils.usage_options()
+    utils.usage_logging(formatter)
+    utils.usage_help(formatter, True)
+    sys.exit(0)
 
 
 class hpguid_server(async.dispatcher):
@@ -122,11 +114,11 @@ class hpguid_server(async.dispatcher):
 # This handler takes care of all conversations with
 # clients when hpguid is acting as a server.
 # This dispatcher receives requests messages and
-# and replies with result messages. It does not 
+# and replies with result messages. It does not
 # initiate sending requests.
 class hpguid_handler(async.dispatcher):
 
-    def __init__(self, conn, addr, the_server): 
+    def __init__(self, conn, addr, the_server):
         async.dispatcher.__init__(self, sock=conn)
         self.addr = addr
         self.in_buffer = ""
@@ -142,7 +134,7 @@ class hpguid_handler(async.dispatcher):
         self.handlers = {
                         'eventgui' : self.handle_eventgui,
                         'unknown' : self.handle_unknown,
-                        'exitguievent' : self.handle_exitguievent,  
+                        'exitguievent' : self.handle_exitguievent,
                         }
 
     def __str__(self):
@@ -155,11 +147,11 @@ class hpguid_handler(async.dispatcher):
 
         if self.in_buffer == '':
             return False
-        
+
         remaining_msg = self.in_buffer
-        
+
         while True:
-        
+
             try:
                 self.fields, self.data, remaining_msg = parseMessage(remaining_msg)
             except Error, e:
@@ -168,19 +160,19 @@ class hpguid_handler(async.dispatcher):
                 self.out_buffer = self.handle_unknown()
                 log.debug(self.out_buffer)
                 return True
-    
+
             msg_type = self.fields.get('msg', 'unknown')
-            log.debug("%s %s %s" % ("*"*40, msg_type, "*"*40)) 
-            log.debug(repr(self.in_buffer)) 
-    
+            log.debug("%s %s %s" % ("*"*40, msg_type, "*"*40))
+            log.debug(repr(self.in_buffer))
+
             try:
                 self.out_buffer = self.handlers.get(msg_type, self.handle_unknown)()
             except Error:
-                log.error("Unhandled exception during processing")    
-    
+                log.error("Unhandled exception during processing")
+
             if len(self.out_buffer): # data is ready for send
                 self.sock_write_notifier.setEnabled(True)
-                
+
             if not remaining_msg:
                 break
 
@@ -201,7 +193,7 @@ class hpguid_handler(async.dispatcher):
 
 
     def writable(self):
-        return not ((len(self.out_buffer) == 0) 
+        return not ((len(self.out_buffer) == 0)
                      and self.connected)
 
 
@@ -212,7 +204,7 @@ class hpguid_handler(async.dispatcher):
                 toolbox.close()
             qApp.quit()
 
-        return '' 
+        return ''
 
     # EVENT
     def handle_eventgui(self):
@@ -228,8 +220,8 @@ class hpguid_handler(async.dispatcher):
 
             log.debug("Event: %d '%s'" % (event_code, event_type))
 
-            toolbox.EventUI(event_code, event_type, error_string_short, 
-                             error_string_long, retry_timeout, job_id, 
+            toolbox.EventUI(event_code, event_type, error_string_short,
+                             error_string_long, retry_timeout, job_id,
                              device_uri)
 
 
@@ -252,7 +244,7 @@ class hpguid_handler(async.dispatcher):
 
 def registerGUI():
     try:
-        service.registerGUI(prop.username, prop.hpguid_host, 
+        service.registerGUI(prop.username, prop.hpguid_host,
                              prop.hpguid_port, os.getpid(), 'tbx')
     except Error, e:
         log.error("Unable to connect to HPLIP I/O. Please restart HPLIP and try again.")
@@ -275,25 +267,21 @@ def handleEXIT():
         except:
             pass
 
-    try: 
+    try:
         app.quit()
-    except: 
+    except:
         pass
 
 
 def main(args):
     prop.prog = sys.argv[0]
-
-    log.set_module('toolbox')
-
     utils.log_title('HP Device Manager', _VERSION)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'l:h', ['level=', 'help']) 
+        opts, args = getopt.getopt(sys.argv[1:], 'l:h', ['level=', 'help'])
 
     except getopt.GetoptError:
         usage()
-        sys.exit(1)
 
     for o, a in opts:
 
@@ -303,7 +291,7 @@ def main(args):
 
         elif o in ('-h', '--help'):
             usage()
-            sys.exit(1)
+
 
 
     # Security: Do *not* create files that other users can muck around with
@@ -312,12 +300,13 @@ def main(args):
     # hpguid server dispatcher object
     global server
     try:
-        server = hpguid_server(prop.hpguid_host) 
+        server = hpguid_server(prop.hpguid_host)
     except Error:
         log.error("Unable to create server object.")
         sys.exit(0)
 
     log.info("Listening on %s port %d" % (prop.hpguid_host, prop.hpguid_port))
+    log.set_module('toolbox')
 
     # create the main application object
     global app
@@ -328,18 +317,18 @@ def main(args):
     app.setMainWidget(toolbox)
 
     registerGUI()
-    
+
     pid = os.getpid()
     log.debug('pid=%d' % pid)
 
     toolbox.show()
 
-    atexit.register(handleEXIT)   
+    atexit.register(handleEXIT)
     signal.signal(signal.SIGPIPE, signal.SIG_IGN)
 
     user_config = os.path.expanduser('~/.hplip.conf')
     loc = utils.loadTranslators(app, user_config)
-    
+
     try:
         log.debug("Starting GUI loop...")
         app.exec_loop()
@@ -349,7 +338,7 @@ def main(args):
         log.exception()
 
     handleEXIT()
-    
+
     return 0
 
 if __name__ == "__main__":

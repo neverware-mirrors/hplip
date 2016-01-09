@@ -889,7 +889,7 @@ ppd_file_t * ppd_file = NULL;
 PyObject *  openPPD( PyObject * self, PyObject * args )
 {
     char * printer;
-    char * ppd;
+    const char * ppd;
     FILE * file;
 
     if ( !PyArg_ParseTuple( args, "z", &printer ) )

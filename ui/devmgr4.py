@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.84 $
-# $Date: 2005/07/19 23:22:45 $
+# $Revision: 1.92 $
+# $Date: 2005/08/25 21:30:27 $
 # $Author: dwelch $
 #
 #
@@ -51,6 +51,7 @@ from colorcalform import ColorCalForm # Type 1 color cal
 from coloradjform import ColorAdjForm  # Type 5 and 6 color adj
 from colorcalform2 import ColorCalForm2 # Type 2 color cal
 from colorcal4form import ColorCal4Form # Type 4 color cal
+from align10form import Align10Form 
 
 # Misc forms
 from loadpaperform import LoadPaperForm
@@ -333,7 +334,7 @@ class devmgr4(DevMgr4_base):
         if not self.auto_refresh:
             self.autoRefresh.toggle()
 
-        self.update_called = False
+        #self.update_called = False
 
         self.cur_device_uri = '' # Device URI
         self.devices = {}    # { Device_URI : device.Device(), ... }
@@ -432,10 +433,10 @@ class devmgr4(DevMgr4_base):
 
     def UpdateDevice(self, check_state=True):
         log.debug(utils.bold("Update: %s %s %s" % ("*"*20, self.cur_device_uri, "*"*20)))
-        self.update_called = True
+        #self.update_called = True
         self.setCaption("%s - HP Device Manager" % self.cur_device.model_ui)
 
-        if self.cur_device.supported and check_state:
+        if self.cur_device.supported and check_state and not self.rescanning:
             try:
                 self.cur_device.open()
                 self.cur_device.queryDevice()
@@ -443,20 +444,24 @@ class devmgr4(DevMgr4_base):
             except Error, e:
                 log.warn(e.msg)
 
-        log.debug("Device state = %d" % self.cur_device.device_state)
-        log.debug("Status code = %d" % self.cur_device.status_code)
-        log.debug("Error state = %d" % self.cur_device.error_state)
+            log.debug("Device state = %d" % self.cur_device.device_state)
+            log.debug("Status code = %d" % self.cur_device.status_code)
+            log.debug("Error state = %d" % self.cur_device.error_state)
 
-        icon = self.CreatePixmap()
-        self.DeviceList.currentItem().setPixmap(icon)
+            icon = self.CreatePixmap()
+            self.DeviceList.currentItem().setPixmap(icon)
 
-        if not self.rescanning: # and self.cur_device.supported:
+        if not self.rescanning: 
             self.UpdateHistory()
             self.UpdateTabs()
 
 
     def CreatePixmap(self):
-        pix = QPixmap(self.cur_device.icon_file)
+        try:
+            pix = QPixmap(self.cur_device.icon_file)
+        except AttributeError:
+            pix = QPixmap(os.path.join(prop.image_dir, 'default_printer.png'))
+        
         error_state = self.cur_device.error_state
         icon = QPixmap(pix.width(), pix.height())
         p = QPainter(icon)
@@ -728,13 +733,16 @@ class devmgr4(DevMgr4_base):
             self.cur_device.error_state = ERROR_STATE_ERROR
             self.cur_device.status_code = STATUS_UNKNOWN
         else:
-            self.cur_device.last_event = self.cur_device.hist[-1]
-            #print self.cur_device.last_event
+            try:
+                self.cur_device.last_event = self.cur_device.hist[-1]
+            except IndexError:
+                self.cur_device.last_event = None
+                self.cur_device.error_state = ERROR_STATE_ERROR
+                self.cur_device.status_code = STATUS_UNKNOWN
+
 
     def UpdateStatusTab(self):
         self.StatusHistoryList.clear()
-
-        #self.UpdateHistory()
 
         for x in self.cur_device.hist:
             job_id = x[9]
@@ -758,9 +766,9 @@ class devmgr4(DevMgr4_base):
             if status_pix is not None:
                 i.setPixmap(0, status_pix)
 
-
-        self.StatusText.setText(self.cur_device.last_event[12])
-        self.StatusText2.setText(self.cur_device.last_event[13])
+        if self.cur_device.last_event is not None:
+            self.StatusText.setText(self.cur_device.last_event[12])
+            self.StatusText2.setText(self.cur_device.last_event[13])
 
         if self.cur_device.error_state == ERROR_STATE_CLEAR:
             self.StatusIcon.clear()
@@ -771,8 +779,9 @@ class devmgr4(DevMgr4_base):
         elif self.cur_device.error_state == ERROR_STATE_WARNING:
             self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "warning.png")))
 
+        # TODO: Different icon overlay for laser
         elif self.cur_device.error_state == ERROR_STATE_LOW_SUPPLIES:
-            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "warning.png")))
+            self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "inkdrop.png")))
 
         elif self.cur_device.error_state == ERROR_STATE_ERROR:
             self.StatusIcon.setPixmap(QPixmap(os.path.join(prop.image_dir, "error.png")))
@@ -808,7 +817,8 @@ class devmgr4(DevMgr4_base):
                                         AGENT_KIND_TONER_CARTRIDGE,
                                         AGENT_KIND_MAINT_KIT,
                                         AGENT_KIND_ADF_KIT,
-                                        AGENT_KIND_INT_BATTERY):
+                                        AGENT_KIND_INT_BATTERY,
+                                        AGENT_KIND_DRUM_KIT,):
 
                         x = QListViewItem(self.SuppliesList,
                                            agent_desc,
@@ -1054,46 +1064,47 @@ class devmgr4(DevMgr4_base):
     def AioUI1(self):
         dlg = AlignType6Form1(self)
         return dlg.exec_loop() == QDialog.Accepted
-##            return True, dlg.print_page # Next >
-##        else:
-##            return False, False # Printpage
+
 
     def AioUI2(self):
         AlignType6Form2(self).exec_loop()
+
+    def Align10UI(self, pattern):
+        dlg = Align10Form(pattern, self)
+        dlg.exec_loop()
+        return dlg.getValues()
 
     def AlignPensButton_clicked(self):
         d = self.cur_device
         ok = False;
         align_type = d.align_type
-        
+
         log.debug(utils.bold("Align: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, align_type, "*"*20)))
 
-        if align_type == 1: # Auto
+        if align_type == ALIGN_TYPE_AUTO:
             ok = maint.AlignType1(d, self.LoadPaperUI)
 
-        elif align_type == 2: # 8xx
+        elif align_type == ALIGN_TYPE_8XX:
             ok = maint.AlignType2(d, self.LoadPaperUI, self.AlignmentNumberUI,
                                    self.BothPensRequiredUI)
 
-        elif align_type == 3: #9xx
+        elif align_type in (ALIGN_TYPE_9XX,ALIGN_TYPE_9XX_NO_EDGE_ALIGN):
             ok = maint.AlignType3(d, self.LoadPaperUI, self.AlignmentNumberUI,
                                    self.PaperEdgeUI, align_type)
 
-        elif align_type in [4, 5, 7]: # LIDIL 0.3.8, LIDIL 0.4.3, xBow VIP
+        elif align_type in (ALIGN_TYPE_LIDIL_0_3_8, ALIGN_TYPE_LIDIL_0_4_3, ALIGN_TYPE_LIDIL_VIP):
             ok = maint.AlignxBow(d, align_type, self.LoadPaperUI, self.AlignmentNumberUI,
                                   self.PaperEdgeUI, self.InvalidPenUI, self.ColorAdjUI)
 
-        elif align_type == 6: # xBow AiO
+        elif align_type == ALIGN_TYPE_LIDIL_AIO:
             ok = maint.AlignType6(d, self.AioUI1, self.AioUI2, self.LoadPaperUI)
 
-        elif align_type == 8: # 450
+        elif align_type == ALIGN_TYPE_DESKJET_450:
             ok = maint.AlignType8(d, self.LoadPaperUI, self.AlignmentNumberUI)
+            
+        elif align_type == ALIGN_TYPE_LBOW:
+            ok = maint.AlignType10(d, self.LoadPaperUI, self.Align10UI) 
 
-        elif align_type == 9: #9xx without edge alignment
-            ok = maint.AlignType3(d, self.LoadPaperUI, self.AlignmentNumberUI,
-                              self.PaperEdgeUI, align_type)
-
-        #d.close()
 
 
     def ColorAdjUI(self, line, maximum=0):
@@ -1133,33 +1144,26 @@ class devmgr4(DevMgr4_base):
         ok = False
         log.debug(utils.bold("Color-cal: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, color_cal_type, "*"*20)))
 
-        if color_cal_type == 1: # 450
+        if color_cal_type == COLOR_CAL_TYPE_DESKJET_450:
             ok = maint.colorCalType1(d, self.LoadPaperUI, self.ColorCalUI,
                                  self.PhotoPenRequiredUI)
 
-        elif color_cal_type == 2: # BIJ1200, ...
+        elif color_cal_type == COLOR_CAL_TYPE_MALIBU_CRICK:
             ok = maint.colorCalType2(d, self.LoadPaperUI, self.ColorCalUI2,
                                          self.InvalidPenUI)
 
-        elif color_cal_type == 3: # PS8750, DJ57xx
+        elif color_cal_type == COLOR_CAL_TYPE_STRINGRAY_LONGBOW_TORNADO:
             ok = maint.colorCalType3(d, self.LoadPaperUI, self.ColorAdjUI,
                                          self.PhotoPenRequiredUI2)
 
-        elif color_cal_type == 4:
+        elif color_cal_type == COLOR_CAL_TYPE_CONNERY:
             ok = maint.colorCalType4(d, self.LoadPaperUI, self.ColorCalUI4,
                                       self.WaitUI)
 
-        #d.close()
-
 
     def PrintTestPageButton_clicked(self):
-        d = self.cur_device
         if self.LoadPaperUI():
-
-            d.printParsedGzipPostscript(
-                os.path.join(prop.home_dir, 'data', 'ps', 'testpage.ps.gz'))
-
-        #d.close()
+            self.cur_device.printTestPage()
 
 
     def CleanUI1(self):
@@ -1183,20 +1187,20 @@ class devmgr4(DevMgr4_base):
         d = self.cur_device
         clean_type = d.clean_type
         log.debug(utils.bold("Clean: %s %s (type=%d) %s" % ("*"*20, self.cur_device_uri, clean_type, "*"*20)))
-        
-        if clean_type == 1: # PCL
+
+        if clean_type == CLEAN_TYPE_PCL:
             maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
                             maint.wipeAndSpitType1, self.LoadPaperUI,
                             self.CleanUI1, self.CleanUI2, self.CleanUI3,
                             self.WaitUI)
 
-        elif clean_type == 2: # LIDIL
+        elif clean_type == CLEAN_TYPE_LIDIL:
             maint.cleaning(d, clean_type, maint.cleanType2, maint.primeType2,
                             maint.wipeAndSpitType2, self.LoadPaperUI,
                             self.CleanUI1, self.CleanUI2, self.CleanUI3,
                             self.WaitUI)
 
-        elif clean_type == 3: # PCL alignment with Printout
+        elif clean_type == CLEAN_TYPE_PCL_WITH_PRINTOUT:
             maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
                             maint.wipeAndSpitType1, self.LoadPaperUI,
                             self.CleanUI1, self.CleanUI2, self.CleanUI3,
@@ -1220,14 +1224,14 @@ class devmgr4(DevMgr4_base):
 
 
     def OpenEmbeddedBrowserButton_clicked(self):
-        import webbrowser
-        url = "http://%s" % self.cur_device.host
-        log.debug("URL = %s" % url)
-        webbrowser.open_new(url)
-
-
-    def AdvancedInfoButton_clicked(self):
-        AdvancedInfoForm(self.cur_device, self, None, 0, 1).exec_loop()
+        browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone']
+        for b in browsers:
+            if utils.which(b):
+                os.system("%s http://%s &" % (b, self.cur_device.host))
+                break
+        else:
+            self.FailureUI(self.__tr("<p><b>Unable to load page in browser.</b><p>To load the page manually, lauch a browser and enter the location (URL): http://%s" % self.cur_device.host ))
+                
 
 
     def PrintButton_clicked(self):
@@ -1291,11 +1295,11 @@ class devmgr4(DevMgr4_base):
 
 
     def deviceSettingsButton_clicked(self):
-        self.cur_device.device_settings_ui(self.cur_device)
+        self.cur_device.device_settings_ui(self.cur_device, self)
 
 
     def setupDevice_activated(self):
-        self.cur_device.device_settings_ui(self.cur_device)
+        self.cur_device.device_settings_ui(self.cur_device, self)
 
 
     def faxSetupWizardButton_clicked(self):
