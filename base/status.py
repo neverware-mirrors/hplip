@@ -174,7 +174,7 @@ def parseSStatus(s, z=''):
 
         if pen_data_size == 4:
             pen['type'] = REVISION_2_TYPE_MAP.get(int((info & 0xf000L) >> 12L), 0)
-            
+
             if index < (num_pens / 2):
                 pen['kind'] = AGENT_KIND_HEAD
             else:
@@ -236,6 +236,7 @@ def parseSStatus(s, z=''):
 def parseVStatus(s):
     pens, pen, c = [], {}, 0
     fields = s.split(',')
+    log.debug(fields)
     f0 = fields[0]
 
     if len(f0) == 20:
@@ -284,12 +285,20 @@ def parseVStatus(s):
     else:
         pass
 
-    if fields[2] == 'DN':
-        top_lid = 1
+    try:
+        fields[2]
+    except IndexError: 
+        top_lid = 1 # something went wrong!
     else:
-        top_lid = 2
+        if fields[2] == 'DN':
+            top_lid = 1
+        else:
+            top_lid = 2
 
-    stat = vstatus_xlate.get(fields[3].lower(), STATUS_PRINTER_IDLE)
+    try:
+        stat = vstatus_xlate.get(fields[3].lower(), STATUS_PRINTER_IDLE)
+    except IndexError:
+        stat = STATUS_PRINTER_IDLE # something went wrong!
 
     return {'revision' :   STATUS_REV_V,
              'agents' :     pens,
@@ -302,6 +311,7 @@ def parseVStatus(s):
              'in-tray2' :   IN_TRAY_NOT_PRESENT,
              'media-path' : MEDIA_PATH_CUT_SHEET, # ?
            }
+           
 
 def parseStatus(DeviceID):
     if 'VSTATUS' in DeviceID:
@@ -553,7 +563,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
                 agent_health = AGENT_HEALTH_OK
 
         agent_level = int(agent_level/agent_max * 100)
-        
+
         log.debug("agent%d: kind=%d, type=%d, health=%d, level=%d, level-trigger=%d" % \
             (x, agent_kind, agent_type, agent_health, agent_level, agent_trigger))
 
@@ -565,7 +575,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status (PML/SNMP)
                        'level-trigger' : agent_trigger,})
 
         x += 1
-        
+
         if x > 20:
             break
 
@@ -642,32 +652,33 @@ setup_panel_translator()
 
 def PanelCheck(dev):
     line1, line2 = '', ''
-    try:
-        dev.openPML()
-    except Error:
-        pass
-    else:
+    
+    if dev.io_mode not in (IO_MODE_RAW, IO_MODE_UNI):
+    
+        try:
+            dev.openPML()
+        except Error:
+            pass
+        else:
 
-        oids = [(pml.OID_HP_LINE1, pml.OID_HP_LINE2),
-                 (pml.OID_SPM_LINE1, pml.OID_SPM_LINE2)]
+            oids = [(pml.OID_HP_LINE1, pml.OID_HP_LINE2),
+                     (pml.OID_SPM_LINE1, pml.OID_SPM_LINE2)]
 
-        for oid1, oid2 in oids:
-            result, line1 = dev.getPML(oid1)
-
-            if result < pml.ERROR_MAX_OK:
-                line1 = PANEL_TRANSLATOR_FUNC(line1).rstrip()
-
-                if '\x0a' in line1:
-                    line1, line2 = line1.split('\x0a', 1)
-                    break
-
-                result, line2 = dev.getPML(oid2)
+            for oid1, oid2 in oids:
+                result, line1 = dev.getPML(oid1)
 
                 if result < pml.ERROR_MAX_OK:
-                    line2 = PANEL_TRANSLATOR_FUNC(line2).rstrip()
-                    break
+                    line1 = PANEL_TRANSLATOR_FUNC(line1).rstrip()
 
-        #dev.closePML()
+                    if '\x0a' in line1:
+                        line1, line2 = line1.split('\x0a', 1)
+                        break
+
+                    result, line2 = dev.getPML(oid2)
+
+                    if result < pml.ERROR_MAX_OK:
+                        line2 = PANEL_TRANSLATOR_FUNC(line2).rstrip()
+                        break
 
     return bool(line1 or line2), line1 or '', line2 or ''
 
@@ -700,7 +711,7 @@ BATTERY_PML_TRIGGER_MAP = {
         }
 
 
-def BatteryCheck(dev, status_block):
+def BatteryCheck(dev, status_block, battery_check):
     try_dynamic_counters = False
 
     try:
@@ -734,20 +745,23 @@ def BatteryCheck(dev, status_block):
                         agent_health = AGENT_HEALTH_OK
 
                     status_block['agents'].append({
-                                                    'kind'   : AGENT_KIND_INT_BATTERY,
-                                                    'type'   : AGENT_TYPE_UNSPECIFIED,
-                                                    'health' : agent_health,
-                                                    'level'  : battery_level,
-                                                    'level-trigger' : battery_trigger_level,
-                                                    })
+                        'kind'   : AGENT_KIND_INT_BATTERY,
+                        'type'   : AGENT_TYPE_UNSPECIFIED,
+                        'health' : agent_health,
+                        'level'  : battery_level,
+                        'level-trigger' : battery_trigger_level,
+                        })
+                    return
+                    
                 else:
                     status_block['agents'].append({
-                                                    'kind'   : AGENT_KIND_INT_BATTERY,
-                                                    'type'   : AGENT_TYPE_UNSPECIFIED,
-                                                    'health' : AGENT_HEALTH_UNKNOWN,
-                                                    'level'  : 0,
-                                                    'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
-                                                    })
+                        'kind'   : AGENT_KIND_INT_BATTERY,
+                        'type'   : AGENT_TYPE_UNSPECIFIED,
+                        'health' : AGENT_HEALTH_UNKNOWN,
+                        'level'  : 0,
+                        'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+                        })
+                    return
 
             else:
                 try_dynamic_counters = True
@@ -755,7 +769,9 @@ def BatteryCheck(dev, status_block):
     finally:
         dev.closePML()
 
-    if try_dynamic_counters:
+    
+    if battery_check == STATUS_BATTERY_CHECK_STD and \
+        try_dynamic_counters:
 
         try:
             try:
@@ -764,22 +780,32 @@ def BatteryCheck(dev, status_block):
                 battery_level = dev.getDynamicCounter(202)
 
                 status_block['agents'].append({
-                                                'kind'   : AGENT_KIND_INT_BATTERY,
-                                                'type'   : AGENT_TYPE_UNSPECIFIED,
-                                                'health' : BATTERY_HEALTH_MAP[battery_health],
-                                                'level'  : battery_level,
-                                                'level-trigger' : BATTERY_TRIGGER_MAP[battery_trigger_level],
-                                                })
+                    'kind'   : AGENT_KIND_INT_BATTERY,
+                    'type'   : AGENT_TYPE_UNSPECIFIED,
+                    'health' : BATTERY_HEALTH_MAP[battery_health],
+                    'level'  : battery_level,
+                    'level-trigger' : BATTERY_TRIGGER_MAP[battery_trigger_level],
+                    })
             except Error:
                 status_block['agents'].append({
-                                                'kind'   : AGENT_KIND_INT_BATTERY,
-                                                'type'   : AGENT_TYPE_UNSPECIFIED,
-                                                'health' : AGENT_HEALTH_UNKNOWN,
-                                                'level'  : 0,
-                                                'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
-                                                })
+                    'kind'   : AGENT_KIND_INT_BATTERY,
+                    'type'   : AGENT_TYPE_UNSPECIFIED,
+                    'health' : AGENT_HEALTH_UNKNOWN,
+                    'level'  : 0,
+                    'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+                    })
         finally:
             dev.closePrint()
+            
+    else:
+        status_block['agents'].append({
+            'kind'   : AGENT_KIND_INT_BATTERY,
+            'type'   : AGENT_TYPE_UNSPECIFIED,
+            'health' : AGENT_HEALTH_UNKNOWN,
+            'level'  : 0,
+            'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+            })
+        
 
 
 # this works for 2 pen products that allow 1 or 2 pens inserted
@@ -823,26 +849,29 @@ def getPenConfiguration(s): # s=status dict from parsed device ID
 
 def getFaxStatus(dev):
     tx_active, rx_active = False, False
+    
+    if dev.io_mode not in (IO_MODE_UNI, IO_MODE_RAW):
+        try:
+            dev.openPML()
 
-    try:
-        dev.openPML()
+            result_code, tx_state = dev.getPML(pml.OID_FAXJOB_TX_STATUS)
 
-        result_code, tx_state = dev.getPML(pml.OID_FAXJOB_TX_STATUS)
+            if result_code == ERROR_SUCCESS and tx_state:
+                if tx_state not in (pml.FAXJOB_TX_STATUS_IDLE, pml.FAXJOB_TX_STATUS_DONE):
+                    tx_active = True
 
-        if result_code == ERROR_SUCCESS and tx_state:
-            if tx_state not in (pml.FAXJOB_TX_STATUS_IDLE, pml.FAXJOB_TX_STATUS_DONE):
-                tx_active = True
+            result_code, rx_state = dev.getPML(pml.OID_FAXJOB_RX_STATUS)
 
-        result_code, rx_state = dev.getPML(pml.OID_FAXJOB_RX_STATUS)
+            if result_code == ERROR_SUCCESS and rx_state:
+                if rx_state not in (pml.FAXJOB_RX_STATUS_IDLE, pml.FAXJOB_RX_STATUS_DONE):
+                    rx_active = True
 
-        if result_code == ERROR_SUCCESS and rx_state:
-            if rx_state not in (pml.FAXJOB_RX_STATUS_IDLE, pml.FAXJOB_RX_STATUS_DONE):
-                rx_active = True
-
-    finally:
-        dev.closePML()
+        finally:
+            dev.closePML()
 
     return tx_active, rx_active
+    
+  
 
 
 TYPE6_STATUS_CODE_MAP = {
@@ -1053,7 +1082,7 @@ def StatusType6(dev): #  LaserJet Status (XML)
            }     
 
 # PJL status codes
-TYPE8_STATUS_CODE_MAP = {
+PJL_STATUS_MAP = {
     10001: STATUS_PRINTER_IDLE, # online
     10002: STATUS_PRINTER_OFFLINE, # offline
     10003: STATUS_PRINTER_WARMING_UP,
@@ -1149,11 +1178,92 @@ TYPE8_STATUS_CODE_MAP = {
     # 44xyy - LJ 4xxx/5xxx paper jam messages
     # 50xxx - Hardware errors
     # 55xxx - Personality errors
-    
+
 }
 
+MIN_PJL_ERROR_CODE = 10001
+DEFAULT_PJL_ERROR_CODE = 10001
 
-           
+def MapPJLErrorCode(error_code, str_code=None):
+    if error_code < MIN_PJL_ERROR_CODE:
+        return STATUS_PRINTER_BUSY
+
+    if str_code is None:
+        str_code = str(error_code)
+        
+    if len(str_code) < 5:
+        return STATUS_PRINTER_BUSY
+
+    status_code = PJL_STATUS_MAP.get(error_code, None)
+
+    if status_code is None:
+        status_code = STATUS_PRINTER_BUSY
+
+        if 10999 < error_code < 12000: # 11xyy - Background paper-loading
+            # x = tray #
+            # yy = media code
+            tray = int(str_code[2])
+            media = int(str_code[3:])
+            log.debug("Background paper loading for tray #%d" % tray)
+            log.debug("Media code = %d" % media)
+
+        elif 11999 < error_code < 13000: # 12xyy - Background paper-tray status
+            # x = tray #
+            # yy = status code
+            tray = int(str_code[2])
+            status = int(str_code[3:])
+            log.debug("Background paper tray status for tray #%d" % tray)
+            log.debug("Status code = %d" % status)
+
+        elif 14999 < error_code < 16000: # 15xxy - Output-bin status
+            # xx = output bin
+            # y = status code
+            bin = int(str_code[2:4])
+            status = int(str_code[4])
+            log.debug("Output bin full for bin #%d" % bin)
+            status_code = STATUS_PRINTER_OUTPUT_BIN_FULL
+
+        elif 19999 < error_code < 28000: # 20xxx, 25xxx, 27xxx PJL errors
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+
+        elif 29999 < error_code < 31000: # 30xxx - Auto continuable conditions
+            log.debug("Auto continuation condition #%d" % error_code)
+            status_code = STATUS_PRINTER_BUSY
+
+        elif 34999 < error_code < 36000: # 35xxx - Potential operator intervention conditions
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+
+        elif 39999 < error_code < 41000: # 40xxx - Operator intervention conditions
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+
+        elif 40999 < error_code < 42000: # 41xyy - Foreground paper-loading messages
+            # x = tray
+            # yy = media code
+            tray = int(str_code[2])
+            media = int(str_code[3:])
+            log.debug("Foreground paper loading for tray #%d" % tray)
+            log.debug("Media code = %d" % media)
+            status_code = STATUS_PRINTER_OUT_OF_PAPER
+
+        elif 41999 < error_code < 43000:
+            status_code = STATUS_PRINTER_MEDIA_JAM
+
+        elif 42999 < error_code < 44000: # 43xyy - Optional paper handling device messages
+            status_code = STATUS_PRINTER_SERVICE_REQUEST
+
+        elif 43999 < error_code < 45000: # 44xyy - LJ 4xxx/5xxx paper jam messages
+            status_code = STATUS_PRINTER_MEDIA_JAM
+
+        elif 49999 < error_code < 51000: # 50xxx - Hardware errors
+            status_code = STATUS_PRINTER_HARD_ERROR
+
+        elif 54999 < error_code < 56000 : # 55xxx - Personality errors
+            status_code = STATUS_PRINTER_HARD_ERROR
+
+    log.debug("Mapped PJL error code %d to status code %d" % (error_code, status_code))
+    return status_code
+
+
 pjl_code_pat = re.compile("""^CODE\s*=\s*(\d.*)$""", re.IGNORECASE)
 
 def StatusType8(dev): #  LaserJet PJL
@@ -1161,133 +1271,69 @@ def StatusType8(dev): #  LaserJet PJL
         dev.openPrint()
     except Error, e:
         log.warn(e.msg)
-        
+
     dev.writePrint("\x1b%-12345X@PJL INFO STATUS \r\n\x1b%-12345X")
     pjl_return = dev.readPrint(1024, timeout=5, allow_short_read=True)
     dev.close()
 
     log.debug_block("PJL return:", pjl_return)
-    
-    code = '10001'
-    
+
+    str_code = '10001'
+
     for line in pjl_return.splitlines():
         line = line.strip()
         match = pjl_code_pat.match(line)
-        
+
         if match is not None:
-            code = match.group(1)
+            str_code = match.group(1)
             break
-    
-    log.debug("Code = %s" % code)
-    
+
+    log.debug("Code = %s" % str_code)
+
     try:
-        error_code = int(code)
+        error_code = int(str_code)
     except ValueError:
-        error_code = 10001
-        
+        error_code = DEFAULT_PJL_ERROR_CODE
+
     log.debug("Error code = %d" % error_code)
-        
-    status_code = TYPE8_STATUS_CODE_MAP.get(error_code, None)
-    
-    if status_code is None:
-        status_code = STATUS_PRINTER_BUSY
-        
-        if 10999 < error_code < 12000: # 11xyy - Background paper-loading
-            # x = tray #
-            # yy = media code
-            tray = int(code[2])
-            media = int(code[3:])
-            log.debug("Background paper loading for tray #%d" % tray)
-            log.debug("Media code = %d" % media)
-            
-        elif 11999 < error_code < 13000: # 12xyy - Background paper-tray status
-            # x = tray #
-            # yy = status code
-            tray = int(code[2])
-            status = int(code[3:])
-            log.debug("Background paper tray status for tray #%d" % tray)
-            log.debug("Status code = %d" % status)
-            
-        elif 14999 < error_code < 16000: # 15xxy - Output-bin status
-            # xx = output bin
-            # y = status code
-            bin = int(code[2:4])
-            status = int(code[4])
-            log.debug("Output bin full for bin #%d" % bin)
-            status_code = STATUS_PRINTER_OUTPUT_BIN_FULL
-            
-        elif 19999 < error_code < 28000: # 20xxx, 25xxx, 27xxx PJL errors
-            status_code = STATUS_PRINTER_SERVICE_REQUEST
-            
-        elif 29999 < error_code < 31000: # 30xxx - Auto continuable conditions
-            log.debug("Auto continuation condition #%d" % error_code)
-            
-        elif 34999 < error_code < 36000: # 35xxx - Potential operator intervention conditions
-            status_code = STATUS_PRINTER_SERVICE_REQUEST
-            
-        elif 39999 < error_code < 41000: # 40xxx - Operator intervention conditions
-            status_code = STATUS_PRINTER_SERVICE_REQUEST
-            
-        elif 40999 < error_code < 42000: # 41xyy - Foreground paper-loading messages
-            # x = tray
-            # yy = media code
-            tray = int(code[2])
-            media = int(code[3:])
-            log.debug("Foreground paper loading for tray #%d" % tray)
-            log.debug("Media code = %d" % media)
-            status_code = STATUS_PRINTER_OUT_OF_PAPER
-            
-        elif 41999 < error_code < 43000:
-            status_code = STATUS_PRINTER_MEDIA_JAM
-        
-        elif 42999 < error_code < 44000: # 43xyy - Optional paper handling device messages
-            status_code = STATUS_PRINTER_SERVICE_REQUEST
-            
-        elif 43999 < error_code < 45000: # 44xyy - LJ 4xxx/5xxx paper jam messages
-            status_code = STATUS_PRINTER_MEDIA_JAM
-            
-        elif 49999 < error_code < 51000: # 50xxx - Hardware errors
-            status_code = STATUS_PRINTER_HARD_ERROR
-            
-        elif 54999 < error_code < 56000 : # 55xxx - Personality errors
-            status_code = STATUS_PRINTER_HARD_ERROR
-            
-        
+
+    status_code = MapPJLErrorCode(error_code, str_code)
+
     agents = []
-    
+
     # TODO: Only handles mono lasers...
     if status_code in (STATUS_PRINTER_LOW_TONER, STATUS_PRINTER_LOW_BLACK_TONER):
         health = AGENT_HEALTH_OK
         level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
         level = 0
-        
+
     elif status_code == STATUS_PRINTER_NO_TONER:
         health = AGENT_HEALTH_MISINSTALLED
         level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
         level = 0
-        
+
     else:
         health = AGENT_HEALTH_OK
         level_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
         level = 100
-        
+
     log.debug("Agent: health=%d, level=%d, trigger=%d" % (health, level, level_trigger))
-        
-    
+
+
     agents.append({  'kind' : AGENT_KIND_TONER_CARTRIDGE,
                      'type' : AGENT_TYPE_BLACK,
                      'health' : health,
                      'level' : level,
                      'level-trigger' : level_trigger,
                   })
-    
+
     if status_code == 40021:
         top_door = 0
     else:
         top_door = 1
-        
+
     log.debug("Status code = %d" % status_code)
-    
+
     return { 'revision' :    STATUS_REV_UNKNOWN,
              'agents' :      agents,
              'top-door' :    top_door,
@@ -1299,7 +1345,7 @@ def StatusType8(dev): #  LaserJet PJL
              'media-path' :  1,
              'status-code' : status_code,
            }     
-    
+
 
 
 
