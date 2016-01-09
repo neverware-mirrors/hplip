@@ -994,7 +994,10 @@ class Device(object):
 
             status_code = self.dq.get('status-code', STATUS_UNKNOWN)
 
-            if self.mq.get('fax-type', 0) and status_code == STATUS_PRINTER_IDLE:
+            if not quick and \
+                self.mq.get('fax-type', 0) and \
+                status_code == STATUS_PRINTER_IDLE:
+                
                 tx_active, rx_active = status.getFaxStatus(self)
 
                 if tx_active:
@@ -1139,13 +1142,50 @@ class Device(object):
                         query = 'agent_%s_%s' % (AGENT_types.get(agent_type, 'unknown'), 
                                                  AGENT_kinds.get(agent_kind, 'unknown'))
                         
-                        #print "1", query
-                        
                         try:
                             agent_desc = self.queryString(query)
                         except Error:
                             agent_desc = ''
+                        
+                        query = 'agent_health_ok'
+                        
+                        # If printer is not in an error state, and
+                        # if agent health is OK, check for low supplies. If low, use
+                        # the agent level trigger description for the agent description.
+                        # Otherwise, report the agent health.
+                        if status_code == STATUS_PRINTER_IDLE and \
+                            (agent_health == AGENT_HEALTH_OK or 
+                             (agent_health == AGENT_HEALTH_FAIR_MODERATE and agent_kind == AGENT_KIND_HEAD)) and \
+                            agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
+    
+                            # Low
+                            query = 'agent_level_%s' % AGENT_levels.get(agent_level_trigger, 'unknown')
+    
+                            if tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
+                                code = agent_type + STATUS_PRINTER_LOW_INK_BASE
+                            else:
+                                code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
+    
+                            self.dq['status-code'] = code
+                            try:
+                                self.dq['status-desc'] = self.queryString(code)
+                            except Error:
+                                self.dq['status-desc'] = ''
+    
+                            self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
+                            self.sendEvent(code)
+                            
+                            if agent_level_trigger in (AGENT_LEVEL_TRIGGER_PROBABLY_OUT, AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT):
+                                query = 'agent_level_out'
+                            else:
+                                query = 'agent_level_low'
 
+                        try:
+                            agent_health_desc = self.queryString(query)
+                        except Error:
+                            agent_health_desc = ''
+                                
+                        
                         self.dq.update(
                         {
                             'agent%d-kind' % a :          agent_kind,
@@ -1160,7 +1200,8 @@ class Device(object):
                             'agent%d-dvc' % a :           agent.get('dvc', 0),
                             'agent%d-virgin' % a :        agent.get('virgin', False),
                             'agent%d-desc' % a :          agent_desc,
-                            'agent%d-id' % a :            agent.get('id', 0)
+                            'agent%d-id' % a :            agent.get('id', 0),
+                            'agent%d-health-desc' % a :   agent_health_desc,
                         })
 
                     else:
@@ -1169,12 +1210,16 @@ class Device(object):
 
                         query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
                                                  AGENT_kinds.get(mq_agent_kind, 'unknown'))
-                        #print "2", query
                         
                         try:
                             agent_desc = self.queryString(query)
                         except Error:
                             agent_desc = ''
+                            
+                        try:
+                            agent_health_desc = self.queryString("agent_health_misinstalled")
+                        except Error:
+                            agent_health_desc = ''
 
                         self.dq.update(
                         {
@@ -1191,67 +1236,9 @@ class Device(object):
                             'agent%d-virgin' % a :        False,
                             'agent%d-desc' % a :          agent_desc,
                             'agent%d-id' % a :            0,
+                            'agent%d-health-desc' % a :   agent_health_desc,
                         })
-
-                    query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
-                                             AGENT_kinds.get(mq_agent_kind, 'unknown'))
-                    
-                    #print "3", query
-                    
-                    try:
-                        self.dq['agent%d-desc' % a] = self.queryString(query)
-                    except Error:
-                        self.dq['agent%d-desc' % a] = ''
-
-                    # If printer is not in an error state, and
-                    # if agent health is OK, check for low supplies. If low, use
-                    # the agent level trigger description for the agent description.
-                    # Otherwise, report the agent health.
-                    if found:
-                        if status_code == STATUS_PRINTER_IDLE and \
-                            (agent_health == AGENT_HEALTH_OK or 
-                             (agent_health == AGENT_HEALTH_FAIR_MODERATE and agent_kind == AGENT_KIND_HEAD)) and \
-                            agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
-
-                            # Low
-                            query = 'agent_level_%s' % AGENT_levels.get(agent_level_trigger, 'unknown')
-
-                            if tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
-                                code = agent_type + STATUS_PRINTER_LOW_INK_BASE
-                            else:
-                                code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
-
-                            self.dq['status-code'] = code
-                            try:
-                                self.dq['status-desc'] = self.queryString(code)
-                            except Error:
-                                self.dq['status-desc'] = ''
-
-                            self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
-                            self.sendEvent(code)
-                            
-                            if agent_level_trigger in (AGENT_LEVEL_TRIGGER_PROBABLY_OUT, AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT):
-                                query = 'agent_level_out'
-                            else:
-                                query = 'agent_level_low'
-
-                        else:
-                            # OK (or fair/moderate)
-                            if agent_health == AGENT_HEALTH_FAIR_MODERATE and agent_kind == AGENT_KIND_HEAD:
-                                query = 'agent_health_fair_moderate'
-                            else:    
-                                query = 'agent_health_%s' % AGENT_healths.get(agent_health, 'unknown')
-
-                    else:
-                        query = "agent_health_misinstalled"
-                    
-                    #print "4", query
-                    
-                    try:
-                        self.dq['agent%d-health-desc' % a] = self.queryString(query)
-                    except Error:
-                        self.dq['agent%d-health-desc' % a] = ''
-
+                        
                     a += 1
 
                 else: # Create agent keys for not-found devices
@@ -1271,7 +1258,7 @@ class Device(object):
                         mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
                         query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
                                                  AGENT_kinds.get(mq_agent_kind, 'unknown'))
-                        #log.debug(query)
+                        
                         try:
                             agent_desc = self.queryString(query)
                         except Error:

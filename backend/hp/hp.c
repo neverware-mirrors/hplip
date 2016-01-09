@@ -106,6 +106,52 @@ int bug(const char *fmt, ...)
    return n;
 }
 
+/* Parse URI record from buf. Assumes one record per line. All returned strings are zero terminated. */
+int GetUriLine(char *buf, char *uri, char *model, char *description, char **tail)
+{
+   int i=0, j;
+   int maxBuf = LINE_SIZE*64;
+
+   uri[0] = 0;
+   model[0] = 0;
+   description[0] = 0;
+   
+   if (strncasecmp(&buf[i], "direct ", 7) == 0)
+   {
+      i = 7;
+      j = 0;
+      for (; buf[i] == ' ' && i < maxBuf; i++);  /* eat white space before string */
+      while ((buf[i] != ' ') && (i < maxBuf) && (j < LINE_SIZE))
+         uri[j++] = buf[i++];
+      uri[j] = 0;
+
+      j = 0;
+      for (; buf[i] == ' ' && i < maxBuf; i++);  /* eat white space before string */
+      model[j++] = buf[i++];               /* get first " */
+      while ((buf[i] != '"') && (i < maxBuf) && (j < LINE_SIZE))
+         model[j++] = buf[i++];          
+      model[j++] = buf[i++];               /* get last " */
+      model[j] = 0;
+
+      j = 0;
+      for (; buf[i] == ' ' && i < maxBuf; i++);  /* eat white space before string */
+      while ((buf[i] != '\n') && (i < maxBuf) && (j < LINE_SIZE))
+         description[j++] = buf[i++];
+      description[j] = 0;
+   }
+   else
+   {
+      for (; buf[i] != '\n' && i < maxBuf; i++);  /* eat line */
+   }
+
+   i++;   /* bump past '\n' */
+
+   if (tail != NULL)
+      *tail = buf + i;  /* tail points to next line */
+
+   return i;
+}
+
 const char *GetVStatusMessage(VSTATUS status)
 {
    char *p;
@@ -260,9 +306,14 @@ bugout:
 
 int DevDiscovery()
 {
-   char message[LINE_SIZE*64];  
-   int len=0, len2=0;  
-   MsgAttributes ma;
+   char message[LINE_SIZE*64];
+   char uri[LINE_SIZE];
+   char model[LINE_SIZE];
+   char description[LINE_SIZE];
+   char id[1024];
+   char *tail;
+   int i, len=0, cnt=0, hd=-1;  
+   MsgAttributes ma, ma2;
  
    len = sprintf(message, "msg=ProbeDevices\n");
  
@@ -282,48 +333,31 @@ int DevDiscovery()
 
    hplip_ParseMsg(message, len, &ma);
 
-   len = 0;
    if (ma.result == R_AOK && ma.length)
    {
-      len = ma.length;
-      fprintf(stdout, "%s", ma.data);
+      cnt = ma.ndevice;
+
+      /* Add deviceID for CUPS 1.2, if available. */
+      tail = ma.data;
+      for (i=0; i<cnt; i++)
+      {
+         id[0] = 0;
+         GetUriLine(tail, uri, model, description, &tail);
+         hplip_ModelQuery(uri, &ma2);   /* get DeviceOpen parameters */
+         if ((hd = hplip_OpenHP(uri, &ma2)) >= 0)
+         {
+            hplip_GetID(hd, id, sizeof(id));
+            hplip_CloseHP(hd);   
+         }
+         fprintf(stdout, "direct %s %s %s \"%s\"\n", uri, model, description, id);
+      }
    }
 
-#if 0
-   if (jdprobe)
-   {
-      len2 = sprintf(message, "msg=ProbeDevicesFiltered\nbus=net\n");
- 
-      if (send(hpssd_socket, message, len2, 0) == -1) 
-      {  
-         bug("unable to send ProbeDevices: %m\n");  
-         goto mordor;  
-      }  
-
-      if ((len2 = recv(hpssd_socket, message, sizeof(message), 0)) == -1) 
-      {  
-         bug("unable to receive ProbeDevicesResult: %m\n");  
-         goto mordor;
-      }  
-
-      message[len2] = 0;
- 
-      hplip_ParseMsg(message, len2, &ma);
-
-      len2 = 0;
-      if (ma.result == R_AOK && ma.length)
-      {
-         len2 = ma.length;
-         fprintf(stdout, "%s", ma.data);
-      }
-   }  /* end if (jdprobe) */
-#endif
-
-   if (len+len2 == 0)
+   if (cnt == 0)
       fprintf(stdout, "direct hp:/no_device_found \"Unknown\" \"hp no_device_found\"\n");
 
 mordor:
-   return len+len2;
+   return cnt;
 }
 
 int PState()

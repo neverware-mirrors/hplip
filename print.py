@@ -243,12 +243,13 @@ def main(args):
         elif o == '-g':
             log.set_level('debug')
 
-    log.set_module('hp-print')
 
     # Security: Do *not* create files that other users can muck around with
     os.umask (0077)
     
     utils.log_title(__title__, __version__)
+
+    log.set_module('hp-print')
 
     global client
     try:

@@ -20,7 +20,7 @@
 # Author: Don Welch
 #
 
-__version__ = '1.0'
+__version__ = '1.1'
 __title__ = "Fax Address Book"
 __doc__ = "A simple fax address book for HPLIP."
 
@@ -48,7 +48,7 @@ def additional_copyright():
     log.info("")
 
 USAGE = [(__doc__, "", "name", True),
-         ("Usage: hp-fab [PRINTER|DEVICE-URI] [OPTIONS]", "", "summary", True),
+         ("Usage: hp-fab [OPTIONS]", "", "summary", True),
          utils.USAGE_OPTIONS,
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
          utils.USAGE_HELP,

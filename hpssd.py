@@ -691,32 +691,39 @@ class hpssd_handler(dispatcher):
             devices[device_uri]
         except KeyError:
             log.debug("New device: %s" % device_uri)
+            try:
+                back_end, is_hp, bus, model, serial, dev_file, host, port = \
+                    device.parseDeviceURI(device_uri)
+            except Error:
+                log.error("Invalid device URI")
+                return ERROR_INVALID_DEVICE_URI
 
-            back_end, is_hp, bus, model, serial, dev_file, host, port = \
-                device.parseDeviceURI(device_uri)
-            
             devices[device_uri] = ServerDevice(model)
+        
+        return ERROR_SUCCESS
             
 
     def handle_getvalue(self):
         device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
-        result_code = self.__checkdevice(device_uri)
+        value = ''
         key = self.fields.get('key', '')
-        result_code = ERROR_SUCCESS
+        result_code = self.__checkdevice(device_uri)
         
-        try:
-            value = devices[device_uri].cache[key]
-        except KeyError:
-            value, result_code = '', ERROR_INTERNAL
+        if result_code == ERROR_SUCCESS:
+            try:
+                value = devices[device_uri].cache[key]
+            except KeyError:
+                value, result_code = '', ERROR_INTERNAL
             
         self.out_buffer = buildResultMessage('GetValueResult', value, result_code)
         
     def handle_setvalue(self):
         device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
-        result_code = self.__checkdevice(device_uri)
         key = self.fields.get('key', '')
         value = self.fields.get('value', '')
-        devices[device_uri].cache[key] = value
+        result_code = self.__checkdevice(device_uri)
+        if result_code == ERROR_SUCCESS:    
+            devices[device_uri].cache[key] = value
         self.out_buffer = buildResultMessage('SetValueResult', None, ERROR_SUCCESS)
         
     def handle_queryhistory(self):
@@ -724,28 +731,30 @@ class hpssd_handler(dispatcher):
         payload = ''
         result_code = self.__checkdevice(device_uri)
 
-        for h in devices[device_uri].history.get():
-            payload = '\n'.join([payload, ','.join([str(x) for x in h])])
+        if result_code == ERROR_SUCCESS:    
+            for h in devices[device_uri].history.get():
+                payload = '\n'.join([payload, ','.join([str(x) for x in h])])
 
         self.out_buffer = buildResultMessage('QueryHistoryResult', payload, result_code)
 
     def handle_querymodel(self): # By device URI (used by toolbox, info, etc)
         device_uri = self.fields.get('device-uri', '').replace('hpfax:', 'hp:')
         result_code = self.__checkdevice(device_uri)
-
-        try:
-            back_end, is_hp, bus, model, \
-                serial, dev_file, host, port = \
-                device.parseDeviceURI(device_uri)
-        except Error:
-            mq = {}
-            result_code = e.opt
-        else:
+        mq = {}
+        
+        if result_code == ERROR_SUCCESS:    
             try:
-                mq = QueryModel(model)
-            except Error, e:
-                mq = {}
+                back_end, is_hp, bus, model, \
+                    serial, dev_file, host, port = \
+                    device.parseDeviceURI(device_uri)
+            except Error:
                 result_code = e.opt
+            else:
+                try:
+                    mq = QueryModel(model)
+                except Error, e:
+                    mq = {}
+                    result_code = e.opt
     
         self.out_buffer = buildResultMessage('QueryModelResult', None, result_code, mq)
 
@@ -872,22 +881,23 @@ class hpssd_handler(dispatcher):
 
         
     def createHistory(self, device_uri, code, jobid=0, username=prop.username):
-        self.__checkdevice(device_uri)
+        result_code = self.__checkdevice(device_uri)
         
-        try:
-            short_string = QueryString(code, 0)
-        except Error:
-            short_string, long_string = '', ''
-        else:
+        if result_code == ERROR_SUCCESS:    
             try:
-                long_string = QueryString(code, 1)
+                short_string = QueryString(code, 0)
             except Error:
-                pass
+                short_string, long_string = '', ''
+            else:
+                try:
+                    long_string = QueryString(code, 1)
+                except Error:
+                    pass
 
-        devices[device_uri].history.append(tuple(time.localtime()) +
-                                            (jobid, username, code,
-                                             short_string, long_string))
-                                             
+            devices[device_uri].history.append(tuple(time.localtime()) +
+                                                (jobid, username, code,
+                                                 short_string, long_string))
+                                                 
         
     # sent by hpfax: to indicate the start of a complete fax rendering job
     def handle_hpfaxbegin(self):      
@@ -1029,9 +1039,9 @@ class hpssd_handler(dispatcher):
         try:
             fax_file[(username, job_id)]
         except KeyError:
-            result_code = ERROR_NO_DATA_AVAILABLE
-        
-        data = fax_file[(username, job_id)].read(prop.max_message_len)
+            result_code, data = ERROR_NO_DATA_AVAILABLE, ''
+        else:
+            data = fax_file[(username, job_id)].read(prop.max_message_len)
         
         if not data:
             result_code = ERROR_NO_DATA_AVAILABLE
