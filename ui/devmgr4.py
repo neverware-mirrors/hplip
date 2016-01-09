@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.66 $ 
-# $Date: 2005/04/14 19:36:44 $
+# $Revision: 1.69 $ 
+# $Date: 2005/05/11 20:18:45 $
 # $Author: dwelch $
 #
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ class DummyDevice:
         self.cups_printers = []
         self.last_event = None
         self.types_cached = False
+        self.device_settings_ui = None
 
 
 class JobListViewItem( QListViewItem ):
@@ -203,6 +204,8 @@ class devmgr4(DevMgr4_base):
     def __init__(self, cleanup=None, initial_device_uri=None, parent=None, name=None, fl = 0 ):
         DevMgr4_base.__init__( self, parent, name, fl )
         
+        icon = QPixmap( os.path.join( prop.image_dir, 'HPmenu.png' ) )
+        self.setIcon( icon )
         
         log.debug( "Initializing toolbox UI" )
         self.cleanup = cleanup
@@ -259,7 +262,7 @@ class devmgr4(DevMgr4_base):
 
         self.blank_lcd = os.path.join( prop.image_dir, "panel_lcd.xpm" )
         self.Panel.setPixmap( QPixmap( self.blank_lcd ) )
-
+        
         self.STATUS_HISTORY_ICONS = { ERROR_STATE_CLEAR : None,
                                       ERROR_STATE_BUSY : self.busy_pix_small,
                                       ERROR_STATE_ERROR : self.error_pix_small,
@@ -434,6 +437,9 @@ class devmgr4(DevMgr4_base):
 
                 popup.insertSeparator()
 
+            if self.cur_device.device_settings_ui is not None:
+                popup.insertItem( self.__tr( "Device Settings..." ), self.deviceSettingsButton_clicked )
+            
             popup.insertItem( self.__tr( "Refresh Device" ), self.UpdateDevice )
 
         popup.insertItem( self.__tr( "Refresh All" ), self.deviceRefreshAll_activated )
@@ -601,11 +607,13 @@ class devmgr4(DevMgr4_base):
             self.rescanning = False
 
             self.DeviceList.setCurrentItem( self.DeviceList.firstItem() )
-
+            self.deviceRescanAction.setEnabled( True )
+            
             if self.num_devices == 1:
                 self.UpdateDevice( False )
 
             elif self.num_devices == 0:
+                self.deviceRescanAction.setEnabled( False )
                 dlg = NoDevicesForm( self, "", True )
                 dlg.show()
 
@@ -631,6 +639,7 @@ class devmgr4(DevMgr4_base):
             else:
                 d.cups_printers.append( printer.name ) 
                 icon = self.CreatePixmap( d, ERROR_STATE_CLEAR )
+                self.CheckForDeviceSettingsUI( d )
                 i = IconViewItem( self.DeviceList, d.model_ui, icon, d.device_uri )
 
                 self.devices[ d.device_uri ] = d
@@ -643,7 +652,21 @@ class devmgr4(DevMgr4_base):
         else:
             self.devices[ printer.device_uri ].cups_printers.append( printer.name ) 
 
-
+    def CheckForDeviceSettingsUI( self, dev ):
+        name = '.'.join( [ 'plugins', dev.model ] )
+        log.debug( "Attempting to load plugin: %s" % name )
+        try:
+            mod = __import__( name, globals(), locals(), [] )
+        except ImportError:
+            log.debug( "No plugin found." )
+            return
+        else:
+            components = name.split('.')
+            for c in components[1:]:
+                mod = getattr( mod, c )
+            log.debug( "Loaded: %s" % repr(mod) )
+            dev.device_settings_ui = mod.settingsUI
+        
     def ActivateDevice( self, device_uri ):
         log.debug( utils.bold( "Activate: %s %s %s" % ( "*"*20, device_uri, "*"*20 ) ) )
         d = self.DeviceList.firstItem()
@@ -679,6 +702,9 @@ class devmgr4(DevMgr4_base):
 
     def PrintJobList_currentChanged( self, item ):
         pass
+        
+    def PrintJobList_selectionChanged( self, a0 ):
+        pass
 
     def CancelPrintJobButton_clicked(self):
         item = self.PrintJobList.currentItem()
@@ -687,6 +713,7 @@ class devmgr4(DevMgr4_base):
 
     def UpdateTabs( self ):
         self.UpdateFunctionsTab()
+        self.UpdateSettingsTab()
         self.UpdateStatusTab()
         self.UpdateSuppliesTab()
         self.UpdateMaintTab()
@@ -905,6 +932,21 @@ class devmgr4(DevMgr4_base):
         QListViewItem( self.AdvInfoList, 'model-name', self.cur_device.model )
         QListViewItem( self.AdvInfoList, 'device-uri', self.cur_device.device_uri )
 
+    def ToggleSettingsButtons( self, toggle ):
+        if toggle:
+            self.setupDevice.setEnabled( bool(self.cur_device.device_settings_ui) )
+            self.deviceSettingsButton.setEnabled( bool(self.cur_device.device_settings_ui) )
+            self.faxSetupWizardButton.setEnabled( False )
+            self.faxSettingsButton.setEnabled( False )
+        else:
+            self.setupDevice.setEnabled( False )
+            self.deviceSettingsButton.setEnabled( False )
+            self.faxSetupWizardButton.setEnabled( False )
+            self.faxSettingsButton.setEnabled( False )
+    
+    def UpdateSettingsTab( self ):
+        self.ToggleSettingsButtons( self.cur_device.device_state in \
+            ( DEVICE_STATE_FOUND, DEVICE_STATE_JUST_FOUND ) )
 
     def EventUI( self, event_code, event_type, 
                  error_string_short, error_string_long, 
@@ -1259,7 +1301,7 @@ class devmgr4(DevMgr4_base):
         self.FailureUI( self.__tr( "<p><b>Sorry, the make copies feature is currently not implemented.</b>" ) )
 
     def ConfigureFeaturesButton_clicked(self):
-        self.settingsConfigure_activated( 3 )
+        self.settingsConfigure_activated( 2 )
 
     def RunCommand( self, cmd, macro_char='%' ):
         self.ToggleFunctionButtons( False )
@@ -1288,6 +1330,19 @@ class devmgr4(DevMgr4_base):
         dlg = AboutDlg( self )
         dlg.VersionText.setText( prop.version )
         dlg.exec_loop()
+        
+    def deviceSettingsButton_clicked(self):
+        self.cur_device.device_settings_ui( self.cur_device.device_uri, self )
+        
+    def setupDevice_activated(self):
+        self.cur_device.device_settings_ui( self.cur_device.device_uri )
+
+    def faxSetupWizardButton_clicked(self):
+        print "DevMgr4.faxSetupWizardButton_clicked(): Not implemented yet"
+
+    def faxSettingsButton_clicked(self):
+        print "DevMgr4.faxSettingsButton_clicked(): Not implemented yet"
+        
 
     def __tr(self,s,c = None):
         return qApp.translate("DevMgr4",s,c)

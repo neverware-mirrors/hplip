@@ -369,7 +369,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
   <td>YES</td>
   <td>DJGenericVIP</td>
   <td>YES</td>
-  <td>NO</td>
+  <td>YES</td>
   <td>NO</td>
   <td class=xl19>Full</td>
   <td class=xl19>hp</td>
@@ -380,7 +380,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
   <td>YES</td>
   <td>DJGenericVIP</td>
   <td>YES</td>
-  <td>NO</td>
+  <td>YES</td>
   <td>NO</td>
   <td class=xl19>Full</td>
   <td class=xl19>hp</td>
@@ -391,7 +391,7 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
   <td>YES</td>
   <td>DJGenericVIP</td>
   <td>YES</td>
-  <td>NO</td>
+  <td>YES</td>
   <td>NO</td>
   <td class=xl19>Full</td>
   <td class=xl19>hp</td>
@@ -3750,6 +3750,32 @@ chkconfig or install_initd for HPLIP startup/shutdown script.
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPLIP 0.9.3</b> - This release has the following changes.
+<pre>
+   1. Modified models.xml Deskjet_1220C panel_check_type to be 0 to solve a forum issue.
+   2. A change was made to fix the Test Email Alert.
+   3. Added MlcInit retry to hpiod.
+   4. Fixed some gcc warnings (debian request).
+   5. Converted hp backend, hpiod, hpijs and libsane-hpaio to INADDR_LOOPBACK (debian request).
+   6. Removed images.tgz.
+   7. Added configure check for libjpeg-devel support.
+   8. Changed hplip_readme.html "Photo" support to yes for OJ 7200/7300/7400.
+   9. Fixed intermittent device hang problem with LJ 1010/1012/1015 in hp.c. These devices cannot handle in-band USB deviceid queries.   
+  10. Added OfficeJet V40 to models.xml solving a forum issue.
+  11. Fixed models.xml so that LJ 1010, 1012, 1015, and 1022 all print using "raw" io.
+  12. Fixed "hp-probe -s*" error.
+  13. Fixed error while clicking the"Access Photo Cards" without any photo card.
+  14. Fixed error while running hp-testpage command to print to testpage after disconnect the usb cable.
+  15. Added LJ 1010 and 1012 to models.xml, and made sure the OJ K80xi had both a single spaces and a double spaced entry.
+  16. Now "make install DESTDIR=path" automatically creates prerequisite directories and files. 
+  17. Fixed error which occurs after launching the toolbox in the terminal.
+  18. In models.xml cloned HP LaserJet 4050 Series to the same thing with a trailing underscore to solve a forum issue.
+  19. Increased the printable region for DJGenericVIP. This resolves a HPIJS left margin issue.
+  20. Fixed a HPIJS problem printing more than one page with LJ 1010/1012.
+  21. Modified hpijs to ignore bi-di errors so the "hp" backend can handle them. This fixed a problem where hpijs would hang forever.
+</pre>
+<p>
+<li>
 <b>HPLIP 0.9.2</b> - This release has the following changes.
 <pre>
    1. Fixed "Invalid color calibration type" error occurs when executing command "colorcal" in terminal.
@@ -4011,7 +4037,7 @@ See your distribution about spooler questions. For latest information and detail
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
 &#169 2004-2005 Hewlett-Packard Company<br>
-HPLIP 0.9.2, last updated April 15, 2005
+HPLIP 0.9.3, last updated May 9, 2005
 </font>
  </BODY>
 </HTML>

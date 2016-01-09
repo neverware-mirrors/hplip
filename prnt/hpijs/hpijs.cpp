@@ -442,16 +442,15 @@ int main(int argc, char *argv[])
 #endif
 
    pSS->pPC = new PrintContext(pSS, 0, 0);
-   if (pSS->pPC->constructor_error > 0)
+
+   /* Ignore JOB_CANCELED. This a bi-di hack that allows the job to continue even if bi-di communication failed. */
+   if (pSS->pPC->constructor_error > 0 && pSS->DisplayStatus != DISPLAY_PRINTING_CANCELED)
    {
       bug("unable to open PrintContext object err=%d\n", pSS->pPC->constructor_error);
       goto BUGOUT;
    }
    if (pSS->pPC->constructor_error < 0)
       bug("WARNING: %s\n", pSS->GetDriverMessage(pSS->pPC->constructor_error));
-
-   /* Turn off any bi-di support. Allow bi-di for printer capabilities only. */
-   pSS->IOMode.bDevID = pSS->IOMode.bStatus = FALSE;
 
 #if 0
    bug("device model=%s\n", pSS->pPC->PrinterModel());
@@ -497,6 +496,9 @@ int main(int argc, char *argv[])
          {
             bug("unable to SetPixelsPerRow width=%d, err=%d\n", pSS->ph.width, ret);
          }
+
+         /* Turn off any bi-di support. Allow bi-di for printer capabilities only. */
+         pSS->IOMode.bDevID = pSS->IOMode.bStatus = FALSE;
 
          if (pSS->pJob != NULL)
             delete pSS->pJob;

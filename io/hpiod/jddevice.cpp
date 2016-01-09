@@ -41,12 +41,10 @@ int JetDirectDevice::DeviceID(char *buffer, int size)
 
 int JetDirectDevice::Open(char *sendBuf, int *result)
 {
-   char dev[255];
    char uriModel[128];
    char model[128];
    char *p, *tail;
    int len=0;
-   unsigned char nullByte=0;
 
    *result = R_AOK;
 
@@ -134,7 +132,7 @@ int JetDirectDevice::Close(char *sendBuf, int *result)
 int JetDirectDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
    char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
-   int len=0, r;
+   int len=0;
    unsigned char status = NFAULT_BIT;
 
    *result = R_AOK;

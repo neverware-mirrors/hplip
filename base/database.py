@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.30 $ 
-# $Date: 2005/03/28 22:48:12 $
+# $Revision: 1.31 $ 
+# $Date: 2005/05/11 20:28:23 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -42,7 +42,10 @@ from strings import string_table
 inter_pat = re.compile( r"""%(.*)%""", re.IGNORECASE )
 
 # Available guis
-guis = {}
+guis = {} # { 'username' { 'tbx' : (host, port, pid), 
+          #                'fax' : (host, port, pid), }, ... 
+          # }
+
 
 # Per user alert settings
 alerts = {}

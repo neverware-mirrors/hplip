@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.23 $ 
-# $Date: 2005/03/29 21:07:27 $
+# $Revision: 1.24 $ 
+# $Date: 2005/05/11 20:19:27 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -251,6 +251,13 @@ EVENT_UI_SHOW_TOOLBOX = 7000
 EVENT_UI_HIDE_TOOLBOX = 7001
 # end
 
+# fax
+EVENT_UI_FAX_MIN = 8000
+EVENT_UI_SHOW_FAX_JOB = 8000
+EVENT_UI_SHOW_FAX_SETTINGS = 8002
+EVENT_UI_SHOW_FAX_ADDRESS_BOOK = 8004
+EVENT_UI_FAX_MAX = 8999
+# end
 
 # Error states
 ERROR_STATE_CLEAR = 0        # Show icon w/o overlay

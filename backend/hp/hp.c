@@ -425,14 +425,12 @@ int OpenHP(char *dev)
 {
    char message[512];  
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0, fd=-1;
    MsgAttributes ma;
  
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr =  htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpiod_port_num);  
  
    if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -836,16 +834,14 @@ int DevDiscovery()
    char message[LINE_SIZE*64];  
    int hpiod_sd=-1, hpssd_sd=-1;
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0, len2=0;  
    MsgAttributes ma;
  
    message[0] = 0;
 
-   server_host_name = gethostbyname("localhost");
    bzero(&pin, sizeof(pin));  
    pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
    pin.sin_port = htons(hpiod_port_num);  
  
    if ((hpiod_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -891,7 +887,7 @@ int DevDiscovery()
    
       bzero(&pin, sizeof(pin));  
       pin.sin_family = AF_INET;  
-      pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+      pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
       pin.sin_port = htons(hpssd_port_num);  
  
       if ((hpssd_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -948,15 +944,13 @@ int DeviceEvent(char *dev, char *jobid, int code, char *type, int timeout, int s
 {
    char message[512];  
    struct sockaddr_in pin;  
-   struct hostent *server_host_name;
    int len=0;
  
    if (sstate == SESSION_START)
    {
-      server_host_name = gethostbyname("localhost");
       bzero(&pin, sizeof(pin));  
       pin.sin_family = AF_INET;  
-      pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr;  
+      pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
       pin.sin_port = htons(hpssd_port_num);   /* hpssd */  
 
       if ((hpssd_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
@@ -1004,7 +998,7 @@ int main(int argc, char *argv[])
 {
    int fd;
    int copies;
-   int len, vstatus;
+   int len, vstatus, cnt;
    char buf[BUFFER_SIZE+HEADER_SIZE];
    MsgAttributes ma;
 
@@ -1146,6 +1140,9 @@ int main(int argc, char *argv[])
       }
    } /* while (copies > 0) */
 
+   /* Wait arbitrary time before reading deviceid. LJ1010/1012/1015 will hang with in-bound deviceid query. */ 
+   sleep(1);
+
    /*
     * Since hpiod uses non-blocking i/o we must make sure the printer has received all data
     * before closing the print channel. Otherwise data will be lost.
@@ -1154,10 +1151,12 @@ int main(int argc, char *argv[])
    if (vstatus < 5000)
    {
       /* Got valid status, wait for idle. */
-     while ((vstatus != VSTATUS_IDLE) && (vstatus < 5000))
+     cnt=0;
+     while ((vstatus != VSTATUS_IDLE) && (vstatus < 5000) && (cnt < 5))
      {
         sleep(2);
         vstatus = GetVStatus(hd);
+        cnt++;
      }
    }
    else
@@ -1169,7 +1168,6 @@ int main(int argc, char *argv[])
    DeviceEvent(argv[0], argv[1], EVENT_END_JOB, "event", 0, SESSION_END);
    fprintf(stderr, "INFO: %s\n", GetVStatusMessage(VSTATUS_IDLE));
 
-bugout:
    if (channel >= 0)
       CloseChannel(hd, channel);
    if (hd >= 0)

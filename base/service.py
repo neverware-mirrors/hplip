@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.26 $ 
-# $Date: 2005/04/13 21:16:21 $
+# $Revision: 1.28 $ 
+# $Date: 2005/05/11 20:28:23 $
 # $Author: dwelch $
 
 #
@@ -144,24 +144,25 @@ class Service:
                                     
         
         
-    def registerGUI( self, username, host, port, pid, admin_flag=False ):
+    def registerGUI( self, username, host, port, pid, typ ):
         msg.sendEvent( self.hpssd_sock, 
                         "RegisterGUIEvent", 
                         None, 
                         { 'username' : username,
-                          'admin-flag' : admin_flag,
                           'hostname' : host,
                           'port' : port,
-                          'pid' : pid }
+                          'pid' : pid,
+                          'type' : typ }
                       )
                                           
-    def unregisterGUI( self, username, pid ):
+    def unregisterGUI( self, username, pid, typ ):
         msg.sendEvent( self.hpssd_sock, 
                         "UnRegisterGUIEvent", 
                         None, 
                         { 
                             'username' : username,
                             'pid' : pid,
+                            'type' : typ,
                         } 
                       )
     
@@ -208,7 +209,7 @@ class Service:
                                                 'server-pass'   : password,
                                             } 
                                           )
-        except Error:
+        except Error, e:
             result_code = e.opt
             utils.log_exception()
                 

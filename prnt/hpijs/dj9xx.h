@@ -165,6 +165,7 @@ public:
         "PHOTOSMART P1000\0"        // PSP 1000
         "PHOTOSMART P1100\0"        // PSP 1100
         "DESKJET 1220\0"            // DeskJet 1220
+        "HP Deskjet 1280\0"         // Deskjet 1280
 		"hp deskjet 9300\0"         // deskjet 9300
 #ifdef APDK_MLC_PRINTER
         "OfficeJet K\0"             // OfficeJet K Series

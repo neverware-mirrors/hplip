@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.22 $ 
-# $Date: 2005/03/14 22:48:35 $
+# $Revision: 1.23 $ 
+# $Date: 2005/05/11 20:25:02 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -113,6 +113,7 @@ except:
         
 prop.hpiod_host = 'localhost'
 prop.hpssd_host = 'localhost'
+prop.hpfaxd_host = 'localhost'
 prop.hpguid_host = 'localhost'
 
 prop.username = pwd.getpwuid(os.getuid())[0]

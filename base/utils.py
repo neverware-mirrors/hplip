@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.46 $ 
-# $Date: 2005/03/23 23:54:06 $
+# $Revision: 1.50 $ 
+# $Date: 2005/05/11 17:10:31 $
 # $Author: dwelch $
 #
 # (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
@@ -709,6 +709,18 @@ def deviceDefaultFunctions():
 
     if len(path) > 0:
         cmd_scan = 'xsane -V %SANE_URI%'
+    else:
+        path = which( 'kooka' )
+        
+        if len(path)>0:
+            #cmd_scan = 'kooka -d "%SANE_URI%"'
+            cmd_scan = 'kooka'
+            
+        else:
+            path = which( 'xscanimage' )
+            
+            if len(path)>0:
+                cmd_scan = 'xscanimage'
 
     # Photo Card
     files = os.listdir( prop.home_dir )
@@ -891,4 +903,99 @@ def log_exception():
     log.error( body )
 
 
+def checkPyQtImport():
+    # PyQt
+    try:
+        import qt
+    except ImportError:
+        log.error( "PyQt not installed. GUI not available. Exiting." )
+        return False
+    
+    # check version of Qt
+    qtMajor = int( qt.qVersion().split('.')[0] )
+    
+    if qtMajor < MINIMUM_QT_MAJOR_VER: 
+    
+        log.error( "Incorrect version of Qt installed. Ver. 3.0.0 or greater required.")
+        return False
+    
+    #check version of PyQt
+    try:
+        pyqtVersion = qt.PYQT_VERSION_STR
+    except:
+        pyqtVersion = qt.PYQT_VERSION
+    
+    while pyqtVersion.count('.') < 2:
+        pyqtVersion += '.0'
+    
+    (maj_ver, min_ver, pat_ver) = pyqtVersion.split('.')
+    
+    if pyqtVersion.find( 'snapshot' ) >= 0:
+        log.warning( "A non-stable snapshot version of PyQt is installed.")
+    else:    
+        try:
+            maj_ver = int(maj_ver)
+            min_ver = int(min_ver)
+            pat_ver = int(pat_ver)
+        except ValueError:
+            maj_ver, min_ver, pat_ver = 0, 0, 0
+    
+        if maj_ver < MINIMUM_PYQT_MAJOR_VER or \
+            (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
+            log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver) )
+            log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
+            return False
+            
+    return True
 
+
+def loadTranslators( app, user_config ):
+    #from qt import *
+    import qt
+    loc = None
+
+    if os.path.exists( user_config ):
+        # user_config contains executables we will run, so we
+        # must make sure it is a safe file, and refuse to run
+        # otherwise.
+        if not path_exists_safely( user_config ):
+            log.warning( "File %s has insecure permissions! File ignored." % user_config )
+        else:
+            config = ConfigParser.ConfigParser()
+            config.read( user_config )
+
+            if config.has_section( "ui" ):
+                loc = config.get( "ui", "loc" )
+
+                if not loc:
+                    loc = None
+
+    if loc is not None:
+
+        if loc.lower() == 'system':
+            loc = str(qt.QTextCodec.locale())
+
+        if loc.lower() != 'c':
+            
+            log.debug( "Trying to load .qm file for %s locale." % loc )
+
+            dirs = [ prop.home_dir, prop.data_dir, prop.i18n_dir ]
+
+            trans = qt.QTranslator(None)
+
+            for dir in dirs:
+                qm_file = 'hplip_%s' % loc
+                loaded = trans.load( qm_file, dir)
+
+                if loaded:
+                    app.installTranslator( trans )
+                    break
+        else:
+            loc = None
+
+    if loc is None:
+        log.debug( "Using default 'C' locale" )
+    else:
+        log.debug( "Using locale: %s" % loc )
+        
+    return loc

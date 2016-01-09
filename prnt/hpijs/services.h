@@ -43,10 +43,7 @@ public:
   UXServices ();
   virtual ~ UXServices ();
 
-  DRIVER_ERROR BusyWait (DWORD msec)
-  {
-    return NO_ERROR;
-  }
+  DRIVER_ERROR BusyWait (DWORD msec);
 
   DRIVER_ERROR ToDevice (const BYTE* pBuffer, DWORD* wCount);
 
@@ -74,9 +71,7 @@ public:
     return rand ();
   }
 
-  void DisplayPrinterStatus (DISPLAY_STATUS ePrinterStatus)
-  {
-  }
+  void DisplayPrinterStatus (DISPLAY_STATUS ePrinterStatus);
 
   BYTE GetStatus ()
   {
@@ -139,7 +134,7 @@ public:
   int FirstRaster;
   int KRGB;            /* 0=no, 1=yes */
   int hpFD;          /* CUPS hp backend file descriptor. */
-  BYTE OldStatus;
+  DISPLAY_STATUS DisplayStatus; /* current DisplayPrinterStatus */
   int VertAlign;    /* for Crossbow/Spear */
 
   PrintContext *pPC;

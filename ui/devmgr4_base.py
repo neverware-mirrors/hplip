@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/devmgr4_base.ui'
 #
-# Created: Fri Apr 1 14:51:30 2005
+# Created: Wed Apr 27 16:34:44 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -139,7 +139,60 @@ class DevMgr4_base(QMainWindow):
         self.TabPage_2 = QWidget(self.Tabs,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
 
-        self.PrintJobList = QListView(self.TabPage_2,"PrintJobList")
+        self.groupBox10 = QGroupBox(self.TabPage_2,"groupBox10")
+        self.groupBox10.setColumnLayout(0,Qt.Vertical)
+        self.groupBox10.layout().setSpacing(6)
+        self.groupBox10.layout().setMargin(11)
+        groupBox10Layout = QGridLayout(self.groupBox10.layout())
+        groupBox10Layout.setAlignment(Qt.AlignTop)
+
+        self.textLabel1_4 = QLabel(self.groupBox10,"textLabel1_4")
+        self.textLabel1_4.setAlignment(QLabel.WordBreak | QLabel.AlignVCenter)
+
+        groupBox10Layout.addMultiCellWidget(self.textLabel1_4,0,0,0,1)
+
+        self.deviceSettingsButton = QPushButton(self.groupBox10,"deviceSettingsButton")
+        self.deviceSettingsButton.setEnabled(0)
+
+        groupBox10Layout.addWidget(self.deviceSettingsButton,1,1)
+        spacer15 = QSpacerItem(411,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox10Layout.addItem(spacer15,1,0)
+
+        TabPageLayout_2.addWidget(self.groupBox10,0,0)
+
+        self.groupBox11_2 = QGroupBox(self.TabPage_2,"groupBox11_2")
+        self.groupBox11_2.setColumnLayout(0,Qt.Vertical)
+        self.groupBox11_2.layout().setSpacing(6)
+        self.groupBox11_2.layout().setMargin(11)
+        groupBox11_2Layout = QGridLayout(self.groupBox11_2.layout())
+        groupBox11_2Layout.setAlignment(Qt.AlignTop)
+
+        self.textLabel2 = QLabel(self.groupBox11_2,"textLabel2")
+        self.textLabel2.setAlignment(QLabel.WordBreak | QLabel.AlignVCenter)
+
+        groupBox11_2Layout.addMultiCellWidget(self.textLabel2,0,0,0,2)
+
+        self.faxSettingsButton = QPushButton(self.groupBox11_2,"faxSettingsButton")
+        self.faxSettingsButton.setEnabled(0)
+
+        groupBox11_2Layout.addWidget(self.faxSettingsButton,1,2)
+
+        self.faxSetupWizardButton = QPushButton(self.groupBox11_2,"faxSetupWizardButton")
+        self.faxSetupWizardButton.setEnabled(0)
+
+        groupBox11_2Layout.addWidget(self.faxSetupWizardButton,1,1)
+        spacer16 = QSpacerItem(231,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox11_2Layout.addItem(spacer16,1,0)
+
+        TabPageLayout_2.addWidget(self.groupBox11_2,1,0)
+        spacer17 = QSpacerItem(20,141,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_2.addItem(spacer17,2,0)
+        self.Tabs.insertTab(self.TabPage_2,QString.fromLatin1(""))
+
+        self.TabPage_3 = QWidget(self.Tabs,"TabPage_3")
+        TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
+
+        self.PrintJobList = QListView(self.TabPage_3,"PrintJobList")
         self.PrintJobList.addColumn(self.__tr("Queue"))
         self.PrintJobList.addColumn(self.__tr("Job ID"))
         self.PrintJobList.addColumn(self.__tr("Status"))
@@ -147,15 +200,15 @@ class DevMgr4_base(QMainWindow):
         self.PrintJobList.addColumn(self.__tr("Title"))
         self.PrintJobList.setAllColumnsShowFocus(1)
 
-        TabPageLayout_2.addMultiCellWidget(self.PrintJobList,0,0,0,1)
+        TabPageLayout_3.addMultiCellWidget(self.PrintJobList,0,0,0,1)
 
-        self.CancelPrintJobButton = QPushButton(self.TabPage_2,"CancelPrintJobButton")
+        self.CancelPrintJobButton = QPushButton(self.TabPage_3,"CancelPrintJobButton")
         self.CancelPrintJobButton.setEnabled(0)
 
-        TabPageLayout_2.addWidget(self.CancelPrintJobButton,1,1)
+        TabPageLayout_3.addWidget(self.CancelPrintJobButton,1,1)
         spacer12_3 = QSpacerItem(471,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_2.addItem(spacer12_3,1,0)
-        self.Tabs.insertTab(self.TabPage_2,QString.fromLatin1(""))
+        TabPageLayout_3.addItem(spacer12_3,1,0)
+        self.Tabs.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.SuppliesTab = QWidget(self.Tabs,"SuppliesTab")
         SuppliesTabLayout = QGridLayout(self.SuppliesTab,1,1,11,6,"SuppliesTabLayout")
@@ -243,10 +296,10 @@ class DevMgr4_base(QMainWindow):
         MaintTabLayout.addItem(spacer13_2,3,0)
         self.Tabs.insertTab(self.MaintTab,QString.fromLatin1(""))
 
-        self.TabPage_3 = QWidget(self.Tabs,"TabPage_3")
-        TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
+        self.TabPage_4 = QWidget(self.Tabs,"TabPage_4")
+        TabPageLayout_4 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_4")
 
-        self.groupBox9_2 = QGroupBox(self.TabPage_3,"groupBox9_2")
+        self.groupBox9_2 = QGroupBox(self.TabPage_4,"groupBox9_2")
         self.groupBox9_2.setColumnLayout(0,Qt.Vertical)
         self.groupBox9_2.layout().setSpacing(6)
         self.groupBox9_2.layout().setMargin(11)
@@ -270,8 +323,8 @@ class DevMgr4_base(QMainWindow):
         spacer14_2 = QSpacerItem(151,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         groupBox9_2Layout.addItem(spacer14_2,1,0)
 
-        TabPageLayout_3.addWidget(self.groupBox9_2,0,0)
-        self.Tabs.insertTab(self.TabPage_3,QString.fromLatin1(""))
+        TabPageLayout_4.addWidget(self.groupBox9_2,0,0)
+        self.Tabs.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.InfoTab = QWidget(self.Tabs,"InfoTab")
         InfoTabLayout = QGridLayout(self.InfoTab,1,1,11,6,"InfoTabLayout")
@@ -352,6 +405,8 @@ class DevMgr4_base(QMainWindow):
         self.autoRefresh = QAction(self,"autoRefresh")
         self.autoRefresh.setToggleAction(1)
         self.autoRefresh.setOn(1)
+        self.setupDevice = QAction(self,"setupDevice")
+        self.setupDevice.setEnabled(0)
 
 
 
@@ -360,17 +415,18 @@ class DevMgr4_base(QMainWindow):
 
 
         self.Device = QPopupMenu(self)
+        self.setupDevice.addTo(self.Device)
+        self.Device.insertSeparator()
         self.deviceRescanAction.addTo(self.Device)
         self.deviceRefreshAll.addTo(self.Device)
-        self.Device.insertSeparator()
         self.autoRefresh.addTo(self.Device)
         self.Device.insertSeparator()
         self.deviceExitAction.addTo(self.Device)
         self.MenuBar.insertItem(QString(""),self.Device,1)
 
-        self.Settings = QPopupMenu(self)
-        self.settingsConfigure.addTo(self.Settings)
-        self.MenuBar.insertItem(QString(""),self.Settings,2)
+        self.Configure = QPopupMenu(self)
+        self.settingsConfigure.addTo(self.Configure)
+        self.MenuBar.insertItem(QString(""),self.Configure,2)
 
         self.helpMenu = QPopupMenu(self)
         self.helpContentsAction.addTo(self.helpMenu)
@@ -382,7 +438,7 @@ class DevMgr4_base(QMainWindow):
 
         self.languageChange()
 
-        self.resize(QSize(875,568).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(910,546).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.helpIndexAction,SIGNAL("activated()"),self.helpIndex)
@@ -411,6 +467,10 @@ class DevMgr4_base(QMainWindow):
         self.connect(self.DeviceList,SIGNAL("rightButtonClicked(QIconViewItem*,const QPoint&)"),self.DeviceList_rightButtonClicked)
         self.connect(self.OpenEmbeddedBrowserButton,SIGNAL("clicked()"),self.OpenEmbeddedBrowserButton_clicked)
         self.connect(self.PrintTestPageButton,SIGNAL("clicked()"),self.PrintTestPageButton_clicked)
+        self.connect(self.deviceSettingsButton,SIGNAL("clicked()"),self.deviceSettingsButton_clicked)
+        self.connect(self.faxSetupWizardButton,SIGNAL("clicked()"),self.faxSetupWizardButton_clicked)
+        self.connect(self.faxSettingsButton,SIGNAL("clicked()"),self.faxSettingsButton_clicked)
+        self.connect(self.setupDevice,SIGNAL("activated()"),self.setupDevice_activated)
 
 
     def languageChange(self):
@@ -434,13 +494,21 @@ class DevMgr4_base(QMainWindow):
         self.StatusHistoryList.header().setLabel(5,self.__tr("Code"))
         self.StatusHistoryList.header().setLabel(6,self.__tr("Description"))
         self.Tabs.changeTab(self.StatusTab,self.__tr("Status"))
+        self.groupBox10.setTitle(self.__tr("Device Settings"))
+        self.textLabel1_4.setText(self.__tr("Some devices have special device settings. If your device supports this, you may alter these settings here."))
+        self.deviceSettingsButton.setText(self.__tr("Device Settings..."))
+        self.groupBox11_2.setTitle(self.__tr("Fax Settings"))
+        self.textLabel2.setText(self.__tr("If your device supports fax, you must setup fax support before you may use the fax functionality. Use the \"Fax Setup Wizard\" to setup initial support, then you may alter the settings later in \"Fax Settings\"."))
+        self.faxSettingsButton.setText(self.__tr("Fax Settings..."))
+        self.faxSetupWizardButton.setText(self.__tr("Fax Setup Wizard..."))
+        self.Tabs.changeTab(self.TabPage_2,self.__tr("Settings"))
         self.PrintJobList.header().setLabel(0,self.__tr("Queue"))
         self.PrintJobList.header().setLabel(1,self.__tr("Job ID"))
         self.PrintJobList.header().setLabel(2,self.__tr("Status"))
         self.PrintJobList.header().setLabel(3,self.__tr("User"))
         self.PrintJobList.header().setLabel(4,self.__tr("Title"))
         self.CancelPrintJobButton.setText(self.__tr("Cancel Job"))
-        self.Tabs.changeTab(self.TabPage_2,self.__tr("Print Jobs"))
+        self.Tabs.changeTab(self.TabPage_3,self.__tr("Print Jobs"))
         self.SuppliesList.header().setLabel(0,self.__tr("Type"))
         self.SuppliesList.header().setLabel(1,self.__tr("Part Number"))
         self.SuppliesList.header().setLabel(2,self.__tr("Approx. Level"))
@@ -457,7 +525,7 @@ class DevMgr4_base(QMainWindow):
         self.CleanPensButton.setText(self.__tr("Clean Cartridges..."))
         self.Tabs.changeTab(self.MaintTab,self.__tr("Maintenance"))
         self.groupBox9_2.setTitle(self.__tr("Front Panel Display"))
-        self.Tabs.changeTab(self.TabPage_3,self.__tr("Panel"))
+        self.Tabs.changeTab(self.TabPage_4,self.__tr("Panel"))
         self.groupBox11.setTitle(self.__tr("Device Information"))
         self.AdvInfoList.header().setLabel(0,self.__tr("Key"))
         self.AdvInfoList.header().setLabel(1,self.__tr("Value"))
@@ -474,9 +542,8 @@ class DevMgr4_base(QMainWindow):
         self.helpIndexAction.setText(self.__tr("Index"))
         self.helpIndexAction.setMenuText(self.__tr("&Index..."))
         self.helpIndexAction.setAccel(QString.null)
-        self.helpAboutAction.setText(self.__tr("About"))
-        self.helpAboutAction.setMenuText(self.__tr("&About"))
-        self.helpAboutAction.setAccel(QString.null)
+        self.helpAboutAction.setText(self.__tr("About HP Device Manager"))
+        self.helpAboutAction.setMenuText(self.__tr("&About HP Device Manager"))
         self.deviceRescanAction.setText(self.__tr("Refresh Device"))
         self.deviceRescanAction.setMenuText(self.__tr("Refresh Device"))
         self.deviceRescanAction.setToolTip(self.__tr("Refresh Device (F5)"))
@@ -498,10 +565,14 @@ class DevMgr4_base(QMainWindow):
         self.autoRefresh.setText(self.__tr("Auto Refresh"))
         self.autoRefresh.setToolTip(self.__tr("Turn on/off Auto Refresh (Ctrl+A)"))
         self.autoRefresh.setAccel(self.__tr("Ctrl+A"))
+        self.setupDevice.setText(self.__tr("Action"))
+        self.setupDevice.setMenuText(self.__tr("Settings..."))
+        self.setupDevice.setToolTip(self.__tr("Device Settings (F3)"))
+        self.setupDevice.setAccel(self.__tr("F3"))
         if self.MenuBar.findItem(1):
             self.MenuBar.findItem(1).setText(self.__tr("Device"))
         if self.MenuBar.findItem(2):
-            self.MenuBar.findItem(2).setText(self.__tr("Settings"))
+            self.MenuBar.findItem(2).setText(self.__tr("Configure"))
         if self.MenuBar.findItem(3):
             self.MenuBar.findItem(3).setText(self.__tr("&Help"))
 
@@ -622,6 +693,18 @@ class DevMgr4_base(QMainWindow):
 
     def OpenEmbeddedBrowserButton_clicked(self):
         print "DevMgr4_base.OpenEmbeddedBrowserButton_clicked(): Not implemented yet"
+
+    def deviceSettingsButton_clicked(self):
+        print "DevMgr4_base.deviceSettingsButton_clicked(): Not implemented yet"
+
+    def faxSetupWizardButton_clicked(self):
+        print "DevMgr4_base.faxSetupWizardButton_clicked(): Not implemented yet"
+
+    def faxSettingsButton_clicked(self):
+        print "DevMgr4_base.faxSettingsButton_clicked(): Not implemented yet"
+
+    def setupDevice_activated(self):
+        print "DevMgr4_base.setupDevice_activated(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("DevMgr4_base",s,c)

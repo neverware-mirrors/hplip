@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.53 $ 
-# $Date: 2005/03/31 22:25:34 $
+# $Revision: 1.56 $ 
+# $Date: 2005/05/12 18:38:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -80,13 +80,17 @@ def parseDeviceID( device_id ):
     return d
 
 
-def parseDynamicCounter( ctr_field ):
+def parseDynamicCounter( ctr_field, convert_to_int=True ):
     counter, value = ctr_field.split(' ')
     try:
         counter = int( counter.lstrip('0') or '0' )
-        value = int( value.lstrip('0') or '0' )
+        if convert_to_int:
+            value = int( value.lstrip('0') or '0' )
     except ValueError:
-        counter, value = 0, 0
+        if convert_to_int:
+            counter, value = 0, 0
+        else:
+            counter, value = 0, ''
 
     return counter, value
 
@@ -388,6 +392,7 @@ class Device:
                 if r_values is None:
                     try:
                         r_value = self.getDynamicCounter( 140 )
+                        self.closeChannel( 'PRINT' )
                         r_value_str = str( r_value )
                         r_value_str = ''.join( [ '0'*(9 - len(r_value_str)), r_value_str ] )
                         rg, rr, r_value = r_value_str[:3], r_value_str[3:], int( rr )
@@ -629,7 +634,14 @@ class Device:
 
         if self.io_state == IO_STATE_HP_OPEN:
             service_name = service_name.lower()
-
+            io_mode = 'raw'
+            
+            if service_name == 'print':
+                try:
+                    io_mode = self.mq.get( 'io-mode', 'raw' )
+                except:
+                    pass
+                    
             if service_name not in self.channels:
                 try:
                     fields, data = self.xmitMessage( "ChannelOpen", 
@@ -637,6 +649,7 @@ class Device:
                                                     { 'device-id':  self.device_id,
                                                       'service-name' : service_name, 
                                                       'io-control' : flow_control,
+                                                      'io-mode' : io_mode,
                                                     } 
                                                   )
                 except Error:
@@ -676,7 +689,7 @@ class Device:
             raise Error( ERROR_DEVICE_NOT_OPEN )
 
 
-    def getDynamicCounter( self, counter, callback=None ):
+    def getDynamicCounter( self, counter, callback=None, convert_to_int=True ):
         if self.io_state == IO_STATE_HP_OPEN:
             self.ID()
 
@@ -703,7 +716,7 @@ class Device:
 
                     if 'CTR' in self.deviceID and \
                         pat_dynamic_ctr.search( raw ) is not None:
-                        dev_counter, value = parseDynamicCounter( self.deviceID['CTR'] )
+                        dev_counter, value = parseDynamicCounter( self.deviceID['CTR'], convert_to_int )
                         if counter == dev_counter:
                             self.writeChannel( self.checkOpenChannel( 'PRINT' ), 
                                                pcl.buildDynamicCounter( 0 ), callback ) 

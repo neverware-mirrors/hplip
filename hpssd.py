@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.76 $ 
-# $Date: 2005/04/13 21:16:07 $
+# $Revision: 1.79 $ 
+# $Date: 2005/05/11 20:28:09 $
 # $Author: dwelch $
 
 #
@@ -180,7 +180,8 @@ class hpssd_handler( async.dispatcher ):
         try:
             self.out_buffer = self.handlers.get( msg_type, self.handle_unknown )()
         except Error:
-            log.error( "Unhandled exception during processing" )
+            log.error( "Unhandled exception during processing:" )
+            utils.log_exception()
 
         return True
 
@@ -207,7 +208,7 @@ class hpssd_handler( async.dispatcher ):
 
         r_values = device_r_cache.get( device_uri, None )
         panel_check = device_panel_cache.get( device_uri, True )
-        
+
         d = device.Device( hpiod_sock, device_uri )
 
         dq, r_values, panel_check = \
@@ -217,7 +218,7 @@ class hpssd_handler( async.dispatcher ):
               panel_check )
 
         d.close()
-        
+
         device_panel_cache[ device_uri ] = panel_check
         device_r_cache[ device_uri ] = r_values
 
@@ -356,21 +357,24 @@ class hpssd_handler( async.dispatcher ):
     # EVENT
     def handle_registerguievent( self ):
         username = self.fields.get( 'username', '' )
-        admin_flag = self.fields.get( 'admin-flag', 0 )
         host = self.fields.get( 'hostname', 'localhost' )
         port = self.fields.get( 'port', 0 )
         pid = self.fields.get( 'pid', 0 )
+        typ = self.fields.get( 'type', '' )
 
-        log.debug( "Registering GUI: %s %d %s:%d %d" % ( username, admin_flag, host, port, pid ) )
+        log.debug( "Registering GUI: %s %s:%d %d %s" % ( username, host, port, pid, typ ) )
 
-        database.guis[ username ] = { 'admin_flag'    : admin_flag, 
-                                      'host'          : host, 
-                                      'port'          : port,
-                                    }
+        try:
+            database.guis[ username ]
+        except KeyError:
+            database.guis[ username ] = {}
+            
+        database.guis[ username ][ typ ] = ( host, port, pid )
+
+        pid_file = '/var/run/hp%s-%s.pid' % ( typ, username )
 
         if pid != 0:
             os.umask( 0133 )
-            pid_file = '/var/run/hpguid-%s.pid' % username
             file( pid_file, 'w').write( '%d\n' % pid )
             os.umask( 0077 )
             log.debug( 'Wrote PID %d to %s' % ( pid, pid_file ) )
@@ -381,12 +385,14 @@ class hpssd_handler( async.dispatcher ):
     # EVENT
     def handle_unregisterguievent( self ):
         username = self.fields.get( 'username', '' )
-        try:
-            del database.guis[ username ]
-        except KeyError:
-            log.error( "UnRegister GUI error. Invalid username %s." % username )
+        typ = self.fields.get( 'type', '' )
 
-        pid_file = '/var/run/hpguid-%s.pid' % username                
+        try:
+            del database.guis[ username ][ typ ]
+        except KeyError:
+            pass
+
+        pid_file = '/var/run/hp%s-%s.pid' % ( typ, username )
         log.debug( "Removing file %s" % pid_file )
 
         try:
@@ -400,12 +406,13 @@ class hpssd_handler( async.dispatcher ):
     def handle_getgui( self ):
         result_code, port, host = ERROR_SUCCESS, 0, ''
         username = self.fields.get( 'username', '' )
+        typ = self.fields.get( 'type', '' )
 
         try:
-            host, port = self.get_guid( username )
+            host, port, pid = self.get_gui( username, typ )
         except Error, e:
             result_code = ERROR_GUI_NOT_AVAILABLE
-            host, port = '', 0
+            host, port, pid = '', 0, 0
         else:   
             try:
                 s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
@@ -413,17 +420,16 @@ class hpssd_handler( async.dispatcher ):
             except socket.error:
                 result_code = ERROR_GUI_NOT_AVAILABLE
                 host, port = '', 0
-                try:
-                    del database.guis[ username ]
-                except KeyError:
-                    pass
+                self.handle_unregisterguievent()
             else:
                 s.close()
 
         return buildResultMessage( 'GetGUIResult', None, 
                                    result_code, { 'port' : port,
-                                                  'hostname' : host 
-                                                } )
+                                                  'hostname' : host,
+                                                  'pid' : pid,
+                                                } 
+                                 )
 
 
     def handle_test_email( self ): 
@@ -433,7 +439,7 @@ class hpssd_handler( async.dispatcher ):
             smtp_server = self.fields[ 'smtp-server' ] 
             username = self.fields[ 'username' ]
             server_pass = self.fields[ 'server-pass' ] 
-            from_address = '@localhost.com'
+            from_address = '@localhost'
 
             try:
                 if username and server_pass:
@@ -463,6 +469,9 @@ class hpssd_handler( async.dispatcher ):
                 message_string = None
                 result_code = ERROR_TEST_EMAIL_FAILED
                 raise Error( ERROR_TEST_EMAIL_FAILED )
+
+            # Use NULL address for envelope sender
+            from_address = '<>'
 
             msg = ''.join( [ msg, subject_string, '\r\n\r\n', message_string ] )
 
@@ -513,9 +522,8 @@ class hpssd_handler( async.dispatcher ):
     # EVENT
     def handle_event( self ):
         gui_port, gui_host = None, None
-
-        event_code = self.fields[ 'event-code' ]
-        event_type = self.fields[ 'event-type' ]
+        f = self.fields
+        event_code, event_type = f[ 'event-code' ], f[ 'event-type' ]
 
         log.debug( "code (type): %d (%s)" % ( event_code, event_type ) )
 
@@ -532,10 +540,10 @@ class hpssd_handler( async.dispatcher ):
         log.debug( "short: %s" % error_string_short )
         log.debug( "long: %s" % error_string_long )
 
-        job_id = self.fields.get( 'job-id', 0 )
+        job_id = f.get( 'job-id', 0 )
 
         try:
-            username = self.fields[ 'username' ]
+            username = f[ 'username' ]
         except KeyError:
             if job_id == 0:
                 username = prop.username
@@ -550,69 +558,76 @@ class hpssd_handler( async.dispatcher ):
                     username = prop.username
 
 
-        no_fwd = self.fields.get( 'no-fwd', False )
+        no_fwd = f.get( 'no-fwd', False )
 
         log.debug( "username (jobid): %s (%d)" % ( username, job_id ) )
 
-        retry_timeout = self.fields.get( 'retry-timeout', 0 )
-        device_uri = self.fields.get( 'device-uri', '' )
+        retry_timeout = f.get( 'retry-timeout', 0 )
+        device_uri = f.get( 'device-uri', '' )
 
         database.createHistory( device_uri, event_code, job_id, username )
 
+        typ = 'tbx'
+        if EVENT_UI_FAX_MIN <= event_code <= EVENT_UI_FAX_MAX:
+            typ = 'fax'
+
         try:
-            gui_host, gui_port = self.get_guid( username )
+            gui_host, gui_port, gui_pid = self.get_gui( username, typ )
         except Error, e:
-            log.warn( "No GUI available. (%d)" % e.opt )
-            raise Error( e.opt )
-
-        log.debug( "%s:%d" % ( gui_host, gui_port ) )
-
-        user_alerts = database.alerts.get( username, {} )
-
-        if not no_fwd:
-            if gui_host is not None and gui_port is not None:
-
-                log.debug( "Sending to GUI..." )
-                try:
-                    s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-                    s.connect( ( gui_host, gui_port) )
-                except socket.error:
-                    log.error( "Unable to communicate with GUI on port %d" % gui_port )
-                else:
-                    try:
-                        sendEvent( s, 'EventGUI', 
-                                      '%s\n%s\n' % ( error_string_short, error_string_long ),
-                                     { 'job-id' : job_id,
-                                       'event-code' : event_code,
-                                       'event-type' : event_type,
-                                       'retry-timeout' : retry_timeout,
-                                       'device-uri' : device_uri,
-                                     }
-                                    )
-                    except Error,e:
-                        log.error( "Error sending event to GUI. (%d)" % e.opt )
-
-                    s.close()
-
-            else: # gui not registered or user no longer logged on
-                log.warn( "Unable to find GUI to display error" )
+            pass
         else:
-            log.debug( "Not sending to GUI, no_fwd=True" )
+
+            log.debug( "%s:%d" % ( gui_host, gui_port ) )
+
+            if typ == 'fax':
+                user_alerts = { 'email-alerts' : False }
+            else:
+                user_alerts = database.alerts.get( username, {} )
+                
+            if not no_fwd:
+                if gui_host is not None and gui_port is not None:
+
+                    log.debug( "Sending to %s GUI..." % typ )
+                    try:
+                        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+                        s.connect( ( gui_host, gui_port) )
+                    except socket.error:
+                        log.error( "Unable to communicate with %s GUI on port %d" % ( typ, gui_port ) )
+                    else:
+                        try:
+                            sendEvent( s, 'EventGUI', 
+                                          '%s\n%s\n' % ( error_string_short, error_string_long ),
+                                         { 'job-id' : job_id,
+                                           'event-code' : event_code,
+                                           'event-type' : event_type,
+                                           'retry-timeout' : retry_timeout,
+                                           'device-uri' : device_uri,
+                                         }
+                                        )
+                        except Error,e:
+                            log.error( "Error sending event to %s GUI. (%d)" % ( typ, e.opt ) )
+
+                        s.close()
+
+                else: # gui not registered or user no longer logged on
+                    log.warn( "Unable to find %s GUI to display error" % typ )
+            else:
+                log.debug( "Not sending to %s GUI, no_fwd=True" % typ )
 
 
-        if user_alerts.get( 'email-alerts', False ) and event_type == 'error':
+            if user_alerts.get( 'email-alerts', False ) and event_type == 'error':
 
-            fromaddr = prop.username + '@localhost'
-            toaddrs = user_alerts.get( 'email-address', 'root@localhost' ).split()
-            smtp_server = user_alerts.get( 'smtp-server', 'localhost' )
-            msg = "From: %s\r\nTo: %s\r\n\r\n" % ( fromaddr, ', '.join(toaddrs) )
-            msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % ( device_uri, event_code, error_string_short )
+                fromaddr = prop.username + '@localhost'
+                toaddrs = user_alerts.get( 'email-address', 'root@localhost' ).split()
+                smtp_server = user_alerts.get( 'smtp-server', 'localhost' )
+                msg = "From: %s\r\nTo: %s\r\n\r\n" % ( fromaddr, ', '.join(toaddrs) )
+                msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % ( device_uri, event_code, error_string_short )
 
-            mt = MailThread( msg, 
-                             smtp_server, 
-                             fromaddr, 
-                             toaddrs )
-            mt.start()
+                mt = MailThread( msg, 
+                                 smtp_server, 
+                                 fromaddr, 
+                                 toaddrs )
+                mt.start()
 
         return ''
 
@@ -621,9 +636,8 @@ class hpssd_handler( async.dispatcher ):
         try:
             username = self.fields[ 'username' ]
             try:
-                gui_host, gui_port = self.get_guid( username )
+                gui_host, gui_port, gui_pid = self.get_gui( username )
             except Error, e:
-                log.error( "No GUI available. (%d)" % e.opt )
                 raise Error( e.opt )
 
             log.debug( "Sending to GUI..." )
@@ -633,11 +647,11 @@ class hpssd_handler( async.dispatcher ):
             try:
                 sendEvent( s, 'ExitGUIEvent' )
             except Error, e:
-                log.error( "Error sending event to GUI. (%d)" % e.opt )
+                pass
             s.close()
 
         finally:
-            utils.log_exception()
+            pass
 
         return ''
 
@@ -820,15 +834,12 @@ class hpssd_handler( async.dispatcher ):
         self.connected = False
         self.close()
 
-    def get_guid( self, username ):
+    def get_gui( self, username, typ ):
         try:
-            gui = database.guis[ username ]
-            gui_host = gui[ 'host' ]
-            gui_port = int( gui[ 'port' ] )
-        except:
+            return database.guis[ username ][ typ ]
+        except KeyError:
             raise Error( ERROR_GUI_NOT_AVAILABLE )
 
-        return gui_host, gui_port
 
 class MailThread( threading.Thread ):
     def __init__( self, message, smtp_server, from_addr, to_addr_list, username, server_pass ):
@@ -891,30 +902,32 @@ def handleSIGHUP( signo, frame ):
 
 def exitAllGUIs():
     log.debug( "Sending EXIT to all registered GUIs" )
-    for gui in database.guis:
-        g = database.guis[ gui ]
-        try:
-            gui_host = g[ 'host' ]
-            gui_port = int( g[ 'port' ] )
-        except:
-            pass
-        else:
-            log.debug( "Closing GUI %s:%d" % ( gui_host, gui_port ) )
+    for username in database.guis:
+        for typ in database.guis[ username ]:
+            host, port, pid = database.guis[ username ][ typ ]
+            log.debug( "Closing %s GUI %s:%d (%d)" % ( typ, host, port, pid ) )
             try:
                 s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-                s.connect( ( gui_host, gui_port) )
+                s.connect( ( host, port) )
             except socket.error:
-                log.error( "Unable to communicate with GUI on port %d" % gui_port )
+                log.error( "Unable to communicate with %s GUI on port %d" % ( typ, port ) )
+                continue
             else:
                 try:
                     sendEvent( s, 'ExitGUIEvent', None, {} )
                 except Error,e:
-                    log.warning( "Unable to send event to GUI (%s:%s). (%d)" % ( gui_host, gui_port, e.opt ) )
+                    log.warning( "Unable to send event to %s GUI (%s:%s). (%d)" % ( typ, host, port, e.opt ) )
+                    continue
+                
+                pid_file = '/var/run/hp%s-%s.pid' % ( typ, username )
+                log.debug( "Removing file %s" % pid_file )
+
+                try:
+                    os.remove( pid_file )
+                except:
+                    pass
 
                 s.close()
-
-
-
 
 
 def usage():

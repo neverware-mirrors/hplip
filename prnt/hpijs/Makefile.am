@@ -2,7 +2,7 @@ docdir	= $(datadir)/doc/$(distdir)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL=HPLIP-0_9_2
+APDKLABEL=HPLIP-0_9_2_3
 APDKCOMMON=slimhost/source/common
 APDKOPEN=slimhost/source/open
 APDKDEBUG=slimhost/source/debug
@@ -147,6 +147,41 @@ get-ppd-tip:
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-filters
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db
 	cvs -z3 -d:pserver:anonymous@cvs.linuxprinting.org:/usr/local/cvs co foomatic-db-hpijs
+	cd foomatic-db-hpijs; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-filters; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	cd foomatic-db-engine; \
+	./make_configure; \
+	./configure; \
+	make inplace
+	./hpijs-ppd
+	cp foomatic-filters/foomatic-rip ./
+	rm -rf foomatic-db-engine
+	rm -rf foomatic-filters
+	rm -rf foomatic-db
+	rm -rf foomatic-db-hpijs
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/all_in_one/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/business_inkjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/color_laser/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/designjet/
+	wget -nv -r -l1 -np -erobots=off -A.ppd http://www.linuxprinting.org/download/PPD/HP/mono_laser/
+	cp www.linuxprinting.org/download/PPD/HP/all_in_one/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/business_inkjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/color_laser/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/designjet/* ppd/
+	cp www.linuxprinting.org/download/PPD/HP/mono_laser/* ppd/
+	rm -fr www.linuxprinting.org
+
+get-ppd-user:
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-db-engine
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-filters
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-db
+	CVS_RSH=ssh cvs -z3 -d:ext:$(USER)@cvs.linuxprinting.org:/var/lib/cvs co foomatic-db-hpijs
 	cd foomatic-db-hpijs; \
 	./make_configure; \
 	./configure; \
