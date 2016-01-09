@@ -65,6 +65,14 @@ public:
     virtual PHOTOTRAY_STATE PhotoTrayEngaged (BOOL bQueryPrinter);
 
 protected:
+
+#ifdef APDK_HP_UX
+    virtual DJ9xxVIP & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
     BOOL PCL3acceptsDriverware;
     virtual BYTE PhotoTrayStatus(BOOL bQueryPrinter);
 	int		iNumMissingPens;
@@ -74,51 +82,51 @@ private:
 }; //DJ9xxVIP
 
 
-class AladdinMode : public PrintMode
+class DJ990Mode : public PrintMode
 {
 public:
-    AladdinMode();
+    DJ990Mode();
 }; //AladdenMode
 
 
-class GrayModeAladdin : public GrayMode
+class GrayModeDJ990 : public GrayMode
 {
 public:
-    GrayModeAladdin (uint32_t *map, BOOL PCL3OK);
-}; //GrayModeAladdin
+    GrayModeDJ990 (uint32_t *map, BOOL PCL3OK);
+}; //GrayModeDJ990
 
-class AladdinCMYGrayMode : public PrintMode
+class DJ990CMYGrayMode : public PrintMode
 {
 public:
-    AladdinCMYGrayMode ();
-}; //AladdinCMYGrayMode
+    DJ990CMYGrayMode ();
+}; //DJ990CMYGrayMode
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-class AladdinKGrayMode : public PrintMode
+class DJ990KGrayMode : public PrintMode
 {
 public:
-    AladdinKGrayMode ();
-}; //AladdinKGrayMode
+    DJ990KGrayMode ();
+}; //DJ990KGrayMode
 
-class Aladdin2400Mode : public PrintMode
+class DJ9902400Mode : public PrintMode
 {
 public:
-    Aladdin2400Mode ();
-}; // Aladdin2400Mode
+    DJ9902400Mode ();
+}; // DJ9902400Mode
 
-class AladdinDraftMode : public PrintMode
+class DJ990DraftMode : public PrintMode
 {
 public:
-    AladdinDraftMode ();
-}; // AladdinDraftMode
+    DJ990DraftMode ();
+}; // DJ990DraftMode
 
 #endif // APDK_EXTENDED_MEDIASIZE
 
-class AladdinBestMode : public PrintMode
+class DJ990BestMode : public PrintMode
 {
 public:
-    AladdinBestMode ();
-};  // AladdinBestMode
+    DJ990BestMode ();
+};  // DJ990BestMode
 
 #ifdef APDK_HIGH_RES_MODES
     const int VIP_BASE_RES = 600;
@@ -192,8 +200,12 @@ enum
 #define M10_MAX_COUNT1          6
 #define M10_COUNT_START1        2
 
+#ifndef MIN
 #define MIN(a,b)    (((a)>=(b))?(b):(a))
+#endif
+#ifndef MAX
 #define MAX(a,b)    (((a)<=(b))?(b):(a))
+#endif
 
 /*
 We don't actually support 4-byte RGB for anything excpet VIP printers.
@@ -293,18 +305,18 @@ public:
         "DESKJET 96\0"                              // DeskJet 96x series
         "DESKJET 98\0"                              // DeskJet 98x series
         "DESKJET 99\0"                              // DeskJet 99x series
-        "deskjet 6122\0"                            // deskjet 6122 - Churchill
-        "deskjet 6127\0"                            // deskjet 6127 - FDR
+        "deskjet 6122\0"                            // deskjet 6122
+        "deskjet 6127\0"                            // deskjet 6127
         "PHOTOSMART 1215\0"                         // PSP 1215
         "PHOTOSMART 1218\0"                         // PSP 1218
         "PHOTOSMART 1115\0"                         // PSP 1115
         "PHOTOSMART 1315\0"                         // PSP 1315
-        "HP BUSINESS INKJET 22\0"                   // 2200, 2230, 2250, 2280 - Nobel
-        "cp1160\0"                                  // CP 1160 - Jupiter Pro
-        "HP Color Inkjet CP1700\0"                                  // CP 1700 - Euler
+        "HP BUSINESS INKJET 22\0"                   // 2200, 2230, 2250, 2280
+        "cp1160\0"                                  // CP 1160
+        "HP Color Inkjet CP1700\0"                  // CP 1700
 #ifdef APDK_MLC_PRINTER
         "officejet d\0"                             // officejet d series
-		"officejet 7100\0"                          // offjetjet 7100 series - Gromit +
+		"officejet 7100\0"                          // offjetjet 7100 series
 #endif
     ) {m_iPrinterType = eDJ9xxVIP;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ9xxVIP(pSS); }

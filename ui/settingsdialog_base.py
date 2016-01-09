@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
+# Form implementation generated from reading ui file '/home/pparks/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
 #
-# Created: Wed Dec 8 09:23:05 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Mon Jan 31 15:16:03 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.13
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -137,14 +137,16 @@ class SettingsDialog_base(QDialog):
 
         self.textLabel3_2_2 = QLabel(self.CleaningLevels,"textLabel3_2_2")
 
-        CleaningLevelsLayout.addMultiCellWidget(self.textLabel3_2_2,0,0,0,1)
+        CleaningLevelsLayout.addWidget(self.textLabel3_2_2,0,0)
 
         self.line1_2_2 = QFrame(self.CleaningLevels,"line1_2_2")
         self.line1_2_2.setFrameShape(QFrame.HLine)
         self.line1_2_2.setFrameShadow(QFrame.Sunken)
         self.line1_2_2.setFrameShape(QFrame.HLine)
 
-        CleaningLevelsLayout.addMultiCellWidget(self.line1_2_2,1,1,0,1)
+        CleaningLevelsLayout.addWidget(self.line1_2_2,1,0)
+        spacer8 = QSpacerItem(20,200,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        CleaningLevelsLayout.addItem(spacer8,3,0)
 
         self.CleaningLevel = QButtonGroup(self.CleaningLevels,"CleaningLevel")
         self.CleaningLevel.setColumnLayout(0,Qt.Vertical)
@@ -152,26 +154,24 @@ class SettingsDialog_base(QDialog):
         self.CleaningLevel.layout().setMargin(11)
         CleaningLevelLayout = QGridLayout(self.CleaningLevel.layout())
         CleaningLevelLayout.setAlignment(Qt.AlignTop)
+        spacer9_2 = QSpacerItem(181,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        CleaningLevelLayout.addItem(spacer9_2,0,1)
 
-        self.radioButton3 = QRadioButton(self.CleaningLevel,"radioButton3")
-        self.CleaningLevel.insert( self.radioButton3,2)
+        layout7 = QHBoxLayout(None,0,6,"layout7")
 
-        CleaningLevelLayout.addWidget(self.radioButton3,2,0)
+        self.AutoRefreshRate = QSpinBox(self.CleaningLevel,"AutoRefreshRate")
+        self.AutoRefreshRate.setWrapping(1)
+        self.AutoRefreshRate.setButtonSymbols(QSpinBox.PlusMinus)
+        self.AutoRefreshRate.setMaxValue(360)
+        self.AutoRefreshRate.setMinValue(5)
+        layout7.addWidget(self.AutoRefreshRate)
 
-        self.radioButton1 = QRadioButton(self.CleaningLevel,"radioButton1")
-        self.radioButton1.setChecked(1)
-        self.CleaningLevel.insert( self.radioButton1,0)
+        self.textLabel1_3 = QLabel(self.CleaningLevel,"textLabel1_3")
+        layout7.addWidget(self.textLabel1_3)
 
-        CleaningLevelLayout.addWidget(self.radioButton1,0,0)
+        CleaningLevelLayout.addLayout(layout7,0,0)
 
-        self.radioButton2 = QRadioButton(self.CleaningLevel,"radioButton2")
-        self.CleaningLevel.insert( self.radioButton2,1)
-
-        CleaningLevelLayout.addWidget(self.radioButton2,1,0)
-
-        CleaningLevelsLayout.addMultiCellWidget(self.CleaningLevel,2,2,0,1)
-        spacer8 = QSpacerItem(20,50,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        CleaningLevelsLayout.addItem(spacer8,4,1)
+        CleaningLevelsLayout.addWidget(self.CleaningLevel,2,0)
         self.TabWidget.insertTab(self.CleaningLevels,QString(""))
 
         self.FunctionCommands = QWidget(self.TabWidget,"FunctionCommands")
@@ -266,20 +266,18 @@ class SettingsDialog_base(QDialog):
         self.resize(QSize(627,481).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.pushButton31,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.pushButton30,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.EmailCheckBox,SIGNAL("toggled(bool)"),self.EmailAddress,SLOT("setEnabled(bool)"))
-        self.connect(self.EmailCheckBox,SIGNAL("toggled(bool)"),self.SMTPServer,SLOT("setEnabled(bool)"))
-        self.connect(self.ServerRequiresPasswd,SIGNAL("toggled(bool)"),self.Username,SLOT("setEnabled(bool)"))
-        self.connect(self.ServerRequiresPasswd,SIGNAL("toggled(bool)"),self.Password,SLOT("setEnabled(bool)"))
-        self.connect(self.EmailCheckBox,SIGNAL("toggled(bool)"),self.ServerRequiresPasswd,SLOT("setEnabled(bool)"))
+        self.connect(self.pushButton31,SIGNAL("clicked()"),self.reject)
+        self.connect(self.pushButton30,SIGNAL("clicked()"),self.accept)
+        self.connect(self.EmailCheckBox,SIGNAL("toggled(bool)"),self.EmailAddress.setEnabled)
+        self.connect(self.EmailCheckBox,SIGNAL("toggled(bool)"),self.SMTPServer.setEnabled)
+        self.connect(self.ServerRequiresPasswd,SIGNAL("toggled(bool)"),self.Username.setEnabled)
+        self.connect(self.ServerRequiresPasswd,SIGNAL("toggled(bool)"),self.Password.setEnabled)
         self.connect(self.CleaningLevel,SIGNAL("clicked(int)"),self.CleaningLevel_clicked)
         self.connect(self.DefaultsButton,SIGNAL("clicked()"),self.DefaultsButton_clicked)
         self.connect(self.TabWidget,SIGNAL("currentChanged(QWidget*)"),self.TabWidget_currentChanged)
         self.connect(self.EmailTestButton,SIGNAL("clicked()"),self.EmailTestButton_clicked)
 
-        self.setTabOrder(self.TabWidget,self.radioButton1)
-        self.setTabOrder(self.radioButton1,self.pushButton30)
+        self.setTabOrder(self.TabWidget,self.pushButton30)
         self.setTabOrder(self.pushButton30,self.pushButton32)
         self.setTabOrder(self.pushButton32,self.pushButton31)
         self.setTabOrder(self.pushButton31,self.PopupCheckBox)
@@ -315,12 +313,10 @@ class SettingsDialog_base(QDialog):
         self.EmailCheckBox.setText(self.__tr("Send email when status alerts occur:"))
         self.EmailTestButton.setText(self.__tr("Test"))
         self.TabWidget.changeTab(self.EmailAlerts,self.__tr("Email Alerts"))
-        self.textLabel3_2_2.setText(self.__tr("<b>Configure what level of cartridge cleaning to perform</b>"))
-        self.CleaningLevel.setTitle(self.__tr("Cleaning level"))
-        self.radioButton3.setText(self.__tr("Level 3: \"Wipe and spit\" (uses the most ink)"))
-        self.radioButton1.setText(self.__tr("Level 1: Regular cleaning (uses the least ink) (recommended)"))
-        self.radioButton2.setText(self.__tr("Level 2: \"Prime\" (uses more ink)"))
-        self.TabWidget.changeTab(self.CleaningLevels,self.__tr("Cleaning Levels"))
+        self.textLabel3_2_2.setText(self.__tr("<b>Configure the rate at which devices are automaically refreshed</b>"))
+        self.CleaningLevel.setTitle(self.__tr("Auto refresh rate"))
+        self.textLabel1_3.setText(self.__tr("seconds"))
+        self.TabWidget.changeTab(self.CleaningLevels,self.__tr("Auto Refresh"))
         self.textLabel3_2_2_2.setText(self.__tr("<b>Configure what commands to run for device functions</b>"))
         self.textLabel1_2.setText(self.__tr("Print Command"))
         self.textLabel1_2_2.setText(self.__tr("Scan Command"))

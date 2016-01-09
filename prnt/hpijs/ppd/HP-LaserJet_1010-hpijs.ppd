@@ -82,7 +82,8 @@ le=- -"
 
 *FoomaticRIPOption Model: enum CmdLine A 100
 *FoomaticRIPOptionSetting Model=HP-LaserJet_1010: " -sDeviceManufactur&&
-er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP LaserJet&quot;"
+er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;hp LaserJet 1010&qu&&
+ot;"
 *End
 
 *OpenGroup: General/General
@@ -92,16 +93,12 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;HP LaserJet&quot;"
 *OrderDependency: 10 AnySetup *PrintoutMode
 *DefaultPrintoutMode: Normal
 *PrintoutMode Draft/Draft (Economy): "%% FoomaticRIPOptionSetting: PrintoutMode=Draft"
-*FoomaticRIPOptionSetting PrintoutMode=Draft: "Quality=300DraftGraysca&&
+*FoomaticRIPOptionSetting PrintoutMode=Draft: "Quality=600DraftGraysca&&
 leK QualityType=Draft"
 *End
 *PrintoutMode Normal/Normal: "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
-*FoomaticRIPOptionSetting PrintoutMode=Normal: "Quality=300GrayscaleK &&
+*FoomaticRIPOptionSetting PrintoutMode=Normal: "Quality=600GrayscaleK &&
 QualityType=Normal"
-*End
-*PrintoutMode High/High Quality: "%% FoomaticRIPOptionSetting: PrintoutMode=High"
-*FoomaticRIPOptionSetting PrintoutMode=High: "Quality=600GrayscaleK Qu&&
-alityType=High"
 *End
 *CloseUI: *PrintoutMode
 
@@ -493,15 +490,10 @@ e=true"
 *OrderDependency: 100 AnySetup *Quality
 *DefaultQuality: FromPrintoutMode
 *Quality FromPrintoutMode/Controlled by 'Printout Mode': "%% FoomaticRIPOptionSetting: Quality=@PrintoutMode"
-*Quality 300DraftGrayscaleK/300 dpi, Draft, Grayscale, Black Cartr.: "%% FoomaticRIPOptionSetting: Quality=300DraftGrayscaleK"
-*FoomaticRIPOptionSetting Quality=300DraftGrayscaleK: " -r300 -sIjsPar&&
+*Quality 600DraftGrayscaleK/600 dpi, Draft, Grayscale, Black Cartr.: "%% FoomaticRIPOptionSetting: Quality=600DraftGrayscaleK"
+*FoomaticRIPOptionSetting Quality=600DraftGrayscaleK: " -r600 -sIjsPar&&
 ams=Quality:Quality=1,Quality:ColorMode=0,Quality:MediaType=0,Quality:&&
 PenSet=0"
-*End
-*Quality 300GrayscaleK/300 dpi, Grayscale, Black Cartr.: "%% FoomaticRIPOptionSetting: Quality=300GrayscaleK"
-*FoomaticRIPOptionSetting Quality=300GrayscaleK: " -r300 -sIjsParams=Q&&
-uality:Quality=0,Quality:ColorMode=0,Quality:MediaType=0,Quality:PenSe&&
-t=0"
 *End
 *Quality 600GrayscaleK/600 dpi, Grayscale, Black Cartr.: "%% FoomaticRIPOptionSetting: Quality=600GrayscaleK"
 *FoomaticRIPOptionSetting Quality=600GrayscaleK: " -r600 -sIjsParams=Q&&

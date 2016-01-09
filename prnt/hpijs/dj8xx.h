@@ -44,8 +44,6 @@ class DJ8xx : public Printer
 public:
     DJ8xx(SystemServices* pSS,int numfonts=0, BOOL proto=FALSE);
 
-    PrintMode* GetMode(int index);
-
     virtual Header* SelectHeader(PrintContext* pc);
     virtual DRIVER_ERROR VerifyPenInfo();
     virtual DRIVER_ERROR ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter=TRUE);
@@ -56,44 +54,50 @@ public:
     virtual BOOL UseGUIMode(PrintMode* pPrintMode);
     DRIVER_ERROR CleanPen();
 
+#ifdef APDK_HP_UX
 protected:
+    virtual DJ8xx & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
 
 }; //DJ8xx
 
 
-class VeniceMode1 : public PrintMode
+class DJ895Mode1 : public PrintMode
 {
 public:
-    VeniceMode1();
-}; //VeniceMode1
+    DJ895Mode1();
+}; //DJ895Mode1
 
 
-class VeniceMode2 : public PrintMode
+class DJ895Mode2 : public PrintMode
 {
 public:
-    VeniceMode2();
-}; //VeniceMode2
+    DJ895Mode2();
+}; //DJ895Mode2
 
 
-class VeniceMode3 : public PrintMode
+class DJ895Mode3 : public PrintMode
 {
 public:
-    VeniceMode3();
-}; //VeniceMode3
+    DJ895Mode3();
+}; //DJ895Mode3
 
-class VeniceMode4 : public GrayMode
+class DJ895Mode4 : public GrayMode
 {
 public:
-    VeniceMode4();
-}; //VeniceMode4
+    DJ895Mode4();
+}; //DJ895Mode4
 
 #ifdef APDK_EXTENDED_MEDIASIZE
 
-class VeniceMode5 : public GrayMode
+class DJ895Mode5 : public GrayMode
 {
 public:
-    VeniceMode5();
-}; //VeniceMode5
+    DJ895Mode5();
+}; //DJ895Mode5
 
 #endif //APDK_EXTENDED_MEDIASIZE
 

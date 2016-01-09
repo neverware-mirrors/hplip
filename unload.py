@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.8 $ 
-# $Date: 2004/12/01 23:05:40 $
+# $Revision: 1.12 $ 
+# $Date: 2005/03/21 17:38:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.0'
+_VERSION = '1.6'
 
 # Std Lib
 import sys
@@ -35,6 +35,28 @@ from base.g import *
 from base import utils
 
 
+def usage():
+    formatter = utils.TextFormatter( 
+                (
+                    {'width': 38, 'margin' : 2},
+                    {'width': 38, 'margin' : 2},
+                )
+            )
+
+    log.info( utils.TextFormatter.bold( """\nUsage: hp-unload [PRINTER|DEVICE-URI] [OPTIONS]\n\n""") )
+    log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
+    #log.info( formatter.compose( ( "(**See NOTES 1&2)",                     "" ) ) )
+    log.info( formatter.compose( ( "To specify a CUPS printer:",           "-p<printer> or --printer=<printer>" ) ) )
+    log.info( formatter.compose( ( "To specify a device-URI:",             "-d<device-uri> or --device=<device-uri>" ), True ) )
+    log.info( formatter.compose( ( utils.TextFormatter.bold("[OPTIONS]"),            "" ) ) )
+    log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
+    log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
+    log.info( formatter.compose( ( "Bus to probe (interactive mode only):","-b<bus> or --bus=<bus>" ) ) )
+    log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
+    log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
+
+
+
 # PyQt
 try:
     from qt import *
@@ -43,7 +65,9 @@ except ImportError:
     sys.exit(0)
 
 # check version of Qt
-qtMajor = int( qVersion().split('.')[0] )
+qt_split_version = qVersion().split('.')
+qtMajor = int( qt_split_version[0] )
+qtMinor = int( qt_split_version[1] )
 
 if qtMajor < MINIMUM_QT_MAJOR_VER: 
     
@@ -77,6 +101,9 @@ else:
         log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
         
     
+use_qt_splashscreen = False
+#if qtMajor >= 3 and qtMinor >= 2:
+#    use_qt_splashscreen = True
 
 from ui import unloadform
     
@@ -96,7 +123,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'usb,cups'
 log_level = 'info'
 
 for o, a in opts:
@@ -122,26 +149,45 @@ for o, a in opts:
         
         
 
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
     
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
+    usage()
     sys.exit(0)
 
 log.set_level( log_level )         
         
 
+def __tr( s,c = None):
+    return qApp.translate( "Unload",s,c)
+    
 utils.log_title( 'Photo Card Access GUI', _VERSION )
 
 try:
     try:
         a = QApplication(sys.argv)
         QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+        
+        if use_qt_splashscreen:
+            pixmap = QPixmap( os.path.join( prop.image_dir, "hp-tux-printer.png" ) )
+            splash = QSplashScreen( pixmap )
+            splash.message( __tr( "Loading..." ), Qt.AlignBottom )
+            splash.show()
+            
         w = unloadform.UnloadForm( bus, device_uri, printer_name )
         a.setMainWidget(w)
         w.show()
+
+        if use_qt_splashscreen:
+            splash.finish( w )
+                
         a.exec_loop()
     except Exception, e:
         log.error( "An error occured: %s" % e )

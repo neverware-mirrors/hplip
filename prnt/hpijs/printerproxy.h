@@ -44,7 +44,7 @@ typedef enum PROXY_VOTE
     VOTE_VIP_MATCH = 80,                    //!< matched because it is a VIP printer
     VOTE_SUBSTRING_MATCH = 90,              //!< a model was a substring of the full string
     VOTE_EXACT_MATCH = 100                  //!< exact match id on this printer
-};
+} PROXY_VOTE;
 
 
 

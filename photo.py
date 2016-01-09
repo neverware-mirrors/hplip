@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.11 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.15 $ 
+# $Date: 2005/03/21 17:38:49 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '3.0'
+_VERSION = '3.1'
 
 
 # Std Lib
@@ -52,7 +52,7 @@ def usage():
                 )
             )
 
-    log.info( utils.TextFormatter.bold( """\nUsage: photo.py [PRINTER|DEVICE-URI] [OPTIONS]\n\n""") )
+    log.info( utils.TextFormatter.bold( """\nUsage: hp-photo [PRINTER|DEVICE-URI] [OPTIONS]\n\n""") )
     
     log.info( formatter.compose( ( utils.TextFormatter.bold("[PRINTER|DEVICE-URI]"), "" ) ) )
     log.info( formatter.compose( ( "(**See NOTES 1&2)",                     "" ) ) )
@@ -65,8 +65,8 @@ def usage():
     log.info( formatter.compose( ( "",                                     "<bus>: cups*, usb, net, bt, fw, par (*default) (Note: net, bt, fw, and par not supported)" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ), True ) )
 
-    log.info(  """Examples:\n\nAccess photo cards on a CUPS printer named "hp5550":\n   photo.py -php5550\n\n""" \
-               """Access photo cards on printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   photo.py -dhp:/usb/DESKJET_990C?serial=12345\n\n"""\
+    log.info(  """Examples:\n\nAccess photo cards on a CUPS printer named "hp5550":\n   hp-photo -php5550\n\n""" \
+               """Access photo cards on printer with a URI of "hp:/usb/DESKJET_990C?serial=12345":\n   hp-photo -dhp:/usb/DESKJET_990C?serial=12345\n\n"""\
                """**NOTES: 1. If device or printer is not specified, the local device bus\n""" \
                """            is probed and the program enters interactive mode.\n""" \
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
@@ -283,7 +283,7 @@ class Console(cmd.Cmd):
                 print utils.bold( "Found %d files to unload, %s" % ( len(unload_list), utils.format_bytes( total, True ) ) )
             else:
                 print utils.bold( "Unloading %d files..." % len(unload_list) )
-                total, delta = self.pc.unload( unload_list, self.cp_status_callback, self.rm_status_callback, dont_remove )
+                total, delta, was_cancelled = self.pc.unload( unload_list, self.cp_status_callback, self.rm_status_callback, dont_remove )
                 print utils.bold( "\n%s unloaded in %d sec (%d KB/sec)" % ( utils.format_bytes( total ), delta, (total/1024)/delta ) )
             
         else:
@@ -483,6 +483,7 @@ class Console(cmd.Cmd):
                 fd, temp_name = utils.make_temp_file()
                 self.pc.cp( args, temp_name )
                 os.system( 'display %s' % temp_name )
+                os.remove( temp_name )
                 
             else:
                 print "File is not an image."
@@ -517,16 +518,20 @@ class Console(cmd.Cmd):
                 photo_name, photo_ext=os.path.splitext(args)
                 
                 if 'JPEGThumbnail' in exif_info:
-                    print "JPEG thumbnail found."
-                    thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.jpg'
-                    open(thumb_name, 'wb').write(exif_info['JPEGThumbnail'])
-                    os.system( 'display %s' % thumb_name )
+                    #print "JPEG thumbnail found."
+                    temp_file_fd, temp_file_name = utils.make_temp_file()
+                    #thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.jpg'
+                    open(temp_file_name, 'wb').write(exif_info['JPEGThumbnail'])
+                    os.system( 'display %s' % temp_file_name )
+                    os.remove( temp_file_name )
                 
                 elif 'TIFFThumbnail' in exif_info:
-                    print "TIFF thumbnail found."
-                    thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.tif'
-                    open(thumb_name, 'wb').write(exif_info['TIFFThumbnail'])
-                    os.system( 'display %s' % thumb_name )
+                    #print "TIFF thumbnail found."
+                    #thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.tif'
+                    temp_file_fd, temp_file_name = utils.make_temp_file()
+                    open(temp_file_name, 'wb').write(exif_info['TIFFThumbnail'])
+                    os.system( 'display %s' % temp_file_name )
+                    os.remove( temp_file_name )
                 
                 else:
                     print "No thumbnail found."
@@ -601,7 +606,7 @@ except getopt.GetoptError:
     
 printer_name = None
 device_uri = None    
-bus = 'cups'
+bus = 'usb,cups'
 log_level = 'info'
 
 for o, a in opts:
@@ -628,10 +633,14 @@ if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     
 log.set_level( log_level )   
    
-if not bus in ( 'cups', 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    sys.exit(0)
-
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
+        
 if device_uri and printer_name:
     log.error( "You may not specify both a printer (-p) and a device (-d)." )
     sys.exit(0)

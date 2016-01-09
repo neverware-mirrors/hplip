@@ -45,44 +45,42 @@ public:
     virtual DRIVER_ERROR VerifyPenInfo();
     virtual PEN_TYPE DefaultPenSet();
 
-protected:
-
 }; //DJ8x5
 
 
-class PhobosMode1 : public PrintMode
+class DJ8x5Mode1 : public PrintMode
 {
 public:
-    PhobosMode1();
-}; //PhobosMode1
+    DJ8x5Mode1();
+}; //DJ8x5Mode1
 
 
-class PhobosMode2 : public PrintMode
+class DJ8x5Mode2 : public PrintMode
 {
 public:
-    PhobosMode2();
-}; //PhobosMode2
+    DJ8x5Mode2();
+}; //DJ8x5Mode2
 
 
-class PhobosMode3 : public PrintMode
+class DJ8x5Mode3 : public PrintMode
 {
 public:
-    PhobosMode3();
-}; //PhobosMode3
+    DJ8x5Mode3();
+}; //DJ8x5Mode3
 
 /*
-class PhobosMode4 : public PrintMode
+class DJ8x5Mode4 : public PrintMode
 {
     public:
-        PhobosMode4 ();
-}; //PhobosMode4
+        DJ8x5Mode4 ();
+}; //DJ8x5Mode4
 */
 
 /*
-class PhobosMode5 : public PrintMode
+class DJ8x5Mode5 : public PrintMode
 {
     public:
-        PhobosMode5 ();
+        DJ8x5Mode5 ();
 };
 */
 #if defined(APDK_DJ8xx)|| defined(APDK_DJ9xx)

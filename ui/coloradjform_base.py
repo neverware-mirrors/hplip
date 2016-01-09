@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/coloradjform_base.ui'
+# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/coloradjform_base.ui'
 #
-# Created: Thu Sep 2 11:14:58 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.11
+# Created: Tue Feb 8 11:05:13 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.13
 #
 # WARNING! All changes made in this file will be lost!
 
 
+import sys
 from qt import *
 
 
@@ -51,7 +52,7 @@ class ColorAdjForm_base(QDialog):
         self.textLabel2_2 = QLabel(self.buttonGroup,"textLabel2_2")
         self.textLabel2_2.setAlignment(QLabel.WordBreak | QLabel.AlignVCenter)
 
-        buttonGroupLayout.addWidget(self.textLabel2_2,0,1)
+        buttonGroupLayout.addMultiCellWidget(self.textLabel2_2,0,0,1,2)
 
         layout2 = QHBoxLayout(None,0,6,"layout2")
 
@@ -182,24 +183,35 @@ class ColorAdjForm_base(QDialog):
         self.radioButton21.setFont(radioButton21_font)
         layout2.addWidget(self.radioButton21)
 
-        buttonGroupLayout.addLayout(layout2,1,1)
+        buttonGroupLayout.addMultiCellLayout(layout2,1,1,1,2)
+        spacer2 = QSpacerItem(750,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        buttonGroupLayout.addItem(spacer2,2,2)
+
+        layout3 = QHBoxLayout(None,0,6,"layout3")
+
+        self.LineLabel_2 = QLabel(self.buttonGroup,"LineLabel_2")
+        LineLabel_2_font = QFont(self.LineLabel_2.font())
+        LineLabel_2_font.setFamily("Times New Roman")
+        self.LineLabel_2.setFont(LineLabel_2_font)
+        layout3.addWidget(self.LineLabel_2)
 
         self.LineLabel = QLabel(self.buttonGroup,"LineLabel")
         LineLabel_font = QFont(self.LineLabel.font())
         LineLabel_font.setFamily("Times New Roman")
         self.LineLabel.setFont(LineLabel_font)
+        layout3.addWidget(self.LineLabel)
 
-        buttonGroupLayout.addMultiCellWidget(self.LineLabel,2,2,0,1)
+        buttonGroupLayout.addMultiCellLayout(layout3,2,2,0,1)
 
         ColorAdjForm_baseLayout.addMultiCellWidget(self.buttonGroup,0,0,0,3)
 
         self.languageChange()
 
-        self.resize(QSize(875,164).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(1013,164).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ContinueButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.CancelButton,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ContinueButton,SIGNAL("clicked()"),self.accept)
         self.connect(self.buttonGroup,SIGNAL("clicked(int)"),self.buttonGroup_clicked)
 
 
@@ -231,7 +243,8 @@ class ColorAdjForm_base(QDialog):
         self.radioButton19.setText(self.__tr("19"))
         self.radioButton20.setText(self.__tr("20"))
         self.radioButton21.setText(self.__tr("21"))
-        self.LineLabel.setText(self.__tr("<b>X</b>"))
+        self.LineLabel_2.setText(self.__tr("<b><font size=\"+1\">Line</font></b>"))
+        self.LineLabel.setText(self.__tr("<b><font size=\"+1\">X</font></b>"))
 
 
     def buttonGroup_clicked(self,a0):
@@ -239,3 +252,11 @@ class ColorAdjForm_base(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("ColorAdjForm_base",s,c)
+
+if __name__ == "__main__":
+    a = QApplication(sys.argv)
+    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+    w = ColorAdjForm_base()
+    a.setMainWidget(w)
+    w.show()
+    a.exec_loop()

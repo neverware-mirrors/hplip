@@ -31,7 +31,7 @@
 
 #ifndef APDK_PSP100_H
 #define APDK_PSP100_H
-// PhotoSmart 100 - AtomAnt
+// PhotoSmart 100
 
 APDK_BEGIN_NAMESPACE
 
@@ -123,13 +123,13 @@ class PSP100Proxy : public PrinterProxy
 public:
     PSP100Proxy() : PrinterProxy(
         "PS100",                // family name
-        "PHOTOSMART 100\0"                          // PSP 100 - Atom Ant
-        "PHOTOSMART 130\0"                          // PSP 130 - Underdog
-        "PHOTOSMART 230\0"                          // PSP 230 - Secret Squirrel
-		"photosmart 240\0"                          // PSP 240 - Polly
-		"photosmart 140\0"                          // PSP 140 - Mighty Mouse
-		"Photosmart 320\0"                          // Pebbles
-		"Photosmart 370\0"                          // Bamm Bamm
+        "PHOTOSMART 100\0"
+        "PHOTOSMART 130\0"
+        "PHOTOSMART 230\0"
+		"photosmart 240\0"
+		"photosmart 140\0"
+		"Photosmart 320\0"
+		"Photosmart 370\0"
 #ifdef APDK_MLC_PRINTER
 #endif
     ) {m_iPrinterType = ePSP100;}

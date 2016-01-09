@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.8 $ 
-# $Date: 2004/11/17 21:34:41 $
+# $Revision: 1.12 $ 
+# $Date: 2005/03/22 23:54:45 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '1.0'
+_VERSION = '1.1'
 
 # Std Lib
 import sys
@@ -45,8 +45,8 @@ def usage():
                 )
             )
 
-    log.info( utils.bold( """\nUsage: probe.py [OPTIONS]\n\n""" ) )
-    
+    log.info( utils.bold( """\nUsage: hp-probe [OPTIONS]\n\n""" ) )
+
     log.info( formatter.compose( ( "[OPTIONS]",                            "" ) ) )
     log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
@@ -62,7 +62,7 @@ def usage():
     log.info( formatter.compose( ( "",                                     "not case sensitive" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
 
-        
+
 utils.log_title( 'Device Detection (Probe) Utility', _VERSION )
 
 try:
@@ -81,53 +81,52 @@ try:
 except getopt.GetoptError:
     usage()
     sys.exit(1)
-    
-bus = 'usb'
+
+bus = 'cups,usb'
 log_level = 'info'
 align_debug = False
 format='cups'
 timeout=5
 ttl=4
-format = "cups"
 filter = 'none'
 search = None
 
 for o, a in opts:
-    
+
     if o in ( '-h', '--help' ):
         usage()
         sys.exit(0)
-    
+
 
     elif o in ( '-b', '--bus' ):
         bus = a.lower().strip()
-        
+
     elif o in ( '-l', '--logging' ):
         log_level = a.lower().strip()
-        
+
     elif o in ( '-t', '--ttl' ):
         try:
             ttl = int( a )
         except ValueError:
             ttl = 4
-            
+
     elif o in ( '-o', '--timeout' ):
         try:
             timeout = int( a )
         except ValueError:
             timeout = 5
-            
+
     elif o in ( '-f', '--format' ):
         format = a.lower().strip()
-        
+
     elif o in ( '-e', '--filter' ):
         filter = a.lower().strip()
-        
+
     elif o in ( '-s', '--search' ):
         search = a.lower().strip()
-        
-        
-    
+
+
+
 
 if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
@@ -135,26 +134,29 @@ if not log_level in ( 'info', 'warn', 'error', 'debug' ):
     sys.exit(0)
 
 log.set_level( log_level )         
-        
+
 if timeout < 0:
     log.error( "You must specify a positive timeout in seconds." )
     usage()
     sys.exit(0)
-    
+
 for f in filter.split(','):
     if f not in ( 'none', 'print', 'scan', 'fax', 'pcard' ):
         log.error( "Invalid term '%s' in filter list" % f )
         usage()
         sys.exit(0)
-        
-        
-if not bus in ( 'usb', 'net', 'bt', 'fw' ):
-    log.error( "Invalid bus name." )
-    usage()
-    sys.exit(0)
-    
-        
-    
+
+
+for x in bus.split(','):
+    bb = x.lower().strip()
+    #if not bb in ( 'usb', 'net', 'bt', 'fw' ):
+    if bb not in ( 'usb', 'cups', 'net' ):
+        log.error( "Invalid bus name: %s" % bb )
+        usage()
+        sys.exit(0)
+
+
+
 hpssd_sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 hpssd_sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
 
@@ -167,20 +169,20 @@ fields, data = msg.xmitMessage( hpssd_sock,
                                     'ttl' : ttl,
                                     'format' : 'cups',
                                     'filter' : filter,
-                                        
+
                                 } 
                               )
 
 hpssd_sock.close()
 
 pat = re.compile( r'(.*?)\s(.*?)\s"(.*?)"\s"(.*?)"', re.IGNORECASE )
-    
+
 max_c1 = 0
 max_c2 = 0
 max_c3 = 0
 dd = data.splitlines()
 if len(dd) > 0:
-    
+
     if search is not None:
         search_pat = re.compile( search, re.IGNORECASE )
         ee = []
@@ -188,13 +190,13 @@ if len(dd) > 0:
             match_obj = search_pat.search( d )
             if match_obj is not None:
                 ee.append(d)
-                
+
         if len(ee) == 0:
             log.warn( "No devices found that match search criteria." )
             sys.exit(0)
     else:
         ee = dd
-    
+
     for d in ee:
         x = pat.search( d )
         c1 = x.group(2)
@@ -203,7 +205,7 @@ if len(dd) > 0:
         max_c2 = max( len(c2), max_c2 )
         c3 = x.group(4)
         max_c3 = max( len(c3), max_c3 )
-    
+
     formatter = utils.TextFormatter( 
                 (
                     {'width': max_c1, 'margin' : 2},
@@ -211,9 +213,9 @@ if len(dd) > 0:
                     {'width': max_c3, 'margin' : 2},
                 )
             )
-            
+
     if bus == 'net':
-        log.info( formatter.compose( ( "Device URI", "Name", "Model" ) ) )    
+        log.info( formatter.compose( ( "Device URI", "Model", "Name" ) ) )    
         log.info( formatter.compose( ( '-'*max_c1, '-'*max_c2, '-'*max_c3 ) ) )            
         for d in ee:
             x = pat.search( d )
@@ -230,7 +232,13 @@ if len(dd) > 0:
             model = x.group(3)
             log.info( formatter.compose( ( uri, model, "" ) ) )    
 else:
-    log.warn( "No devices found" )
-    
-    
-    
+    log.warn( "No devices found. If this isn't the result you are expecting," )
+
+    if bus == 'net':
+        log.warn( "check your network connections and make sure your internet" )
+        log.warn( "firewall software is disabled." )
+    else:
+        log.warn( "check to make sure your devices are properly connected." )
+
+
+

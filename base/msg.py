@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.14 $ 
-# $Date: 2004/12/02 19:46:03 $
+# $Revision: 1.20 $ 
+# $Date: 2005/03/23 23:54:06 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -29,6 +29,7 @@ import sys
 import cStringIO
 import select
 import time
+import socket
 
 # Local
 from g import *
@@ -58,7 +59,7 @@ def buildMessage( msg_type, payload=None, other_fields={} ):
     if other_fields:
         for k in other_fields:
             msg.write( '%s=%s\n' % ( k, str( other_fields[k] ) ) )
-
+    
     if payload is not None:
         msg.write( "encoding=none\n" ) 
         msg.write( "length=%d\n" % len( payload ) )
@@ -83,14 +84,15 @@ conv_funcs = {
                # GMP v2.0
                'bytes-written'   : lambda x : int(x),
                'device-file'     : lambda x : str(x),
-               'status-code'     : lambda x : int(x),
-               'status-name'     : lambda x : str(x).lower(),
+               '3bit-status-code' : lambda x : int(x),
+               '3bit-status-name' : lambda x : str(x).lower(),
                'retry-timeout'   : lambda x : int(x),
                'recovery-result' : lambda x : str(x),
                'ui-id'           : lambda x : str(x).lower(),
                'error-code'      : lambda x : int(x),
                'service-name'    : lambda x : str(x).upper(),
                'username'        : lambda x : str(x),
+               'servername'     : lambda x : str(x),
                'model'           : lambda x : str(x),
                'port'            : lambda x : int(x),
                'admin-flag'      : lambda x : utils.to_bool(x),
@@ -107,6 +109,7 @@ conv_funcs = {
                'email-address'   : lambda x : str(x),
                'smtp-server'     : lambda x : str(x),
                'popup-alerts'    : lambda x : utils.to_bool(x),
+               'test-email'      : lambda x : str(x),
                #
                'color-cal-type'  : lambda x : int(x),
                # ProbeDevicesFiltered v4.1
@@ -122,6 +125,12 @@ conv_funcs = {
                'device-state-previous' : lambda x : int(x),
                'make-history'    : lambda x : utils.to_bool(x),
                'pid'             : lambda x : int(x),
+               'status-code-previous' : lambda x : int(x),
+               'status-code'     : lambda x : int(x),
+               'error-state'     : lambda x : int(x),
+               'pml-result-code' : lambda x : int(x),
+               'panel'           : lambda x : int(x),
+                   
               }
              
                
@@ -199,14 +208,27 @@ def parseMessage( message ):
 def sendEvent( sock, msg_type, payload=None, other_fields={} ):
     m = buildMessage( msg_type, payload, other_fields )
     log.debug( repr(m) )
-    sock.send( m )
+    try:
+        sock.send( m )
+    except socket.error:
+        utils.log_exception()
+        raise Error( ERROR_INTERNAL )
 
     
-def xmitMessage( sock, msg_type, payload=None, other_fields={}, timeout=30 ): 
-    
+def xmitMessage( sock, msg_type, payload=None, other_fields={}, timeout=45 ): 
+    """
+    Send and receive GMP message on socket. 
+    Parse and remove 'msg' field on return.
+    """
     m = buildMessage( msg_type, payload, other_fields )
-    log.debug( repr(m) )
-    sock.send( m )
+    
+    log.debug( "Sending: %s" % repr(m) )
+    
+    try:
+        sock.send( m )
+    except socket.error:
+        utils.log_exception()
+        raise Error( ERROR_INTERNAL )
     
     r, w, e = select.select( [sock], [], [], timeout )
 
@@ -215,14 +237,17 @@ def xmitMessage( sock, msg_type, payload=None, other_fields={}, timeout=30 ):
 
     m = sock.recv( prop.max_message_len<<2 )
     #m = sock.recv()
-    log.debug( repr(m) )
+    log.debug( "Received: %s" % repr(m) )
     fields, data = parseMessage( m )
     result_code = fields[ 'result-code' ]
     
     if result_code > ERROR_SUCCESS:
         raise Error( result_code )
         
-    del fields['msg']
+    try:
+        del fields['msg']
+    except:
+        pass
         
     return fields, data
     

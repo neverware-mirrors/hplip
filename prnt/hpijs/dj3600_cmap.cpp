@@ -39,7 +39,7 @@ APDK_BEGIN_NAMESPACE
 
 // 600x600x1, KCMY - Plain Normal, MLC Both
 
-uint32_t ulMapSpear_KCMY_6x6x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_KCMY_6x6x1[ 9 * 9 * 9 ] =
 {
 3503343871UL, 2379407530UL, 1338176353UL,  698938928UL,  446166815UL,  311162901UL, 
  193132557UL,   91879429UL,    7403520UL, 3999964546UL, 2759781530UL, 1235874648UL, 
@@ -167,7 +167,7 @@ uint32_t ulMapSpear_KCMY_6x6x1[ 9 * 9 * 9 ] =
 
 // 600x600x1UL, ClMlxx - Plain NormalUL, MLC Both
 
-uint32_t ulMapSpear_ClMlxx_6x6x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_ClMlxx_6x6x1[ 9 * 9 * 9 ] =
 {
          0UL,     591872UL,     393216UL,    1441792UL,    2097152UL,    2424832UL, 
    2818048UL,    3211264UL,    3604480UL,       2816UL,          0UL,    1179648UL, 
@@ -296,7 +296,7 @@ uint32_t ulMapSpear_ClMlxx_6x6x1[ 9 * 9 * 9 ] =
 
 // 600x600x2, KCMY - Photo Best, MLC Both
 
-uint32_t ulMapSpear_KCMY_6x6x2[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_KCMY_6x6x2[ 9 * 9 * 9 ] =
 {
 3317360895UL, 3587571711UL, 2630745874UL, 1166933778UL,  558432009UL,  202374912UL, 
      65280UL,      65280UL,      61952UL, 4286697175UL, 3867868899UL, 2478505755UL, 
@@ -424,7 +424,7 @@ uint32_t ulMapSpear_KCMY_6x6x2[ 9 * 9 * 9 ] =
 
 // 600x600x2, ClMlxx - Photo Best, MLC Both
 
-uint32_t ulMapSpear_ClMlxx_6x6x2[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_ClMlxx_6x6x2[ 9 * 9 * 9 ] =
 {
          0UL,     983040UL,    6291456UL,   13762560UL,   16711680UL,   16711680UL, 
   16719360UL,   16750080UL,   16768256UL,   12619776UL,   13383936UL,   11403264UL, 
@@ -553,7 +553,7 @@ uint32_t ulMapSpear_ClMlxx_6x6x2[ 9 * 9 * 9 ] =
 
 // 300x300x1, KCMY - Plain Draft, MLC Both
 
-uint32_t ulMapSpear_KCMY_3x3x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_KCMY_3x3x1[ 9 * 9 * 9 ] =
 {
 4294967040UL, 4294967040UL, 4294967040UL, 4294967040UL, 2801794816UL, 1862270720UL, 
 1157627648UL,  486080256UL,   16056064UL, 4294967040UL, 4294967040UL, 4294967040UL, 
@@ -681,7 +681,7 @@ uint32_t ulMapSpear_KCMY_3x3x1[ 9 * 9 * 9 ] =
 
 // 300x300x1, ClMlxx - Plain Draft, MLC Both
 
-uint32_t ulMapSpear_ClMlxx_3x3x1[ 9 * 9 * 9 ] =
+uint32_t ulMapDJ3600_ClMlxx_3x3x1[ 9 * 9 * 9 ] =
 {
          0UL,          0UL,          0UL,          0UL,          0UL,          0UL, 
          0UL,          0UL,          0UL,          0UL,          0UL,          0UL, 

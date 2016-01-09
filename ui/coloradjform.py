@@ -28,9 +28,9 @@ class ColorAdjForm( ColorAdjForm_base ):
     def __init__( self, parent, line, name = None, modal = 0, fl = 0 ):
         ColorAdjForm_base.__init__(self,parent,name,modal,fl)
         self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir,  'color-adj.png' ) ) )
-        self.LineLabel.setText( line )
+        self.LineLabel.setText( """<b><font size="+1">%s</font></b>""" % line )
         self.value = 11
         
     def buttonGroup_clicked(self,a0):
-        self.value = a0 + 1
+        self.value = a0
  

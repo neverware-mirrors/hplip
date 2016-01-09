@@ -61,6 +61,8 @@
 #include "ljcolor.h"
 #include "psp100.h"
 #include "pscript.h"
+#include "ljjetready.h"
+#include "ljfastraster.h"
 
 APDK_BEGIN_NAMESPACE
 
@@ -74,6 +76,14 @@ LJMonoProxy DeviceRegistry::s_LJMonoProxy;
 
 #ifdef APDK_LJCOLOR
 LJColorProxy DeviceRegistry::s_LJColorProxy;
+#endif
+
+#ifdef APDK_LJJETREADY
+LJJetReadyProxy DeviceRegistry::s_LJJetReadyProxy;
+#endif
+
+#ifdef APDK_LJFASTRASTER
+LJFastRasterProxy DeviceRegistry::s_LJFastRasterProxy;
 #endif
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
@@ -261,14 +271,14 @@ DRIVER_ERROR DeviceRegistry::SelectDevice(char* model, int *pVIPVersion, char* p
 		device = UNSUPPORTED;
         if ( pens[0] != '\0' )
         {
-            // Venice (and Broadway?) printers return penID $X0$X0
+            // DJ8xx (and DJ970?) printers return penID $X0$X0
             //  when powered off
             if(pens[1] == 'X')
             {
                 DBG1("DR:(Unknown Model) Need to do a POWER ON to get penIDs\n");
 
-                DWORD length=sizeof(Venice_Power_On);
-                err = pSS->ToDevice(Venice_Power_On, &length);
+                DWORD length=sizeof(DJ895_Power_On);
+                err = pSS->ToDevice(DJ895_Power_On, &length);
                 ERRCHECK;
 
                 err = pSS->FlushIO();
@@ -329,7 +339,7 @@ DRIVER_ERROR DeviceRegistry::SelectDevice(char* model, int *pVIPVersion, char* p
                         else if(pen2 == '\0')
                             pSS->DisplayPrinterStatus(DISPLAY_NO_PEN_DJ600);
 
-						// may be one-pen venice derivative
+						// may be one-pen DJ8xx derivative
 						else if (pen2 == 'F')
 						{
 							device = eDJ8x5;
@@ -342,7 +352,7 @@ DRIVER_ERROR DeviceRegistry::SelectDevice(char* model, int *pVIPVersion, char* p
                     else if(pen2 == 'A')
 					{
 
-//						Hoobes, Zorro or Linus, possibly Phobos derivative
+//						possibly DJ8x5 derivative
 
 						if (pen1 == 'H' || pen1 == 'Z' || pen1 == 'L')
 						{
@@ -365,21 +375,21 @@ DRIVER_ERROR DeviceRegistry::SelectDevice(char* model, int *pVIPVersion, char* p
             // now that we have pens to look at, let's do the logic
             //  to instantiate the 'best-fit' driver
 
-            if (pen1 == 'H' || pen1 == 'Z' || pen1 == 'L') // Hobbes, Zorro, Linus (BLACK)
+            if (pen1 == 'H' || pen1 == 'Z' || pen1 == 'L') // (BLACK)
             {
                 // check for a 850/855/870
-                if (pen2 == 'M')		// Monet (COLOR)
+                if (pen2 == 'M')
 					device = eDJ850;
                 else if (strncmp (model,"DESKJET 890",11) == 0)
-                    device=eDJ890; // 890 has same pens as Venice!
-                else if (pen2 == 'N')	// Chinook (COLOR)
+                    device=eDJ890; // 890 has same pens as DJ895!
+                else if (pen2 == 'N')	// (COLOR)
 					device = eDJ9xx;
-                // It must be a Venice derivative or will hopefully at
-                // least recognize a Venice print mode
+                // It must be a DJ8xx derivative or will hopefully at
+                // least recognize a DJ8xx print mode
                 else
 					device = eDJ8xx;
             }
-            else if(pen1 == 'C') // Candide (BLACK)
+            else if(pen1 == 'C') // (BLACK)
             {
                 // check for 1-pen printer
                 if (pen2 == '\0') device = eDJ600;
@@ -393,14 +403,14 @@ DRIVER_ERROR DeviceRegistry::SelectDevice(char* model, int *pVIPVersion, char* p
             }
 
             // check for 540-style pens?
-            //  D = Kukla color, E = Triad black
+            //  D = color, E = black
 
 //            else device=UNSUPPORTED;
         }
     }
 
 
-    // Early Venice printer do not yet have full bi-di so check
+    // Early DJ8xx printer do not yet have full bi-di so check
     // the model to avoid a communication problem.
     if ( ( (strncmp(model,"DESKJET 81",10) == 0)
         || (strncmp(model,"DESKJET 83",10) == 0)

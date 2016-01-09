@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.17 $ 
-# $Date: 2005/01/06 22:41:39 $
+# $Revision: 1.28 $ 
+# $Date: 2005/03/30 18:11:34 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -23,40 +23,40 @@
 # Author: Don Welch
 #
 
-
+from __future__ import division
 
 # Local
 from g import *
 from codes import *
+from base import pml, utils
+import struct
 
 """
 status dict structure:
     { 'revision' :     STATUS_REV_00 .. STATUS_REV_04,
-      'agents' :       [ list of pens/agents (dicts) ],  
+      'agents' :       [ list of pens/agents/supplies (dicts) ],  
       'top-door' :     TOP_DOOR_NOT_PRESENT | TOP_DOOR_CLOSED | TOP_DOOR_OPEN,
-      'status' :       STATUS_*,
+      'status-code' :  STATUS_...,
       'supply-door' :  SUPPLY_DOOR_NOT_PRESENT | SUPPLY_DOOR_CLOSED | SUPPLY_DOOR_OPEN.
       'duplexer' :     DUPLEXER_NOT_PRESENT | DUPLEXER_DOOR_CLOSED | DUPLEXER_DOOR_OPEN,
       'photo_tray' :   PHOTO_TRAY_NOT_PRESENT | PHOTO_TRAY_ENGAGED | PHOTO_TRAY_NOT_ENGAGED, 
       'in-tray1' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*, 
       'in-tray2' :     IN_TRAY_NOT_PRESENT | IN_TRAY_CLOSED | IN_TRAY_OPEN (| IN_TRAY_DEFAULT | IN_TRAY_LOCKED)*, 
       'media-path' :   MEDIA_PATH_NOT_PRESENT | MEDIA_PATH_CUT_SHEET | MEDIA_PATH_BANNER | MEDIA_PATH_PHOTO,
-           } 
-           
+    } 
+
     * S:02 only
 
-agent dict structure:
-    { 'kind' :           AGENT_KIND_NONE ... AGENT_KIND_HEAD_AND_SUPPLY,
-      'type' :           TYPE_BLACK ... TYPE_GGK,
-      'health' :         AGENT_HEALTH_OK ... AGENT_HEALTH_FAILED,
+agent dict structure: (pens/supplies/agents/etc)
+    { 'kind' :           AGENT_KIND_NONE ... AGENT_KIND_ADF_KIT,
+      'type' :           TYPE_BLACK ... AGENT_TYPE_UNSPECIFIED,      # aka color
+      'health' :         AGENT_HEALTH_OK ... AGENT_HEALTH_UNKNOWN,
       'level' :          0 ... 100,
       'level-trigger' :  AGENT_LEVEL_TRIGGER_SUFFICIENT_0 ... AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
-      }
+    }
 """   
 
 
-
-# status info
 
 # 'revision'
 STATUS_REV_00 = 0x00
@@ -67,110 +67,28 @@ STATUS_REV_04 = 0x04
 STATUS_REV_V  = 0xff
 STATUS_REV_UNKNOWN = 0xfe
 
-# 'top_door' (lid)
-TOP_DOOR_NOT_PRESENT = 0
-TOP_DOOR_CLOSED = 1
-TOP_DOOR_OPEN = 2
-
-# 'supply_door'
-SUPPLY_DOOR_NOT_PRESENT = 0
-SUPPLY_DOOR_CLOSED = 1
-SUPPLY_DOOR_OPEN = 2
-
-# 'media_path'
-MEDIA_PATH_NOT_PRESENT = 0 # S:00 means banner not present
-MEDIA_PATH_CUT_SHEET = 1 # S:01 means banner present/engaged
-MEDIA_PATH_BANNER = 2
-MEDIA_PATH_PHOTO = 3
-
-# 'photo_tray'(S:03 photo/hagaki)
-PHOTO_TRAY_NOT_PRESENT = 0
-PHOTO_TRAY_NOT_ENGAGED = 1
-PHOTO_TRAY_ENGAGED = 2
-
-# 'duplexer' (S:02 cleanout)
-DUPLEXER_NOT_PRESENT = 0
-DUPLEXER_DOOR_CLOSED = 1
-DUPLEXER_DOOR_OPEN = 2
-
-# 'in_tray1' & 'in_tray2'
-IN_TRAY_NOT_PRESENT = 0
-IN_TRAY_PRESENT = 1 # for !S:02, test for > IN_TRAY_NOT_PRESENT
-IN_TRAY_DEFAULT = 2 # S:02 only
-IN_TRAY_LOCKED = 3 # S:02 only
-
-# 'status'
-STATUS_UNKNOWN = 999
-STATUS_IDLE = 1000
-STATUS_BUSY = 1001
-STATUS_PRINTING = 1002
-STATUS_TURNING_OFF = 1003
-STATUS_REPORT_PRINTING = 1004
-STATUS_CANCELING = 1005
-STATUS_IO_STALL = 1006
-STATUS_DRY_WAIT_TIME = 1007
-STATUS_PEN_CHANGE = 1008
-STATUS_OUT_OF_PAPER = 1009
-STATUS_BANNER_EJECT_NEEDED = 1010
-STATUS_BANNER_MISMATCH = 1011
-STATUS_PHOTO_MISMATCH = 1012
-STATUS_DUPLEX_MISMATCH = 1013
-STATUS_MEDIA_JAM = 1014
-STATUS_CARRIAGE_STALL = 1015
-STATUS_PAPER_STALL = 1016
-STATUS_PEN_FAILURE = 1017
-STATUS_HARD_ERROR = 1018
-STATUS_POWER_DOWN = 1019
-STATUS_FRONT_PANEL_TEST = 1020
-STATUS_CLEAN_OUT_TRAY_MISSING = 1021
-STATUS_OUTPUT_BIN_FULL = 1022
-STATUS_MEDIA_SIZE_MISMATCH = 1023
-STATUS_MANUAL_DUPLEX_BLOCK = 1024
-STATUS_SERVICE_STALL = 1025
-STATUS_OUT_OF_INK = 1026
-STATUS_LIO_ERROR = 1027
-STATUS_PUMP_STALL = 1028
-STATUS_TRAY2_MISSING = 1029
-STATUS_DUPLEXER_MISSING = 1030
-STATUS_REAR_TRAY_MISSING = 1031
-STATUS_PEN_NOT_LATCHED = 1032
-STATUS_BATTERY_VERY_LOW = 1033
-STATUS_SPITTOON_FULL = 1034
-STATUS_OUTPUT_TRAY_CLOSED = 1035
-STATUS_MANUAL_FEED_BLOCKED = 1036
-STATUS_REAR_FEED_BLOCKED = 1037
-STATUS_TRAY2_OUT_OF_PAPER = 1038
-STATUS_UNABLE_TO_LOAD_FROM_LOCKED_TRAY = 1039
-STATUS_NON_HP_APPROVED_INK = 1040
-STATUS_PEN_PAPER_CALIBRATION = 1041
-STATUS_MEDIA_TYPE_MISMATCH = 1042
-STATUS_CUSTOM_MEDIA_MISMATCH = 1043
-STATUS_PEN_CLEANING = 1044
-STATUS_PEN_CHECKING = 1045
-
-
-# agent info
-
-# 'kind'
-AGENT_KIND_NONE = 0
-AGENT_KIND_HEAD = 1
-AGENT_KIND_SUPPLY = 2
-AGENT_KIND_HEAD_AND_SUPPLY = 3
-
-# 'type'
-AGENT_TYPE_NONE = 0
-AGENT_TYPE_BLACK = 1
-AGENT_TYPE_CMY = 2
-AGENT_TYPE_KCM = 3
-AGENT_TYPE_CYAN = 4
-AGENT_TYPE_MAGENTA = 5
-AGENT_TYPE_YELLOW = 6
-AGENT_TYPE_CYAN_LOW = 7
-AGENT_TYPE_MAGENTA_LOW = 8
-AGENT_TYPE_YELLOW_LOW = 9
-AGENT_TYPE_GGK = 10
-AGENT_TYPE_BLUE = 11
-AGENT_TYPE_ERROR = 0x3f
+vstatus_xlate  = { 'busy' : STATUS_PRINTER_BUSY,
+                   'idle' : STATUS_PRINTER_IDLE,
+                   'prnt' : STATUS_PRINTER_PRINTING,
+                   'offf' : STATUS_PRINTER_TURNING_OFF,
+                   'rprt' : STATUS_PRINTER_REPORT_PRINTING,
+                   'cncl' : STATUS_PRINTER_CANCELING,
+                   'iost' : STATUS_PRINTER_IO_STALL,
+                   'dryw' : STATUS_PRINTER_DRY_WAIT_TIME,
+                   'penc' : STATUS_PRINTER_PEN_CHANGE,
+                   'oopa' : STATUS_PRINTER_OUT_OF_PAPER,
+                   'bnej' : STATUS_PRINTER_BANNER_EJECT,
+                   'bnmz' : STATUS_PRINTER_BANNER_MISMATCH,
+                   'phmz' : STATUS_PRINTER_PHOTO_MISMATCH,
+                   'dpmz' : STATUS_PRINTER_DUPLEX_MISMATCH,
+                   'pajm' : STATUS_PRINTER_MEDIA_JAM,
+                   'cars' : STATUS_PRINTER_CARRIAGE_STALL,
+                   'paps' : STATUS_PRINTER_PAPER_STALL,
+                   'penf' : STATUS_PRINTER_PEN_FAILURE,
+                   'erro' : STATUS_PRINTER_HARD_ERROR,
+                   'pwdn' : STATUS_PRINTER_POWER_DOWN,
+                   'fpts' : STATUS_PRINTER_FRONT_PANEL_TEST,
+                   'clno' : STATUS_PRINTER_CLEAN_OUT_TRAY_MISSING }
 
 REVISION_2_TYPE_MAP = { 0 : AGENT_TYPE_NONE,
                         1 : AGENT_TYPE_BLACK,
@@ -182,79 +100,11 @@ REVISION_2_TYPE_MAP = { 0 : AGENT_TYPE_NONE,
                         7 : AGENT_TYPE_MAGENTA,
                         8 : AGENT_TYPE_YELLOW,
                        }
-                            
 
-
-# 'health'
-AGENT_HEALTH_OK = 0
-AGENT_HEALTH_MISINSTALLED = 1
-AGENT_HEALTH_INCORRECT = 2
-AGENT_HEALTH_FAILED = 3
-
-# 'level'
-AGENT_LEVEL_TRIGGER_SUFFICIENT_0 = 0
-AGENT_LEVEL_TRIGGER_SUFFICIENT_1 = 1
-AGENT_LEVEL_TRIGGER_SUFFICIENT_2 = 2
-AGENT_LEVEL_TRIGGER_SUFFICIENT_3 = 3
-AGENT_LEVEL_TRIGGER_SUFFICIENT_4 = 4
-AGENT_LEVEL_TRIGGER_MAY_BE_LOW = 5
-AGENT_LEVEL_TRIGGER_PROBABLY_OUT = 6
-AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT = 7
-
-STATUS_UNKNOWN = { 'revision' : STATUS_REV_UNKNOWN,
-                   'agents' : [],
-                   'status' : STATUS_UNKNOWN  
-                 }
-
-
-status_xlate  =  { 0x01 : STATUS_BUSY,
-                   0x00 : STATUS_IDLE,
-                   0x02 : STATUS_PRINTING,
-                   0x03 : STATUS_TURNING_OFF,
-                   0x04 : STATUS_REPORT_PRINTING,
-                   0x05 : STATUS_CANCELING,
-                   0x06 : STATUS_IO_STALL,
-                   0x07 : STATUS_DRY_WAIT_TIME,
-                   0x08 : STATUS_PEN_CHANGE,
-                   0x09 : STATUS_OUT_OF_PAPER,
-                   0x0a : STATUS_BANNER_EJECT_NEEDED,
-                   0x0b : STATUS_BANNER_MISMATCH,
-                   0x0c : STATUS_PHOTO_MISMATCH,
-                   0x0d : STATUS_DUPLEX_MISMATCH,
-                   0x0e : STATUS_MEDIA_JAM,
-                   0x0f : STATUS_CARRIAGE_STALL,
-                   0x10 : STATUS_PAPER_STALL,
-                   0x11 : STATUS_PEN_FAILURE,
-                   0x12 : STATUS_HARD_ERROR,
-                   0x13 : STATUS_POWER_DOWN,
-                   0x14 : STATUS_FRONT_PANEL_TEST,
-                   0x15 : STATUS_CLEAN_OUT_TRAY_MISSING,
-                   0x16 : STATUS_OUTPUT_BIN_FULL,
-                   0x17 : STATUS_MEDIA_SIZE_MISMATCH,
-                   0x18 : STATUS_MANUAL_DUPLEX_BLOCK,
-                   0x19 : STATUS_SERVICE_STALL,
-                   0x1a : STATUS_OUT_OF_INK,
-                   0x1b : STATUS_LIO_ERROR,
-                   0x1c : STATUS_PUMP_STALL,
-                   0x1d : STATUS_TRAY2_MISSING,
-                   0x1e : STATUS_DUPLEXER_MISSING,
-                   0x1f : STATUS_REAR_TRAY_MISSING,
-                   0x20 : STATUS_PEN_NOT_LATCHED,
-                   0x21 : STATUS_BATTERY_VERY_LOW,
-                   0x22 : STATUS_SPITTOON_FULL,
-                   0x23 : STATUS_OUTPUT_TRAY_CLOSED,
-                   0x24 : STATUS_MANUAL_FEED_BLOCKED,
-                   0x25 : STATUS_REAR_FEED_BLOCKED,
-                   0x26 : STATUS_TRAY2_OUT_OF_PAPER,
-                   0x27 : STATUS_UNABLE_TO_LOAD_FROM_LOCKED_TRAY,
-                   0x28 : STATUS_NON_HP_APPROVED_INK,
-                   0x29 : STATUS_PEN_PAPER_CALIBRATION,
-                   0x2a : STATUS_MEDIA_TYPE_MISMATCH,
-                   0x2b : STATUS_CUSTOM_MEDIA_MISMATCH,
-                   0x2c : STATUS_PEN_CLEANING,
-                   0x2d : STATUS_PEN_CHECKING,
-                 }
-                   
+STATUS_BLOCK_UNKNOWN = { 'revision' : STATUS_REV_UNKNOWN,
+                         'agents' : [],
+                         'status-code' : STATUS_UNKNOWN,  
+                       }
 
 NUM_PEN_POS = { STATUS_REV_00 : 16,
                 STATUS_REV_01 : 16,
@@ -268,8 +118,13 @@ PEN_DATA_SIZE = { STATUS_REV_00 : 8,
                   STATUS_REV_03 : 8,
                   STATUS_REV_04 : 8 } 
 
+STATUS_POS = { STATUS_REV_00 : 16,
+               STATUS_REV_01 : 14,
+               STATUS_REV_02 : 14,
+               STATUS_REV_03 : 16,
+               STATUS_REV_04 : 20 } 
+
 def parseSStatus( s, z='' ):
-    #PEN_DATA_SIZE = 8
     Z_SIZE = 6
 
     z1 = []
@@ -277,12 +132,13 @@ def parseSStatus( s, z='' ):
         z_fields = z.split(',')
 
         for z_field in z_fields:
-            
+
             if len(z_field) > 2 and z_field[:2] == '05':
                 z1s = z_field[2:]
                 z1 = [ int(x, 16) for x in z1s ]
 
     s1 = [ int(x, 16) for x in s ]
+
     revision = s1[1]
 
     assert STATUS_REV_00 <= revision <= STATUS_REV_04
@@ -300,48 +156,43 @@ def parseSStatus( s, z='' ):
         in_tray2 = bool( s1[7] & 0x8L )
 
     media_path = bool( s1[8] & 0x8L ) + ( s1[8] & 0x1L ) + ( ( bool( s1[18] & 0x2L ) )<<1 )
-    status_byte = ( s1[16]<<4 ) + s1[17]
-    status = status_xlate.get( status_byte, STATUS_IDLE )
-
+    status_pos = STATUS_POS[ revision ]
+    status_byte = ( s1[ status_pos ]<<4 ) + s1[ status_pos + 1 ]
+    stat = status_byte + STATUS_PRINTER_BASE
+    
     pens, pen, c, d = [], {}, NUM_PEN_POS[ revision ]+1, 0
-    num_pens = s1[ NUM_PEN_POS[ revision ] ]
 
+    num_pens = s1[ NUM_PEN_POS[ revision ] ]
+    
     index = 0
-    #print num_pens
     pen_data_size = PEN_DATA_SIZE[revision]
-    
-    #print 'num_pens:', num_pens
-    
+
     for p in range( num_pens ):
-        #print
-        #print 'slice:',s[c:c+pen_data_size ]
-    
-        info = long( s[c:c+pen_data_size], 16 )
-        #print 'hex info:', '%x' % info, '(%d)' % info
-        #print 'index:', index
-        
+        info = long( s[ c : c + pen_data_size ], 16 )
+
         pen[ 'index' ] = index
-        
-        if revision == STATUS_REV_02: # 4 bytes
+
+        if pen_data_size == 4:
             pen[ 'type' ] = REVISION_2_TYPE_MAP.get( int( ( info & 0xf000L ) >> 12L ), 0 )
-            #print 'type:', pen[ 'type' ]
             if index < (num_pens / 2):
                 pen[ 'kind' ] = AGENT_KIND_HEAD
             else:
                 pen[ 'kind' ] = AGENT_KIND_SUPPLY
-            #print 'kind', pen[ 'kind' ]
-            
+
             pen[ 'level-trigger' ] = int ( ( info & 0x0e00L ) >> 9L )
             pen[ 'health' ] = int( ( info & 0x0180L ) >> 7L )
             pen[ 'level' ] = int( info & 0x007fL )
-            
-        else: # 8 bytes
+
+        elif pen_data_size == 8: 
             pen[ 'kind' ] = bool( info & 0x80000000L ) + ( ( bool( info & 0x40000000L ) )<<1L )
             pen[ 'type' ] = int( ( info & 0x3f000000L ) >> 24L )
             pen[ 'level-trigger' ] = int( ( info & 0x70000L ) >> 16L )
             pen[ 'health' ] = int( ( info & 0xc000L ) >> 14L )
             pen[ 'level' ] = int( info & 0xffL )
-        
+
+        else:
+            log.error( "Pen data size error" )
+
         if len(z1) > 0:
             pen[ 'dvc' ] = long( z1s[d+1:d+5], 16 )
             pen[ 'virgin' ] = bool( z1[ d+5 ] & 0x8L )
@@ -358,7 +209,7 @@ def parseSStatus( s, z='' ):
     return { 'revision' :    revision,
              'agents' :      pens,  
              'top-door' :    top_door,  
-             'status' :      status,
+             'status-code' : stat,
              'supply-door' : supply_door, 
              'duplexer' :    duplexer,
              'photo-tray' :  photo_tray, 
@@ -367,28 +218,7 @@ def parseSStatus( s, z='' ):
              'media-path' :  media_path,
            } 
 
-vstatus_xlate  = { 'busy' : STATUS_BUSY,
-                   'idle' : STATUS_IDLE,
-                   'prnt' : STATUS_PRINTING,
-                   'offf' : STATUS_TURNING_OFF,
-                   'rprt' : STATUS_REPORT_PRINTING,
-                   'cncl' : STATUS_CANCELING,
-                   'iost' : STATUS_IO_STALL,
-                   'dryw' : STATUS_DRY_WAIT_TIME,
-                   'penc' : STATUS_PEN_CHANGE,
-                   'oopa' : STATUS_OUT_OF_PAPER,
-                   'bnej' : STATUS_BANNER_EJECT_NEEDED,
-                   'bnmz' : STATUS_BANNER_MISMATCH,
-                   'phmz' : STATUS_PHOTO_MISMATCH,
-                   'dpmz' : STATUS_DUPLEX_MISMATCH,
-                   'pajm' : STATUS_MEDIA_JAM,
-                   'cars' : STATUS_CARRIAGE_STALL,
-                   'paps' : STATUS_PAPER_STALL,
-                   'penf' : STATUS_PEN_FAILURE,
-                   'erro' : STATUS_HARD_ERROR,
-                   'pwdn' : STATUS_POWER_DOWN,
-                   'fpts' : STATUS_FRONT_PANEL_TEST,
-                   'clno' : STATUS_CLEAN_OUT_TRAY_MISSING }
+
 
 # $HB0$NC0,ff,DN,IDLE,CUT,K0,C0,DP,NR,KP092,CP041
 #     0    1  2  3    4   5  6  7  8  9     10
@@ -414,7 +244,7 @@ def parseVStatus( s ):
         elif c == 3:
             if p == '0': pen[ 'state' ] = 1
             else: pen[ 'state' ] = 0
-            
+
             pen[ 'level' ] = 0
             i = 8
 
@@ -429,7 +259,7 @@ def parseVStatus( s ):
                     elif f[:2] == 'CP' and pen[ 'type' ] == AGENT_TYPE_CMY:
                         pen[ 'level' ] = int( f[2:] )
                 i += 1
-                
+
             pens.append( pen )
             pen = {}
             c = 0
@@ -438,13 +268,13 @@ def parseVStatus( s ):
         top_lid = 1
     else:
         top_lid = 2
-        
-    status = vstatus_xlate.get( fields[3].lower(), STATUS_IDLE )
+
+    stat = vstatus_xlate.get( fields[3].lower(), STATUS_PRINTER_IDLE )
 
     return { 'revision' :   STATUS_REV_V,
              'agents' :     pens,  
              'top-lid' :    top_lid,  
-             'status' :     status,
+             'status-code': stat,
              'supply-lid' : SUPPLY_DOOR_NOT_PRESENT,
              'duplexer' :   DUPLEXER_NOT_PRESENT, 
              'photo-tray' : PHOTO_TRAY_NOT_PRESENT, 
@@ -452,64 +282,435 @@ def parseVStatus( s ):
              'in-tray2' :   IN_TRAY_NOT_PRESENT, 
              'media-path' : MEDIA_PATH_CUT_SHEET, # ?
            } 
-             
+
 def parseStatus( DeviceID ):
     if 'VSTATUS' in DeviceID:
          return parseVStatus( DeviceID[ 'VSTATUS' ] )
     elif 'S' in DeviceID:
         return parseSStatus( DeviceID[ 'S' ], DeviceID.get( 'Z', '' ) )
     else:
-        return STATUS_UNKNOWN
+        return STATUS_BLOCK_UNKNOWN
 
 
-AGENT_CONFIG_NONE = 0
-AGENT_CONFIG_BLACK_ONLY = 1
-AGENT_CONFIG_PHOTO_ONLY = 2
-AGENT_CONFIG_COLOR_ONLY = 3
-AGENT_CONFIG_COLOR_AND_BLACK = 4
-AGENT_CONFIG_COLOR_AND_PHOTO = 5
-AGENT_CONFIG_INVALID = 99
 
+def LaserJetDeviceStatusToPrinterStatus( device_status, printer_status, detected_error_state ):
+    stat = STATUS_PRINTER_IDLE
+
+    if device_status in ( pml.DEVICE_STATUS_WARNING, pml.DEVICE_STATUS_DOWN ):
+
+        if detected_error_state & pml.DETECTED_ERROR_STATE_LOW_PAPER_MASK and \
+            not ( detected_error_state & pml.DETECTED_ERROR_STATE_NO_PAPER_MASK ):
+            stat = STATUS_PRINTER_LOW_PAPER
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_NO_PAPER_MASK:
+            stat = STATUS_PRINTER_OUT_OF_PAPER
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_DOOR_OPEN_MASK:
+            stat = STATUS_PRINTER_DOOR_OPEN
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_JAMMED_MASK:
+            stat = STATUS_PRINTER_MEDIA_JAM
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_OUT_CART_MASK:
+            stat = STATUS_PRINTER_NO_TONER
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_LOW_CART_MASK:
+            stat = STATUS_PRINTER_LOW_TONER
+
+        elif detected_error_state == pml.DETECTED_ERROR_STATE_SERVICE_REQUEST_MASK:
+            stat = STATUS_PRINTER_SERVICE_REQUEST
+
+        elif detected_error_state & pml.DETECTED_ERROR_STATE_OFFLINE_MASK:
+            stat = STATUS_PRINTER_OFFLINE
+
+    else:
+
+        if printer_status == pml.PRINTER_STATUS_IDLE:
+            stat = STATUS_PRINTER_IDLE
+
+        elif printer_status == pml.PRINTER_STATUS_PRINTING:
+            stat = STATUS_PRINTER_PRINTING
+
+        elif printer_status == pml.PRINTER_STATUS_WARMUP:
+            stat = STATUS_PRINTER_WARMING_UP
+
+    return stat
+
+# Map from ISO 10175/10180 to HPLIP types
+COLORANT_INDEX_TO_AGENT_TYPE_MAP = {
+                                    'other' :   AGENT_TYPE_UNSPECIFIED,
+                                    'unknown' : AGENT_TYPE_UNSPECIFIED,
+                                    'blue' :    AGENT_TYPE_BLUE,
+                                    'cyan' :    AGENT_TYPE_CYAN,
+                                    'magenta':  AGENT_TYPE_MAGENTA,
+                                    'yellow' :  AGENT_TYPE_YELLOW,
+                                    'black' :   AGENT_TYPE_BLACK,
+                                   }
+
+
+def StatusType3( dev, parsedID ): # LaserJet Status
+    channel_id = dev.openChannel( 'HP-MESSAGE' )
+
+    result_code, on_off_line = dev.getPML( channel_id, pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
+    result_code, sleep_mode = dev.getPML( channel_id, pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
+    result_code, printer_status = dev.getPML( channel_id, pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
+    result_code, device_status = dev.getPML( channel_id, pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
+    result_code, cover_status = dev.getPML( channel_id, pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
+    result_code,  value = dev.getPML( channel_id, pml.OID_DETECTED_ERROR_STATE )
+    detected_error_state = struct.unpack( 'B', value[0])[0]
+
+    agents, x = [], 1
+
+    while True:
+
+        oid = ( pml.OID_MARKER_SUPPLIES_TYPE_x % x, pml.OID_MARKER_SUPPLIES_TYPE_x_TYPE )
+        result_code, value = dev.getPML( channel_id, oid, pml.INT_SIZE_BYTE )
+
+        if value is None: 
+            log.debug( "End of supply information." )
+            break
+
+        log.debug( 'agent%d marker supplies type: %d' % ( x,value ) )
+
+        if value == pml.OID_MARKER_SUPPLIES_TYPE_FUSER:
+            agent_kind = AGENT_KIND_MAINT_KIT
+
+        elif value in ( pml.OID_MARKER_SUPPLIES_TYPE_TONER_CART,
+                        pml.OID_MARKER_SUPPLIES_TYPE_TONER ):
+
+            agent_kind = AGENT_KIND_TONER_CARTRIDGE
+
+        elif value == pml.OID_MARKER_SUPPLIES_TYPE_ADF_MAINT_KIT:
+            agent_kind = AGENT_KIND_ADF_KIT
+
+        #elif value == pml.???
+        #    agent_kind = AGENT_KIND_DRUM_KIT
+
+        elif value == pml.OID_MARKER_SUPPLIES_TYPE_TRANSFER_UNIT:
+            agent_kind = AGENT_KIND_TRANSFER_KIT
+
+        else:
+            agent_kind = AGENT_KIND_UNKNOWN
+
+        log.debug( 'agent%d-kind: %d' % ( x, agent_kind ) )
+
+        oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
+        result_code, agent_level = dev.getPML( channel_id, oid )
+
+        log.debug( 'agent%d-level: %d' % ( x, agent_level ) )            
+
+        oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
+        result_code, agent_max = dev.getPML( channel_id, oid )
+        if agent_max == 0: agent_max = 1
+
+        log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
+
+        oid = ( pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x % x, pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE )
+        result_code, colorant_index = dev.getPML( channel_id, oid )
+
+        log.debug( "agent%d colorant index: %d" % (x, colorant_index ) )
+
+        oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
+        result_code, colorant_value = dev.getPML( channel_id, oid )
+
+        if colorant_value is None:
+            agent_type = None
+        else:
+            agent_type = COLORANT_INDEX_TO_AGENT_TYPE_MAP.get( colorant_value, None )
+
+        if agent_type is None:
+            if agent_kind == AGENT_KIND_TONER_CARTRIDGE:
+                agent_type = AGENT_TYPE_BLACK
+            else:
+                agent_type = AGENT_TYPE_UNSPECIFIED
+
+        log.debug( "agent%d-type: %d" % ( x, agent_type ) )
+
+        oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
+        result_code, agent_status = dev.getPML( channel_id, oid )
+
+        agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
+
+        if agent_status is None:
+            agent_health = AGENT_HEALTH_OK
+
+        elif agent_status == pml.OID_MARKER_STATUS_OK:
+            agent_health = AGENT_HEALTH_OK
+
+        elif agent_status == pml.OID_MARKER_STATUS_MISINSTALLED:
+            agent_health = AGENT_HEALTH_MISINSTALLED
+
+        elif agent_status in ( pml.OID_MARKER_STATUS_LOW_TONER_CONT, 
+                               pml.OID_MARKER_STATUS_LOW_TONER_STOP ):
+
+            agent_health = AGENT_HEALTH_OK
+            agent_trigger = AGENT_LEVEL_TRIGGER_MAY_BE_LOW
+
+        else:
+            agent_health = AGENT_HEALTH_OK
+
+
+        log.debug( "agent%d-health: %d" % ( x, agent_health ) )
+        log.debug( "agent%d-level-trigger: %d" % ( x, agent_trigger ) )
+
+        agents.append( 
+                    {  'kind' : agent_kind,
+                       'type' : agent_type,
+                       'health' : agent_health,
+                       'level' : int( agent_level/agent_max * 100 ),
+                       'level-trigger' : agent_trigger,
+                    }
+                    )
+
+        x += 1
+
+
+    dev.closeChannel( 'HP-MESSAGE' )
+
+    log.debug( "on_off_line=%d" % on_off_line )
+    log.debug( "sleep_mode=%d" % sleep_mode )
+    log.debug( "printer_status=%d" % printer_status )
+    log.debug( "device_status=%d" % device_status )
+    log.debug( "cover_status=%d" % cover_status )
+    log.debug( "detected_error_state=%d (0x%x)" % ( detected_error_state, detected_error_state ) )
+
+    stat = LaserJetDeviceStatusToPrinterStatus( device_status, printer_status, detected_error_state )
+
+    log.debug( "Printer status=%d" % stat )
+
+    if stat == STATUS_PRINTER_DOOR_OPEN:
+        supply_door = 0
+    else:
+        supply_door = 1
+
+    return { 'revision' :    STATUS_REV_UNKNOWN,
+             'agents' :      agents,  
+             'top-door' :    cover_status,  
+             'status-code' : stat,
+             'supply-door' : supply_door, 
+             'duplexer' :    1,
+             'photo-tray' :  0, 
+             'in-tray1' :    1, 
+             'in-tray2' :    1, 
+             'media-path' :  1,
+           } 
+
+def setup_panel_translator():
+    printables = list( 
+"""0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~""" )
+
+    map = {}
+    for x in [ chr(x) for x in range(0,256)]:
+        if x in printables:
+            map[x] = x
+        else:
+            map[x] = '\x20'
+
+    map.update( {   '\x10' : '\xab',
+                    '\x11' : '\xbb',
+                    '\x12' : '\xa3',
+                    '\x13' : '\xbb',
+                    '\x80' : '\xab',
+                    '\x81' : '\xbb',
+                    '\x82' : '\x2a',
+                    '\x83' : '\x2a',
+                    '\x85' : '\x2a',
+                    '\xa0' : '\xab',
+                    '\x1f' : '\x3f',
+                    '='    : '\x20',
+                } )
+
+    frm, to = '', ''
+    map_keys = map.keys()
+    map_keys.sort()
+    for x in map_keys:
+        frm = ''.join( [ frm, x ] )
+        to = ''.join( [ to, map[x] ] )
+
+    global PANEL_TRANSLATOR_FUNC
+    PANEL_TRANSLATOR_FUNC = utils.Translator( frm, to )
+
+PANEL_TRANSLATOR_FUNC = None
+setup_panel_translator()
+
+
+def PanelCheck( dev, io_control ):
+    # Assumes dev is already open (i.e., dev.io_state==IO_STATE_HP_OPEN)
+    line1, line2 = '', ''
+    try:
+        channel = dev.openChannel( 'HP-MESSAGE', io_control )
+    except Error:
+        panel_check = False
+    else:
+
+        oids = [ ( pml.OID_HP_LINE1, pml.OID_HP_LINE2 ),
+                 ( pml.OID_SPM_LINE1, pml.OID_SPM_LINE2 ) ]
+
+        for oid1, oid2 in oids:
+            result, line1 = dev.getPML( channel, oid1 )
+
+            if result < pml.ERROR_MAX_OK:
+                line1 = PANEL_TRANSLATOR_FUNC( line1 ).rstrip()
+
+                if '\x0a' in line1:
+                    line1, line2 = line1.split( '\x0a', 1 )
+                    break
+
+                result, line2 = dev.getPML( channel, oid2 )
+
+                if result < pml.ERROR_MAX_OK:
+                    line2 = PANEL_TRANSLATOR_FUNC( line2 ).rstrip()
+                    break
+
+        dev.closeChannel( 'HP-CHANNEL' )
+
+    return bool( line1 or line2 ), line1 or '', line2 or ''
+
+
+BATTERY_HEALTH_MAP = { 0 : AGENT_HEALTH_OK,
+                       1 : AGENT_HEALTH_OVERTEMP,
+                       2 : AGENT_HEALTH_CHARGING,
+                       3 : AGENT_HEALTH_MISINSTALLED,
+                       4 : AGENT_HEALTH_FAILED,
+                      }
+
+
+BATTERY_TRIGGER_MAP = { 0 : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+                        1 : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
+                        2 : AGENT_LEVEL_TRIGGER_PROBABLY_OUT,
+                        3 : AGENT_LEVEL_TRIGGER_SUFFICIENT_4,
+                        4 : AGENT_LEVEL_TRIGGER_SUFFICIENT_2,
+                        5 : AGENT_LEVEL_TRIGGER_SUFFICIENT_0, 
+                       }
+
+BATTERY_PML_TRIGGER_MAP = { 
+        ( 100, 80 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+        ( 79,  60 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_1,
+        ( 59,  40 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_2,
+        ( 39,  30 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_3,
+        ( 29,  20 )  : AGENT_LEVEL_TRIGGER_SUFFICIENT_4,
+        ( 19,  10 )  : AGENT_LEVEL_TRIGGER_MAY_BE_LOW,
+        ( 9,    5 )  : AGENT_LEVEL_TRIGGER_PROBABLY_OUT,
+        ( 4,   -1 )  : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
+        }
+
+def BatteryCheck( dev, status_block, io_control ):
+    # Assumes dev is already open (i.e., dev.io_state==IO_STATE_HP_OPEN)
+    try_dynamic_counters = False
+    try:
+        channel = dev.openChannel( 'HP-MESSAGE', io_control )
+    except Error:
+        log.error( "PML channel op/en failed." )
+        try_dynamic_counters = True
+    else:
+        result, battery_level = dev.getPML( channel, pml.OID_BATTERY_LEVEL)
+        result, power_mode =  dev.getPML( channel, pml.OID_POWER_MODE)        
+      
+        if battery_level is not None and \
+            power_mode is not None:
+            
+            if power_mode & pml.POWER_MODE_BATTERY_LEVEL_KNOWN and \
+                battery_level >= 0:
+            
+                for x in BATTERY_PML_TRIGGER_MAP:
+                    if x[0] >= battery_level > x[1]:
+                        battery_trigger_level = BATTERY_TRIGGER_MAP[ x ]
+                
+                if power_mode & pml.POWER_MODE_CHARGING:
+                    agent_health = AGENT_HEALTH_CHARGING
+                
+                elif power_mode & pml.POWER_MODE_DISCHARGING:
+                    agent_health = AGENT_HEALTH_DISCHARGING
+                
+                else:
+                    agent_health = AGENT_HEALTH_OK
+                
+                status_block['agents'].append( { 
+                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                                                'type'   : AGENT_TYPE_UNSPECIFIED,
+                                                'health' : agent_health,
+                                                'level'  : battery_level,
+                                                'level-trigger' : battery_trigger_level,
+                                                } )
+            else:
+                status_block['agents'].append( { 
+                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                                                'type'   : AGENT_TYPE_UNSPECIFIED,
+                                                'health' : AGENT_HEALTH_UNKNOWN,
+                                                'level'  : 0,
+                                                'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+                                                } )
+
+        else:
+            try_dynamic_counters = True
+
+        dev.closeChannel( 'HP-MESSAGE' )
+        
+        if try_dynamic_counters:
+        
+            try:
+                battery_health = dev.getDynamicCounter( 200 )
+                battery_trigger_level = dev.getDynamicCounter( 201 )
+                battery_level = dev.getDynamicCounter( 202 )
+        
+                status_block['agents'].append( { 
+                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                                                'type'   : AGENT_TYPE_UNSPECIFIED,
+                                                'health' : BATTERY_HEALTH_MAP[ battery_health ],
+                                                'level'  : battery_level,
+                                                'level-trigger' : BATTERY_TRIGGER_MAP[ battery_trigger_level ],
+                                                } )
+            except Error:
+                status_block['agents'].append( { 
+                                                'kind'   : AGENT_KIND_INT_BATTERY, 
+                                                'type'   : AGENT_TYPE_UNSPECIFIED,
+                                                'health' : AGENT_HEALTH_UNKNOWN,
+                                                'level'  : 0,
+                                                'level-trigger' : AGENT_LEVEL_TRIGGER_SUFFICIENT_0,
+                                                } )
+        
+        
 # this works for 2 pen products that allow 1 or 2 pens inserted 
 # from: k, kcm, cmy    
 def getPenConfiguration( s ): # s=status dict from parsed device ID
     pen1_type = s['agents'][0]['type']
     pen2_type = s['agents'][1]['type']
-    one_pen = False
-    
+    #one_pen = False
+
     if pen1_type == AGENT_TYPE_NONE and pen2_type == AGENT_TYPE_NONE:
         #log.debug( "No pens" )
         return AGENT_CONFIG_NONE
-    
+
     if pen1_type == AGENT_TYPE_NONE or pen2_type == AGENT_TYPE_NONE:
         #log.debug( "1 pen" )
-        
+
         if pen1_type == AGENT_TYPE_BLACK or pen2_type == AGENT_TYPE_BLACK:
             #log.debug( "Black pen only" )
             return AGENT_CONFIG_BLACK_ONLY
-        
+
         elif pen1_type == AGENT_TYPE_CMY or pen2_type == AGENT_TYPE_CMY:
             #log.debug( "Color pen only" )
             return AGENT_CONFIG_COLOR_ONLY
-        
+
         elif pen1_type == AGENT_TYPE_KCM or pen2_type == AGENT_TYPE_KCM:
             #log.debug( "Photo pen only" )
             return AGENT_CONFIG_PHOTO_ONLY
-            
+
         else:
             #log.debug( "Invalid pen config" )
             return AGENT_CONFIG_INVALID
-            
+
     else:
         if pen1_type == AGENT_TYPE_BLACK or pen2_type == AGENT_TYPE_BLACK:
             #log.debug( "Color and black pens" )
             return AGENT_CONFIG_COLOR_AND_BLACK
-        
+
         elif pen1_type == AGENT_TYPE_KCM or pen2_type == AGENT_TYPE_KCM:
             #log.debug( "Color and photo pens" )
             return AGENT_CONFIG_COLOR_AND_PHOTO
-            
+
         else:
             #log.debug( "Invalid pen config" )
-            return PEN_CONFIG_INVALID
-        
+            return AGENT_CONFIG_INVALID
+

@@ -148,10 +148,9 @@ typedef union {
     } bitf1;
 } Mode9_comtype;
 
-
+#ifndef MIN
 #define MIN(a,b)    (((a)>=(b))?(b):(a))
-
-
+#endif
 
 #define kPCLMode9           9
 

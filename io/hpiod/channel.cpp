@@ -92,9 +92,9 @@ int Channel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength,
 
    *result=R_IO_ERROR;
 
-   if (length > sendBufLength)
+   if ((length + HEADER_SIZE) > sendBufLength)
    {
-      syslog(LOG_ERR, "invalid data size: %d\n", length);
+      syslog(LOG_ERR, "invalid data size Channel::ReadData: %d\n", length);
       sLen = sprintf(sendBuf, res, *result);  
       goto bugout;
    }
@@ -104,7 +104,7 @@ int Channel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength,
       len = pDev->pSys->Read(pDev->GetOpenFD(), buffer, length, timeout, 0);
       if (len < 0)
       {
-         syslog(LOG_ERR, "unable to read data: %m\n");
+         syslog(LOG_ERR, "unable to read data Channel::ReadData: %m\n");
          sLen = sprintf(sendBuf, res, *result);  
          goto bugout;
       }

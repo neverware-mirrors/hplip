@@ -35,7 +35,7 @@
 
 APDK_BEGIN_NAMESPACE
 
-uint32_t ulMapBROADWAY_Gossimer_Normal_KCMY[ 9*9*9 ]=
+uint32_t ulMapDJ970_Gossimer_Normal_KCMY[ 9*9*9 ]=
 {
 3351632640UL, 2545805056UL, 1604580608UL,  982710016UL,  646379776UL,  343603456UL,
  158529792UL,    6945024UL,    6813952UL, 3951407872UL, 2543246848UL, 1821825536UL,
@@ -163,17 +163,3 @@ uint32_t ulMapBROADWAY_Gossimer_Normal_KCMY[ 9*9*9 ]=
 
 APDK_END_NAMESPACE
 
-/*** Version Info ***/
-//     951857374UL,       /* Date (UTC Format) (Local Time : Tue Feb 29 12:49:34 AM */
-//     1UL,                       /* Resource Type - color map      */
-//     0UL,                       /* Footer Type  0/1 (rel/debug    */
-//     kHPBroadwayUL,                       /* Product Name                   */
-//     kHPGossimerUL,                       /* media Name                     */
-//     KHPNormalModeUL,                       /* Quality Name                   */
-//     5000UL,                       /* Color Mapper Tool Version      */
-//     1UL,                       /* Map Version                    */
-//     kHP9CubedUL,                       /* Map Type                       */
-//     0UL,                       /* BrkPt Table Resource Number    */
-//     kHP3x3UL,                       /* Color Resolution               */
-//     kHP3x3UL,                       /* Black Resolution               */
-//     0                         /* Spare 32 bit                   */

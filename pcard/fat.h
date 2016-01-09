@@ -50,13 +50,13 @@ typedef struct
 } PHOTO_CARD_ATTRIBUTES;
 
 /* APIs */
-int FatInit();
-int FatListDir();
+int FatInit(void);
+int FatListDir(void);
 int FatReadFile(char *name, int fd);
 int FatReadFileExt(char *name, int offset, int len, void *outbuf);
 int FatSetCWD(char *dir);
 int FatDeleteFile(char *name); 
-int FatFreeSpace();
+int FatFreeSpace(void);
 int FatDirBegin(FILE_ATTRIBUTES * a);
 int FatDirNext(FILE_ATTRIBUTES * a);
 int FatDiskAttributes(PHOTO_CARD_ATTRIBUTES * pa);

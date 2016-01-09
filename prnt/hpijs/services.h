@@ -144,6 +144,16 @@ public:
 
   PrintContext *pPC;
   Job *pJob;
+
+protected:
+  
+  // for internal use
+  virtual BYTE* AllocMem (int iMemSize, BOOL trackmemory)
+  { return AllocMem(iMemSize); }
+  
+  virtual void FreeMem (BYTE* pMem, BOOL trackmemory)
+  { FreeMem(pMem); }
+
 };
 
 #endif        /* hpijs_services_INCLUDED */

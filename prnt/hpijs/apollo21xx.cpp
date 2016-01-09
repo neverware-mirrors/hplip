@@ -37,12 +37,6 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapCONQUEST_CMYK[ 9 * 9 * 9 ];
-extern uint32_t ulMapCONQUEST_ClMlxx[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
-
 //! Constructor for Apollo21xx
 /*!
 ******************************************************************************/

@@ -215,7 +215,7 @@ bugout:
   return stat;
 };
 
-int UpdateFat()
+int UpdateFat(void)
 {
    int stat=1;
    uint8_t *p12=NULL;
@@ -255,7 +255,7 @@ bugout:
    return stat;
 };
 
-int RootSetCWD()
+int RootSetCWD(void)
 {
    /* Set CWD to the root directory. */
    cwd.Name[0] = '/'; cwd.Name[1] = 0;
@@ -268,7 +268,7 @@ int RootSetCWD()
 };
 
 /* Returns number of free clusters (ie: those with 0x0 as the value in FAT). */
-int FindFreeClusters()
+int FindFreeClusters(void)
 {
    int16_t *pfat = (int16_t *)da.Fat;
    int max_entry = da.FatSize/2;
@@ -404,7 +404,7 @@ int LoadFileWithName(char *filename)
    return stat;
 }
 
-void PrintCurrFileInfo()
+void PrintCurrFileInfo(void)
 {
    fprintf(stdout, "%s   %d bytes (cluster %d, sector %d)", fa.Name, fa.Size,
                 fa.StartCluster, ConvertClusterToSector(fa.StartCluster));
@@ -415,7 +415,7 @@ void PrintCurrFileInfo()
 }
 
 /* Get the FAT boot sector and root directory. */
-int FatInit()
+int FatInit(void)
 {
    int bootsector_startsector, stat=1, fatsize;
    char dummy[FAT_HARDSECT];
@@ -515,7 +515,7 @@ bugout:
    return stat;
 }
 
-int FatFreeSpace()
+int FatFreeSpace(void)
 {
    return(FindFreeClusters() * bpb.SectorsPerCluster * FAT_HARDSECT);
 }
@@ -536,7 +536,7 @@ int FatDiskAttributes( PHOTO_CARD_ATTRIBUTES * pa )
 }
 
 /*  Prints out all entries in the current directory to stdout. */
-int FatListDir() 
+int FatListDir(void) 
 {
    int ret, filenum;
    int freespace;

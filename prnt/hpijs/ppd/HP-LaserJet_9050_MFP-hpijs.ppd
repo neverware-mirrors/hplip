@@ -29,15 +29,15 @@
 *LanguageEncoding: ISOLatin1
 *PCFileName:	"HPIJS.PPD"
 *Manufacturer:	"HP"
-*Product:	"(LaserJet 9050 MFP)"
+*Product:	"(LaserJet _9050_MFP)"
 *cupsVersion:	1.0
 *cupsManualCopies: True
 *cupsModelNumber:  2
 *cupsFilter:	"application/vnd.cups-postscript 0 foomatic-rip"
 *%pprRIP:        foomatic-rip other
-*ModelName:     "HP LaserJet 9050 MFP"
-*ShortNickName: "HP LaserJet 9050 MFP hpijs"
-*NickName:      "HP LaserJet 9050 MFP Foomatic/hpijs"
+*ModelName:     "HP LaserJet 9050MFP"
+*ShortNickName: "HP LaserJet _9050_MFP hpijs"
+*NickName:      "HP LaserJet _9050_MFP Foomatic/hpijs"
 *PSVersion:	"(3010.000) 550"
 *PSVersion:	"(3010.000) 651"
 *PSVersion:	"(3010.000) 652"

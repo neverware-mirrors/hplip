@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/loadpaperform_base.ui'
 #
-# Created: Fri Oct 29 10:58:19 2004
+# Created: Thu Jan 20 09:35:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!

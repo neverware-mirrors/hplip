@@ -39,7 +39,7 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 
 LJMono::LJMono (SystemServices* pSS, int numfonts, BOOL proto)
     : Printer(pSS, numfonts, proto)
@@ -85,7 +85,7 @@ LJMono::~LJMono ()
 }
 
 LJMonoDraftMode::LJMonoDraftMode ()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
 
 //  By default, this is 150 dpi because LJ_BASE_RES is defined to be 300
@@ -105,7 +105,7 @@ LJMonoDraftMode::LJMonoDraftMode ()
 }
 
 LJMonoNormalMode::LJMonoNormalMode ()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
 
 //  300 or 600 dpi depending on LJ_BASE_RES value, which in turn is affected by APDK_HIGH_RES_MODES
@@ -123,7 +123,7 @@ LJMonoNormalMode::LJMonoNormalMode ()
 }
 
 LJMonoBestMode::LJMonoBestMode ()
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+: GrayMode(ulMapDJ600_CCM_K)
 {
     ResolutionX[0] = ResolutionY[0] = 600;
     BaseResX = BaseResY = 600;
@@ -185,7 +185,7 @@ DRIVER_ERROR HeaderLJMono::StartSend ()
 
     if (thePrinter->IOMode.bStatus)
     {
-        sprintf (res, "@PJL JOB NAME = \"%d\"\015\012", (int) (thePrinter));
+        sprintf (res, "@PJL JOB NAME = \"%ld\"\015\012", (long) (thePrinter));
         err = thePrinter->Send ((const BYTE *) res, strlen (res));
         ERRCHECK;
 
@@ -279,8 +279,8 @@ DRIVER_ERROR HeaderLJMono::EndJob ()
     DRIVER_ERROR    err = NO_ERROR;
     if (thePrinter->IOMode.bStatus)
     {
-        sprintf (szBuff, "\033E\033%%-12345X@PJL EOJ NAME = \"%d\"\015\012@PJL RESET\015\012",
-                (int) (thePrinter));
+        sprintf (szBuff, "\033E\033%%-12345X@PJL EOJ NAME = \"%ld\"\015\012@PJL RESET\015\012",
+                (long) (thePrinter));
         err = thePrinter->Send ((const BYTE *) szBuff, strlen (szBuff));
     }
 
@@ -350,7 +350,7 @@ DISPLAY_STATUS LJMono::ParseError (BYTE status_reg)
         while (*tmpStr < '0' || *tmpStr > '9')
             tmpStr++;
         sscanf (tmpStr, "%d", &iErrorCode);
-        if (iErrorCode != (int) (this))
+        if (iErrorCode != (long) (this))
             return DISPLAY_PRINTING;
     }
 

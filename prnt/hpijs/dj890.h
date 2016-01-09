@@ -41,12 +41,7 @@ class DJ890 : public DJ8xx
 {
 public:
     DJ890(SystemServices* pSS,int numfonts=0, BOOL proto=FALSE);
-
-    PrintMode* GetMode(int index);
-
-    virtual Header* SelectHeader(PrintContext* pc);
-
-protected:
+    virtual Header *SelectHeader (PrintContext *pc);
 
 }; //DJ890
 

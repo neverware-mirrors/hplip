@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/aligntype6form2_base.ui'
+# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/aligntype6form2_base.ui'
 #
-# Created: Mon Sep 20 17:25:21 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.11
+# Created: Thu Jan 20 09:35:46 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
 
 
+import sys
 from qt import *
 
 
@@ -52,3 +53,11 @@ class AlignType6Form2_base(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("AlignType6Form2_base",s,c)
+
+if __name__ == "__main__":
+    a = QApplication(sys.argv)
+    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+    w = AlignType6Form2_base()
+    a.setMainWidget(w)
+    w.show()
+    a.exec_loop()

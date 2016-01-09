@@ -53,34 +53,40 @@ public:
 
     virtual BOOL UseGUIMode(PrintMode* pPrintMode);
 
+#ifdef APDK_HP_UX
 protected:
+    virtual DJ850 & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
 
 }; //DJ850
 
 
-class RockyMode1 : public PrintMode
+class DJ850Mode1 : public PrintMode
 {
 public:
-    RockyMode1();
-}; //RockyMode1
+    DJ850Mode1();
+}; //DJ850Mode1
 
-class RockyMode3 : public PrintMode
+class DJ850Mode3 : public PrintMode
 {
 public:
-    RockyMode3();
-}; //RockyMode3
+    DJ850Mode3();
+}; //DJ850Mode3
 
-class RockyMode4 : public GrayMode
+class DJ850Mode4 : public GrayMode
 {
 public:
-    RockyMode4();
-}; //RockyMode4
+    DJ850Mode4();
+}; //DJ850Mode4
 
-class RockyMode5 : public GrayMode
+class DJ850Mode5 : public GrayMode
 {
 public:
-    RockyMode5();
-}; //RockyMode5
+    DJ850Mode5();
+}; //DJ850Mode5
 
 #if defined(APDK_DJ850)
 //! DJ850Proxy

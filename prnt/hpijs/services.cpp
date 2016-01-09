@@ -269,7 +269,7 @@ BOOL UXServices::GetVertAlignFromDevice()
 
 const char * UXServices::GetDriverMessage (DRIVER_ERROR err)
 {
-   char *p=NULL;
+   const char *p=NULL;
 
 	/* Map driver error to text message. TODO: text needs to be localized. */
    switch(err)
@@ -309,6 +309,18 @@ const char * UXServices::GetDriverMessage (DRIVER_ERROR err)
          break;
       case(WARN_LOW_INK_COLOR_BLACK_PHOTO):
          p = "color back pen has low ink";
+         break;
+      case(WARN_LOW_INK_CYAN):
+         p = "cyan has low ink";
+         break;
+      case(WARN_LOW_INK_MAGENTA):
+         p = "magenta has low ink";
+         break;
+      case(WARN_LOW_INK_YELLOW):
+         p = "yellow has low ink";
+         break;
+      case(WARN_LOW_INK_MULTIPLE_PENS):
+         p = "more that one ink is low";
          break;
       case(WARN_FULL_BLEED_UNSUPPORTED):
          p = "fullbleed is not supported";

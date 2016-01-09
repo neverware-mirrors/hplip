@@ -39,8 +39,8 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_CMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_CMY[ 9 * 9 * 9 ];
 //
 // ** DJ540:Printer CLASS **
 //
@@ -58,9 +58,9 @@ DJ540::DJ540(SystemServices* pSS, BOOL proto)
         ePen = COLOR_PEN;    // matches default mode
     }
 
-    CMYMap = ulMapVOLTAIRE_CCM_CMY;
+    CMYMap = ulMapDJ600_CCM_CMY;
     pMode[DEFAULTMODE_INDEX] = new Mode600();
-    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapVOLTAIRE_CCM_K);
+    pMode[GRAYMODE_INDEX] = new GrayMode(ulMapDJ600_CCM_K);
 #ifdef APDK_EXTENDED_MEDIASIZE
     pMode[SPECIALMODE_INDEX] = new Mode600DraftGrayK();
     pMode[SPECIALMODE_INDEX+1] = new Mode600DraftColor();

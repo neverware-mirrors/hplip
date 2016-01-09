@@ -39,7 +39,7 @@
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
 extern uint32_t ulMapGRAY_K_6x6x1[9 * 9 * 9];
 
 LJColor::LJColor (SystemServices* pSS, int numfonts, BOOL proto)
@@ -95,7 +95,7 @@ LJColor::~LJColor ()
 }
 
 LJColorKDraftMode::LJColorKDraftMode ()
-: GrayMode (ulMapVOLTAIRE_CCM_K)
+: GrayMode (ulMapDJ600_CCM_K)
 {
     theQuality = qualityDraft;
     pmQuality  = QUALITY_DRAFT;
@@ -286,7 +286,7 @@ DRIVER_ERROR HeaderLJColor::StartSend ()
 
     if (thePrinter->IOMode.bStatus)
     {
-        sprintf (res, "@PJL JOB NAME = \"%d\"\015\012", (int) (thePrinter));
+        sprintf (res, "@PJL JOB NAME = \"%ld\"\015\012", (long) (thePrinter));
         err = thePrinter->Send ((const BYTE *) res, strlen (res));
         ERRCHECK;
     }
@@ -405,8 +405,8 @@ DRIVER_ERROR HeaderLJColor::EndJob ()
     DRIVER_ERROR    err = NO_ERROR;
     if (thePrinter->IOMode.bStatus)
     {
-        sprintf (szBuff, "\033E\033%%-12345X@PJL EOJ NAME = \"%d\"\015\012@PJL RESET\015\012",
-                 (int) (thePrinter));
+        sprintf (szBuff, "\033E\033%%-12345X@PJL EOJ NAME = \"%ld\"\015\012@PJL RESET\015\012",
+                 (long) (thePrinter));
         err = thePrinter->Send ((const BYTE *) szBuff, strlen (szBuff));
         ERRCHECK;
     }
@@ -585,7 +585,7 @@ DISPLAY_STATUS LJColor::ParseError(BYTE status_reg)
         while (*tmpStr < '0' || *tmpStr > '9')
             tmpStr++;
         sscanf (tmpStr, "%d", &iErrorCode);
-        if (iErrorCode != (int) (this))
+        if (iErrorCode != (long) (this))
             return DISPLAY_PRINTING;
     }
 

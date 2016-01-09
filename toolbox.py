@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $ 
-# $Date: 2004/12/02 19:45:45 $
+# $Revision: 1.13 $ 
+# $Date: 2005/03/08 18:59:55 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -26,9 +26,9 @@
 
 
 
-_VERSION = '2.0'
+_VERSION = '2.1'
 
-import os, pwd, os.path, time
+import sys, os, pwd, os.path, time
 from base.g import *
 from base.codes import *
 from base import service, utils
@@ -37,33 +37,45 @@ utils.log_title( 'Toolbox/Device Manager', _VERSION )
 
 s = None
 
+
+
 try:
+    s = service.Service()
+except Error, e:
+    log.error( "hpssd is not running. Unable to start toolbox. Use the startup script to start the HPLIP daemons." )
+    sys.exit(1)
 
-    try:
-        s = service.Service()
-    except Error, e:
-        log.error( "hpssd is not running. Unable to start toolbox. Use the startup script to start the HPLIP daemons." )
-        pass
+port, host = s.getGUI( prop.username )
 
-    if s is not None:
-        port, host = s.getGUI( prop.username )
+if port == 0:
+    log.debug( "Running new hpguid instance..." )
+    hpguid_path = os.path.join( prop.home_dir, 'hpguid.py' )
+    
+    if os.path.exists( hpguid_path ):
         
-        if port == 0:
-            log.info( "Running new hpguid instance..." )
-            hpguid_path = os.path.join( prop.home_dir, 'hpguid.py' )
-            os.system( 'python %s' % hpguid_path ) 
+        os.system( 'python %s' % hpguid_path ) 
+        
+        tries = 0
+        
+        while 1:
+            time.sleep(0.5)
+            port, host = s.getGUI( prop.username )
+            tries += 1
             
-            while 1:
-                time.sleep(0.5)
-                port, host = s.getGUI( prop.username )
-                if port > 0: break
-        
-        log.info( "Launching toolbox (%s:%d)..." % (host, port ) )
-        s.showToolbox( prop.username )
-        
-
-finally:    
-    if s is not None:
+            if port > 0: break
+            
+            if tries > 10:
+                log.error( "Unable to start hpguid. Use the startup script to restart the HPLIP daemons." )
+                sys.exit(1)
+    else:
+        log.error( "Unable to locate hpguid.py. Please check HPLIP installation for problems." )
         s.close()
+        sys.exit(1)
+
+log.info( "Launching toolbox (%s:%d)..." % (host, port ) )
+s.showToolbox( prop.username )
+
+s.close()
+sys.exit(0)
 
 

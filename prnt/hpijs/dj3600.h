@@ -45,7 +45,6 @@ public:
     DJ3600 (SystemServices* pSS, BOOL proto = FALSE);
     virtual BOOL FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, float *xOverSpray, float *yOverSpray,
                                    float *fLeftOverSpray, float *fTopOverSpray);
-
 }; //DJ3600
 
 
@@ -58,12 +57,12 @@ class DJ3600Proxy : public PrinterProxy
 public:
     DJ3600Proxy() : PrinterProxy(
         "DJ3600",                               // family name
-		"deskjet 3600\0"                        // DeskJet 3600 - spear
-		"Deskjet 3840\0"                        // Deskjet 3840 - spear +
+		"deskjet 3600\0"                        // DeskJet 3600
+		"Deskjet 3840\0"                        // Deskjet 3840
 #ifdef APDK_MLC_PRINTER
-		"officejet 5500\0"                      // Lisa
-		"psc 1300\0"                            // Maggie
-		"psc 1310\0"                            // Maggie Minus
+		"officejet 5500\0"
+		"psc 1300\0"
+		"psc 1310\0"
 #endif
     ) {m_iPrinterType = eDJ3600;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ3600(pSS); }

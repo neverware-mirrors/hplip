@@ -44,14 +44,13 @@ APDK_END_NAMESPACE              // must be here for non-test harness case
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapPhobosPlainNormal[ 9 * 9 * 9 ];
-extern uint32_t ulMapVENICE_HB_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapPhobosDraft[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ8x5PlainNormal[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ895_HB_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ8x5Draft[ 9 * 9 * 9 ];
 
 
-PhobosMode1::PhobosMode1()
-: PrintMode(ulMapPhobosPlainNormal)
+DJ8x5Mode1::DJ8x5Mode1()
+: PrintMode(ulMapDJ8x5PlainNormal)
 // 600x600x1 K
 // 300x300x2 CMY
 {
@@ -68,13 +67,13 @@ PhobosMode1::PhobosMode1()
 
     ColorFEDTable = GetHT3x3_4();
 
-    bFontCapable = FALSE;       // Venice can't do fonts and hifipe at same time
+    bFontCapable = FALSE;       // DJ8xx can't do fonts and hifipe at same time
     dyeCount = 3;
     CompatiblePens[0] = COLOR_PEN;
 }
 
-PhobosMode2::PhobosMode2()
-: PrintMode(ulMapVENICE_HB_KCMY)
+DJ8x5Mode2::DJ8x5Mode2()
+: PrintMode(ulMapDJ895_HB_KCMY)
 // 600x600x2 CMY
 {
     int i;
@@ -94,7 +93,7 @@ PhobosMode2::PhobosMode2()
 
     ColorFEDTable = GetHT6x6_4();
 
-     bFontCapable = FALSE;       // Venice can't do fonts and hifipe at same time
+     bFontCapable = FALSE;       // DJ8xx can't do fonts and hifipe at same time
 
     dyeCount = 3;
     CompatiblePens[0] = COLOR_PEN;
@@ -103,8 +102,8 @@ PhobosMode2::PhobosMode2()
     pmMediaType = MEDIA_PHOTO;
 }
 
-PhobosMode3::PhobosMode3()
-: PrintMode(ulMapPhobosDraft)
+DJ8x5Mode3::DJ8x5Mode3()
+: PrintMode(ulMapDJ8x5Draft)
 // 300x300x1 CMY
 {
 
@@ -114,39 +113,10 @@ PhobosMode3::PhobosMode3()
     pmQuality  = QUALITY_DRAFT;
 }
 
-// Moved this mode to the Venice base class (8xx). des
-/*
-PhobosMode4::PhobosMode4 ()
-    : PrintMode(ulMapVOLTAIRE_CCM_K)
-// grayscale uses econo, 300, 1 bit
-{
-    ColorDepth[K] = 1;
-    dyeCount = 1;
-    CompatiblePens[0] = BLACK_PEN;
-    theQuality = qualityDraft;
-//    strcpy(ModeName,"Draft-Grayscale");
-    pmQuality = QUALITY_DRAFT;
-}
-*/
-
-// this mode not needed; system creates it automatically
-// removed it because modeset should not depend on penss
-/*
-PhobosMode5::PhobosMode5 ()
-    : PrintMode(ulMapPhobosDraft)
-// grayscale uses color pen, 300
-{
-    dyeCount = 1;
-    CompatiblePens[0] = COLOR_PEN;
-//    strcpy(ModeName,"Grayscale");
-    pmColor=GREY_CMY;
-}
-*/
-
 DJ8x5::DJ8x5 (SystemServices* pSS, int numfonts, BOOL proto)
     : DJ8xx (pSS, numfonts, TRUE)
 {
-    CMYMap = ulMapPhobosDraft;
+    CMYMap = ulMapDJ8x5Draft;
 
 /*
  *  If we don't have device id, we won't know about the pens installed.
@@ -164,11 +134,11 @@ DJ8x5::DJ8x5 (SystemServices* pSS, int numfonts, BOOL proto)
         ePen = COLOR_PEN;
     }
 
-// Venice modes based on BOTH_PENS are already installed (i.e. pModes 0-4)
+// DJ8xx modes based on BOTH_PENS are already installed (i.e. pModes 0-4)
 
-    pMode[5]    = new PhobosMode1 ();    // Normal Color CMY
-    pMode[6]    = new PhobosMode2 ();    // Photo CMY
-    pMode[7]    = new PhobosMode3 ();    // Draft Color CMY
+    pMode[5]    = new DJ8x5Mode1 ();    // Normal Color CMY
+    pMode[6]    = new DJ8x5Mode2 ();    // Photo CMY
+    pMode[7]    = new DJ8x5Mode3 ();    // Draft Color CMY
     ModeCount = 8;
 
     DBG1("DJ8x5 created\n");
@@ -193,12 +163,11 @@ DRIVER_ERROR DJ8x5::VerifyPenInfo ()
     {
         DBG1("DJ8x5::Need to do a POWER ON to get penIDs\n");
 
-        // have to delay for Broadway or the POWER ON will be ignored
         if (pSS->BusyWait((DWORD)2000) == JOB_CANCELED)
             return JOB_CANCELED;
 
-        DWORD length=sizeof (Venice_Power_On);
-        err = pSS->ToDevice (Venice_Power_On, &length);
+        DWORD length=sizeof (DJ895_Power_On);
+        err = pSS->ToDevice (DJ895_Power_On, &length);
         ERRCHECK;
 
         err = pSS->FlushIO ();

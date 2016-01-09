@@ -114,10 +114,10 @@ const char SeedSame[] = {ESC, '*', 'b', '0', 'S'};
 const char BlackExtractOff[] = {ESC, '*', 'o', '5', 'W', 0x04, 0xC, 0, 0, 0 };
 const char LF = '\012';
 const char Quote = '\042';
-const BYTE Venice_Power_On[] = {ESC, '%','P','u','i','f','p','.',
+const BYTE DJ895_Power_On[] = {ESC, '%','P','u','i','f','p','.',
         'p','o','w','e','r',' ','1',';',
         'u','d','w','.','q','u','i','t',';',ESC,'%','-','1','2','3','4','5','X' };
-/*const BYTE Venice_Pre_Pick[] = {ESC, '&', 'l', -2, 'H'};
+/*const BYTE DJ895_Pre_Pick[] = {ESC, '&', 'l', -2, 'H'};
 {ESC, '%','P','m','e','c','h','.',
         'l','o','a','d','_','p','a','p','e','r',';',
         'u','d','w','.','q','u','i','t',';' };//,ESC,'%','-','1','2','3','4','5','X' };
@@ -376,6 +376,10 @@ class LJColorProxy;
 class LJJetReadyProxy;
 #endif
 
+#ifdef APDK_LJFASTRASTER
+class LJFastRasterProxy;
+#endif
+
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
 class PSP100Proxy;
 #endif
@@ -508,6 +512,10 @@ public:
 
 #ifdef APDK_LJJETREADY
 	static LJJetReadyProxy s_LJJetReadyProxy;
+#endif
+
+#ifdef APDK_LJFASTRASTER
+    static LJFastRasterProxy s_LJFastRasterProxy;
 #endif
 
 #if defined(APDK_PSP100) && defined (APDK_DJ9xxVIP)
@@ -943,16 +951,16 @@ protected:
 //ClassName
 /*
 ******************************************************************************/
-class HeaderAladdin : public Header
+class HeaderDJ990 : public Header
 {
 public:
-    HeaderAladdin(Printer* p,PrintContext* pc);
+    HeaderDJ990(Printer* p,PrintContext* pc);
     DRIVER_ERROR ConfigureRasterData();
     DRIVER_ERROR ConfigureImageData();
     DRIVER_ERROR Send();
     DRIVER_ERROR StartSend();
     void SetMediaSource(MediaSource msource);
-}; //HeaderAladdin
+}; //HeaderDJ990
 
 
 //ClassName
@@ -1066,6 +1074,26 @@ protected:
 	DRIVER_ERROR MapPCLMediaTypeToString (MEDIATYPE eM);
 	int			 JRPaperToMediaSize(PAPER_SIZE ps);
 }; //HeaderLJJetReady
+
+//ClassName
+/*
+******************************************************************************/
+class HeaderLJFastRaster : public Header
+{
+	friend class LJFastRaster;
+public:
+    HeaderLJFastRaster (Printer* p,PrintContext* pc);
+    virtual DRIVER_ERROR Send();
+	virtual DRIVER_ERROR FormFeed ();
+	virtual DRIVER_ERROR StartPage();
+	virtual DRIVER_ERROR EndPage();
+protected:
+    DRIVER_ERROR EndJob ();
+    DRIVER_ERROR StartSend ();
+    DRIVER_ERROR SendCAPy (unsigned int iAbsY);
+	DRIVER_ERROR MapPCLMediaTypeToString (MEDIATYPE eM);
+	int			 FrPaperToMediaSize(PAPER_SIZE ps);
+}; //HeaderLJFastRaster
 
 //RasterSender
 //! Send rasters to the device

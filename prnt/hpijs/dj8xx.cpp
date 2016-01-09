@@ -43,14 +43,14 @@ APDK_END_NAMESPACE
 
 APDK_BEGIN_NAMESPACE
 
-extern uint32_t ulMapVENICE_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVOLTAIRE_CCM_K[ 9 * 9 * 9 ];
-extern uint32_t ulMapVENICE_HB_KCMY[ 9 * 9 * 9 ];
-extern uint32_t ulMapVENICE_Binary_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ895_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ600_CCM_K[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ895_HB_KCMY[ 9 * 9 * 9 ];
+extern uint32_t ulMapDJ895_Binary_KCMY[ 9 * 9 * 9 ];
 extern uint32_t ulMapGRAY_K_6x6x1[9 * 9 * 9];
 
-VeniceMode1::VeniceMode1()    // Normal Color
-: PrintMode(ulMapVENICE_KCMY)
+DJ895Mode1::DJ895Mode1()    // Normal Color
+: PrintMode(ulMapDJ895_KCMY)
 // 600x600x1 K
 // 300x300x2 CMY
 {
@@ -66,11 +66,11 @@ VeniceMode1::VeniceMode1()    // Normal Color
 
     ColorFEDTable = GetHT3x3_4();
 
-    bFontCapable = FALSE;       // Venice can't do fonts and hifipe at same time
+    bFontCapable = FALSE;       // DJ895 can't do fonts and hifipe at same time
 }
 
-VeniceMode2::VeniceMode2()    // Photo
-: PrintMode(ulMapVENICE_HB_KCMY)
+DJ895Mode2::DJ895Mode2()    // Photo
+: PrintMode(ulMapDJ895_HB_KCMY)
 // 600x600x1 K
 // 600x600x2 CMY
 {
@@ -91,7 +91,7 @@ VeniceMode2::VeniceMode2()    // Photo
 
     ColorFEDTable = GetHT6x6_4();
 
-     bFontCapable = FALSE;       // Venice can't do fonts and hifipe at same time
+     bFontCapable = FALSE;       // DJ895 can't do fonts and hifipe at same time
 
 //     strcpy(ModeName, "Photo");
 
@@ -99,8 +99,8 @@ VeniceMode2::VeniceMode2()    // Photo
      pmMediaType = MEDIA_PHOTO;
 }
 
-VeniceMode3::VeniceMode3()    // Draft Color
-: PrintMode(ulMapVENICE_Binary_KCMY)
+DJ895Mode3::DJ895Mode3()    // Draft Color
+: PrintMode(ulMapDJ895_Binary_KCMY)
 // 300x300x1 KCMY
 {
 
@@ -109,8 +109,8 @@ VeniceMode3::VeniceMode3()    // Draft Color
     pmQuality = QUALITY_DRAFT;
 }
 
-VeniceMode4::VeniceMode4()    // Draft Gray K
-: GrayMode(ulMapVOLTAIRE_CCM_K)
+DJ895Mode4::DJ895Mode4()    // Draft Gray K
+: GrayMode(ulMapDJ600_CCM_K)
 // 300x300x1 K
 {
     theQuality = qualityDraft;
@@ -118,7 +118,7 @@ VeniceMode4::VeniceMode4()    // Draft Gray K
 }
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-VeniceMode5::VeniceMode5()    // Normal Gray K
+DJ895Mode5::DJ895Mode5()    // Normal Gray K
 : GrayMode(ulMapGRAY_K_6x6x1)
 // 600x600x1 K
 {
@@ -141,17 +141,17 @@ DJ8xx::DJ8xx(SystemServices* pSS,
     else ePen=BOTH_PENS;    // matches default mode
 
 #ifdef APDK_EXTENDED_MEDIASIZE
-    pMode[GRAYMODE_INDEX]      = new VeniceMode5 ();   // Normal Gray K
+    pMode[GRAYMODE_INDEX]      = new DJ895Mode5 ();   // Normal Gray K
 #else
-    pMode[GRAYMODE_INDEX]      = new GrayMode (ulMapVOLTAIRE_CCM_K);   // Normal Gray K
+    pMode[GRAYMODE_INDEX]      = new GrayMode (ulMapDJ600_CCM_K);   // Normal Gray K
 #endif
-    pMode[DEFAULTMODE_INDEX]   = new VeniceMode1 ();   // Normal Color
-    pMode[SPECIALMODE_INDEX]   = new VeniceMode2 ();   // Photo
-    pMode[SPECIALMODE_INDEX+1] = new VeniceMode3 ();   // Draft Color
-    pMode[SPECIALMODE_INDEX+2] = new VeniceMode4 ();   // Draft Gray K
+    pMode[DEFAULTMODE_INDEX]   = new DJ895Mode1 ();   // Normal Color
+    pMode[SPECIALMODE_INDEX]   = new DJ895Mode2 ();   // Photo
+    pMode[SPECIALMODE_INDEX+1] = new DJ895Mode3 ();   // Draft Color
+    pMode[SPECIALMODE_INDEX+2] = new DJ895Mode4 ();   // Draft Gray K
     ModeCount = 5;
 
-    CMYMap = ulMapVENICE_Binary_KCMY;
+    CMYMap = ulMapDJ895_Binary_KCMY;
 
     DBG1("DJ8xx created\n");
 }
@@ -172,7 +172,7 @@ DRIVER_ERROR Header895::Send()
     err=Graphics();     // start raster graphics and set compression mode
 
     // this is the pre-pick command but it doesn't work.  hmm...
-    //    err = thePrinter->Send((const BYTE*)Venice_Pre_Pick,sizeof(Venice_Pre_Pick));
+    //    err = thePrinter->Send((const BYTE*)DJ895_Pre_Pick,sizeof(DJ895_Pre_Pick));
 
 return err;
 }
@@ -269,14 +269,14 @@ DRIVER_ERROR DJ8xx::VerifyPenInfo()
     {
         DBG1("DJ8xx::Need to do a POWER ON to get penIDs\n");
 
-        // have to delay for Broadway or the POWER ON will be ignored
+        // have to delay the POWER ON will be ignored
         if (pSS->BusyWait((DWORD)2000) == JOB_CANCELED)
         {
             return JOB_CANCELED;
         }
 
-        DWORD length = sizeof(Venice_Power_On);
-        err = pSS->ToDevice(Venice_Power_On,&length);
+        DWORD length = sizeof(DJ895_Power_On);
+        err = pSS->ToDevice(DJ895_Power_On,&length);
         ERRCHECK;
 
         err = pSS->FlushIO();
@@ -372,7 +372,7 @@ DRIVER_ERROR DJ8xx::ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter)
     i++;
 
     // need to be more forgiving of the color pen type because of
-    // the unknown chinookID for broadway
+    // the unknown chinookID for DJ970
     // we can't guarantee the (F)lash color pen, but we can make sure
     // the pen is not (X)Undefined, (A)Missing or (M)onet
     if(str[i] != 'X' && str[i] != 'A' && str[i] != 'M')
@@ -409,7 +409,7 @@ BOOL DJ8xx::UseGUIMode(PrintMode* pPrintMode)
 
 DRIVER_ERROR DJ8xx::CleanPen()
 {
-    const BYTE Venice_Diag_Page[] = {ESC, '%','P','u','i','f','p','.',
+    const BYTE DJ895_Diag_Page[] = {ESC, '%','P','u','i','f','p','.',
         'm','u','l','t','i','_','b','u','t','t','o','n','_','p','u','s','h',' ','4',';',
         'u','d','w','.','q','u','i','t',';',ESC,'%','-','1','2','3','4','5','X' };
 
@@ -418,16 +418,16 @@ DRIVER_ERROR DJ8xx::CleanPen()
                 0x04,0x00,0x06,0x01,0x04,0x01,0x05,0x01,
                 0x01,0x04,0x01,0x64}; // PML Marking-Agent-Maintenance=100
 
-    DWORD length = sizeof(Venice_Power_On);
-    DRIVER_ERROR Error = pSS->ToDevice(Venice_Power_On,&length);
+    DWORD length = sizeof(DJ895_Power_On);
+    DRIVER_ERROR Error = pSS->ToDevice(DJ895_Power_On,&length);
 
     pSS->BusyWait((DWORD)1000);
 
     length = sizeof(PEN_CLEAN_PML);
     Error = pSS->ToDevice(PEN_CLEAN_PML,&length);
 
-    length = sizeof(Venice_Diag_Page);
-    return pSS->ToDevice(Venice_Diag_Page,&length);
+    length = sizeof(DJ895_Diag_Page);
+    return pSS->ToDevice(DJ895_Diag_Page,&length);
 }
 
 

@@ -86,6 +86,13 @@ public:
 	int		m_pCurResolution;
 protected:
 
+#ifdef APDK_HP_UX
+    virtual PScript & operator = (Printer& rhs)
+    {
+        return *this;
+    }
+#endif
+
 	StrList	*m_pHeadPtr;
 	StrList	*m_pCurItem;
 }; // PScript

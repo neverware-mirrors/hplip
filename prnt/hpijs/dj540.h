@@ -47,9 +47,6 @@ public:
     virtual DRIVER_ERROR ParsePenInfo(PEN_TYPE& ePen, BOOL QueryPrinter=TRUE);
     virtual PEN_TYPE DefaultPenSet();
 
-
-private:
-
 }; //DJ540
 
 #ifdef APDK_DJ540
