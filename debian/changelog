@@ -1,3 +1,32 @@
+hplip (3.15.11+repack0-1) unstable; urgency=medium
+
+  * New upstream release
+     - 3.15.11
+       (Closes: #767325, #794803)
+     - 3.15.7 - Insecure binary driver verification
+       (CVE-2015-0839, Closes: #787353).
+     - Repack the 3.15.11 upstream releasr: Un-gzip various source files, for
+       better upstream-tracking
+
+  * Let the Debian Printing Team umbrella adopt the package, with maintainer's
+    agreement:
+    - Migrate from SVN to Git; import the complete history to have the upstream
+      sources in the repository
+    - Update Vcs-* fields
+    - Add gbp.conf to reflect the branch layout
+    - Add myself as uploader
+  * Wrap-and-sort the debian files
+  * Remove tabs in previous changelog entries
+  * Recompress the files uncompressed in repack just before build, with -n for
+    reproducibility
+  * Add tentative get-orig-source target for the automatic repack
+  * Cleanup patch queue, with raw DEP-3 headers and no dpatch leftovers
+  * Refresh debian/watch, and add upstream PGP key in debian/upstream to
+    enforce signature verification of new upstream releases
+  * Automatically generate debug package, B-D against debhelper >= 9.20151219
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 09 Jan 2016 22:20:31 +0100
+
 hplip (3.15.11-0ubuntu1) xenial; urgency=low
 
   * New upstream release
