@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/coloradjform_base.ui'
 #
-# Created: Fri Apr 1 14:51:28 2005
+# Created: Wed Jul 13 09:36:13 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,10 +21,6 @@ class ColorAdjForm_base(QDialog):
 
 
         ColorAdjForm_baseLayout = QGridLayout(self,1,1,11,6,"ColorAdjForm_baseLayout")
-
-        self.helpButton = QPushButton(self,"helpButton")
-
-        ColorAdjForm_baseLayout.addWidget(self.helpButton,1,0)
 
         self.CancelButton = QPushButton(self,"CancelButton")
 
@@ -217,7 +213,6 @@ class ColorAdjForm_base(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("HP Device Manager - Color Adjustment"))
-        self.helpButton.setText(self.__tr("Help"))
         self.CancelButton.setText(self.__tr("Cancel"))
         self.ContinueButton.setText(self.__tr("Next >"))
         self.buttonGroup.setTitle(QString.null)

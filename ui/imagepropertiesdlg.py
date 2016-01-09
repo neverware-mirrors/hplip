@@ -21,12 +21,13 @@
 
 import sys
 from qt import *
+#from string import printable
 from imagepropertiesdlg_base import ImagePropertiesDlg_base
 
 class ImagePropertiesDlg(ImagePropertiesDlg_base):
     def __init__(self, filename, location, mimetype, size, exif_info={}, parent = None,name = None,modal = 0,fl = 0):
         ImagePropertiesDlg_base.__init__(self,parent,name,modal,fl)
-        
+
         self.setCaption( 'Properties for ' + filename )
         self.FilenameText.setText( '<b>' + filename + '</b>' )
         self.LocationText.setText( location )
@@ -34,8 +35,10 @@ class ImagePropertiesDlg(ImagePropertiesDlg_base):
         self.SizeText.setText( size )
         if exif_info:
             for k in exif_info:
-                QListViewItem(self.EXifDataListView, k, str( exif_info[k]) )
-        
-        
-        
+                kk = k.lower()
+                if kk != "jpegthumbnail":
+                    QListViewItem(self.EXifDataListView, k, str( exif_info[k]) )
+
+
+
 

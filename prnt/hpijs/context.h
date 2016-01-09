@@ -244,6 +244,8 @@ public:
     PEN_TYPE GetDefaultPenSet();
     PEN_TYPE GetInstalledPens();
 
+    void    ResetIOMode (BOOL bDevID, BOOL bStatus);
+
 private:
 
     SystemServices* pSS;

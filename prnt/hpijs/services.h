@@ -111,6 +111,8 @@ public:
   void MapModel(const char *nam);
   const char * GetDriverMessage(DRIVER_ERROR err);
 
+  void  ResetIOMode (BOOL bDevID, BOOL bStatus);
+
   BOOL BackPage;
   int CurrentRaster;
   BYTE **RastersOnPage;

@@ -656,11 +656,12 @@ public:
 class Mode9 : public Compressor
 {
 public:
-    Mode9(SystemServices* pSys,unsigned int RasterSize);
+    Mode9(SystemServices* pSys,unsigned int RasterSize, BOOL bVIPPrinter = FALSE);
     virtual ~Mode9();
     BOOL Process(RASTERDATA* input);
     void Flush();
 	BOOL ResetSeedRow;
+    BOOL m_bVIPPrinter;
 }; //Mode9
 
 //ClassName
@@ -780,6 +781,7 @@ friend class ModeJPEG;
 
 public:
     Header(Printer* p,PrintContext* pc);
+    virtual ~Header ();
 
     virtual DRIVER_ERROR Send()=0;
 

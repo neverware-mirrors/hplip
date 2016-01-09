@@ -32,35 +32,7 @@
 #ifndef hpiom_INCLUDED
 #define hpiom_INCLUDED
 
-#define HPIODFILE "/var/run/hpiod.port"
-#define LINE_SIZE 256 /* Length of buffer reads */
-#define BUFFER_SIZE 4096
-#define HEADER_SIZE 256   /* Rough estimate for message header */
-
-enum RESULT_CODE
-{
-   R_AOK = 0,
-   R_INVALID_DESCRIPTOR = 3,
-   R_INVALID_URI = 4,
-   R_INVALID_MESSAGE = 5,
-   R_INVALID_LENGTH = 8,
-   R_IO_ERROR = 12,
-   R_INVALID_CHANNEL_ID = 30,
-   R_CHANNEL_BUSY = 31
-};
-
-typedef struct
-{
-   char cmd[LINE_SIZE];
-   int descriptor;       /* device descriptor (device-id) */
-   int length;           /* length of data in bytes */
-   int result;
-   int channel;          /* channel descriptor (channel-id) */
-   int writelen;           /* bytes-written */
-   int readlen;   /* bytes-to-read */
-   unsigned char status;   /* 8-bit device status */
-   unsigned char *data;           /* pointer to data */
-} MsgAttributes;
+#include "hplip_api.h"
 
 /*
  * LIDIL Definitions.
@@ -162,10 +134,6 @@ typedef struct
 extern "C" {
 #endif
 
-extern int OpenHP(char *dev);
-extern int ReadHPDeviceID(int hd, char *buf, int size);
-extern int ReadHPStatus(int hd, char *buf, int size);
-extern int CloseHP(int hd);
 extern int ReadHPVertAlign(int hd);
 
 #ifdef __cplusplus

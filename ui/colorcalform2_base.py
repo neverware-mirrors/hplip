@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/colorcalform2_base.ui'
 #
-# Created: Tue Feb 8 14:19:10 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Wed Jul 13 09:36:13 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -21,11 +21,6 @@ class ColorCalForm2_base(QDialog):
 
 
         ColorCalForm2_baseLayout = QGridLayout(self,1,1,11,6,"ColorCalForm2_baseLayout")
-
-        self.helpButton = QPushButton(self,"helpButton")
-        self.helpButton.setEnabled(0)
-
-        ColorCalForm2_baseLayout.addWidget(self.helpButton,1,0)
 
         self.CancelButton = QPushButton(self,"CancelButton")
 
@@ -45,7 +40,7 @@ class ColorCalForm2_base(QDialog):
         buttonGroupLayout.setAlignment(Qt.AlignTop)
 
         self.Icon = QLabel(self.buttonGroup,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setScaledContents(1)
 
         buttonGroupLayout.addWidget(self.Icon,0,0)
@@ -89,7 +84,6 @@ class ColorCalForm2_base(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("HP Device Manager - Color Calibration"))
-        self.helpButton.setText(self.__tr("Help"))
         self.CancelButton.setText(self.__tr("Cancel"))
         self.ContinueButton.setText(self.__tr("Next >"))
         self.buttonGroup.setTitle(QString.null)

@@ -69,6 +69,7 @@ DJGenericVIP::DJGenericVIP (SystemServices* pSS, BOOL proto)
 
     pMode[ModeCount++] = new VIPFastDraftMode ();        // Fast Draft
     pMode[ModeCount++] = new VIPGrayFastDraftMode ();    // Grayscale Fast Draft
+    pMode[ModeCount++] = new VIPAutoPQMode ();           // Printer selects PrintMode
 
     for (int i = 0; i < (int) ModeCount; i++)
     {
@@ -119,6 +120,27 @@ VIPGrayFastDraftMode::VIPGrayFastDraftMode () : GrayMode (ulMapDJ600_CCM_K)
     pmMediaType = MEDIA_PLAIN;
     pmColor     = GREY_K;
 }
+
+VIPAutoPQMode::VIPAutoPQMode () : PrintMode (NULL)
+{
+    BaseResX =
+    BaseResY = 600;
+    ResolutionX[0] = 600;
+    ResolutionY[0] = 600;
+    bFontCapable = FALSE;
+#ifdef APDK_AUTODUPLEX
+    bDuplexCapable = FALSE;
+#endif
+#if defined(APDK_VIP_COLORFILTERING)
+    Config.bErnie = TRUE;
+#endif
+
+    Config.bColorImage = FALSE;
+
+    medium     = mediaAuto;
+    theQuality = qualityAuto;
+    pmQuality  = QUALITY_AUTO;
+} // VIPAutoPQMode
 
 BOOL DJGenericVIP::UseGUIMode (PrintMode* pPrintMode)
 {
@@ -294,6 +316,26 @@ BOOL DJGenericVIP::FullBleedCapable (PAPER_SIZE ps, FullbleedType  *fbType, floa
         *fTopOverSpray  = (float) 0;
 	*fbType = fullbleedNotSupported;
     return FALSE;
+}
+
+BOOL DJGenericVIP::GetMargins (PAPER_SIZE ps, float *fMargins)
+{
+    float           xo, yo, xl, yt;
+    FullbleedType   fbType = fullbleedNotSupported;
+
+    fMargins[0] = (float) 0.125;
+    fMargins[1] = (float) 0.125;
+    fMargins[2] = (float) 0.125;
+    fMargins[3] = (float) 0.5;
+    if ((FullBleedCapable (ps, &fbType, &xo, &yo, &xl, &yt)) &&
+        (fbType == fullbleed4EdgeAllMedia ||
+         fbType == fullbleed4EdgePhotoMedia ||
+         fbType == fullbleed4EdgeNonPhotoMedia))
+    {
+        fMargins[3] = (float) 0.125;
+    }
+
+    return TRUE;
 }
 
 

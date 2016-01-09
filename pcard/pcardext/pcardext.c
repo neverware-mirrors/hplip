@@ -92,8 +92,13 @@ PyObject * pcardext_mount( PyObject * self, PyObject * args )
         
     Py_INCREF( readsectorFunc );
     Py_INCREF( writesectorFunc );
-    
-    return Py_BuildValue( "i", FatInit() ); // ==0 ->OK, !=0 --> NG
+
+    int i = FatInit();
+    /*char buf[1024];
+    sprintf( buf, "print 'FatInit()=%d\n'", i );
+    PyRun_SimpleString( buf );*/
+
+    return Py_BuildValue( "i", i ); // ==0 ->OK, !=0 --> NG
 }
 
 

@@ -498,7 +498,8 @@ int main(int argc, char *argv[])
          }
 
          /* Turn off any bi-di support. Allow bi-di for printer capabilities only. */
-         pSS->IOMode.bDevID = pSS->IOMode.bStatus = FALSE;
+//         pSS->IOMode.bDevID = pSS->IOMode.bStatus = FALSE;
+         pSS->ResetIOMode (FALSE, FALSE);
 
          if (pSS->pJob != NULL)
             delete pSS->pJob;

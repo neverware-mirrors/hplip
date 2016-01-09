@@ -160,11 +160,17 @@ class DJ3320Proxy : public PrinterProxy
 public:
     DJ3320Proxy() : PrinterProxy(
         "DJ3320",                   // family name
-        "deskjet 3320\0"                        // DeskJet 3320 - DJ3320
-        "deskjet 3420\0"                        // DeskJet 3420 - DJ3320
-		"deskjet 3325\0"                        // DeskJet 3325 - DJ3320
-		"deskjet 3500\0"                        // DeskJet 3500
-		"Deskjet 3740\0"                        // Deskjet 3740
+        "deskjet 3320\0"
+        "deskjet 3325\0"
+		"deskjet 3420\0"
+        "deskjet 3425\0"
+		"deskjet 3500\0"
+        "deskjet 3528\0"
+        "deskjet 3535\0"
+		"Deskjet 3740\0"
+		"Deskjet 3920\0"
+		"Deskjet 3940\0"
+		"Deskjet 3900\0"
 #ifdef APDK_MLC_PRINTER
 		"psc 1100\0"
 		"psc 1200\0"
@@ -172,6 +178,13 @@ public:
 		"officejet 4105\0"
 		"officejet 4200\0"
 #endif
+        "officejet 4115\0"
+        "officejet 5500\0"
+        "officejet 6200\0"
+        "psc 11\0"
+        "psc 12\0"
+        "psc 13\0"
+        "psc 16\0"
     ) {m_iPrinterType = eDJ3320;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ3320(pSS); }
 	inline PRINTER_TYPE GetPrinterType() const { return eDJ3320;}

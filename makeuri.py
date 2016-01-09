@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.5 $ 
-# $Date: 2005/03/21 17:38:49 $
+# $Revision: 1.8 $ 
+# $Date: 2005/07/12 16:43:09 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -24,7 +24,7 @@
 #
 
 
-_VERSION = '2.1'
+_VERSION = '2.3'
 
 # Std Lib
 import sys
@@ -40,7 +40,7 @@ from base import device, utils, msg
 def usage():
     formatter = utils.TextFormatter( 
                 (
-                    {'width': 38, 'margin' : 2},
+                    {'width': 48, 'margin' : 2},
                     {'width': 38, 'margin' : 2},
                 )
             )
@@ -50,17 +50,23 @@ def usage():
     log.info( formatter.compose( ( "[OPTIONS]",                            "" ) ) )
     log.info( formatter.compose( ( "Set the logging level:",               "-l<level> or --logging=<level>" ) ) )
     log.info( formatter.compose( ( "",                                     "<level>: none, info*, error, warn, debug (*default)" ) ) )
+    log.info( formatter.compose( ( "Show the CUPS URI only (quiet mode)(See note):","-c or --cups" ) ) )
+    log.info( formatter.compose( ( "Show the SANE URI only (quiet mode)(See note):","-s or --sane" ) ) )
     log.info( formatter.compose( ( "This help information:",               "-h or --help" ) ) )
+    log.info("")
+    log.info( "Note: Sets logging level to 'none'" )
 
 
 
-utils.log_title( 'Device URI Creation Utility', _VERSION )
+
 
 try:
     opts, args = getopt.getopt( sys.argv[1:], 
-                                'hl:b:t:o:e:s:', 
+                                'hl:cs', 
                                 [ 'help', 
                                   'logging=',
+                                  'cups',
+                                  'sane'
                                 ] 
                               ) 
 except getopt.GetoptError:
@@ -69,6 +75,8 @@ except getopt.GetoptError:
 
 
 log_level = 'info'
+cups_quiet_mode = False
+sane_quiet_mode = False
 
 for o, a in opts:
 
@@ -78,15 +86,25 @@ for o, a in opts:
 
     elif o in ( '-l', '--logging' ):
         log_level = a.lower().strip()
+        
+    elif o in ( '-c', '--cups' ):
+        cups_quiet_mode = True
+        
+    elif o in ( '-s', '--sane' ):
+        sane_quiet_mode = True
 
 
-
-if not log_level in ( 'info', 'warn', 'error', 'debug' ):
+if not log_level in ( 'none', 'info', 'warn', 'error', 'debug' ):
     log.error( "Invalid logging level." )
     usage()
     sys.exit(0)
+    
+if cups_quiet_mode or sane_quiet_mode:
+    log_level = 'none'
 
 log.set_level( log_level )
+
+utils.log_title( 'Device URI Creation Utility', _VERSION )
 
 hpiod_sock = None
 try:
@@ -105,48 +123,60 @@ if len(args) == 0:
     sys.exit(0)
 
 for a in args:
-    log.info( utils.bold( "Creating URI for '%s':" % a ) )
+    log.info( utils.bold( "Creating URIs for '%s':" % a ) )
 
     if ip_pat.search(a) is not None:
         try:
-            fields, data = msg.xmitMessage( hpiod_sock, 
-                                    "MakeURI", 
-                                    None, 
-                                    { 
-                                        'hostname' : a,
-                                        'port' : 1,
-                                    } 
-                                   )
+            fields, data, result_code = \
+                msg.xmitMessage( hpiod_sock, 
+                                 "MakeURI", 
+                                 None, 
+                                 { 
+                                    'hostname' : a,
+                                    'port' : 1,
+                                 } 
+                                )
         except Error:
-            result_code = 1
-        else:
-            result_code = fields[ 'result-code' ]
+            result_code = ERROR_INTERNAL
         
         if result_code == ERROR_SUCCESS:
-            print fields.get( 'device-uri', 'Error: failed.' )
+            cups_uri = fields.get( 'device-uri', '' )
+            sane_uri = cups_uri.replace("hp:","hpaio:")
+            
+            if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "CUPS URI:", cups_uri
+            
+            if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "SANE URI:", sane_uri
         
         elif result_code == ERROR_INVALID_HOSTNAME:
             log.error( "Invalid hostname IP address. Please check the address and try again." )
         
         else:
-            log.error( "Failed. Please check address of device and try again." )
+            log.error( "Failed (error code=%d). Please check address of device and try again." % result_code )
         
     elif dev_pat.search(a) is not None:
         try:
-            fields, data = msg.xmitMessage( hpiod_sock, 
-                                    "MakeURI", 
-                                    None, 
-                                    { 
-                                        'device-file' : a,
-                                    } 
-                                   )
+            fields, data, result_code = \
+                msg.xmitMessage( hpiod_sock, 
+                                "MakeURI", 
+                                None, 
+                                { 
+                                    'device-file' : a,
+                                } 
+                               )
         except Error:
-            result_code = 1
-        else:
-            result_code = fields[ 'result-code' ]
-            
+            result_code = ERROR_INTERNAL
+
         if result_code == ERROR_SUCCESS:
-            print fields.get( 'device-uri', 'Error: failed.' )
+            cups_uri = fields.get( 'device-uri', '' )
+            sane_uri = cups_uri.replace("hp:","hpaio:")
+            
+            if cups_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "CUPS URI:", cups_uri
+            
+            if sane_quiet_mode or (not cups_quiet_mode and not sane_quiet_mode):
+                print "SANE URI:", sane_uri
             
         else:
             log.error( "Failed. Please check device node of device and try again." )

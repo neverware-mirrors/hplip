@@ -157,13 +157,15 @@ enum MediaSize
     sizeLedger = 6,
     sizeFLSA = 10,
     sizeExecutive = 1,
-    sizeCustom = 101
+    sizeCustom = 101,
+    size5x7 = 122
 };
 
 //! \internal For use in connection with PCL media-source command.  Values are PCL codes.
 enum MediaSource
 {
     sourceTrayMin = -2,
+    sourceBanner = -1,
     sourceTray1 = 1,
     sourceManual = 2,
     sourceManualEnv = 3,
@@ -178,10 +180,12 @@ enum MediaSource
 //! \internal For use in connection with PCL quality-mode command.  Values are PCL codes.
 enum Quality
 {
-    qualityFastDraft =   -2,
-    qualityDraft =       -1,
-    qualityNormal =       0,
-    qualityPresentation = 1
+    qualityAuto         = -3,
+    qualityFastDraft    = -2,
+    qualityDraft        = -1,
+    qualityNormal       =  0,
+    qualityPresentation =  1,
+    qualityMarvellous   =  2
 };
 
 //! \internal For use in connection with fullbleed support.  Values are type of fullbleed.
@@ -276,6 +280,7 @@ typedef enum              // typedef'ed for C interface
 	ENVELOPE_JPN3 = 22,             //!< Japanese Envelope #3 (120 x 235 mm)
 	ENVELOPE_JPN4 = 23,             //!< Japanese Envelope #4 (90 x 205 mm)
 #endif
+    PHOTO_5x7 = 24,
     MAX_PAPER_SIZE                  //!< Only for array size and loops
 } PAPER_SIZE;
 
@@ -353,6 +358,7 @@ typedef enum                // typedef'ed for C interface
     QUALITY_BEST,           //!< Probably slower and possible higher resolution
     QUALITY_HIGHRES_PHOTO,  //!< 1200 dpi - currently 9xxvip, linux only
     QUALITY_FASTDRAFT,      //!< True draft, 300 dpi - newer VIP printers only
+    QUALITY_AUTO,           //!< Printer selects optimum resolution - 05 and later VIP printers only
     MAX_QUALITY_MODE
 } QUALITY_MODE;
 

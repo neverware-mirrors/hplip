@@ -181,6 +181,7 @@ PSP1002400Mode::PSP1002400Mode () : PrintMode (NULL)
 PAPER_SIZE PSP100::MandatoryPaperSize ()
 {
     return A6;
+   // return PHOTO_5x7;
 } //MandantoryPaperSize
 
 

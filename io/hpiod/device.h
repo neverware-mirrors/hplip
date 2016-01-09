@@ -26,6 +26,26 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 
+enum IO_MODE
+{
+   UNI_MODE=0, /* uni-di */
+   RAW_MODE,   /* bi-di */
+   MLC_MODE,
+   DOT4_MODE
+};
+
+enum FLOW_CONTROL
+{
+   GUSHER=0,
+   MISER
+};
+
+enum SCAN_PORT
+{
+   SCAN_PORT0=0,
+   SCAN_PORT1
+};
+
 class Channel;
 
 /* Channel attributes that must remain persistant for life of the device object. */
@@ -54,9 +74,14 @@ protected:
    char ID[1024];         /* device id */
    pthread_mutex_t mutex;
 
+   int PrintMode;         /* 0=uni-di | 1=raw | 2=mlc | 3=dot4 (io-mode) */
+   int MfpMode;           /* 0=mlc | 1=dot4 (io-mfp-mode) */
+   int FlowCtl;           /* 0=gusher | 1=miser (io-control) */
+   int ScanPort;          /* 0=normal | 1=CLJ28xx (io-scan-port) */
+
    Channel *pChannel[MAX_CHANNEL];
    int ChannelCnt;
-   virtual Channel *NewChannel(unsigned char sockid, char *io_mode, char *flow_ctl);
+   virtual Channel *NewChannel(unsigned char sockid);
    int DelChannel(int i);
    int ChannelMode;            /* raw | mlc */
    int MlcUp;
@@ -81,25 +106,52 @@ public:
    inline void SetURI(char *uri) { strcpy(URI, uri); }
    inline char *GetID() { return ID; }
    inline int GetChannelMode() { return ChannelMode; }
+   inline int GetChannelCnt() { return ChannelCnt; }
+   inline int GetPrintMode() { return PrintMode; }
+   inline void SetPrintMode(int m) { PrintMode=m; }
+   inline int GetMfpMode() { return MfpMode; }
+   inline void SetMfpMode(int m) { MfpMode=m; }
+   inline int GetFlowCtl() { return FlowCtl; }
+   inline void SetFlowCtl(int c) { FlowCtl=c; }
+   inline int GetScanPort() { return ScanPort; }
+   inline void SetScanPort(int p) { ScanPort=p; }
    virtual int Open(char *sendBuf, int *result);
    virtual int Close(char *sendBuf, int *result);
-   int ChannelOpen(char *sn, char *io_mode, char *flow_ctl, int *channel_result, char *sendBuf, int *result);
+   int ChannelOpen(char *sn, int *channel_result, char *sendBuf, int *result);
    int ChannelClose(int channel, char *sendBuf, int *result);
-   int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
+   virtual int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
    virtual int GetDeviceStatus(char *sendBuf, int *result);
    virtual int WriteData(unsigned char *data, int length, int channel, char *sendBuf, int *result);
    virtual int ReadData(int length, int channel, int timeout, char *sendBuf, int sendBufLength, int *result);   
 }; //Device
 
 //UsbDevice
-//! Class that encapsulates common usb device services.
+//! Class that encapsulates common bi-di usb device services.
 /*!
 ******************************************************************************/
 class UsbDevice : public Device
 {
 public:
    UsbDevice(System *pSys) : Device(pSys) {}
-}; //RawDevice
+}; //UsbDevice
+
+//UniUsbDevice
+//! Class that encapsulates common uni-di usb device services.
+/*!
+******************************************************************************/
+class UniUsbDevice : public Device
+{
+protected:
+   Channel *NewChannel(unsigned char sockid);
+
+public:
+   UniUsbDevice(System *pSys) : Device(pSys) {}
+
+   int GetDeviceID(char *sendBuf, int sendBufLength, int *result);
+   int GetDeviceStatus(char *sendBuf, int *result);
+   int Open(char *sendBuf, int *result);
+   int ReadData(int length, int channel, int timeout, char *sendBuf, int sendBufLength, int *result);   
+}; //UniUsbDevice
 
 
 //JetDirectDevice
@@ -112,7 +164,7 @@ protected:
    char IP[LINE_SIZE];
    int Port;      /* jetdirect port specified by uri */
 
-   Channel *NewChannel(unsigned char sockid, char *io_mode, char *unused);
+   Channel *NewChannel(unsigned char sockid);
    int DeviceID(char *buffer, int size);
    int GetSnmpStr(char *oid, char *buffer, int size);
 

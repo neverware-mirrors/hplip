@@ -83,10 +83,14 @@ Header::Header(Printer* p,PrintContext* pc)
 	SetQuality(thePrintContext->CurrentMode->theQuality);
 
     SetMediaSize( thePrintContext->thePaperSize );
-    SetMediaSource(sourceTrayAuto);                    // hardcoded for now
+    SetMediaSource (thePrintContext->GetMediaSource ());
 
     SetSimpleColor();
 } //Header
+
+Header::~Header ()
+{
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -121,6 +125,7 @@ void Header::SetMediaSource(MediaSource msource)
         case sourceManualEnv: DBG1("ManualEnv\n"); break;
 		case sourceTrayAuto: DBG1("AutoTray\n"); break;
 		case sourceDuplexerNHagakiFeed: DBG1("HagakiTray\n"); break;
+        case sourceBanner: DBG1("Bannerpaper\n"); break;
         default: DBG1("<out of range, using> Tray1\n"); break;
     }
 #endif
@@ -128,12 +133,12 @@ void Header::SetMediaSource(MediaSource msource)
     ASSERT( (msource==sourceTray1) || (msource==sourceManual) ||
 		    (msource==sourceTray2) || (msource==sourceDuplexerNHagakiFeed) ||
             (msource==sourceManualEnv) || (msource==sourceTrayAuto) ||
-            (msource == sourceOptionalEnv));
+            (msource == sourceOptionalEnv) || (msource == sourceBanner));
 
     if( (msource!=sourceTray1) && (msource!=sourceManual) &&
 		    (msource!=sourceTray2) && (msource!=sourceDuplexerNHagakiFeed) &&
             (msource!=sourceManualEnv) && (msource!=sourceTrayAuto) &&
-            (msource != sourceOptionalEnv))
+            (msource != sourceOptionalEnv) && (msource != sourceBanner))
         msource=sourceTray1;
 
 	if (thePrinter != NULL)

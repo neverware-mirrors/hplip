@@ -30,7 +30,6 @@ MlcChannel::MlcChannel(Device *pD) : Channel(pD)
    credit = p2hcredit = 0;
    //   CurrentProtocol = USB_PROTOCOL_712;
    rcnt = rindex = 0;
-   miser = 0;    /* assume Gusher flow control */
 }
 
 /* Map socket id to channel index. */
@@ -105,8 +104,10 @@ int MlcChannel::MlcExecReverseCmd(int fd, unsigned char *buf)
          MlcForwardReply(fd, (unsigned char *)pCreditReply, sizeof(MLCCreditReply)); 
          break;
       case MLC_CREDIT_REQUEST:
+         static int cnt=0;
          pCreditReq = (MLCCreditRequest *)buf;
-         syslog(LOG_ERR, "unexpected MLCCreditRequest: cmd=%x, hid=%x, pid=%x, credit=%d\n", pCreditReq->cmd,
+         if (cnt++ < 5)         
+            syslog(LOG_ERR, "unexpected MLCCreditRequest: cmd=%x, hid=%x, pid=%x, credit=%d\n", pCreditReq->cmd,
                                          pCreditReq->hsocket, pCreditReq->psocket, ntohs(pCreditReq->credit));
          pCreditReqReply = (MLCCreditRequestReply *)buf;
          pCreditReqReply->h.length = htons(sizeof(MLCCreditRequestReply));
@@ -784,6 +785,9 @@ int MlcChannel::Close(char *sendBuf, int *result)
          ioctl(pDev->GetOpenFD(), LPIOC_HP_SET_CHANNEL, 0);   /* set raw mode (ECP channel-0) */
          ioctl(pDev->GetOpenFD(), LPIOC_SET_PROTOCOL, pDev->CurrentProtocol);
       }
+
+      /* Delay for back-to-back scanning using scanimage (OJ 7110, OJ d135). */
+      sleep(1);
    }
 
    len = sprintf(sendBuf, res, *result);  
@@ -804,7 +808,7 @@ int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *r
    {
       len = (size > dlen) ? dlen : size;
 
-      if (miser)
+      if (pDev->GetFlowCtl() == MISER)
       {
          if (MlcCreditRequest(pDev->GetOpenFD(), 1) != 0)  /* Miser flow control */
          {
@@ -821,11 +825,11 @@ int MlcChannel::WriteData(unsigned char *data, int length, char *sendBuf, int *r
             if (ret == 0)
                continue;  /* Got a reverse command, but no MlcCredit, try again. */ 
 
-            if (!miser)
+            if (pDev->GetFlowCtl() != MISER)
             {
                /* If miser flow control works for this device, set "miser" in models.xml. */ 
                syslog(LOG_ERR, "invalid MlcCredit from peripheral, trying miser\n");
-               miser = 1;    
+               pDev->SetFlowCtl(MISER);
                continue;
             } 
 

@@ -52,10 +52,10 @@
 *%=================================================
 *% 		 Product Version Information
 *%=================================================
-*ModelName: "HP LaserJet 3200M"
-*ShortNickName: "HP LaserJet 3200M"
-*NickName: "HP LaserJet 3200M Postscript (recommended)"
-*Product: "(HP LaserJet 3200M)"
+*ModelName: "HP LaserJet 3200"
+*ShortNickName: "HP LaserJet 3200"
+*NickName: "HP LaserJet 3200 Postscript (recommended)"
+*Product: "(HP LaserJet 3200)"
 *Manufacturer: "HP"
 *PSVersion: "(2014.116) 0"
 
@@ -80,7 +80,7 @@
 *%=================================================
 *%		 Emulations and Protocols
 *%=================================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout:  "0"
 *SuggestedWaitTimeout: "120"
@@ -713,7 +713,7 @@
 *MaxMediaHeight: "1008"
 *HWMargins:      12 12 12 12
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null >>
   setpagedevice
 "

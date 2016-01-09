@@ -42,14 +42,14 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
 *cupsICCProfile RGB../sRGB Matching Profile: "/Library/Printers/hp/Profiles/sRGB_A.icc"
-*APPrinterIconPath: "/Library/Printers/hp/Icons/HP Business Inkjet 2300.icns"
+*APPrinterIconPath: "/Library/Printers/hp/Icons/hp business inkjet 2300.icns"
 
 *% Product Name and Version Information
 *Manufacturer: "HP"
 *Product:      "(hp business inkjet 2300)"
 *ModelName:     "HP Business Inkjet 2300 PS"
 *ShortNickName: "HP Business Inkjet 2300 PS"
-*NickName:      "HP Business Inkjet 2300 PS v3010.107 (recommended)"
+*NickName:      "HP Business Inkjet 2300 PS v3010.107 Postscript (recommended)"
 *PSVersion:	"(3010.107) 0"
 *% =================================
 *% Basic Device Capabilities
@@ -65,7 +65,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols:PJL TBCP
+*Protocols: TBCP
 *%==========================================================
 *% Printer Specific Custom Data - HPDryTime - Removed for MAC
 *%==========================================================

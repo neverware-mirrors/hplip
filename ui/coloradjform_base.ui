@@ -19,14 +19,6 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QPushButton" row="1" column="0">
-            <property name="name">
-                <cstring>helpButton</cstring>
-            </property>
-            <property name="text">
-                <string>Help</string>
-            </property>
-        </widget>
         <widget class="QPushButton" row="1" column="2">
             <property name="name">
                 <cstring>CancelButton</cstring>

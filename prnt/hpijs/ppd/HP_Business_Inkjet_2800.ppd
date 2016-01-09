@@ -40,7 +40,7 @@
 *Product:      "(HP Business Inkjet 2800)"
 *ModelName:     "HP Business Inkjet 2800 PS"
 *ShortNickName: "HP Business Inkjet 2800 PS"
-*NickName:      "HP Business Inkjet 2800 PS v3010.107 (recommended)"
+*NickName:      "HP Business Inkjet 2800 PS v3010.107 Postscript (recommended)"
 *PSVersion:	"(3010.107) 0"
 *% ====================================== 
 *% For Mac OS 10.3 and higher 
@@ -67,7 +67,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols:PJL TBCP
+*Protocols: TBCP
 *%=== JCL Features ==========================
 
 *%=========================================================================

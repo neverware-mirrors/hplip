@@ -31,7 +31,7 @@
 
 *FileVersion: "1.1.0 X"
 *FormatVersion: "4.3"
-*LanguageEncoding: ISOLatin1
+*LanguageEncoding: MacStandard
 *LanguageVersion: English
 *ModelName: "HP LaserJet 5M"
 *NickName: "HP LaserJet 5M Postscript (recommended)"
@@ -62,7 +62,7 @@
 *SuggestedJobTimeout:"0"
 *SuggestedWaitTimeout:"120"
 
-*Protocols: PJL
+*Protocols: TBCP
 
 *OpenGroup: InstallableOptions
 

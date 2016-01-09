@@ -155,7 +155,6 @@ class MlcChannel : public Channel
    unsigned char rbuf[MAX_RECEIVER_DATA];  /* read packet buffer */
    int rindex;
    int rcnt;
-   int miser;
 
 public:
    MlcChannel(Device *pDev);
@@ -168,8 +167,6 @@ public:
    inline void SetP2HCredit(unsigned short i) { p2hcredit=i; }
    inline unsigned short GetH2PCredit() { return credit; }
    inline void SetH2PCredit(unsigned short i) { credit=i; }
-   inline unsigned short GetMiser() { return miser; }
-   inline void SetMiser(int i) { miser=i; }
 
    int MlcSocket2Channel(unsigned char sockid);
    int MlcForwardReply(int fd, unsigned char *buf, int size);

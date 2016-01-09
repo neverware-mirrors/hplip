@@ -52,9 +52,11 @@
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpColorOptions.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpEdgeToEdge.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpFinishing.plugin"
+*APDialogExtension: "/Library/Printers/hp/PDEs/hpJobStorage.plugin"
+
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpImageQuality.plugin"
 *APDialogExtension: "/Library/Printers/hp/PDEs/hpProofAndPrint.plugin"
-*APDialogExtension: "/Library/Printers/hp/PDEs/hpWebPreviw.plugin"
+
 *APPrinterIconPath: "/Library/Printers/hp/Icons/HP LaserJet 4345 MFP.icns"
 
 *% Product Version Information
@@ -102,7 +104,7 @@
 *% ===================================
 *%       Emulations and Protocols
 *% ===================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *SuggestedJobTimeout: "0"
 *SuggestedWaitTimeout: "120"
@@ -212,54 +214,40 @@ save
 *HPOption_MBM_Mixed Standard/Not Installed: "userdict /HPOutputAcc (NoAcc) put"
 *HPOption_MBM_Mixed MBMStaplerStacker/hp 500-Sheet Stapler-Stacker: "userdict /HPOutputAcc (Stapler) put"
 
-*HPOption_MBM_Mixed HP3BinMB/HP 3-Bin Mailbox: ""
+
+*HPOption_MBM_Mixed HP3BinMB_MBMode/HP 3-Bin Mailbox-Mailbox Mode: ""
+*HPOption_MBM_Mixed HP3BinMB_StackerMode/HP 3-Bin Mailbox-Stacker Mode: ""
+*HPOption_MBM_Mixed HP3BinMB_FunctionMode/HP 3-Bin Mailbox-Function Separator Mode: ""
 *?HPOption_MBM_Mixed: "
-currentpagedevice /OutputAttributes known{
-	currentpagedevice /MediaProcessingDetails known{
-		currentpagedevice /MediaProcessingDetails get /ModelID known{	
-			currentpagedevice /MediaProcessingDetails get /ModelID get (Q5691A) search 
-				  {pop pop pop (MBMStaplerStacker)} 
-				  {(Q5692A) search 
-				    {pop pop pop (HP3BinMB)} {pop (Standard)} ifelse} 
-				 ifelse}
-			{(Standard)}
-			ifelse}
-		{(Standard)}
-		ifelse}
-	{(Standard)}
-ifelse = flush"
+currentpagedevice /OutputAttributes known
+{currentpagedevice /MediaProcessingDetails known
+	{currentpagedevice /MediaProcessingDetails get /ModelID known
+		{currentpagedevice /MediaProcessingDetails get /ModelID get
+			(Q5691A) search
+			{pop pop pop (MBMStaplerStacker)} 
+			{(Q5692A) search
+				{pop pop pop
+					currentpagedevice /MediaProcessingDetails get /DeviceID get
+					(MAILBOX) search
+					{pop pop pop (HP3BinMB_MBMode)}
+					{(FUNCTION SEPARATOR) search
+						{pop pop pop (HP3BinMB_FunctionMode)}
+						{(STACKER) search
+							{pop pop pop (HP3BinMB_StackerMode)}
+							{(Standard)}ifelse
+						}ifelse
+					}ifelse
+				}
+				{(Standard)}ifelse
+			}ifelse
+		}
+		{(Standard)}ifelse
+	}
+	{(Standard)}ifelse
+}
+{(Standard)}ifelse = flush"
 *End
-
 *CloseUI: *HPOption_MBM_Mixed
-
-*%=== 3 Bin MailBox Modes =========================
-*OpenUI *HPMailboxMode/Mailbox Mode: PickOne
-*OrderDependency: 46 AnySetup *HPMailboxMode
-*DefaultHPMailboxMode: Standard
-*HPMailboxMode Standard/Not Installed: ""
-*HPMailboxMode MBMode/Mailbox Mode: ""
-*HPMailboxMode StackerMode/Stacker Mode: ""
-*HPMailboxMode FunctionMode/Function Separator Mode: ""
-*?HPMailboxMode: "
-currentpagedevice /OutputAttributes known{
-	currentpagedevice /MediaProcessingDetails known{
-		currentpagedevice /MediaProcessingDetails get /DeviceID known{				
-			currentpagedevice /MediaProcessingDetails get /DeviceID get (MAILBOX) search 
-				{pop pop pop (MBMode)} 
-				  {(STACKER) search 
-				  {pop pop pop (StackerMode)} 
-				  {(FUNCTION SEPARATOR) search 
-				    {pop pop pop (FunctionMode)} {pop (Standard)} ifelse} 
-				 ifelse}
-				 ifelse}    
-			{(Standard)}
-			ifelse}
-		{(Standard)}
-		ifelse}
-	{(Standard)}
-ifelse = flush"
-*End
-*CloseUI: *HPMailboxMode
 
 
 *%====================================
@@ -586,45 +574,37 @@ ifelse = flush"
 
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin HP3BinMB
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin Left
-*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker *OutputBin PrinterDefault
+
 
 *UIConstraints: *OutputBin HP3BinMB	*HPOption_MBM_Mixed MBMStaplerStacker
 *UIConstraints: *OutputBin Left		*HPOption_MBM_Mixed MBMStaplerStacker
-*UIConstraints: *OutputBin PrinterDefault *HPOption_MBM_Mixed MBMStaplerStacker
+
 
 *UIConstraints: *HPOption_MBM_Mixed HP3BinMB *OutputBin UStapler
 *UIConstraints: *HPOption_MBM_Mixed HP3BinMB *OutputBin Left
-*UIConstraints: *HPOption_MBM_Mixed HP3BinMB *OutputBin PrinterDefault
+
 
 *UIConstraints: *OutputBin UStapler	*HPOption_MBM_Mixed HP3BinMB
 *UIConstraints: *OutputBin Left		*HPOption_MBM_Mixed HP3BinMB
-*UIConstraints: *OutputBin PrinterDefault *HPOption_MBM_Mixed HP3BinMB
+
 
 *%MailBox Modes/MailBox Options Constraints
 *%=========================================================
-*UIConstraints: *HPMailboxMode StackerMode 	*HPMailboxOptions Bin1
-*UIConstraints: *HPMailboxMode StackerMode 	*HPMailboxOptions Bin2
-*UIConstraints: *HPMailboxMode StackerMode 	*HPMailboxOptions Bin3
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_StackerMode 	*HPMailboxOptions Bin1
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_StackerMode 	*HPMailboxOptions Bin2
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_StackerMode 	*HPMailboxOptions Bin3
 
-*UIConstraints: *HPMailboxOptions Bin1 	*HPMailboxMode StackerMode 
-*UIConstraints: *HPMailboxOptions Bin2 	*HPMailboxMode StackerMode 
-*UIConstraints: *HPMailboxOptions Bin3 	*HPMailboxMode StackerMode 
+*UIConstraints: *HPMailboxOptions Bin1 	*HPOption_MBM_Mixed HP3BinMB_StackerMode 
+*UIConstraints: *HPMailboxOptions Bin2 	*HPOption_MBM_Mixed HP3BinMB_StackerMode 
+*UIConstraints: *HPMailboxOptions Bin3 	*HPOption_MBM_Mixed HP3BinMB_StackerMode 
 
-*UIConstraints: *HPMailboxMode Standard 	*HPMailboxOptions Bin1
-*UIConstraints: *HPMailboxMode Standard 	*HPMailboxOptions Bin2
-*UIConstraints: *HPMailboxMode Standard 	*HPMailboxOptions Bin3
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_FunctionMode 	*HPMailboxOptions Bin1
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_FunctionMode 	*HPMailboxOptions Bin2
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_FunctionMode 	*HPMailboxOptions Bin3
 
-*UIConstraints: *HPMailboxOptions Bin1 	*HPMailboxMode Standard 
-*UIConstraints: *HPMailboxOptions Bin2 	*HPMailboxMode Standard 
-*UIConstraints: *HPMailboxOptions Bin3 	*HPMailboxMode Standard 
-
-*UIConstraints: *HPMailboxMode FunctionMode 	*HPMailboxOptions Bin1
-*UIConstraints: *HPMailboxMode FunctionMode 	*HPMailboxOptions Bin2
-*UIConstraints: *HPMailboxMode FunctionMode 	*HPMailboxOptions Bin3
-
-*UIConstraints: *HPMailboxOptions Bin1 	*HPMailboxMode FunctionMode 
-*UIConstraints: *HPMailboxOptions Bin2 	*HPMailboxMode FunctionMode 
-*UIConstraints: *HPMailboxOptions Bin3 	*HPMailboxMode FunctionMode 
+*UIConstraints: *HPMailboxOptions Bin1 	*HPOption_MBM_Mixed HP3BinMB_FunctionMode 
+*UIConstraints: *HPMailboxOptions Bin2 	*HPOption_MBM_Mixed HP3BinMB_FunctionMode 
+*UIConstraints: *HPMailboxOptions Bin3 	*HPOption_MBM_Mixed HP3BinMB_FunctionMode 
 
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker  	*HPMailboxOptions Bin1
 *UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker  	*HPMailboxOptions Bin2
@@ -644,27 +624,17 @@ ifelse = flush"
 
 *%Acessory Output Bins/MailBox Mode/Stapler Mode Constraints
 *%=========================================================
-*UIConstraints: *HPOption_MBM_Mixed Standard 	*HPMailboxMode MBMode
-*UIConstraints: *HPOption_MBM_Mixed Standard 	*HPMailboxMode StackerMode
-*UIConstraints: *HPOption_MBM_Mixed Standard 	*HPMailboxMode FunctionMode
-
-*UIConstraints: *HPMailboxMode MBMode 		*HPOption_MBM_Mixed Standard
-*UIConstraints: *HPMailboxMode StackerMode 	*HPOption_MBM_Mixed Standard
-*UIConstraints: *HPMailboxMode FunctionMode 	*HPOption_MBM_Mixed Standard
-
-*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker 	*HPMailboxMode MBMode
-*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker 	*HPMailboxMode StackerMode
-*UIConstraints: *HPOption_MBM_Mixed MBMStaplerStacker 	*HPMailboxMode FunctionMode
-
-*UIConstraints: *HPMailboxMode  MBMode		*HPOption_MBM_Mixed MBMStaplerStacker
-*UIConstraints: *HPMailboxMode  StackerMode	*HPOption_MBM_Mixed MBMStaplerStacker
-*UIConstraints: *HPMailboxMode  FunctionMode	*HPOption_MBM_Mixed MBMStaplerStacker
-
 *UIConstraints: *HPStaplerOptions 1Angled	*HPOption_MBM_Mixed Standard 
-*UIConstraints: *HPStaplerOptions 1Angled	*HPOption_MBM_Mixed HP3BinMB 
+*UIConstraints: *HPStaplerOptions 1Angled	*HPOption_MBM_Mixed HP3BinMB_MBMode 
+*UIConstraints: *HPStaplerOptions 1Angled	*HPOption_MBM_Mixed HP3BinMB_StackerMode 
+*UIConstraints: *HPStaplerOptions 1Angled	*HPOption_MBM_Mixed HP3BinMB_FunctionMode 
+
 
 *UIConstraints: *HPOption_MBM_Mixed Standard 	*HPStaplerOptions 1Angled 
-*UIConstraints: *HPOption_MBM_Mixed HP3BinMB	*HPStaplerOptions 1Angled
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_MBMode	*HPStaplerOptions 1Angled
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_StackerMode	*HPStaplerOptions 1Angled
+*UIConstraints: *HPOption_MBM_Mixed HP3BinMB_FunctionMode	*HPStaplerOptions 1Angled
+
 
 *UIConstraints: *HPStaplerOptions 1Angled	*HPFaceOrientation FaceUp 
 *UIConstraints: *HPFaceOrientation FaceUp	*HPStaplerOptions 1Angled 
@@ -1232,7 +1202,8 @@ save
 *End
 
 *HPStaplerOptions 1Angled/One Staple Angled: "
-  <</MediaProcessing (STAPLING)  
+  <</MediaProcessingAction (APPEND)
+/MediaProcessing (STAPLING)  
 /MediaProcessingDetails<< 
 /MediaProcessingOption  (ONE_STAPLE)
 /MediaProcessingBoundary 0
@@ -1601,7 +1572,7 @@ save
 *MaxMediaHeight: "1008"
 *HWMargins: 16 16 16 16
 *CustomPageSize True: "
-  pop pop pop 2 copy gt {exch} if
+  pop pop pop
   <</DeferredMediaSelection true /PageSize [ 7 -2 roll ] /ImagingBBox null /MediaClass null >>
   setpagedevice
 	"
@@ -1622,10 +1593,10 @@ save
 *OrderDependency: 20 AnySetup *InputSlot
 *DefaultInputSlot: Tray_2
 *InputSlot Tray_1/Tray 1: "
-    <</ManualFeed false/MediaPosition 3>> setpagedevice"
+    <</ManualFeed false /MediaPosition 3>> setpagedevice"
 *End
 *InputSlot Tray_2/Tray 2: "
-    <</ManualFeed false/MediaPosition 0>> setpagedevice"
+    <</ManualFeed false /MediaPosition 0>> setpagedevice"
 *End
 *InputSlot Tray3_500/Tray 3 (500-Sheet): "
 	<</ManualFeed false /MediaPosition 1>> setpagedevice"

@@ -431,6 +431,7 @@ int FatInit(void)
    bootsector_startsector = 0;
 
    /* Read boot sector. */
+   /*fprintf( stdout, "start=%d", bootsector_startsector );*/
    if (readsect(bootsector_startsector, 1, &bpb, sizeof(bpb)) != 0)
       goto bugout;
 

@@ -46,7 +46,7 @@
 *cupsICCProfile RGB../sRGB Matching Profile: "/Library/Printers/hp/Profiles/sRGB_A.icc"
 *cupsICCProfile CMYK../CMYK Matching Profile: "/Library/Printers/hp/Profiles/CMYK_A.icc"
 *cupsICCProfile Gray../Gray Matching Profile: "/Library/Printers/hp/Profiles/Gray_A.icc"
-*APPrinterIconPath: "/Library/Printers/hp/Icons/hp color LaserJet 2550.icns"
+*APPrinterIconPath: "/Library/Printers/hp/Icons/HP Color LaserJet 2550.icns"
 
 *% Product Name and Version Information
 *Manufacturer:	"HP"
@@ -599,9 +599,10 @@ restore
 
 *ParamCustomPageSize Width: 1 points 216 612
 *ParamCustomPageSize Height: 2 points 360 1002
-*ParamCustomPageSize Orientation: 3 int 0 0
-*ParamCustomPageSize HeightOffset: 4 points 0 0
-*ParamCustomPageSize WidthOffset: 5 points 0 3
+
+*ParamCustomPageSize HeightOffset: 3 points 0 0
+*ParamCustomPageSize WidthOffset: 4 points 0 3
+*ParamCustomPageSize Orientation: 5 int 0 3
 
 *RequiresPageRegion All: True
 
@@ -609,7 +610,7 @@ restore
 *% Enable/Disable Manual Feed
 *% ================================================
 *OpenUI *ManualFeed/Tray 1 (Manual): Boolean
-*OrderDependency: 20 AnySetup *ManualFeed
+*OrderDependency: 25 AnySetup *ManualFeed
 *DefaultManualFeed: False
 *ManualFeed True/True: "
 	<</ManualFeed true>> setpagedevice"
@@ -647,7 +648,7 @@ sub }{dup mul exch dup mul add 1 exch sub }ifelse }
 *% Media Types
 *% =================================
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: Unspecified
 *MediaType Unspecified/Unspecified:  ""
 *MediaType Plain/Plain:  "
@@ -848,7 +849,7 @@ globaldict /ColorSmartColorMatching known {
 *% ==================================
 *OpenUI *HPTextHalftone/Text Halftone:  PickOne
 *OrderDependency: 57 AnySetup *HPTextHalftone
-*DefaultHPTextHalftone: Detail
+*DefaultHPTextHalftone: Smooth
 *HPTextHalftone Detail/Detail: "
 globaldict /ColorSmartColorMatching known {
 	Detail ColorSmartTextHalftone
@@ -882,7 +883,7 @@ globaldict /HPTextNeutralAxis known {
 
 *OpenUI *HPGraphicsHalftone/Graphics Halftone:  PickOne
 *OrderDependency: 57 AnySetup *HPGraphicsHalftone
-*DefaultHPGraphicsHalftone: Detail
+*DefaultHPGraphicsHalftone: Smooth
 *HPGraphicsHalftone Detail/Detail: "
 globaldict /ColorSmartColorMatching known {
 	Detail ColorSmartGraphicsHalftone
@@ -916,7 +917,7 @@ globaldict /HPGraphicsNeutralAxis known {
 
 *OpenUI *HPPhotoHalftone/Photographs Halftone:  PickOne
 *OrderDependency: 57 AnySetup *HPPhotoHalftone
-*DefaultHPPhotoHalftone: Detail
+*DefaultHPPhotoHalftone: Smooth
 *HPPhotoHalftone Detail/Detail: "
 globaldict /ColorSmartColorMatching known {
 	Detail ColorSmartImageHalftone
@@ -1037,7 +1038,7 @@ globaldict /PostRenderingEnhance known {
 *% =================================
 *OpenUI *ColorModel/Print Color as Gray:  PickOne
 *OrderDependency: 20 AnySetup *ColorModel
-*DefaultColorModel: Gray
+*DefaultColorModel: CMYK
 *ColorModel Gray/On: "<</ProcessColorModel /DeviceGray>> setpagedevice"
 *ColorModel CMYK/Off: "<</ProcessColorModel /DeviceCMYK>> setpagedevice"
 *?ColorModel: "

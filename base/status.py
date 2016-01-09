@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.32 $ 
-# $Date: 2005/05/12 18:06:45 $
+# $Revision: 1.35 $ 
+# $Date: 2005/06/29 18:12:44 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -349,14 +349,14 @@ COLORANT_INDEX_TO_AGENT_TYPE_MAP = {
 
 
 def StatusType3( dev, parsedID ): # LaserJet Status
-    channel_id = dev.openChannel( 'HP-MESSAGE' )
-
-    result_code, on_off_line = dev.getPML( channel_id, pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
-    result_code, sleep_mode = dev.getPML( channel_id, pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
-    result_code, printer_status = dev.getPML( channel_id, pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
-    result_code, device_status = dev.getPML( channel_id, pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
-    result_code, cover_status = dev.getPML( channel_id, pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
-    result_code,  value = dev.getPML( channel_id, pml.OID_DETECTED_ERROR_STATE )
+    #channel_id = dev.openChannel( 'HP-MESSAGE' )
+    dev.openPML()
+    result_code, on_off_line = dev.getPML( pml.OID_ON_OFF_LINE, pml.INT_SIZE_BYTE )
+    result_code, sleep_mode = dev.getPML( pml.OID_SLEEP_MODE, pml.INT_SIZE_BYTE )
+    result_code, printer_status = dev.getPML( pml.OID_PRINTER_STATUS, pml.INT_SIZE_BYTE )
+    result_code, device_status = dev.getPML( pml.OID_DEVICE_STATUS, pml.INT_SIZE_BYTE )
+    result_code, cover_status = dev.getPML( pml.OID_COVER_STATUS, pml.INT_SIZE_BYTE )
+    result_code,  value = dev.getPML( pml.OID_DETECTED_ERROR_STATE )
     detected_error_state = struct.unpack( 'B', value[0])[0]
 
     agents, x = [], 1
@@ -364,7 +364,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status
     while True:
 
         oid = ( pml.OID_MARKER_SUPPLIES_TYPE_x % x, pml.OID_MARKER_SUPPLIES_TYPE_x_TYPE )
-        result_code, value = dev.getPML( channel_id, oid, pml.INT_SIZE_BYTE )
+        result_code, value = dev.getPML( oid, pml.INT_SIZE_BYTE )
 
         if value is None: 
             log.debug( "End of supply information." )
@@ -395,23 +395,23 @@ def StatusType3( dev, parsedID ): # LaserJet Status
         log.debug( 'agent%d-kind: %d' % ( x, agent_kind ) )
 
         oid = ( pml.OID_MARKER_SUPPLIES_LEVEL_x % x, pml.OID_MARKER_SUPPLIES_LEVEL_x_TYPE )
-        result_code, agent_level = dev.getPML( channel_id, oid )
+        result_code, agent_level = dev.getPML( oid )
 
         log.debug( 'agent%d-level: %d' % ( x, agent_level ) )            
 
         oid = ( pml.OID_MARKER_SUPPLIES_MAX_x % x, pml.OID_MARKER_SUPPLIES_MAX_x_TYPE )
-        result_code, agent_max = dev.getPML( channel_id, oid )
+        result_code, agent_max = dev.getPML( oid )
         if agent_max == 0: agent_max = 1
 
         log.debug( 'agent%d-max: %d' % ( x, agent_max ) )
 
         oid = ( pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x % x, pml.OID_MARKER_SUPPLIES_COLORANT_INDEX_x_TYPE )
-        result_code, colorant_index = dev.getPML( channel_id, oid )
+        result_code, colorant_index = dev.getPML( oid )
 
         log.debug( "agent%d colorant index: %d" % (x, colorant_index ) )
 
         oid = ( pml.OID_MARKER_COLORANT_VALUE_x % colorant_index, pml.OID_MARKER_COLORANT_VALUE_x_TYPE )
-        result_code, colorant_value = dev.getPML( channel_id, oid )
+        result_code, colorant_value = dev.getPML( oid )
 
         if colorant_value is None:
             agent_type = None
@@ -427,7 +427,7 @@ def StatusType3( dev, parsedID ): # LaserJet Status
         log.debug( "agent%d-type: %d" % ( x, agent_type ) )
 
         oid = ( pml.OID_MARKER_STATUS_x % x, pml.OID_MARKER_STATUS_x_TYPE )
-        result_code, agent_status = dev.getPML( channel_id, oid )
+        result_code, agent_status = dev.getPML( oid )
 
         agent_trigger = AGENT_LEVEL_TRIGGER_SUFFICIENT_0
 
@@ -465,7 +465,8 @@ def StatusType3( dev, parsedID ): # LaserJet Status
         x += 1
 
 
-    dev.closeChannel( 'HP-MESSAGE' )
+    #dev.closeChannel( 'HP-MESSAGE' )
+    dev.closePML()
 
     log.debug( "on_off_line=%d" % on_off_line )
     log.debug( "sleep_mode=%d" % sleep_mode )
@@ -535,11 +536,12 @@ PANEL_TRANSLATOR_FUNC = None
 setup_panel_translator()
 
 
-def PanelCheck( dev, io_control ):
+def PanelCheck( dev ):
     # Assumes dev is already open (i.e., dev.io_state==IO_STATE_HP_OPEN)
     line1, line2 = '', ''
     try:
-        channel = dev.openChannel( 'HP-MESSAGE', io_control )
+        #channel = dev.openChannel( 'HP-MESSAGE' ) 
+        dev.openPML()
     except Error:
         panel_check = False
     else:
@@ -548,7 +550,7 @@ def PanelCheck( dev, io_control ):
                  ( pml.OID_SPM_LINE1, pml.OID_SPM_LINE2 ) ]
 
         for oid1, oid2 in oids:
-            result, line1 = dev.getPML( channel, oid1 )
+            result, line1 = dev.getPML( oid1 )
 
             if result < pml.ERROR_MAX_OK:
                 line1 = PANEL_TRANSLATOR_FUNC( line1 ).rstrip()
@@ -557,13 +559,14 @@ def PanelCheck( dev, io_control ):
                     line1, line2 = line1.split( '\x0a', 1 )
                     break
 
-                result, line2 = dev.getPML( channel, oid2 )
+                result, line2 = dev.getPML( oid2 )
 
                 if result < pml.ERROR_MAX_OK:
                     line2 = PANEL_TRANSLATOR_FUNC( line2 ).rstrip()
                     break
 
-        dev.closeChannel( 'HP-MESSAGE' )
+        #dev.closeChannel( 'HP-MESSAGE' )
+        dev.closePML()
 
     return bool( line1 or line2 ), line1 or '', line2 or ''
 
@@ -595,17 +598,18 @@ BATTERY_PML_TRIGGER_MAP = {
         ( 4,   -1 )  : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
         }
 
-def BatteryCheck( dev, status_block, io_control ):
+def BatteryCheck( dev, status_block ):
     # Assumes dev is already open (i.e., dev.io_state==IO_STATE_HP_OPEN)
     try_dynamic_counters = False
     try:
-        channel = dev.openChannel( 'HP-MESSAGE', io_control )
+        #channel = dev.openChannel( 'HP-MESSAGE' )
+        dev.openPML()
     except Error:
-        log.error( "PML channel op/en failed." )
+        log.error( "PML channel open failed." )
         try_dynamic_counters = True
     else:
-        result, battery_level = dev.getPML( channel, pml.OID_BATTERY_LEVEL)
-        result, power_mode =  dev.getPML( channel, pml.OID_POWER_MODE)        
+        result, battery_level = dev.getPML( pml.OID_BATTERY_LEVEL)
+        result, power_mode =  dev.getPML( pml.OID_POWER_MODE)        
       
         if battery_level is not None and \
             power_mode is not None:
@@ -646,7 +650,8 @@ def BatteryCheck( dev, status_block, io_control ):
         else:
             try_dynamic_counters = True
 
-        dev.closeChannel( 'HP-MESSAGE' )
+        #dev.closeChannel( 'HP-MESSAGE' )
+        dev.closePML()
         
         if try_dynamic_counters:
         

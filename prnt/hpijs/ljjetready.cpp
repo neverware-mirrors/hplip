@@ -581,7 +581,7 @@ DRIVER_ERROR LJJetReady::Encapsulate (const RASTERDATA* InputRaster, BOOL bLastP
 
     ulVUDataLength += 6;
     //m_unidrvFuncs.DrvWriteSpoolBuf(pdevobj, &ulVUDataLength, sizeof(ulVUDataLength), &dwResult);
-	err = Send ((const BYTE *)&ulVUDataLength, sizeof(ulVUDataLength));
+	err = Send ((const BYTE *)&ulVUDataLength, 4);
 	ERRCHECK;
 
 	strcpy (res, "\xF8\x92\x46\x21\x90");
@@ -589,7 +589,7 @@ DRIVER_ERROR LJJetReady::Encapsulate (const RASTERDATA* InputRaster, BOOL bLastP
 	ERRCHECK;
 
     ulVUDataLength -= 6;
-	err = Send ((const BYTE *)&ulVUDataLength, sizeof(ulVUDataLength));
+	err = Send ((const BYTE *)&ulVUDataLength, 4);
 	ERRCHECK;
 
 	err = Send (pDataPtr, ulVUDataLength);

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/paperedgealignform_base.ui'
 #
-# Created: Fri Apr 1 14:51:28 2005
+# Created: Wed Jul 13 09:36:14 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,10 +21,6 @@ class PaperEdgeAlignForm_base(QDialog):
 
 
         PaperEdgeAlignForm_baseLayout = QGridLayout(self,1,1,11,6,"PaperEdgeAlignForm_baseLayout")
-
-        self.pushButton40 = QPushButton(self,"pushButton40")
-
-        PaperEdgeAlignForm_baseLayout.addWidget(self.pushButton40,1,0)
         spacer37 = QSpacerItem(80,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         PaperEdgeAlignForm_baseLayout.addItem(spacer37,1,1)
 
@@ -113,7 +109,6 @@ class PaperEdgeAlignForm_base(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("HP Device Manager - Paper Edge Alignment"))
-        self.pushButton40.setText(self.__tr("Help"))
         self.ContinueButton.setText(self.__tr("Next >"))
         self.CancelButton.setText(self.__tr("Cancel"))
         self.buttonGroup.setTitle(self.__tr("Paper Edge"))

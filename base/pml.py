@@ -87,9 +87,9 @@ INT_SIZE_INT = struct.calcsize( 'i' )
 
 def buildPMLGetPacket( oid ): # String dotted notation
     oid = ''.join( [ chr(int( b.strip() )) for b in oid.split( '.' ) ] )
-    return struct.pack( '>BBB%ss' % len(oid), 
-                        GET_REQUEST, 
-                        TYPE_OBJECT_IDENTIFIER, 
+    return struct.pack( '>BBB%ss' % len(oid),
+                        GET_REQUEST,
+                        TYPE_OBJECT_IDENTIFIER,
                         len(oid), oid )
 
 def buildPMLGetPacketEx( oid ): # OID identifier dict
@@ -104,7 +104,7 @@ def buildPMLSetPacket( oid, value, data_type ): # String dotted notation
     if data_type in ( TYPE_ENUMERATION, TYPE_SIGNED_INTEGER, TYPE_COLLECTION ):
         data = struct.pack( ">i", int(value) )
 
-        if value > 0: 
+        if value > 0:
             while len( data ) > 0 and data[0] == '\x00':
                 data = data[ 1:]
         else:
@@ -123,8 +123,8 @@ def buildPMLSetPacket( oid, value, data_type ): # String dotted notation
         data = struct.pack( ">BB%ss" % len( value ), data_type, len( value ), ''.join( [ chr(x) for x in value ] ) )
 
     p = struct.pack( '>BBB%ss%ss' % ( len(oid), len(data) ),
-                    SET_REQUEST, 
-                    TYPE_OBJECT_IDENTIFIER, 
+                    SET_REQUEST,
+                    TYPE_OBJECT_IDENTIFIER,
                     len(oid), oid,
                     data )
 
@@ -134,7 +134,7 @@ def ConvertToPMLDataFormat( value, data_type ):
     if data_type in ( TYPE_ENUMERATION, TYPE_SIGNED_INTEGER, TYPE_COLLECTION ):
         data = struct.pack( ">i", int(value) )
 
-        if value > 0: 
+        if value > 0:
             while len( data ) > 0 and data[0] == '\x00':
                 data = data[ 1:]
         else:
@@ -174,7 +174,6 @@ def ConvertFromPMLDataFormat( data, data_type, desired_int_size=INT_SIZE_INT ):
                 return struct.unpack( ">h", data[-INT_SIZE_WORD] )[0]
 
             elif desired_int_size == INT_SIZE_BYTE:
-                print data[-1]
                 return struct.unpack( ">b", data[-INT_SIZE_BYTE] )[0]
 
             else:
@@ -228,14 +227,14 @@ def parsePMLPacket( p, expected_data_type=TYPE_UNKNOWN ):
 
             if error_state:
 
-                if expected_data_type in ( TYPE_COLLECTION, TYPE_ENUMERATION, 
-                                    TYPE_SIGNED_INTEGER, TYPE_BINARY ): 
+                if expected_data_type in ( TYPE_COLLECTION, TYPE_ENUMERATION,
+                                    TYPE_SIGNED_INTEGER, TYPE_BINARY ):
                     data = 0
 
-                elif expected_data_type == TYPE_REAL: 
+                elif expected_data_type == TYPE_REAL:
                     data = 0.0
 
-                else: 
+                else:
                     data = ''
 
                 break
@@ -291,7 +290,7 @@ def parsePMLPacket( p, expected_data_type=TYPE_UNKNOWN ):
 
             break
 
-    return data, data_type, error_code        
+    return data, data_type, error_code
 
 
 def HPToSNMP( oid ): # 1.
@@ -325,6 +324,8 @@ def PMLToSNMP( oid ):
 # OIDs
 #
 
+
+
 OID_DEVICE_SUPPORTED_FUNCTIONS = ( '1.1.2.67', TYPE_COLLECTION )
 DEVICE_SUPPORTED_FUNCTIONS_SCAN =                 0x00002
 DEVICE_SUPPORTED_FUNCTIONS_SCAN_SIMPLEX =         0x00004
@@ -346,12 +347,18 @@ DEVICE_SUPPORTED_FUNCTIONS_FAX_CONFIG =           0x20000
 DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_SPEEDDIAL =    0x40000
 DEVICE_SUPPORTED_FUNCTIONS_FAX_CFG_GROUPDIAL =    0x80000
 
+OID_CLEAN = ( '1.4.1.5.1.1', TYPE_ENUMERATION )
+CLEAN_CLEAN = 100
+CLEAN_PRIME = 200
+CLEAN_WIPE_AND_SPIT = 300
 
 OID_SERIAL_NUMBER = ( '1.1.3.3', TYPE_STRING )
 
 OID_PRINT_INTERNAL_PAGE = ( '1.1.5.2', TYPE_ENUMERATION )
-PRINT_INTERNAL_PAGE_SUPPLIES_PAGE = 101 
-PRINT_INTERNAL_PAGE_COLOR_CAL = 1102 
+PRINT_INTERNAL_PAGE_SUPPLIES_PAGE = 101
+PRINT_INTERNAL_PAGE_COLOR_PALETTE_CMYK_PAGE = 259
+PRINT_INTERNAL_PAGE_COLOR_CAL = 1102
+PRINT_INTERNAL_PAGE_COLOR_CAL_VERIFICATION = 1104
 
 # From xojpanel
 OID_SPM_LINE1 = ( '2.16.5.1.2.1.1', TYPE_STRING )
@@ -448,6 +455,7 @@ DEVICE_STATUS_DOWN = 5
 
 # alignment, cleaning, etc.
 OID_AUTO_ALIGNMENT = ( '1.1.5.2', TYPE_ENUMERATION )
+AUTO_ALIGNMENT = 1100
 OID_ZCA = ( '1.4.1.8.5.4.1', TYPE_SIGNED_INTEGER )
 OID_AGENT2_VERTICAL_ALIGNMENT = ( '1.4.1.5.3.2.5', TYPE_SIGNED_INTEGER )
 OID_AGENT2_HORIZONTAL_ALIGNMENT = ( '1.4.1.5.3.2.6', TYPE_SIGNED_INTEGER )
@@ -458,6 +466,14 @@ OID_AGENT3_VERTICAL_ALIGNMENT = ( "1.4.1.5.3.3.5", TYPE_SIGNED_INTEGER )
 OID_AGENT3_HORIZONTAL_ALIGNMENT = ( "1.4.1.5.3.3.6", TYPE_SIGNED_INTEGER )
 OID_AGENT3_BIDIR_ADJUSTMENT = ( "1.4.1.5.3.3.7", TYPE_SIGNED_INTEGER )
 OID_COLOR_CALIBRATION_SELECTION = ( "1.4.1.5.1.9", TYPE_SIGNED_INTEGER )
+
+# Type 4 color cal
+OID_COLOR_CALIBRATION_ARRAY_1 = ( "1.4.1.1.30.1.1", TYPE_SIGNED_INTEGER ) # K
+OID_COLOR_CALIBRATION_ARRAY_2 = ( "1.4.1.1.30.1.2", TYPE_SIGNED_INTEGER ) # C
+OID_COLOR_CALIBRATION_ARRAY_3 = ( "1.4.1.1.30.1.3", TYPE_SIGNED_INTEGER ) # M
+OID_COLOR_CALIBRATION_ARRAY_4 = ( "1.4.1.1.30.1.4", TYPE_SIGNED_INTEGER ) # Y
+OID_COLOR_CALIBRATION_ARRAY_5 = ( "1.4.1.1.30.1.5", TYPE_SIGNED_INTEGER ) # c
+OID_COLOR_CALIBRATION_ARRAY_6 = ( "1.4.1.1.30.1.6", TYPE_SIGNED_INTEGER ) # m
 
 # Supported funcs
 OID_DEVICE_SUPPORTED_FUNCTIONS = ( '1.1.2.67', TYPE_COLLECTION )

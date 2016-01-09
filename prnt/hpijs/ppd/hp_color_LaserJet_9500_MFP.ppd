@@ -75,7 +75,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *%=== Output Bin ======================
 *PageStackOrder Left: Reverse
@@ -1963,7 +1963,7 @@ restore
 *% Media Types
 *% =================================
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: Unspecified
 *MediaType Unspecified/Unspecified:  "
     <</MediaType null >> setpagedevice"
@@ -2498,7 +2498,7 @@ restore
 *HPStaplerOptions 1diagonal/1 Staple, diagonal: "
   <</MediaProcessing (STAPLING) /MediaProcessingDetails<<
     /MediaProcessingOption (ANGLED_STAPLE) /MediaProcessingBoundary 0
-    /ImageOrientation 1 /Type 8 >> >> setpagedevice"
+    /ImageOrientation 0 /Type 8 >> >> setpagedevice"
 *End
 *HPStaplerOptions 1parallel/1 Staple, parallel: "
    <</MediaProcessing (STAPLING) /MediaProcessingDetails<<
@@ -2859,7 +2859,7 @@ restore
 *HPwmBrightness Light/Light:              "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .33 mul } forall setcolor } put"
 *HPwmBrightness Lighter/Lighter:          "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .22 mul } forall setcolor } put"
 *HPwmBrightness Lightest/Lightest:        "userdict /HPwmSaturation { [ currentcmykcolor ] /DeviceCMYK setcolorspace { .11 mul } forall setcolor } put"
-*CloseUI: *HpwmBrightness
+*CloseUI: *HPwmBrightness
 
 *CloseGroup: HPWaterOverlayPanel
 

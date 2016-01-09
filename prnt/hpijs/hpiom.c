@@ -42,9 +42,6 @@
 #include "hpijs.h"
 #include "hpiom.h"
 
-static int hpiod_port_num = 50000;
-static int hpiod_socket=-1;
-
 static const int gnMaxDataSize = 2048;
 static const int gnMaxCmdOptionSize = 4;
 
@@ -102,463 +99,6 @@ static unsigned char gpAlignmentQuery[]           = { 0x03, 0x00, 0x00, 0x00 }; 
 //static unsigned char gpDeviceIdQuery[]            = { 0x0D, 0x00, 0x00, 0x00 };  // 13 - return device id
 //static unsigned char gpHueCompensationQuery[]     = { 0x0E, 0x00, 0x00, 0x00 };  // 14 - return hue compensation
 static unsigned char gpPenAlignmentQuery[]        = { 0x0F, 0x00, 0x00, 0x00 };  // 15 - return pen alignment value
-
-int GetPair(char *buf, char *key, char *value, char **tail)
-{
-   int i=0, j;
-
-   key[0] = 0;
-   value[0] = 0;
-
-   if (buf[i] == '#')
-   {
-      for (; buf[i] != '\n' && i < HEADER_SIZE; i++);  /* eat comment line */
-      i++;
-   }
-
-   if (strncasecmp(&buf[i], "data:", 5) == 0)
-   {
-      strcpy(key, "data:");   /* "data:" key has no value */
-      i+=5;
-   }   
-   else
-   {
-      j = 0;
-      while ((buf[i] != '=') && (i < HEADER_SIZE) && (j < LINE_SIZE))
-         key[j++] = buf[i++];
-      for (j--; key[j] == ' ' && j > 0; j--);  /* eat white space before = */
-      key[++j] = 0;
-
-      for (i++; buf[i] == ' ' && i < HEADER_SIZE; i++);  /* eat white space after = */
-
-      j = 0;
-      while ((buf[i] != '\n') && (i < HEADER_SIZE) && (j < LINE_SIZE))
-         value[j++] = buf[i++];
-      for (j--; value[j] == ' ' && j > 0; j--);  /* eat white space before \n */
-      value[++j] = 0;
-   }
-
-   i++;   /* bump past '\n' */
-
-   if (tail != NULL)
-      *tail = buf + i;  /* tail points to next line */
-
-   return i;
-}
-
-int ReadConfig()
-{
-   char rcbuf[255];
-   FILE *inFile;
-   char *tail;
-        
-   if((inFile = fopen(HPIODFILE, "r")) == NULL) 
-   {
-      bug("unable to open %s: %m\n", HPIODFILE);
-      return 1;
-   } 
-   if (fgets(rcbuf, sizeof(rcbuf), inFile) != NULL)
-      hpiod_port_num = strtol(rcbuf, &tail, 10);
-   fclose(inFile);
-         
-   return 0;
-}
-
-//System::ParseMsg
-//!  Parse and convert all key value pairs in message. Do sanity check on values.
-/*!
-******************************************************************************/
-int ParseMsg(char *buf, int len, MsgAttributes *ma)
-{
-   char key[LINE_SIZE];
-   char value[LINE_SIZE];
-   char *tail, *tail2;
-   int i, ret=R_AOK;
-
-   ma->cmd[0] = 0;
-   ma->descriptor = -1;
-   ma->length = 0;
-   ma->channel = -1;
-   ma->data = NULL;
-   ma->result = -1;
-   ma->writelen = 0;
-   ma->readlen = 0;
-   ma->status = 0;
-
-   i = GetPair(buf, key, value, &tail);
-   if (strcasecmp(key, "msg") != 0)
-   {
-      bug("invalid message:%s\n", key);
-      return R_INVALID_MESSAGE;
-   }
-   strncpy(ma->cmd, value, sizeof(ma->cmd));
-
-   while (i < len)
-   {
-      i += GetPair(tail, key, value, &tail);
-
-      if (strcasecmp(key, "device-id") == 0)
-      {
-         ma->descriptor = strtol(value, &tail2, 10);
-         if (ma->descriptor < 0)
-         {
-            bug("invalid device descriptor:%d\n", ma->descriptor);
-            ret = R_INVALID_DESCRIPTOR;
-            break;
-         }
-      }
-      else if (strcasecmp(key, "channel-id") == 0)
-      {
-         ma->channel = strtol(value, &tail2, 10);
-         if (ma->channel < 0)
-         {
-            bug("invalid channel descriptor:%d\n", ma->channel);
-            ret = R_INVALID_CHANNEL_ID;
-            break;
-         }
-      }
-      else if (strcasecmp(key, "length") == 0)
-      {
-         ma->length = strtol(value, &tail2, 10);
-         if (ma->length > BUFFER_SIZE)
-         {
-            bug("invalid data length:%d\n", ma->length);
-            ret = R_INVALID_LENGTH;
-         }
-      }
-      else if (strcasecmp(key, "data:") == 0)
-      {
-         ma->data = (unsigned char *)tail;
-         break;  /* done parsing */
-      }
-      else if (strcasecmp(key, "result-code") == 0)
-      {
-         ma->result = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "bytes-written") == 0)
-      {
-         ma->writelen = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "bytes-to-read") == 0)
-      {
-         ma->readlen = strtol(value, &tail2, 10);
-         if (ma->readlen > BUFFER_SIZE)
-         {
-            bug("invalid read length:%d\n", ma->readlen);
-            ret = R_INVALID_LENGTH;
-         }
-      }
-      else if (strcasecmp(key, "status-code") == 0)
-      {
-         ma->status = strtol(value, &tail2, 10);
-      }
-      else if (strcasecmp(key, "status-name") == 0)
-      {
-         continue; /* ignor */
-      }
-      else if (strcasecmp(key, "encoding") == 0)
-      {
-         continue; /* ignor */
-      }
-      else
-      {
-         /* Unknown keys are ignored (R_AOK). */
-//         bug("invalid key:%s\n", key);
-      }
-   }  // end while (i < len)
-
-   return ret;
-}
-
-int OpenHP(char *dev)
-{
-   char message[512];  
-   struct sockaddr_in pin;  
-   int len=0, fd=-1;
-   MsgAttributes ma;
-
-   ReadConfig();
- 
-   bzero(&pin, sizeof(pin));  
-   pin.sin_family = AF_INET;  
-   pin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-   pin.sin_port = htons(hpiod_port_num);  
- 
-   if ((hpiod_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-   {  
-      bug("unable to open socket %d: %m\n", hpiod_port_num);  
-      goto mordor;  
-   }  
- 
-   if (connect(hpiod_socket, (void *)&pin, sizeof(pin)) == -1) 
-   {  
-      bug("unable to connect to socket %d: %m\n", hpiod_port_num);  
-      goto mordor;  
-   }  
-
-   len = sprintf(message, "msg=DeviceOpen\ndevice-uri=%s\n", dev);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send DeviceOpen: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive DeviceOpenResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-   if (ma.result == R_AOK)
-      fd = ma.descriptor;
-
-mordor:
-
-   return fd;
-}
-
-int CloseHP(int hd)
-{
-   char message[512];  
-   int len=0;
- 
-   len = sprintf(message, "msg=DeviceClose\ndevice-id=%d\n", hd);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send DeviceClose: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive DeviceCloseResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-mordor:
-   close(hpiod_socket);
-   hpiod_socket = -1;  
-
-   return 0;
-}
-
-/* Get device id string. Assume binary length value at begining of string has been removed. */
-int ReadHPDeviceID(int hd, char *buf, int bufSize)
-{
-   char message[512];  
-   int len=0;  
-   MsgAttributes ma;
- 
-   buf[0] = 0;
-
-   len = sprintf(message, "msg=DeviceID\ndevice-id=%d\n", hd);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send DeviceID: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, buf, bufSize, 0)) == -1) 
-   {  
-      bug("unable to receive DeviceIDResult: %m\n");  
-      goto mordor;
-   }  
-
-   buf[len] = 0;
-
-   ParseMsg(buf, len, &ma);
-   if (ma.result == R_AOK)
-   {
-      len = ma.length;
-      memcpy(buf, ma.data, len);
-   }
-   else
-      len = 0;   /* error */
-
-mordor:
-
-   return len;
-}  
- 
-int ReadHPStatus(int hd, char *buf, int size)
-{
-   char message[512];  
-   int len=0;  
-   MsgAttributes ma;
- 
-   buf[0] = 0;
-
-   len = sprintf(message, "msg=DeviceStatus\ndevice-id=%d\n", hd);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send DeviceStatus: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive DeviceStatusResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-   if (ma.result == R_AOK)
-   {
-      len = 1;
-      buf[0] = ma.status;
-   }
-   else
-      len = 0;   /* error */
-
-mordor:
-
-   return len;
-}  
-
-int WriteHP(int hd, int channel, char *buf, int size)
-{
-   char message[BUFFER_SIZE+HEADER_SIZE];  
-   int len=0, slen=0;
-   MsgAttributes ma;
- 
-   len = sprintf(message, "msg=ChannelDataOut\ndevice-id=%d\nchannel-id=%d\nlength=%d\ndata:\n", hd, channel, size);
-   if (size+len > sizeof(message))
-   {  
-      bug("unable to fill data buffer: size=%d\n", size);  
-      goto mordor;  
-   }  
-
-   memcpy(message+len, buf, size);
-  
-   if (send(hpiod_socket, message, size+len, 0) == -1) 
-   {  
-      bug("unable to send ChannelDataOut: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ChannelDataOutResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-   ParseMsg(message, len, &ma);
-
-   slen = ma.writelen;
-
-mordor:
-
-   return slen;
-}
-
-int ReadHP(int hd, int channel, char *buf, int size)
-{
-   char message[BUFFER_SIZE+HEADER_SIZE];  
-   int len=0, rlen=0;
-   MsgAttributes ma;
- 
-   len = sprintf(message, "msg=ChannelDataIn\ndevice-id=%d\nchannel-id=%d\nbytes-to-read=%d\n", hd, channel, size);
-   if (size+len > sizeof(message))
-   {  
-      fprintf(stderr, "Error data size=%d\n", size);  
-      goto mordor;  
-   }  
-
-   if (send(hpiod_socket, message, size+len, 0) == -1) 
-   {  
-      bug("unable to send ChannelDataIn: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ChannelDataInResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-
-   if (ma.result == 0)
-   {  
-      rlen = ma.length;
-      memcpy(buf, ma.data, rlen);
-   }
-
-mordor:
-
-   return rlen;
-}
-
-int OpenChannel(int hd, char *sn)
-{
-   char message[512];  
-   int len=0, channel=-1;
-   MsgAttributes ma;
-
-   len = sprintf(message, "msg=ChannelOpen\ndevice-id=%d\nservice-name=%s\n", hd, sn);
-
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send ChannelOpen: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ChannelOpenResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-   ParseMsg(message, len, &ma);
-   if (ma.result == R_AOK)
-      channel = ma.channel;
-
-mordor:
-
-   return channel;
-}
-
-int CloseChannel(int hd, int channel)
-{
-   char message[512];  
-   int len=0;
-
-   len = sprintf(message, "msg=ChannelClose\ndevice-id=%d\nchannel-id=%d\n", hd, channel);
- 
-   if (send(hpiod_socket, message, len, 0) == -1) 
-   {  
-      bug("unable to send ChannelClose: %m\n");  
-      goto mordor;  
-   }  
-
-   if ((len = recv(hpiod_socket, message, sizeof(message), 0)) == -1) 
-   {  
-      bug("unable to receive ChannelCloseResult: %m\n");  
-      goto mordor;
-   }  
-
-   message[len] = 0;
-
-mordor:
-
-   return 0;
-}
 
 /*
  * Lidil commands.
@@ -672,7 +212,7 @@ int Synch(int hd, int chan)
                      , gwSynchRefNum
                      );
 
-    bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
+    bRet = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -697,7 +237,7 @@ int SynchComplete(int hd, int chan)
                      , gwSynchCompleteRefNum
                      );
 
-    bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
+    bRet = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -723,7 +263,7 @@ int Reset(int hd, int chan)
                      , gwResetRefNum
                      );
 
-        bRet = WriteHP(hd, chan, (char *)buf, dPacketSize );
+        bRet = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
     return( bRet );
 }
@@ -747,7 +287,7 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write alignment query. */
    EncodeCommand(buf, sizeof(buf)
@@ -761,7 +301,7 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -775,10 +315,10 @@ int RetrieveAlignmentValues038(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
  
    /* Read query response. */
-   n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
+   n = hplip_ReadHP(hd, chan, (char *)buf, sizeof(buf), EXCEPTION_TIMEOUT);
    pA = (LDLResponseAlign038 *)buf;
    memset(pG, 0, sizeof(LDLGenAlign));
    if (pA->h.packet_type == 16)
@@ -817,7 +357,7 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write alignment query. */
    EncodeCommand(buf, sizeof(buf)
@@ -831,7 +371,7 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -845,9 +385,9 @@ int RetrieveAlignmentValues043(int hd, int chan, LDLGenAlign *pG)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
-   n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
+   n = hplip_ReadHP(hd, chan, (char *)buf, sizeof(buf), EXCEPTION_TIMEOUT);
    pA = (LDLResponseAlign043 *)buf;
    memset(pG, 0, sizeof(LDLGenAlign));
    if (pA->h.packet_type == 16)
@@ -877,7 +417,7 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
    /* Write lidil version query. */
    EncodeCommand(buf, sizeof(buf)
@@ -891,7 +431,7 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , gwAlignmentQueryRefNum
                      );
-   n = WriteHP(hd, chan,(char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan,(char *)buf, dPacketSize );
 
    /* Disable responses. */
    EncodeCommand(buf, sizeof(buf)
@@ -905,9 +445,9 @@ uint32_t RetrieveVersion(int hd, int chan)
                      , &dPacketSize
                      , 0
                      );
-   n = WriteHP(hd, chan, (char *)buf, dPacketSize );
+   n = hplip_WriteHP(hd, chan, (char *)buf, dPacketSize );
 
-        n = ReadHP(hd, chan, (char *)buf, sizeof(buf));
+        n = hplip_ReadHP(hd, chan, (char *)buf, sizeof(buf), EXCEPTION_TIMEOUT);
         pV = (LDLResponseVersion *)buf;
         if (pV->h.packet_type == 16)
         {
@@ -930,7 +470,7 @@ int ReadHPVertAlign(int hd)
    uint32_t ver;
    LDLGenAlign ga;
 
-   if ((channel = OpenChannel(hd, "PRINT")) < 0)
+   if ((channel = hplip_OpenChannel(hd, "PRINT")) < 0)
    {
       bug("unable to open print channel ReadHPVertAlign\n");
       goto bugout;
@@ -981,7 +521,7 @@ int ReadHPVertAlign(int hd)
 
 bugout: 
    if (channel >= 0)
-      CloseChannel(hd, channel);
+      hplip_CloseChannel(hd, channel);
 
    return x2colorVert;
 }

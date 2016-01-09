@@ -76,7 +76,7 @@
 *% =================================
 *% Emulations and Protocols
 *% =================================
-*Protocols: PJL TBCP
+*Protocols: TBCP
 
 *% =================================
 *% Installable Options
@@ -122,7 +122,7 @@
 *End
 *CloseUI: *HPOption_500_Sheet_Feeder_Tray5
 
-*OpenUI *HPOption_Disk/Printer Disk: PickOne
+*OpenUI *HPOption_Disk/Printer Hard Disk: PickOne
 *DefaultHPOption_Disk: False
 *HPOption_Disk True/Installed: ""
 *HPOption_Disk False/Not Installed: ""
@@ -149,11 +149,11 @@
 	currentsystemparams /RamSize get
 	524288 div ceiling cvi 2 div
 	/size exch def
-	size 416 ge
-	{(Mem160_287)}
-		{size 288 ge
-			{(Mem288_415)}
-			{(Mem160_287)}ifelse	
+	size 384 ge
+	{(416_544)}
+		{size 256 ge
+			{(288_415)}
+			{(160_287)}ifelse	
 	}ifelse = flush
   restore
 "
@@ -625,6 +625,9 @@
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Max
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Light
 *UIConstraints: *HPColorSmart Automatic *HPEdgeControl Off
+*% Constraints on collation and memory
+*UIConstraints: *Collate True *HPOption_Disk False
+*UIConstraints: *HPOption_Disk False *Collate True
 
 *% ======================================================================
 *% Job Storage (NOTE: JOB Retention was changed to Job Storage in EC 4.0,
@@ -1214,7 +1217,7 @@ restore
 
 *% Enable/Disable Manual Feed
 *OpenUI *ManualFeed/Tray 1 (Manual): Boolean
-*OrderDependency: 20 AnySetup *ManualFeed
+*OrderDependency: 25 AnySetup *ManualFeed
 *DefaultManualFeed: False
 *ManualFeed True/True: "
 	<</ManualFeed true>> setpagedevice"
@@ -1245,6 +1248,7 @@ restore
 *HPManualDuplex False/No: "<< /PrintOnBackside false >> setpagedevice"
 *?HPManualDuplex: "(False) == flush"
 *CloseUI: *HPManualDuplex
+*HPManualDuplexSupport:    True
 
 *CloseGroup: HPFinishingPanel
 
@@ -1255,7 +1259,7 @@ restore
 *% Media Types
 *% =================================
 *OpenUI *MediaType/Media Type: PickOne
-*OrderDependency: 50 AnySetup *MediaType
+*OrderDependency: 20 AnySetup *MediaType
 *DefaultMediaType: Unspecified
 *MediaType Unspecified/Unspecified:  ""
 *MediaType Plain/Plain:  "
@@ -1679,7 +1683,7 @@ globaldict /HPColorTrapping known {
 *% =================================
 *OpenUI *ColorModel/Print Color as Gray:  PickOne
 *OrderDependency: 20 AnySetup *ColorModel
-*DefaultColorModel: Gray
+*DefaultColorModel: CMYK
 *ColorModel Gray/On: "<</ProcessColorModel /DeviceGray>> setpagedevice"
 *ColorModel CMYK/Off: "<</ProcessColorModel /DeviceCMYK>> setpagedevice"
 *?ColorModel: "
@@ -2009,7 +2013,7 @@ globaldict /HPColorTrapping known {
 *%====================================
 *OpenUI *Collate/Collate:  Boolean
 *OrderDependency: 12 AnySetup *Collate
-*DefaultCollate: True
+*DefaultCollate: False
 *Collate True/On (turn off in application): "
     <</Collate true>> setpagedevice"
 *End
@@ -2199,10 +2203,10 @@ restore
 *% =================================
 *% System Management
 *% =================================
-*FreeVM: "65283608"
-*VMOption 160_287/160 - 287 MB RAM: "65283608"
-*VMOption 288_415/288 - 415 MB RAM: "99528700"
-*VMOption 416_544/416 - 544 MB RAM: "128460116"
+*FreeVM: "6000000"
+*VMOption 160_287/160 - 287 MB RAM: "6000000"
+*VMOption 288_415/288 - 415 MB RAM: "70000000"
+*VMOption 416_544/416 - 544 MB RAM: "134000000"
 
 
 *%DeviceAdjustMatrix: "[1 0 0 1 0 0]"

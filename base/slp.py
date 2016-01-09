@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.15 $ 
-# $Date: 2005/03/22 22:21:37 $
-# $Author: pparks $
+# $Revision: 1.16 $ 
+# $Date: 2005/07/05 19:17:28 $
+# $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
 #
@@ -31,7 +31,6 @@ import socket
 import select
 import struct
 import random
-#import threading
 import re
 
 # Local
@@ -42,9 +41,9 @@ prod_pat = re.compile( r"""\(\s*x-hp-prod_id\s*=\s*(.*?)\s*\)""", re.IGNORECASE 
 mac_pat  = re.compile( r"""\(\s*x-hp-mac\s*=\s*(.*?)\s*\)""", re.IGNORECASE )
 num_port_pat = re.compile( r"""\(\s*x-hp-num_port\s*=\s*(.*?)\s*\)""", re.IGNORECASE )
 ip_pat =   re.compile( r"""\(\s*x-hp-ip\s*=\s*(.*?)\s*\)""", re.IGNORECASE )
-p1_pat =   re.compile( r"""\(\s*x-hp-p1\s*=(?:\d\)|\s*(.*?)\s*;\))""", re.IGNORECASE )
-p2_pat =   re.compile( r"""\(\s*x-hp-p2\s*=(?:\d\)|\s*(.*?)\s*;\))""", re.IGNORECASE )
-p3_pat =   re.compile( r"""\(\s*x-hp-p3\s*=(?:\d\)|\s*(.*?)\s*;\))""", re.IGNORECASE )
+p1_pat =   re.compile( r"""\(\s*x-hp-p1\s*=(?:\d\)|\s*(.*?)\s*\))""", re.IGNORECASE )
+p2_pat =   re.compile( r"""\(\s*x-hp-p2\s*=(?:\d\)|\s*(.*?)\s*\))""", re.IGNORECASE )
+p3_pat =   re.compile( r"""\(\s*x-hp-p3\s*=(?:\d\)|\s*(.*?)\s*\))""", re.IGNORECASE )
 hn_pat =   re.compile( r"""\(\s*x-hp-hn\s*=\s*(.*?)\s*\)""", re.IGNORECASE )
         
         
@@ -57,21 +56,11 @@ def detectNetworkDevices( mcast_addr='224.0.1.60', mcast_port=427, ttl=4, timeou
     try:
         addr = socket.gethostname()
         intf = socket.gethostbyname( addr )
-##        log.debug("address1: %s" % intf)
     except socket.error:
-##        log.warning( "GetHostByName() failed. Trying UDP socket." )
-##        import fcntl
-##        SIOCGIFADDR = 0x8915
-##        ifname = 'eth0'
-##        s1=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-##        ifr = ifname+'\0'*(16-len(ifname))+chr(socket.AF_INET)+15*'\0'
-##        r= fcntl.ioctl(s1.fileno(),SIOCGIFADDR,ifr)
-##        intf = '.'.join(map(str,map(ord,r[20:24])))
-##        log.debug("address2: %s" % intf)
-            x=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            x.connect( ('1.2.3.4',56 ) )
-            intf = x.getsockname()[0]
-            x.close()
+        x=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        x.connect( ('1.2.3.4',56 ) )
+        intf = x.getsockname()[0]
+        x.close()
 
     s.setblocking(0)
     ttl = struct.pack( 'b', ttl ) 

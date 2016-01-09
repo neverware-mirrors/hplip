@@ -5,7 +5,7 @@
 #
 
 AC_INIT(io/hpiod/hpiod.cpp)
-AM_INIT_AUTOMAKE(hplip, 0.9.3)
+AM_INIT_AUTOMAKE(hplip, 0.9.4)
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
@@ -123,10 +123,10 @@ fi
 
 if test "$network_build" = "yes"; then
    if test "$libsnmp" = "no"; then
-      AC_MSG_ERROR([cannot find net-snmp support])
+      AC_MSG_ERROR([cannot find net-snmp support (or --disable-network-build)])
    fi
    if test "$snmpdevel" = "no"; then
-      AC_MSG_ERROR([cannot find net-snmp-devel support])
+      AC_MSG_ERROR([cannot find net-snmp-devel support (or --disable-network-build)])
    fi
    AC_DEFINE(HAVE_LIBSNMP) 
    LIBS="-lnetsnmp $LIBS"

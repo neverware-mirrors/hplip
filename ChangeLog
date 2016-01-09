@@ -1,3 +1,194 @@
+2005-07-20 dsuffield
+    * Release 0.9.4.17 (public release 0.9.4)
+
+2005-07-20 dsuffield
+    * Fixed a ModelQuery problem which caused hpssd to die. This happen when a model.xml entry was missing.
+
+2005-07-20 dsuffield
+    * Release 0.9.4.16
+
+2005-07-19 dwelch
+    * Some fixes to align/clean, removed wait UIs
+    * Fixed defect in email alert test
+    * Fixed msg parsing so that 2 concurrent events are handled properly
+    * Removed success UIs for align, clean, and testpage
+    * Removed SELinux sleep time hack
+    
+2005-07-18 dsuffield
+    * Release 0.9.4.15
+
+2005-07-18 dwelch
+    * Fixed the QSizePolicy enum issue in alignform.py
+    * Added sleep to hpssd startup to allow hpiod time to startup
+    * Added better handling for unsupported printer models
+    * Cleaned up exception handling for hpssd not running errors
+
+2005-07-14 dsuffield
+    * Release 0.9.4.14
+
+2005-07-14 dwelch
+    * Fixed defect 653 (The device icon is still showed as online in toolbox after the usb cable disconnected.)
+    
+2005-07-14 dsuffield
+    * Release 0.9.4.13
+
+2005-07-13 dsuffield
+    * Release 0.9.4.12
+
+2005-07-13 dsuffield
+    * Fixed a problem where bi-di was not getting turned off correctly in hpijs. This caused extra deviceid queries.
+    * Updated APDK label.
+
+2005-07-13 dwelch
+    * Fixed defect 633 (An error occurs while right-click in the blank of the "Select Files to Unload from Photo Card"field.)
+    * Fixed defect 639 (The toolbox can not show the printer's current status after closing the unload dialog by clicking cross.)
+    * Fixed defect 408 (Non-functional "help" button in the alignment dialog...)
+    * Fixed defect 399 (Two "No installed HP devices" dialogs pop up when launch Toolbox without any device installed)
+    * Resolved defect 205 as WORKSFORME (No response when clicking Access Photo Cards button during scanning)
+    * Resolved defect 655 as INVALID (The front panel display function is invalid for Officejet 7210.)
+    * Resolved defect 631 as INVALID (The device icon does not appear in the menu.)
+    * Fixed defect 645 (A error occurs and the toolbox is closed forcedly while clicking the "Color Calibration" button from toolbox.)
+    * Removed RPU from tarball
+    * Removed "Help" buttons from all UIs since we don't (yet) support a help system
+    * Added --cups and --scan modes to makeuri per request from Johannes Meixner (SUSE)
+    * Fixed defect 621 (An error occurs and hpssd is terminated abnormally when run the command "hp-probe -bnet".)
+    * Fixed defect 616 (Toolbox traceback with no devices)
+    * Fixed defect 610 (An error occurs when shut down the toolbox manually.)
+    * Fixed defect 600 (An error occurs after launching the toolbox in the terminal.)
+    * Fixed defect 318 (The printer information still displays on Toolbox while pressing Refresh All button after deleting the Device from CUPS.)
+    * Resolved defect 354 as WONTFIX (Empty window during the photo download from memory card.)
+    * Fixed defect 556 (Process xsane becomes defunct after shutting down Xsane manually.)
+        
+2005-07-11 dwelch
+    * Fixed defect 651 (Toolbox can not be launched and error occurs when one of Cartridges in PS8250 is empty.)
+    * Fixed defect 650 ("hpguid.py" should be replaced by " hp-toolbox" in the Usage of command "hp-toolbox".)
+    * Fixed defect 649 (An error occurs when executing "hp-unload" in terminal without any printer installed.)
+    * Fixed defect 647 (The program reports the operation has been done successfully even if the usb cable disconnected.)
+    * Fixed defect 642 (The "Unload Files from Photo Card" dialog still is launched after clicking the Cancel button.)
+    * Fixed defect 643 (Invalid symbol can be entered in the Fax number field.)
+    * Fixed defect 637 (The "Unload Files from Photo Card" dialog cannot be closed while clicking the OK button after disconnecting the usb cable.)    
+    
+2005-07-07 dsuffield
+    * Release 0.9.4.11
+
+2005-07-07 dsuffield
+    * Release 0.9.4.10
+
+2005-07-07 dsuffield
+    * Release 0.9.4.9
+
+2005-07-06 dsuffield
+    * Release 0.9.4.8
+
+2005-07-05 dsuffield
+    * Release 0.9.4.7
+
+2005-07-05 dwelch
+    * New Device object/API implementation and associated defect fixes
+    * Enhanced hp-info
+    * Removed various out-of-date utilities, modules, and files
+    * Changed SLP detection to detect more devices based on forum feedback
+    * Fixed an OSX bug in utils.py in the ping code
+    * 
+    
+2005-07-05 dsuffield
+    * Fixed extra syslog message during "hp" probe.
+    * Fixed trailing "_" in GetModel.
+    
+2005-06-30 jpitter
+    * Added HP-DeskJet_3920.xml and HP-DeskJet_3920.xml to foomatic/db/printers tip.
+    * fixed HP-LaserJet_2100.xml and HP-LaserJet_2100M.xml per Till's suggestion in tip.
+    * Updated foomatic-db-hpijs/hpijs-printermap to include entries for HP-DeskJet_3920 and HP-DeskJet_3940.
+
+2005-06-28 dsuffield
+    * Release 0.9.4.6
+
+2005-06-28 dwelch
+    * Merged new toolbox...
+
+2005-06-27 dsuffield
+    * Release 0.9.4.5
+
+2005-06-27 dsuffield
+    * Updated LJ1022 models.xml status field.
+    * Moved ModelQuery to before DeviceEvent in hp.c.
+
+2005-06-23 dsuffield
+    * Release 0.9.4.4
+
+2005-06-23 dsuffield
+    * Changed LJ1022 from io-mode=1 (bi-di) to io-mode=0 (uni-di) in models.xml. MLC is not supported on USB. Is PML available on network?
+    * Fixed a intermittent SNMP problem reading signed integers in hpiod. This will fix some network scanning issues. 
+
+2005-06-20 syie
+    * Add Photosmart 380 and 330 icons.
+
+2005-06-17 dsuffield
+    * Release 0.9.4.3
+
+2005-06-17 dsuffield
+    * Picked up correct CLJ 2800 postscript ppd file.
+
+2005-06-17 dsuffield
+    * Release 0.9.4.2
+    
+2005-06-17 dsuffield
+    * Fixed a bi-di problem with all LIDIL printers in HPIJS.
+    * Fixed a 64-bit problem with LJJetReady printers in HPIJS.
+    * Fixed a KRGB issue in the VIP path in HPIJS. This fixed a problem where black text would drop some pixels.
+    
+2005-06-16 dsuffield
+    * Release 0.9.4.1
+
+2005-06-15 dsuffield
+    * Release 0.9.4.0
+
+2005-06-15 dsuffield
+    * In order to accommodate 4-sided full bleed, PS320/330/370/380 were moved to DJGenericVIP device class.
+
+2005-06-14 jpitter
+    * re-added HP_Color_LaserJet_2800.ppd to linuxprinting.org repository
+    * re-added HP-Color_LaserJet_2800 entry to foomatic-db/driver/Postscript.xml tip.
+
+2005-06-14 dsuffield
+    * Added uni-di device support to "hp" backend. 
+    * Added hplip_api convenience library. Converted hplip clients (hp, libsane-hpaio, hpijs, ptest) to hplip_api.
+    * Added CLJ 28xx network scanning suport to hpiod. Network printing and scanning is supported, but not network Photo Card.
+    * CLJ 28xx USB printing and Photo Card mass storage is supported, but USB scanning is not currently supported.
+    
+2005-06-14 jpitter
+    * Added HP-Photosmart_8200.xml, HP-Photosmart_330.xml, and HP-Photosmart_380.xml to foomatic-db/printer tip.
+    * Removed HP-Color_LaserJet_2800.xml from foomatic-db/printer tip.
+    * Removed HP-Color_LaserJet_2800 entry from foomatic-db/driver/Postscript.xml tip
+    * Updated hpijs-printerlist: added HP-Photosmart_8200, HP-Photosmart_330, HP-Photosmart_380, and commented out HP-Color_LaserJet_2800
+    * Removed HP_Color_LaserJet_2800.ppd from linuxprinting.org.
+
+2005-06-13 dwelch
+    * Added device ID mode to info utility (Tim Waugh of Red Hat request)
+    * Changed over to new DeviceOpen() params
+    * Added new io and support tags to models.xml
+    * Added Fax Address Book code for initial testing
+
+2005-06-07 syie
+    * Add Photosmart 330, 380, 8200 and LJ1022 to models.xml file
+
+2005-05-19 pparks
+    * Made change to the models.xml file for Photosmart 120 and 240 series which had pen 57 mislabled as black.
+
+2005-05-19 dwelch
+    * Added LJ 8000 series entry to models.xml
+    * Added LJ 1160 series entry to models.xml
+    
+2005-05-17 dwelch
+    * Removed LJ 1010, 1012, 1015, and 3100 from models.xml
+    
+2005-05-17 dsuffield
+    * Fixed a scanimage problem with OJ d135 and OJ 7110.
+    
+2005-05-13 syie
+    * Fixed defect 540 ("Invalid color calibration type" error occurs when executing command "colorcal" in terminal.)
+    * Fixed defect 543 ("Unknown internal error" occurs when executing command "probe -bnet")
+
 2005-05-12 dsuffield
     * Release 0.9.3.2 (public release 0.9.3)
 
@@ -6,7 +197,7 @@
 
 2005-05-11 dsuffield
     * Increased bi-di window in hpijs. This should enable 4-sided full bleed support.
-	
+    
 2005-05-11 dsuffield
     * Release 0.9.3.1 
 
@@ -17,7 +208,7 @@
 
 2005-05-10 dsuffield
     * Modified hpijs to ignore bi-di errors so the "hp" backend can handle them. This fixed a problem where hpijs would hang forever.
-	
+    
 2005-05-09 dsuffield
     * Release 0.9.3
 
@@ -48,16 +239,16 @@
 2005-04-26 dsuffield
     * Added configure check for libjpeg-devel support (issue 593).
     * Changed hplip_readme.html "Photo" support to yes for OJ 7200/7300/7400 (issue 607).
-	
+    
 2005-04-26 dwelch
     * Fixed defect 603 (The filter list should be specified clearly in the usage of command "hp-probe -e".)
     
 2005-04-26 dsuffield
     * Release 0.9.2.3
-	
+    
 2005-04-26 dsuffield
     * Fixed intermittent device hang problem with LJ 1010/1012/1015 in hp.c. These devices cannot handle in-bound USB deviceid queries.   
-	
+    
 2005-04-26 jpitter
     * added OfficeJet V40 to models.xml solving a forum issue.
 
@@ -103,13 +294,13 @@
     
 2005-04-13 dsuffield
     * Release 0.9.1.2
-	
+    
 2005-04-13 dsuffield
     * Fixed a scanning issue with Laserjet flatbed scanners (PML scanners). Scan would fail at end of scan.
     * Added hpijs 5 limit syslog message when output device write() fails (issue 583).  
     * Removed specified gcc options in hpijs configure.in.
     * Removed images.tgz after install.
-	
+    
 2005-04-12 dsuffield
     * Release 0.9.1.1
 

@@ -61,15 +61,7 @@
 #include "scl.h"
 #include "tables.h"
 
-#include "../../ip/hpip.h"
-
-/************************************************************************************/
-
-//#define RCFILE "/etc/hp/hplip.conf" /* The config file */
-//#define LINE_SIZE 256 /* Length of buffer reads */
-//#define BUFFER_SIZE 4096
-//#define HEADER_SIZE 128   /* Rough estimate for message header */
-
+#include "hpip.h"
 
 /************************************************************************************/
 
@@ -228,7 +220,6 @@ struct hpaioScanner_s
         //ptalChannel_t   chan;
         //ptalChannel_t   chanReserve;
         char deviceuri[128];
-        char flow_ctl[32];
         int deviceid;
         int scan_channelid;
         int cmd_channelid;
