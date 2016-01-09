@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 # Author: Don Welch
 #
 
-
-__version__ = '2.2'
+__version__ = '3.2'
 __title__ = 'Photo Card Access Utility'
 __doc__ = "Access inserted photo cards on supported HPLIP printers. This provides an alternative for older devices that do not support USB mass storage or for access to photo cards over a network."
 
@@ -35,6 +34,7 @@ import readline
 import time
 import fnmatch
 import string
+import operator
 
 # Local
 from base.g import *
@@ -60,6 +60,7 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_OPTIONS,
          ("Output directory:", "-o<dir> or --output=<dir> (Defaults to current directory)(Only used for non-GUI modes)", "option", False),
          utils.USAGE_BUS1, utils.USAGE_BUS2,
+         utils.USAGE_LANGUAGE,
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
          utils.USAGE_HELP,
          utils.USAGE_SPACE,
@@ -67,21 +68,21 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_STD_NOTES1, utils.USAGE_STD_NOTES2, 
          ("3. Use 'help' command at the pcard:> prompt for command help (Interactive mode (-i) only).", "", "note", True),
          ]
-         
+
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-unload', __version__)
     sys.exit(0)
 
 
-## Console class (from ASPN Python Cookbook)
-## Author:   James Thiele
-## Date:     27 April 2004
-## Version:  1.0
-## Location: http://www.eskimo.com/~jet/python/examples/cmd/
-## Copyright (c) 2004, James Thiele
+# Console class (from ASPN Python Cookbook)
+# Author:   James Thiele
+# Date:     27 April 2004
+# Version:  1.0
+# Location: http://www.eskimo.com/~jet/python/examples/cmd/
+# Copyright (c) 2004, James Thiele
 
 class Console(cmd.Cmd):
 
@@ -93,9 +94,9 @@ class Console(cmd.Cmd):
         pc.write_protect = disk_info[8]
         if pc.write_protect:
             log.warning("Photo card is write protected.")
-        self.prompt = utils.bold("pcard: %s > " % self.pc.pwd())
+        self.prompt = log.bold("pcard: %s > " % self.pc.pwd())
 
-    ## Command definitions ##
+    # Command definitions
     def do_hist(self, args):
         """Print a list of commands that have been entered"""
         print self._hist
@@ -108,7 +109,7 @@ class Console(cmd.Cmd):
         """Exits from the console"""
         return -1
 
-    ## Command definitions to support Cmd object functionality ##
+    # Command definitions to support Cmd object functionality
     def do_EOF(self, args):
         """Exit on system end of file character"""
         return self.do_exit(args)
@@ -118,24 +119,24 @@ class Console(cmd.Cmd):
            'help' or '?' with no arguments prints a list of commands for which help is available
            'help <command>' or '? <command>' gives help on <command>
         """
-        ## The only reason to define this method is for the help text in the doc string
+        # The only reason to define this method is for the help text in the doc string
         cmd.Cmd.do_help(self, args)
 
-    ## Override methods in Cmd object ##
+    # Override methods in Cmd object
     def preloop(self):
         """Initialization before prompting user for commands.
            Despite the claims in the Cmd documentaion, Cmd.preloop() is not a stub.
         """
-        cmd.Cmd.preloop(self)   ## sets up command completion
-        self._hist    = []      ## No history yet
-        self._locals  = {}      ## Initialize execution namespace for user
+        cmd.Cmd.preloop(self)   # sets up command completion
+        self._hist    = []      # No history yet
+        self._locals  = {}      # Initialize execution namespace for user
         self._globals = {}
 
     def postloop(self):
         """Take care of any unfinished business.
            Despite the claims in the Cmd documentaion, Cmd.postloop() is not a stub.
         """
-        cmd.Cmd.postloop(self)   ## Clean up command completion
+        cmd.Cmd.postloop(self)   # Clean up command completion
         print "Exiting..."
 
     def precmd(self, line):
@@ -157,7 +158,7 @@ class Console(cmd.Cmd):
         pass
 
     def default(self, line):
-        print utils.bold("ERROR: Unrecognized command. Use 'help' to list commands.")
+        print log.bold("ERROR: Unrecognized command. Use 'help' to list commands.")
 
     def do_ldir(self, args):
         """ List local directory contents."""
@@ -186,7 +187,7 @@ class Console(cmd.Cmd):
             )
 
         print
-        print utils.bold(formatter.compose(("Name", "Size", "Type")))
+        print log.bold(formatter.compose(("Name", "Size", "Type")))
 
         num_files = 0
         for d in self.pc.current_directories():
@@ -200,7 +201,7 @@ class Console(cmd.Cmd):
             num_files += 1
             total_size += f[2]
 
-        print utils.bold("% d files, %s" % (num_files, utils.format_bytes(total_size, True)))
+        print log.bold("% d files, %s" % (num_files, utils.format_bytes(total_size, True)))
 
 
     def do_df(self, args):
@@ -235,7 +236,7 @@ class Console(cmd.Cmd):
         else:
             total, delta = self.pc.cp_multiple(matched_files, remove_after_copy, self.cp_status_callback, self.rm_status_callback)
 
-            print utils.bold("\n%s transfered in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/(delta)))
+            print log.bold("\n%s transfered in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/(delta)))
 
     def do_unload(self, args):
         """Unload all image files from photocard to current local directory.
@@ -273,7 +274,7 @@ class Console(cmd.Cmd):
                     )
 
                 print
-                print utils.bold(formatter.compose(("Name", "Size", "Type")))
+                print log.bold(formatter.compose(("Name", "Size", "Type")))
 
                 total = 0
                 for u in unload_list:
@@ -281,11 +282,11 @@ class Console(cmd.Cmd):
                      total += u[1]
 
 
-                print utils.bold("Found %d files to unload, %s" % (len(unload_list), utils.format_bytes(total, True)))
+                print log.bold("Found %d files to unload, %s" % (len(unload_list), utils.format_bytes(total, True)))
             else:
-                print utils.bold("Unloading %d files..." % len(unload_list))
+                print log.bold("Unloading %d files..." % len(unload_list))
                 total, delta, was_cancelled = self.pc.unload(unload_list, self.cp_status_callback, self.rm_status_callback, dont_remove)
-                print utils.bold("\n%s unloaded in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/delta))
+                print log.bold("\n%s unloaded in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/delta))
 
         else:
             print "No image, audio, or video files found."
@@ -294,7 +295,7 @@ class Console(cmd.Cmd):
     def cp_status_callback(self, src, trg, size):
         if size == 1:
             print
-            print utils.bold("Copying %s..." % src)
+            print log.bold("Copying %s..." % src)
         else:
             print "\nCopied %s to %s (%s)..." % (src, trg, utils.format_bytes(size))
 
@@ -337,7 +338,7 @@ class Console(cmd.Cmd):
         try:
             os.chdir(args.strip())
         except OSError:
-            print utils.bold("ERROR: Directory not found.")
+            print log.bold("ERROR: Directory not found.")
         print os.getcwd()
 
     def do_pwd(self, args):
@@ -377,7 +378,7 @@ class Console(cmd.Cmd):
             else:
                 self.pc.cd(matched_dirs[0])
 
-        self.prompt = utils.bold("pcard: %s > " % self.pc.pwd())
+        self.prompt = log.bold("pcard: %s > " % self.pc.pwd())
 
     def do_cdup(self, args):
         """Change to parent directory."""
@@ -412,8 +413,8 @@ class Console(cmd.Cmd):
                 for s in t:
                     print "sector %d (%d hits)" % (s, cache_info[s])
 
-                print utils.bold("Total cache usage: %s (%s maximum)" % (utils.format_bytes(len(t)*512), utils.format_bytes(photocard.MAX_CACHE * 512)))
-                print utils.bold("Total cache sectors: %s of %s" % (utils.commafy(len(t)), utils.commafy(photocard.MAX_CACHE)))
+                print log.bold("Total cache usage: %s (%s maximum)" % (utils.format_bytes(len(t)*512), utils.format_bytes(photocard.MAX_CACHE * 512)))
+                print log.bold("Total cache sectors: %s of %s" % (utils.commafy(len(t)), utils.commafy(photocard.MAX_CACHE)))
             else:
                 print "Cache is off."
 
@@ -514,7 +515,6 @@ class Console(cmd.Cmd):
 
         if len(matched_files) == 1:
             typ, subtyp = self.pc.classify_file(args).split('/')
-            #print "'%s' '%s'" % (typ, subtyp)
 
             if typ == 'image' and subtyp in ('jpeg', 'tiff'):
                 exif_info = self.pc.get_exif(args)
@@ -523,16 +523,12 @@ class Console(cmd.Cmd):
                 photo_name, photo_ext=os.path.splitext(args)
 
                 if 'JPEGThumbnail' in exif_info:
-                    #print "JPEG thumbnail found."
                     temp_file_fd, temp_file_name = utils.make_temp_file()
-                    #thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.jpg'
                     open(temp_file_name, 'wb').write(exif_info['JPEGThumbnail'])
                     os.system('display %s' % temp_file_name)
                     os.remove(temp_file_name)
 
                 elif 'TIFFThumbnail' in exif_info:
-                    #print "TIFF thumbnail found."
-                    #thumb_name = os.path.join( os.getcwd(), photo_name ) + '_thumb.tif'
                     temp_file_fd, temp_file_name = utils.make_temp_file()
                     open(temp_file_name, 'wb').write(exif_info['TIFFThumbnail'])
                     os.system('display %s' % temp_file_name)
@@ -575,7 +571,7 @@ class Console(cmd.Cmd):
                     )
 
                 print
-                print utils.bold(formatter.compose(("Tag", "Value")))
+                print log.bold(formatter.compose(("Tag", "Value")))
 
                 ee = exif_info.keys()
                 ee.sort()
@@ -596,7 +592,7 @@ class Console(cmd.Cmd):
     def do_info(self, args):
         """Synonym for the exif command."""
         self.do_exif(args)
-        
+
     def do_about(self, args):
         utils.log_title(__title__, __version__)
 
@@ -604,18 +600,19 @@ class Console(cmd.Cmd):
 def status_callback(src, trg, size):
     if size == 1:
         print
-        print utils.bold("Copying %s..." % src)
+        print log.bold("Copying %s..." % src)
     else:
         print "\nCopied %s to %s (%s)..." % (src, trg, utils.format_bytes(size))
 
-    
-    
+
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'p:d:hb:l:giuno:',
+    opts, args = getopt.getopt(sys.argv[1:], 'p:d:hb:l:giuno:q:',
                                ['printer=', 'device=', 'help', 'help-rest', 'help-man',
                                 'bus=', 'logging=', 'interactive', 'gui', 'non-interactive',
-                                'output=', 'help-desc'])
-except getopt.GetoptError:
+                                'output=', 'help-desc', 'lang='])
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 printer_name = None
@@ -625,6 +622,7 @@ log_level = logger.DEFAULT_LOG_LEVEL
 mode = GUI_MODE
 mode_specified = False
 output_dir = os.getcwd()
+loc = None
 
 if os.getenv("HPLIP_DEBUG"):
     log.set_level('debug')
@@ -632,17 +630,17 @@ if os.getenv("HPLIP_DEBUG"):
 for o, a in opts:
     if o in ('-h', '--help'):
         usage()
-        
+
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
 
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
-    
+
     elif o in ('-p', '--printer'):
         printer_name = a
 
@@ -658,10 +656,10 @@ for o, a in opts:
         log_level = a.lower().strip()
         if not log.set_level(log_level):
             usage()
-            
+
     elif o == '-g':
         log.set_level('debug')
-        
+
     elif o in ('-i', '--interactive'):
         if mode_specified:
             log.error("You may only specify a single mode as a parameter (-i, -n or -u).")
@@ -669,31 +667,52 @@ for o, a in opts:
 
         mode = INTERACTIVE_MODE
         mode_specified = True
-        
+
     elif o in ('-u', '--gui'):
         if mode_specified:
             log.error("You may only specify a single mode as a parameter (-i, -n or -u).")
             sys.exit(1)
-        
+
         mode = GUI_MODE
         mode_specified = True
-        
+
     elif o in ('-n', '--non-interactive'):
         if mode_specified:
             log.error("You may only specify a single mode as a parameter (-i, -n or -u).")
             sys.exit(1)
-        
+
         mode = NON_INTERACTIVE_MODE
         mode_specified = True
-        
+
     elif o in ('-o', '--output'):
         output_dir = a
+        
+    elif o in ('-q', '--lang'):
+        if a.strip() == '?':
+            utils.show_languages()
+            sys.exit(0)
+            
+        loc = utils.validate_language(a.lower())
 
 
 utils.log_title(__title__, __version__)
 
 # Security: Do *not* create files that other users can muck around with
-os.umask (0077)
+os.umask (0037)
+
+if mode == GUI_MODE:
+    if not prop.gui_build:
+        log.error("GUI mode disabled in build. Exiting.")
+        sys.exit(1)
+        
+    elif not os.getenv('DISPLAY'):
+        log.error("No display found. Exiting.")
+        sys.exit(1)
+    
+    elif not utils.checkPyQtImport():
+        log.error("PyQt init failed. Exiting.")
+        sys.exit(1)
+
 
 if mode == GUI_MODE:
     if not os.getenv('DISPLAY'):
@@ -705,23 +724,23 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
     if device_uri and printer_name:
         log.error("You may not specify both a printer (-p) and a device (-d).")
         usage()
-    
-        
+
+
     if printer_name:
         printer_list = cups.getPrinters()
         found = False
         for p in printer_list:
             if p.name == printer_name:
                 found = True
-    
+
         if not found:
             log.error("Unknown printer name: %s" % printer_name)
             sys.exit(1)
-    
-    
+
+
     if not device_uri and not printer_name:
         try:
-            device_uri = device.getInteractiveDeviceURI(bus, 'pcard')
+            device_uri = device.getInteractiveDeviceURI(bus, {'pcard-type' : (operator.gt, 0)})
             if device_uri is None:
                 sys.exit(1)
         except Error:
@@ -733,19 +752,21 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
     except Error, e:
         log.error("Unable to start photocard session: %s" % e.msg)
         sys.exit(1)
-    
+
     pc.set_callback(update_spinner)
-    
+
     if pc.device.device_uri is None and printer_name:
         log.error("Printer '%s' not found." % printer_name)
         sys.exit(1)
-    
+
     if pc.device.device_uri is None and device_uri:
         log.error("Malformed/invalid device-uri: %s" % device_uri)
         sys.exit(1)
-    
+        
+    user_cfg.last_used.device_uri = pc.device.device_uri
+
     pc.device.sendEvent(EVENT_START_PCARD_JOB)
-    
+
     try:
         pc.mount()
     except Error:
@@ -753,22 +774,22 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
         pc.umount()
         pc.device.sendEvent(EVENT_PCARD_UNABLE_TO_MOUNT, typ='error')
         sys.exit(1)
-    
-    log.info(utils.bold("\nPhotocard on device %s mounted" % pc.device.device_uri))
-    log.info(utils.bold("DO NOT REMOVE PHOTO CARD UNTIL YOU EXIT THIS PROGRAM"))
-    
+
+    log.info(log.bold("\nPhotocard on device %s mounted" % pc.device.device_uri))
+    log.info(log.bold("DO NOT REMOVE PHOTO CARD UNTIL YOU EXIT THIS PROGRAM"))
+
     output_dir = os.path.realpath(os.path.normpath(os.path.expanduser(output_dir)))
-        
+
     try:
         os.chdir(output_dir)
     except OSError:
-        print utils.bold("ERROR: Output directory %s not found." % output_dir)
+        print log.bold("ERROR: Output directory %s not found." % output_dir)
         sys.exit(1)
-    
-    
-            
+
+
+
     if mode == INTERACTIVE_MODE: # INTERACTIVE_MODE
-        
+
         console = Console(pc)
         try:
             try:
@@ -779,9 +800,9 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
                 log.error("An error occured: %s" % e)
         finally:
             pc.umount()
-        
+
         pc.device.sendEvent(EVENT_END_PCARD_JOB)
-        
+
 
     else: # NON_INTERACTIVE_MODE
         print "Output directory is %s" % os.getcwd()
@@ -789,13 +810,13 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
             try:
                 unload_list = pc.get_unload_list()
                 print
-        
+
                 if len(unload_list) > 0:
-        
+
                     max_len = 0
                     for u in unload_list:
                         max_len = max(max_len, len(u[0]))
-        
+
                     formatter = utils.TextFormatter(
                             (
                                 {'width': max_len+2, 'margin' : 2},
@@ -803,47 +824,78 @@ if mode in (INTERACTIVE_MODE, NON_INTERACTIVE_MODE):
                                 {'width': 12, 'margin' : 2},
                             )
                         )
-        
+
                     print
-                    print utils.bold(formatter.compose(("Name", "Size", "Type")))
-        
+                    print log.bold(formatter.compose(("Name", "Size", "Type")))
+
                     total = 0
                     for u in unload_list:
                          print formatter.compose(('%s' % u[0], utils.format_bytes(u[1]), '%s/%s' % (u[2], u[3])))
                          total += u[1]
-        
-        
-                    print utils.bold("Found %d files to unload, %s\n" % (len(unload_list), utils.format_bytes(total, True)))
-                    print utils.bold("Unloading files...\n")
+
+
+                    print log.bold("Found %d files to unload, %s\n" % (len(unload_list), utils.format_bytes(total, True)))
+                    print log.bold("Unloading files...\n")
                     total, delta, was_cancelled = pc.unload(unload_list, status_callback, None, True)
-                    print utils.bold("\n%s unloaded in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/delta))
-            
+                    print log.bold("\n%s unloaded in %d sec (%d KB/sec)" % (utils.format_bytes(total), delta, (total/1024)/delta))
+
             except KeyboardInterrupt:
                 log.error("Aborted.")
                 pass
-                
+
         finally:
             pc.umount()
 
 
 else: # GUI_MODE
-    
+
     from qt import *
     from ui import unloadform
 
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+    app = QApplication(sys.argv)
+    QObject.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
+    
+    if loc is None:
+        loc = user_cfg.ui.get("loc", "system")
+        if loc.lower() == 'system':
+            loc = str(QTextCodec.locale())
+            log.debug("Using system locale: %s" % loc)
+    
+    if loc.lower() != 'c':
+        log.debug("Trying to load .qm file for %s locale." % loc)
+        trans = QTranslator(None)
+        qm_file = 'hplip_%s.qm' % loc
+        log.debug("Name of .qm file: %s" % qm_file)
+        loaded = trans.load(qm_file, prop.localization_dir)
+        
+        if loaded:
+            app.installTranslator(trans)
+        else:
+            loc = 'c'
+    
+    if loc == 'c':
+        log.debug("Using default 'C' locale")
+    else:
+        log.debug("Using locale: %s" % loc)
+        
+        QLocale.setDefault(QLocale(loc))
+        try:
+            locale.setlocale(locale.LC_ALL, locale.normalize(loc+".utf8"))
+            prop.locale = loc
+        except locale.Error:
+            log.error("Invalid locale: %s" % (loc+".utf8"))        
+
 
     try:
         w = unloadform.UnloadForm(bus, device_uri, printer_name)
     except Error:
         log.error("Unable to connect to HPLIP I/O. Please (re)start HPLIP and try again.")
         sys.exit(1)
-        
-    a.setMainWidget(w)
+
+    app.setMainWidget(w)
     w.show()
 
-    a.exec_loop()
+    app.exec_loop()
 
 log.info("Done.")
 sys.exit(0)

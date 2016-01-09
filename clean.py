@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 # Author: Don Welch
 #
 
-
-__version__ = '1.7'
+__version__ = '3.0'
 __title__ = 'Printer Cartridge Cleaning Utility'
 __doc__ = "Cartridge cleaning utility for HPLIP supported inkjet printers."
 
@@ -29,12 +28,67 @@ __doc__ = "Cartridge cleaning utility for HPLIP supported inkjet printers."
 import sys
 import re
 import getopt
+import time
+import operator
 
 # Local
 from base.g import *
-from base import device, utils, maint
+from base import device, utils, maint, tui
 from prnt import cups
 
+d = None
+
+def CleanUIx(level):
+    global d
+    ok = tui.continue_prompt("Ready to perform level %d cleaning (Note: Wait for previous print to finish)." % level)
+    
+    if ok:
+        timeout = 0
+        time.sleep(5)
+        
+        try:
+            while True:
+                update_spinner()
+                try:
+                    d.open()
+                except Error:
+                    time.sleep(2)
+                    timeout += 2
+                    continue
+                
+                if d.isIdleAndNoError():
+                    break
+                
+                time.sleep(1)
+                timeout += 1
+                
+                if timeout > 45:
+                    log.error("Timeout waiting for print to finish.")
+                    sys.exit(0)
+            
+            
+        finally:
+            cleanup_spinner()
+            d.close()
+    
+    return ok
+
+def CleanUI1():
+    log.note("Please wait for page to complete printing before continuing.")
+    log.info("\nLevel 1 cleaning complete. If the printout looks OK, enter 'q' to quit or <enter> to do a level 2 cleaning.")
+    return CleanUIx(2)
+    
+    
+def CleanUI2():
+    log.note("Please wait for page to complete printing before continuing.")
+    log.info("\nLevel 2 cleaning complete. If the printout looks OK, enter 'q' to quit or <enter> to do a level 3 cleaning.")
+    log.warn("Level 3 uses a lot of ink.")
+    return CleanUIx(3)
+
+def CleanUI3():
+    log.info("\nLevel 3 cleaning complete. Check this page to see if the problem was fixed. If the test page was not printed OK, replace the print cartridge(s).")
+    
+    
 USAGE = [(__doc__, "", "name", True),
          ("Usage: hp-clean [PRINTER|DEVICE-URI] [OPTIONS]", "", "summary", True),
          utils.USAGE_ARGS,
@@ -42,8 +96,6 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_PRINTER,
          utils.USAGE_SPACE,
          utils.USAGE_OPTIONS,
-         ("Cleaning level:", "-v<level> or --level=<level>", "option", False),
-         ("", "<level>: 1\*, 2, or 3 (\*default)", "option", False),
          utils.USAGE_BUS1, utils.USAGE_BUS2,
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
          utils.USAGE_HELP,
@@ -57,43 +109,44 @@ USAGE = [(__doc__, "", "name", True),
          ("hp-align", "", "seealso", False),
          ("hp-colorcal", "", "seealso", False),
          ]
+
+    
          
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-clean', __version__)
     sys.exit(0)
 
 log.set_module("hp-clean")
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:v:g',
+    opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:g',
                                 ['printer=', 'device=', 'help', 'help-rest', 'help-man', 
-                                 'logging=', 'bus=', 'level=', 'help-desc'])
-except getopt.GetoptError:
+                                 'logging=', 'bus=', 'help-desc'])
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 bus = device.DEFAULT_PROBE_BUS
 log_level = logger.DEFAULT_LOG_LEVEL
 printer_name = None
 device_uri = None
-level = 1
 
 if os.getenv("HPLIP_DEBUG"):
     log.set_level('debug')
 
-
 for o, a in opts:
     if o in ('-h', '--help'):
         usage()
-        
+
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
-        
+
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
@@ -114,21 +167,10 @@ for o, a in opts:
         log_level = a.lower().strip()
         if not log.set_level(log_level):
             usage()
-        
+
     elif o == '-g':
         log.set_level('debug')
 
-    elif o in ('-v', '--level'):
-        try:
-            level = int(a)
-        except ValueError:
-            log.error("Invalid cleaning level, setting level to 1.")
-            level = 1
-
-            
-if level < 1 or level > 3:
-    log.error("Invalid cleaning level, setting level to 1.")
-    level = 1
 
 if not device.validateBusList(bus):
     usage()
@@ -138,10 +180,10 @@ if device_uri and printer_name:
     usage()
 
 utils.log_title(__title__, __version__)
-    
+
 if not device_uri and not printer_name:
     try:
-        device_uri = device.getInteractiveDeviceURI(bus)
+        device_uri = device.getInteractiveDeviceURI(bus, filter={'clean-type': (operator.gt, 0)})
         if device_uri is None:
             sys.exit(0)
     except Error:
@@ -162,6 +204,11 @@ if d.device_uri is None and device_uri:
     log.error("Malformed/invalid device-uri: %s" % device_uri)
     sys.exit(0)
 
+user_cfg.last_used.device_uri = d.device_uri
+
+if not d.cups_printers:
+    log.error("No appropriate printer queue found for device. Please setup printer with hp-setup and try again.")
+    sys.exit(1)
 
 try:
     try:
@@ -169,36 +216,43 @@ try:
     except Error:
         log.error("Unable to print to printer. Please check device and try again.")
         sys.exit(1)
-    
+
     if d.isIdleAndNoError():
         clean_type = d.mq.get('clean-type', 0)
-        log.info("Performing type %d, level %d cleaning..." % (clean_type, level))
-        
-        if clean_type in (CLEAN_TYPE_PCL,CLEAN_TYPE_PCL_WITH_PRINTOUT):
-            if level == 3:
-                maint.wipeAndSpitType1(d)
-            elif level == 2:
-                maint.primeType1(d)
-            else:
-                maint.cleanType1(d)
-        
-        elif clean_type == CLEAN_TYPE_LIDIL:
-            if level == 3:
-                maint.wipeAndSpitType2(d)
-            elif level == 2:
-                maint.primeType2(d)
-            else:
-                maint.cleanType2(d)
+        log.debug("Clean type=%d" % clean_type)
+        d.close()
+
+        try:
+            if clean_type == CLEAN_TYPE_PCL:
+                maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
+                                maint.wipeAndSpitType1, tui.load_paper_prompt,
+                                CleanUI1, CleanUI2, CleanUI3,
+                                None)
     
-        else:
-            log.error("Cleaning not needed or supported on this device.")
+            elif clean_type == CLEAN_TYPE_LIDIL:
+                maint.cleaning(d, clean_type, maint.cleanType2, maint.primeType2,
+                                maint.wipeAndSpitType2, tui.load_paper_prompt,
+                                CleanUI1, CleanUI2, CleanUI3,
+                                None)
     
+            elif clean_type == CLEAN_TYPE_PCL_WITH_PRINTOUT:
+                maint.cleaning(d, clean_type, maint.cleanType1, maint.primeType1,
+                                maint.wipeAndSpitType1, tui.load_paper_prompt,
+                                CleanUI1, CleanUI2, CleanUI3,
+                                None)
+        
+            else:
+                log.error("Cleaning not needed or supported on this device.")
+        
+        except Error, e:
+            log.error("An error occured: %s" % e[0])
+
     else:
         log.error("Device is busy or in an error state. Please check device and try again.")
         sys.exit(1)
 finally:
     d.close()
-    
+
 log.info("")
 log.info("Done.")
 

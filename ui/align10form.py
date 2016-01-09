@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,28 +30,31 @@ class Align10Form(Align10Form_Base):
     def __init__(self, pattern, align_type=ALIGN_TYPE_LBOW, parent = None, name = None, modal = 0, fl = 0):
         Align10Form_Base.__init__(self,parent,name,modal,fl)
         self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, 'align10.png')))
-        
+
         self.controls = maint.align10and11Controls(pattern, align_type)
-        
+
         for line in self.controls:
             if not self.controls[line][0]:
                 eval('self.comboBox%s.setEnabled(False)' % line)
             else:
                 for x in range(self.controls[line][1]):
                     eval('self.comboBox%s.insertItem("%s%d")' % (line, line, x+1))
-    
+
     def getValues(self):
         ret = []
-        for line in self.controls:
+        controls = self.controls.keys()
+        controls.sort()
+        
+        for line in controls:
             if not self.controls[line][0]:
                 ret.append(0)
             else:
-                exec('selected = str(self.comboBox%s.currentText())' % line)
+                exec('selected = unicode(self.comboBox%s.currentText())' % line)
                 try:
                     selected = int(selected[1:])
                 except ValueError:
                     selected = 0
                 ret.append(selected)
-        
+
         return ret
-        
+

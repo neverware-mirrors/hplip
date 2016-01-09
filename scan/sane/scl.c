@@ -2,7 +2,7 @@
 
   scl.c - HP SANE backend for multi-function peripherals (libsane-hpaio)
 
-  (c) 2001-2004 Copyright Hewlett-Packard Development Company, LP
+  (c) 2001-2006 Copyright Hewlett-Packard Development Company, LP
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -21,12 +21,21 @@
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  Current Author: Don Welch
-  Original Author: David Paschal 
+  Contributing Authors: David Paschal, Don Welch, David Suffield 
 
 \************************************************************************************/
 
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include "hpmud.h"
+#include "io.h"
+#include "common.h"
 #include "scl.h"
+#include "hpaio.h"
+
+#define DEBUG_DECLARE_ONLY
+#include "sanei_debug.h"
 
 static int SclBufferIsPartialReply( unsigned char * data, int datalen )
 {
@@ -106,55 +115,27 @@ static int SclBufferIsPartialReply( unsigned char * data, int datalen )
 }
 
 
-static int SclChannelRead( /*ptalChannel_t chan,*/
-                            int deviceid,
-                            int channelid,
-                            char * buffer,
-                            int countdown,
-                            //struct timeval * startTimeout,
-                            //struct timeval * continueTimeout,
-                            int isSclResponse )
+static int SclChannelRead(int deviceid, int channelid, char * buffer, int countdown, int isSclResponse)
 {
     char * bufferStart = buffer;
-    int bufferLen = countdown, countup = 0, r;
-    /*struct timeval myContinueTimeout =
-    {
-      0, 0
-    };*/
+    int bufferLen = countdown, countup = 0, len;
+    enum HPMUD_RESULT stat;
 
-    if( !isSclResponse )
+    if(!isSclResponse)
     {
-        /*return ptalChannelReadTimeout( chan,
-                                       buffer,
-                                       countdown,
-                                       startTimeout,
-                                       continueTimeout );*/
-        return hplip_ReadHP( deviceid, channelid, buffer, bufferLen, EXCEPTION_TIMEOUT );  
-        
+        stat = hpmud_read_channel(deviceid, channelid, buffer, bufferLen, EXCEPTION_TIMEOUT, &len);  
+        return len;
     }
 
-    while( 1 )
+    while(1)
     {
-        /*r = ptalChannelReadTimeout( chan,
-                                    buffer,
-                                    countdown,
-                                    startTimeout,
-                                    &myContinueTimeout );*/
-        r = hplip_ReadHP( deviceid, channelid, buffer, countdown, EXCEPTION_TIMEOUT );                                      
+        stat = hpmud_read_channel(deviceid, channelid, buffer, countdown, EXCEPTION_TIMEOUT, &len);                                      
 
-        DBG( 0, "SclChannelRead(%d): "
-                        "ChannelReadTimeout(buffer=0x%8.8X,count=%d) "
-                        "returns %d, errno=%d.\n",
-                        channelid,
-                        buffer,
-                        countdown,
-                        r,
-                        errno );
-        if( r <= 0 )
+        if(stat != HPMUD_R_OK)
         {
             break;
         }
-        countup += r;
+        countup += len;
 
         countdown = SclBufferIsPartialReply( (unsigned char *)bufferStart, countup );
         
@@ -167,64 +148,24 @@ static int SclChannelRead( /*ptalChannel_t chan,*/
             break;
         }
 
-        DBG( 0, "SclChannelRead(%d): "
-                        "read %d of %d bytes, %d remaining.\n",
-                        channelid,
-                        countup,
-                        bufferLen,
-                        countdown );
-
-        buffer += r;
+        buffer += len;
         //startTimeout = continueTimeout;
     }
 
-    if( !countup )
+    if(!countup)
     {
-        return r;
+        return len;
     }
     return countup;
 
 }
 
-SANE_Status SclSendCommand( int deviceid,//hpaioScanner_t hpaio,
-                    int channelid,
-                    int cmd,
-                    int param )
+SANE_Status __attribute__ ((visibility ("hidden"))) SclSendCommand(int deviceid, int channelid, int cmd, int param)
 {
-    //BREAKPOINT;
-    
-    /*static struct timeval startTimeout =
-    {
-      SCL_SEND_COMMAND_START_TIMEOUT, 0
-    };
-    static struct timeval continueTimeout =
-    {
-      SCL_SEND_COMMAND_CONTINUE_TIMEOUT, 0
-    };*/
-    
     char buffer[LEN_SCL_BUFFER];
-    int datalen;
+    int datalen, len;
     char punc = SCL_CMD_PUNC( cmd );
     char letter1 = SCL_CMD_LETTER1( cmd),letter2 = SCL_CMD_LETTER2( cmd );
-
-    DBG( 0,  "hpaio:SclSendCommand(cmd=%d, param=%d, "
-                    "punc=<%c>, letter1=<%c>, letter2=<%c>)\n",
-                    cmd,
-                    param,
-                    punc,
-                    letter1,
-                    letter2 );
-    if( cmd == SCL_CMD_INQUIRE_PRESENT_VALUE ||
-        cmd == SCL_CMD_INQUIRE_MINIMUM_VALUE ||
-        cmd == SCL_CMD_INQUIRE_MAXIMUM_VALUE )
-    {
-        DBG( 0,  "hpaio:Inquiring about cmd=%d, "
-                        "punc=<%c>, letter1=<%c>, letter2=<%c>.\n",
-                        param,
-                        SCL_CMD_PUNC( param ),
-                        SCL_CMD_LETTER1( param ),
-                        SCL_CMD_LETTER2( param ) );
-    }
 
     if( cmd == SCL_CMD_RESET )
     {
@@ -251,45 +192,25 @@ SANE_Status SclSendCommand( int deviceid,//hpaioScanner_t hpaio,
                                 param,
                                 letter2 );
         }
-        // *********************************
-        //ptalChannelFlush( hpaio->chan, &startTimeout, &continueTimeout );
     }
-    DBG( 0,  "hpaio:Sending SCL command <<ESC>%s>>\n",
-                    buffer + 1 );
 
-    // *********************************
-    //if( ptalChannelWrite( hpaio->chan, buffer, datalen ) != datalen )
-    if( hplip_WriteHP( deviceid, channelid, buffer, datalen ) != datalen )
+    hpmud_write_channel(deviceid, channelid, buffer, datalen, EXCEPTION_TIMEOUT, &len);
+
+    DBG(6, "SclSendCommand: size=%d bytes_wrote=%d: %s %d\n", datalen, len, __FILE__, __LINE__);
+    if (DBG_LEVEL >= 6)
+       sysdump(buffer, datalen);
+
+    if(len != datalen)
     {
         return SANE_STATUS_IO_ERROR;
-    }
-
-    if( cmd == SCL_CMD_RESET )
-    {
-        // *********************************
-        //ptalChannelFlush( hpaio->chan, &startTimeout, &continueTimeout );
     }
 
     return SANE_STATUS_GOOD;
 }
 
-SANE_Status SclInquire( int deviceid, 
-                int channelid,
-                int cmd,
-                int param,
-                int * pValue,
-                char * buffer,
-                int maxlen )
+SANE_Status __attribute__ ((visibility ("hidden"))) SclInquire(int deviceid, int channelid, int cmd, int param, int * pValue, char * buffer, int maxlen)
 {
     SANE_Status retcode;
-    /*static struct timeval startTimeout =
-    {
-      SCL_INQUIRE_START_TIMEOUT, 0
-    };
-    static struct timeval continueTimeout =
-    {
-      SCL_INQUIRE_CONTINUE_TIMEOUT, 0
-    };*/
     int lenResponse, len, value;
     char _response[LEN_SCL_BUFFER + 1], * response = _response;
     char expected[LEN_SCL_BUFFER], expectedChar;
@@ -325,32 +246,20 @@ SANE_Status SclInquire( int deviceid,
                     expectedChar );
 
     /* Read the response. */
-    /*lenResponse = ptalSclChannelRead( hpaio->chan,
-                                      response,
-                                      LEN_SCL_BUFFER,
-                                      &startTimeout,
-                                      &continueTimeout,
-                                      1 );*/
-                                      
-    DBG( 0, "Reading SCL response...\n" );
-    
-    //lenResponse = ReadChannel( deviceid, channelid, response, LEN_SCL_BUFFER );                                      
-    //enResponse = ReadChannel( deviceid, channelid, response, 8192 );
     lenResponse = SclChannelRead( deviceid, channelid, response, LEN_SCL_BUFFER, 1 );
                                       
-    DBG( 0,  "hpaio:Got response (len=%d) <<ESC>%s>.\n",
-                    lenResponse,
-                    response + 1 );
+    DBG(6, "SclChannelRead: len=%d: %s %d\n", lenResponse, __FILE__, __LINE__);
+    if (DBG_LEVEL >= 6)
+       sysdump(response, lenResponse);
 
     /* Validate the first part of the response. */
     if( lenResponse <= len || memcmp( response, expected, len ) )
     {
-        DBG( 0,  "hpaio:hpaioSclInquire(cmd=%d,param=%d) "
-                       "didn't get expected response of <<ESC>%s>!\n",
-                       cmd,
-                       param,
-                       expected +
-                       1 );
+        bug("invalid SclInquire(cmd=%x,param=%d) exp(len=%d)/act(len=%d): %s %d\n", cmd, param, len, lenResponse, __FILE__, __LINE__);
+        bug("exp:\n");
+        bugdump(expected, len);
+        bug("act:\n");
+        bugdump(response, lenResponse);
         return SANE_STATUS_IO_ERROR;
     }
     response += len;
@@ -359,8 +268,7 @@ SANE_Status SclInquire( int deviceid,
     /* Null response? */
     if( response[0] == 'N' )
     {
-        /*DBG( 0,  "hpaio:%s: Got null response.\n",
-                        hpaio->saneDevice.name );*/
+        DBG(6, "SclInquire null response. %s %d\n", __FILE__, __LINE__);
         return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -369,11 +277,7 @@ SANE_Status SclInquire( int deviceid,
      * length of the binary-data portion. */
     if( sscanf( response, "%d%n", pValue, &len ) != 1 )
     {
-        /*DBG( 0,  "hpaio:%s: hpaioSclInquire(cmd=%d,param=%d) "
-                       "didn't find integer!\n",
-                       hpaio->saneDevice.name,
-                       cmd,
-                       param );*/
+        bug("invalid SclInquire(cmd=%x,param=%d) integer response: %s %d\n", cmd, param, __FILE__, __LINE__);
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -386,12 +290,7 @@ SANE_Status SclInquire( int deviceid,
     /* Binary-data response? */
     if( response[len] != 'W' )
     {
-        /*DBG( 0,  "hpaio:%s: hpaioSclInquire(cmd=%d,param=%d): "
-                       "Unexpected character '%c'!\n",
-                       hpaio->saneDevice.name,
-                       cmd,
-                       param,
-                       response[len] );*/
+        bug("invalid SclInquire(cmd=%x,param=%d) unexpected character '%c': %s %d\n", cmd, param, response[len], __FILE__, __LINE__);
         return SANE_STATUS_IO_ERROR;
     }
     response += len + 1;
@@ -400,15 +299,8 @@ SANE_Status SclInquire( int deviceid,
     /* Make sure we got the right length of binary data. */
     if( lenResponse<0 || lenResponse != *pValue || lenResponse>maxlen )
     {
-        /*DBG( 0,  "hpaio:%s: hpaioSclInquire(cmd=%d,param=%d) "
-                       "unexpected binary data lenResponse=%d, *pValue=%d, "
-                       "and/or maxlen=%d!\n",
-                       hpaio->saneDevice.name,
-                       cmd,
-                       param,
-                       lenResponse,
-                       *pValue,
-                       maxlen );*/
+        bug("invalid SclInquire(cmd=%x,param=%d) binary data lenResponse=%d *pValue=%d maxlen=%d: %s %d\n", 
+                             cmd, param, lenResponse, *pValue, maxlen, __FILE__, __LINE__);
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -422,6 +314,66 @@ SANE_Status SclInquire( int deviceid,
     return SANE_STATUS_GOOD;
 }
 
+/*
+ * Phase 2 partial rewrite. des 9/26/07
+ */
 
+SANE_Status __attribute__ ((visibility ("hidden"))) scl_send_cmd(HPAIO_RECORD *hpaio, const char *buf, int size)
+{
+    int len;
+    
+    hpmud_write_channel(hpaio->deviceid, hpaio->scan_channelid, buf, size, EXCEPTION_TIMEOUT, &len);
 
+    DBG(6, "scl cmd sent size=%d bytes_wrote=%d: %s %d\n", size, len, __FILE__, __LINE__);
+    if (DBG_LEVEL >= 6)
+       sysdump(buf, size);
+
+    if(len != size)
+    {
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    return SANE_STATUS_GOOD;
+}
+
+SANE_Status __attribute__ ((visibility ("hidden"))) scl_query_int(HPAIO_RECORD *hpaio, const char *buf, int size, int *result)
+{
+    char rbuf[256];
+    int len, stat;
+    char *tail;
+
+    *result=0;
+
+    if ((stat = scl_send_cmd(hpaio, buf, size)) != SANE_STATUS_GOOD)
+    {
+        return stat;
+    }
+
+    if ((stat = hpmud_read_channel(hpaio->deviceid, hpaio->scan_channelid, rbuf, sizeof(rbuf), EXCEPTION_TIMEOUT, &len)) != HPMUD_R_OK)
+    {
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    DBG(6, "scl response size=%d: %s %d\n", len, __FILE__, __LINE__);
+    if (DBG_LEVEL >= 6)
+       sysdump(buf, size);
+
+    /* Null response? */
+    if(rbuf[len-1] == 'N')
+    {
+        DBG(6, "scl null response: %s %d\n", __FILE__, __LINE__);
+        return SANE_STATUS_UNSUPPORTED;
+    }
+        
+    /* Integer response? */
+    if(rbuf[len-1] != 'V' )
+    {
+        bug("invalid scl integer response: %s %d\n", __FILE__, __LINE__);
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    *result = strtol(&rbuf[size], &tail, 10);
+
+    return SANE_STATUS_GOOD;
+}
 

@@ -40,14 +40,12 @@
 #include "header.h"
 #include "ijs.h"
 #include "ijs_server.h"
-#include "services.h"
 #include "hpijs.h"
+#include "services.h"
 
 #ifdef HAVE_LIBHPIP
 extern  int hpijsFaxServer (int argc, char **argv);
 #endif
-
-extern int hpijs97();
 
 int bug(const char *fmt, ...)
 {
@@ -515,8 +513,34 @@ int main(int argc, char *argv[], char *evenp[])
       bug("unable to open PrintContext object err=%d\n", pSS->pPC->constructor_error);
       goto BUGOUT;
    }
-   if (pSS->pPC->constructor_error < 0)
-      bug("WARNING: %s\n", pSS->GetDriverMessage(pSS->pPC->constructor_error));
+    if (pSS->pPC->constructor_error < 0)
+    {
+        bug ("WARNING: %s\n", pSS->GetDriverMessage(pSS->pPC->constructor_error));
+		switch (pSS->pPC->constructor_error)
+		{
+			case WARN_LOW_INK_BOTH_PENS:
+			case WARN_LOW_INK_BLACK:
+			case WARN_LOW_INK_COLOR:
+			case WARN_LOW_INK_PHOTO:
+			case WARN_LOW_INK_GREY:
+			case WARN_LOW_INK_BLACK_PHOTO:
+			case WARN_LOW_INK_COLOR_PHOTO:
+			case WARN_LOW_INK_GREY_PHOTO:
+			case WARN_LOW_INK_COLOR_GREY:
+			case WARN_LOW_INK_COLOR_GREY_PHOTO:
+			case WARN_LOW_INK_COLOR_BLACK_PHOTO:
+			case WARN_LOW_INK_CYAN:
+			case WARN_LOW_INK_MAGENTA:
+			case WARN_LOW_INK_YELLOW:
+			case WARN_LOW_INK_MULTIPLE_PENS:
+            {
+				bug ("STATE: marker-supply-low\n");
+                break;
+            }
+			default:
+				bug ("STATE: -marker-supply-low");
+		}
+    }
 
 #if 0
    bug("device model=%s\n", pSS->pPC->PrinterModel());

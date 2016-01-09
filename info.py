@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,24 +50,25 @@ USAGE = [(__doc__, "", "name", True),
          ("hp-toolbox", "", "seealso", False),
 
          ]
-         
+
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-info', __version__)
     sys.exit(0)
 
-         
+
 log.set_module('hp-info')
 
-    
+
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:ig',
         ['printer=', 'device=', 'help', 'help-rest', 'help-man', 
          'help-desc', 'logging=', 'id', 'bus='])
-         
-except getopt.GetoptError:
+
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 printer_name = None
@@ -85,10 +86,10 @@ for o, a in opts:
 
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
-    
+
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
@@ -113,7 +114,7 @@ for o, a in opts:
         log_level = a.lower().strip()
         if not log.set_level(log_level):
             usage()
-            
+
     elif o == '-g':
         log.set_level('debug')
 
@@ -127,7 +128,7 @@ if device_uri and printer_name:
 
 if not devid_mode:
     utils.log_title(__title__, __version__)
-    
+
 if not device_uri and not printer_name:
     try:
         device_uri = device.getInteractiveDeviceURI(bus)
@@ -136,6 +137,7 @@ if not device_uri and not printer_name:
     except Error:
         log.error("Error occured during interactive mode. Exiting.")
         sys.exit(1)
+        
 
 try:
     d = device.Device(device_uri, printer_name)
@@ -153,8 +155,10 @@ if d.device_uri is None and device_uri:
 
 if not devid_mode:
     log.info("")
-    log.info(utils.bold(d.device_uri))
+    log.info(log.bold(d.device_uri))
     log.info("")
+
+user_cfg.last_used.device_uri = d.device_uri
 
 try:
     d.open()
@@ -180,15 +184,15 @@ else:
     dq_keys = d.dq.keys()
     dq_keys.sort()
 
-    log.info(utils.bold("Device Parameters (dynamic data):"))
-    log.info(utils.TextFormatter.bold(formatter.compose(("Parameter", "Value(s)"))))
+    log.info(log.bold("Device Parameters (dynamic data):"))
+    log.info(log.bold(formatter.compose(("Parameter", "Value(s)"))))
     log.info(formatter.compose(('-'*28, '-'*58)))
 
     for key in dq_keys:
         log.info(formatter.compose((key, str(d.dq[key]))))
 
-    log.info(utils.bold("\nModel Parameters (static data):"))
-    log.info(utils.TextFormatter.bold(formatter.compose(("Parameter", "Value(s)"))))
+    log.info(log.bold("\nModel Parameters (static data):"))
+    log.info(log.bold(formatter.compose(("Parameter", "Value(s)"))))
     log.info(formatter.compose(('-'*28, '-'*58)))
 
     mq_keys = d.mq.keys()
@@ -196,7 +200,7 @@ else:
 
     for key in mq_keys:
         log.info(formatter.compose((key, str(d.mq[key]))))
-        
+
     formatter = utils.TextFormatter(
                     (
                         {'width': 20, 'margin' : 2}, # date/time
@@ -206,10 +210,10 @@ else:
                         {'width': 8, 'margin' : 2}, # job id
                     )
                 )
-        
 
-    log.info(utils.bold("\nStatus History (most recent first):"))
-    log.info(utils.TextFormatter.bold(formatter.compose(("Date/Time", "Code", "Status Description", "User", "Job ID"))))
+
+    log.info(log.bold("\nStatus History (most recent first):"))
+    log.info(log.bold(formatter.compose(("Date/Time", "Code", "Status Description", "User", "Job ID"))))
     log.info(formatter.compose(('-'*20, '-'*5, '-'*40, '-'*8, '-'*8)))
 
     hq = d.queryHistory()

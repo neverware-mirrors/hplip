@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # Author: Don Welch
 #
 
-__version__ = '2.5'
+__version__ = '2.6'
 __title__ = 'CUPS Fax Backend (hpfax:)'
 __doc__ = "CUPS backend for PC send fax. Generally this backend is run by CUPS, not directly by a user. To send a fax as a user, run hp-sendfax."
 
@@ -31,7 +31,14 @@ import os.path, os
 import socket
 import syslog
 import time
-import re
+import operator
+
+CUPS_BACKEND_OK = 0 # Job completed successfully
+CUPS_BACKEND_FAILED = 1 # Job failed, use error-policy
+CUPS_BACKEND_AUTH_REQUIRED = 2 # Job failed, authentication required
+CUPS_BACKEND_HOLD = 3 # Job failed, hold job
+CUPS_BACKEND_STOP = 4 #  Job failed, stop queue
+CUPS_BACKEND_CANCEL = 5 # Job failed, cancel job
 
 pid = os.getpid()
 config_file = '/etc/hp/hplip.conf'
@@ -59,7 +66,7 @@ sys.path.insert( 0, home_dir )
 try:
     from base.g import *
     from base.codes import *
-    from base import device, utils, msg
+    from base import device, utils, msg, service
     from base.service import sendEvent
     from prnt import cups
 except ImportError:
@@ -78,12 +85,9 @@ USAGE = [(__doc__, "", "para", True),
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, title=__title__, crumb='hpfax:')
-    sys.exit(0)        
-
-
-
+    sys.exit(CUPS_BACKEND_OK)        
 
 
 try:
@@ -100,76 +104,46 @@ for o, a in opts:
 
     elif o == '-g':
         log.set_level('debug')
-    
+
     elif o in ('-h', '--help'):
         usage()
-        
+
     elif o == '--help-rest':
         usage('rest')
-    
+
     elif o == '--help-man':
         usage('man')
-        
+
 
 if len( args ) == 0:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        sock.connect((prop.hpssd_host, prop.hpssd_port))
-    except socket.error:
-        log.stderr("hpfax[%d]: error: Unable to contact HPLIP I/O (hpssd)." % pid)
-        sys.exit(1)
-
-    fields, data, result_code = \
-        msg.xmitMessage(sock,
-                         "ProbeDevicesFiltered",
-                         None,
-                         {
-                           'bus' : 'usb,par',
-                           'timeout' : 5,
-                           'ttl' : 4,
-                           'filter' : 'fax',
-                           'format' : 'cups',
-                          }
-                       )
-
-    sock.close()
-
-    if not fields.get('num-devices', 0) or result_code > ERROR_SUCCESS:
-        cups_ver_major, cups_ver_minor, cups_ver_patch = cups.getVersionTuple()
-        
-        if cups_ver_major == 1 and cups_ver_minor < 2:
-            print 'direct hpfax:/no_device_found "HP Fax" "no_device_found" ""' 
-            
-        sys.exit(0)
-
-    direct_pat = re.compile(r'(.*?) "(.*?)" "(.*?)" "(.*?)"', re.IGNORECASE)
+    cups11 = utils.to_bool(sys_cfg.configure.cups11, False)
     
+    try:
+        probed_devices = device.probeDevices('usb,par', filter={'fax-type': (operator.gt, 0)})
+    except Error:
+        log.stderr("hpfax[%d]: error: Unable to contact HPLIP I/O (hpssd)." % pid)
+        sys.exit(CUPS_BACKEND_FAILED)
+
     good_devices = 0
-    for d in data.splitlines():
-        m = direct_pat.match(d)
-        
-        try:
-            uri = m.group(1) or ''
-            uri = uri.replace('hp:/', 'hpfax:/')
-            mdl = m.group(2) or ''
-            desc = m.group(3) or ''
-            devid = m.group(4) or ''
-        except AttributeError:
-            continue
-        
+    for uri in probed_devices:
         try:
             back_end, is_hp, bus, model, serial, dev_file, host, port = \
                 device.parseDeviceURI(uri)
         except Error:
             continue
-        
-        print 'direct %s "HP Fax" "%s HP Fax" "MFG:HP;MDL:Fax;DES:HP Fax;"' % (uri, desc)
-        good_devices += 1
-        
-    if not good_devices:
-        print 'direct hpfax:/no_device_found "HP Fax" "no_device_found" ""' 
 
-    sys.exit(0)
+        print 'direct %s "HP Fax" "%s HP Fax HPLIP" "MFG:HP;MDL:Fax;DES:HP Fax;"' % \
+            (uri.replace("hp:", "hpfax:"), model.replace("_", " "))
+            
+        good_devices += 1
+
+    if good_devices == 0:
+        if cups11:
+            print 'direct hpfax:/no_device_found "HP Fax" "no_device_found" ""'
+        else:
+            print 'direct hpfax "Unknown" "HP Fax (HPLIP)" ""' 
+
+    sys.exit(CUPS_BACKEND_OK)
 
 else:
     # CUPS provided environment
@@ -178,46 +152,42 @@ else:
         printer_name = os.environ['PRINTER']
     except KeyError:
         log.stderr("hpfax[%d]: error: Improper environment: Must be run by CUPS." % pid)
-        sys.exit(1)
-        
+        sys.exit(CUPS_BACKEND_FAILED)
+
     log.debug(args)
-    
+
     try:
         job_id, username, title, copies, options = args[0:5]
     except IndexError:
         log.stderr("hpfax[%d]: error: Invalid command line: Invalid arguments." % pid)
-        sys.exit(1)
-        
+        sys.exit(CUPS_BACKEND_FAILED)
+
     try:
         input_fd = file(args[5], 'r')
     except IndexError:
         input_fd = 0
-        
-    pdb = pwd.getpwnam(username)
-    home_folder, uid, gid = pdb[5], pdb[2], pdb[3]
-    
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     try:
-        sock.connect((prop.hpssd_host, prop.hpssd_port))
-    except socket.error:
-        log.stderr("hpfax[%d]: error: Unable to contact HPLIP I/O (hpssd)." % pid)
-        sys.exit(1)
+        sock = service.startup()
+    except Error:
+        log.stderr("hpfax[%d]: error: Unable to start hpssd." % pid)
+        sys.exit(CUPS_BACKEND_FAILED)
 
     fax_data = os.read(input_fd, prop.max_message_len)
 
     if not len(fax_data):
         log.stderr("hpfax[%d]: error: No data!" % pid)
-        
+
         sendEvent(sock, EVENT_ERROR_NO_DATA_AVAILABLE, 'error',
                   job_id, username, device_uri)
-        
+
         sock.close()
-        sys.exit(1)
-        
+        sys.exit(CUPS_BACKEND_FAILED)
+
 
     sendEvent(sock, EVENT_START_FAX_PRINT_JOB, 'event',
               job_id, username, device_uri)
-    
+
     while True:
         try:
             fields, data, result_code = \
@@ -229,23 +199,23 @@ else:
                                       "printer": printer_name,
                                       "title": title,
                                      })
-                               
+
         except Error:
             log.stderr("hpfax[%d]: error: Unable to send event to HPLIP I/O (hpssd)." % pid)
-            sys.exit(1) 
-       
+            sys.exit(CUPS_BACKEND_FAILED) 
+
         if result_code == ERROR_GUI_NOT_AVAILABLE:
             # New behavior in 1.6.6a (10sec retry)
             log.stderr("hpfax[%d]: error: You must run hp-sendfax first. Run hp-sendfax now to continue. Fax will resume within 10 seconds." % pid)
-            
+
             sendEvent(sock, EVENT_ERROR_FAX_MUST_RUN_SENDFAX_FIRST, 'event',
                       job_id, username, device_uri)
-            
+
         else: # ERROR_SUCCESS
             break
-        
+
         time.sleep(10)
-    
+
 
     bytes_read = 0
     while True:
@@ -261,12 +231,12 @@ else:
                                       "device-uri": device_uri,
                                       "job-size": bytes_read,
                                      })
-            
+
             break
-                                   
-            
+
+
         bytes_read += len(fax_data) 
-        
+
         fields, data, result_code = \
             msg.xmitMessage(sock, "HPFaxData", 
                                  fax_data,
@@ -275,13 +245,9 @@ else:
                                  })
 
         fax_data = os.read(input_fd, prop.max_message_len)
-    
+
     os.close(input_fd)
-    
-    #sendEvent(sock, EVENT_END_FAX_PRINT_JOB, 'event',
-    #          job_id, username, device_uri)
-    
     sock.close()
-    sys.exit(0)
-    
-    
+    sys.exit(CUPS_BACKEND_OK)
+
+

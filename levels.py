@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2007 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,20 +20,22 @@
 # Author: Don Welch
 #
 
-__version__ = '1.0'
+__version__ = '1.1'
 __title__ = 'Supply Levels Utility'
 __doc__ = "Display bar graphs of current supply levels for supported HPLIP printers."
 
 # Std Lib
-import sys, getopt, time
+import sys
+import getopt
+import time
+import operator
 
 # Local
 from base.g import *
-from base import device, status, utils
+from base import device, status, utils, tui
 from prnt import cups
 
-DEFAULT_BAR_GRAPH_SIZE = 100
-
+DEFAULT_BAR_GRAPH_SIZE = 8*(tui.ttysize()[1])/10
 
 
 USAGE = [(__doc__, "", "name", True),
@@ -44,7 +46,7 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_SPACE,
          utils.USAGE_OPTIONS,
          utils.USAGE_BUS1, utils.USAGE_BUS2,
-        ("Bar graph size:", "-s<size> or --size=<size> (default=%d)", "option", False),
+        ("Bar graph size:", "-s<size> or --size=<size> (current default=%d)" % DEFAULT_BAR_GRAPH_SIZE, "option", False),
         ("Use colored bar graphs:", "-c or --color (default is colorized)", "option", False),
         ("Bar graph character:", "-a<char> or --char=<char> (default is '/')", "option", False),
          utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
@@ -53,17 +55,16 @@ USAGE = [(__doc__, "", "name", True),
          utils.USAGE_NOTES,
          utils.USAGE_STD_NOTES1, utils.USAGE_STD_NOTES2, 
          ]
-         
+
 def usage(typ='text'):
     if typ == 'text':
         utils.log_title(__title__, __version__)
-        
+
     utils.format_text(USAGE, typ, __title__, 'hp-levels', __version__)
     sys.exit(0)
 
 
 def logBarGraph(agent_level, agent_type, size=DEFAULT_BAR_GRAPH_SIZE, use_colors=True, bar_char='/'):
-    if size == 0: size = 100
     adj = 100.0/size
     if adj==0.0: adj=100.0
     bar = int(agent_level/adj)
@@ -71,58 +72,59 @@ def logBarGraph(agent_level, agent_type, size=DEFAULT_BAR_GRAPH_SIZE, use_colors
 
     if use_colors:
         if agent_type in (AGENT_TYPE_CMY, AGENT_TYPE_KCM, AGENT_TYPE_CYAN, AGENT_TYPE_CYAN_LOW):
-            log.info(utils.codes['teal'])
+            log.info(log.codes['teal'])
         elif agent_type in (AGENT_TYPE_MAGENTA, AGENT_TYPE_MAGENTA_LOW):
-            log.info(utils.codes['fuscia'])
+            log.info(log.codes['fuscia'])
         elif agent_type in (AGENT_TYPE_YELLOW, AGENT_TYPE_YELLOW_LOW):
-            log.info(utils.codes['yellow'])
+            log.info(log.codes['yellow'])
         elif agent_type == AGENT_TYPE_BLUE:
-            log.info(utils.codes['blue'])
+            log.info(log.codes['blue'])
         elif agent_type == AGENT_TYPE_BLACK:
-            log.info(utils.codes['bold'])
+            log.info(log.codes['bold'])
         elif agent_type in (AGENT_TYPE_LG, AGENT_TYPE_G, AGENT_TYPE_PG):
             pass
 
     color = ''
     if use_colors:
         if agent_type in (AGENT_TYPE_CMY, AGENT_TYPE_KCM):
-            color = utils.codes['fuscia']
+            color = log.codes['fuscia']
 
     log.info(("-"*size)+color)
 
     color = ''
     if use_colors:
         if agent_type in (AGENT_TYPE_CMY, AGENT_TYPE_KCM):
-            color = utils.codes['yellow']
+            color = log.codes['yellow']
 
     log.info("%s%s%s%s (approx. %d%%)%s" % ("|", bar_char*bar, 
              " "*(size-bar-2), "|", agent_level, color))
 
     color = ''
     if use_colors:
-        color = utils.codes['reset']
+        color = log.codes['reset']
 
     log.info(("-"*size)+color)
 
 
-    
-    
+
+
 log.set_module('hp-levels')
 
-    
+
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'p:d:hl:b:s:ca:g',
         ['printer=', 'device=', 'help', 'help-rest', 'help-man', 
          'help-desc', 'logging=', 'size=', 'color', 'char='])
-         
-except getopt.GetoptError:
+
+except getopt.GetoptError, e:
+    log.error(e.msg)
     usage()
 
 printer_name = None
 device_uri = None
 log_level = logger.DEFAULT_LOG_LEVEL
 bus = device.DEFAULT_PROBE_BUS
-size = 100
+size = DEFAULT_BAR_GRAPH_SIZE
 color = True
 bar_char = '/'
 
@@ -135,10 +137,10 @@ for o, a in opts:
 
     elif o == '--help-rest':
         usage('rest')
-        
+
     elif o == '--help-man':
         usage('man')
-    
+
     elif o == '--help-desc':
         print __doc__,
         sys.exit(0)
@@ -170,7 +172,7 @@ for o, a in opts:
         except:
             size = DEFAULT_BAR_GRAPH_SIZE
 
-        if size < 0 or size > 200:
+        if size < 1 or size > DEFAULT_BAR_GRAPH_SIZE:
             size = DEFAULT_BAR_GRAPH_SIZE
 
     elif o in ('-c', '--color'):
@@ -194,12 +196,13 @@ utils.log_title(__title__, __version__)
 
 if not device_uri and not printer_name:
     try:
-        device_uri = device.getInteractiveDeviceURI(bus)
+        device_uri = device.getInteractiveDeviceURI(bus, filter={'status-type': (operator.gt, 0)})
         if device_uri is None:
             sys.exit(1)
     except Error:
         log.error("Error occured during interactive mode. Exiting.")
         sys.exit(1)
+
 
 try:
     d = device.Device(device_uri, printer_name)
@@ -215,6 +218,7 @@ if d.device_uri is None and device_uri:
     log.error("Malformed/invalid device-uri: %s" % device_uri)
     sys.exit(1)
 
+user_cfg.last_used.device_uri = d.device_uri
 
 try:
     d.open()
@@ -237,9 +241,9 @@ if d.mq['status-type'] != STATUS_TYPE_NONE:
             break
         else:
             sorted_supplies.append((a, agent_kind, agent_type))
-            
+
         a += 1
-        
+
     sorted_supplies.sort(lambda x, y: cmp(x[2], y[2]) or cmp(x[1], y[1]))
 
     for x in sorted_supplies:
@@ -259,14 +263,14 @@ if d.mq['status-type'] != STATUS_TYPE_NONE:
                             AGENT_KIND_INT_BATTERY,
                             AGENT_KIND_DRUM_KIT,):
 
-            log.info(utils.bold(agent_desc))
+            log.info(log.bold(agent_desc))
             log.info("Part No.: %s" % agent_sku)
             log.info("Health: %s" % agent_health_desc)
             logBarGraph(agent_level, agent_type, size, color, bar_char)
             log.info("")
 
         else:
-            log.info(utils.bold(agent_desc))
+            log.info(log.bold(agent_desc))
             log.info("Part No.: %s" % agent_sku)
             log.info("Health: %s" % agent_health_desc)
             log.info("")
