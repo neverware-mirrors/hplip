@@ -72,6 +72,8 @@ CXXFLAGS:=$(CFLAGS)
 LDFLAGS = `dpkg-buildflags --get LDFLAGS`
 CPPFLAGS = `dpkg-buildflags --get CPPFLAGS`
 
+GZIP = gzip -n --best
+
 ##
 ##  Build-tree preparation
 ##
@@ -158,6 +160,11 @@ configure-stamp: configure
 build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
+
+	# Compress various files before building, they are needed for the build, and were
+	# compressed in the non-repacked upstream tarballs
+	-find . -name '*.ppd' | xargs ${GZIP} -f
+	-find data/ -regextype posix-extended -regex '.*\.(ldl|pcl|ps|pdf)' | xargs ${GZIP} -f
 
 	$(MAKE) docdir=\$${prefix}/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
