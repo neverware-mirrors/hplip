@@ -408,7 +408,7 @@ binary-indep: install-indep
 #	dh_installinfo -i
 	dh_installchangelogs -i $(CHANGELOG)
 	dh_link -i
-	dh_strip -i --dbg-package=$(DBGPKG)
+	dh_strip -i --ddeb-migration='$(DBGPKG) (<< 3.15.11+repack0-1~), hplip (<< 3.10.2-2ubuntu2)'
 	dh_compress -i
 	dh_fixperms -i
 #	dh_perl -i
@@ -448,7 +448,7 @@ binary-arch: install-arch
 	#dh_installinit -phplip --init-script=hplip -- multiuser 19
 	dh_installudev
 	dh_link -a
-	dh_strip -a --dbg-package=$(DBGPKG)
+	dh_strip -a --ddeb-migration='$(DBGPKG) (<< 3.15.11+repack0-1~), hplip (<< 3.10.2-2ubuntu2)'
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
