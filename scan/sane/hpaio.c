@@ -2008,12 +2008,9 @@ static void hpaioMfpdtfPardonReadTimeout( hpaioScanner_t hpaio,
 
 static int hpaioPmlSelectCallback( hpaioScanner_t hpaio )
 {
-    //hpaioScanner_t hpaio = ( hpaioScanner_t ) cbd;
-    
+    int r = SANE_STATUS_GOOD;
+
     DBG( 0, "hpaioPmlSelectCallback()\n" );
-    
-    
-    int r = OK;
 
     if( hpaio->pml.scanDone ||
         PmlRequestGet( hpaio->deviceid, hpaio->cmd_channelid, hpaio->pml.objUploadState ) == ERROR ||
@@ -2054,11 +2051,12 @@ setIdle:
     }
 
     hpaio->pml.scanDone = 1;
+
 done:
-    if( hpaio->pml.scanDone && hpaio->endOfData )
-    {
-        r = ERROR;
-    }
+    //    if( hpaio->pml.scanDone && hpaio->endOfData )
+    //    {
+    //        r = ERROR;
+    //    }
     DBG( 0,  "hpaio: hpaioPmlSelectCallback returns %d, "
                     "scanDone=%d, endOfData=%d, alreadyRestarted=%d.\n",
                     r,
@@ -3544,13 +3542,9 @@ extern SANE_Status sane_hpaio_start( SANE_Handle handle )
 
             rService = MfpdtfReadService( hpaio->mfpdtf );
             
-            // ****************************************************************
-            if( hpaio->scannerType == SCANNER_TYPE_PML && 
-                hpaioPmlSelectCallback( hpaio ) == ERROR )
-            {
-                goto abort;
-            }
-            // ****************************************************************
+            if( hpaio->scannerType == SCANNER_TYPE_PML )
+                if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
+                    goto abort;
             
             retcode = hpaioPmlCheckForScanFailure( hpaio );
             
@@ -3905,12 +3899,9 @@ needMoreData:
 
                 rService = MfpdtfReadService( hpaio->mfpdtf );
                                 
-                if( hpaio->scannerType == SCANNER_TYPE_PML && 
-                    hpaioPmlSelectCallback( hpaio ) == ERROR )
-                {
-                    retcode = SANE_STATUS_IO_ERROR;
-                    goto abort;
-                }
+                if( hpaio->scannerType == SCANNER_TYPE_PML )
+                    if (retcode = hpaioPmlSelectCallback( hpaio ) != SANE_STATUS_GOOD )
+                        goto abort;
                 
                 retcode = hpaioPmlCheckForScanFailure( hpaio );
                 

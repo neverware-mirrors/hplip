@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/cleaningform_base.ui'
 #
-# Created: Tue Jan 25 10:49:06 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri Apr 1 14:51:32 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -24,7 +24,7 @@ class CleaningForm_base(QDialog):
         CleaningForm_baseLayout = QGridLayout(self,1,1,6,6,"CleaningForm_baseLayout")
 
         self.Icon = QLabel(self,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setMinimumSize(QSize(71,65))
         self.Icon.setMaximumSize(QSize(71,65))
         self.Icon.setScaledContents(1)

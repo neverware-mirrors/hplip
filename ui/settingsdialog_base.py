@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/pparks/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
+# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/settingsdialog_base.ui'
 #
-# Created: Mon Jan 31 15:16:03 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Wed Apr 13 11:15:03 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -36,26 +36,47 @@ class SettingsDialog_base(QDialog):
 
         self.TabWidget = QTabWidget(self,"TabWidget")
 
-        self.PopupAlerts = QWidget(self.TabWidget,"PopupAlerts")
-        PopupAlertsLayout = QGridLayout(self.PopupAlerts,1,1,11,6,"PopupAlertsLayout")
+        self.CleaningLevels = QWidget(self.TabWidget,"CleaningLevels")
+        CleaningLevelsLayout = QGridLayout(self.CleaningLevels,1,1,11,6,"CleaningLevelsLayout")
 
-        self.textLabel3 = QLabel(self.PopupAlerts,"textLabel3")
+        self.textLabel3_2_2 = QLabel(self.CleaningLevels,"textLabel3_2_2")
 
-        PopupAlertsLayout.addWidget(self.textLabel3,0,0)
+        CleaningLevelsLayout.addWidget(self.textLabel3_2_2,0,0)
 
-        self.line1 = QFrame(self.PopupAlerts,"line1")
-        self.line1.setFrameShape(QFrame.HLine)
-        self.line1.setFrameShadow(QFrame.Sunken)
-        self.line1.setFrameShape(QFrame.HLine)
+        self.line1_2_2 = QFrame(self.CleaningLevels,"line1_2_2")
+        self.line1_2_2.setFrameShape(QFrame.HLine)
+        self.line1_2_2.setFrameShadow(QFrame.Sunken)
+        self.line1_2_2.setFrameShape(QFrame.HLine)
 
-        PopupAlertsLayout.addWidget(self.line1,1,0)
+        CleaningLevelsLayout.addWidget(self.line1_2_2,1,0)
+        spacer8 = QSpacerItem(20,200,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        CleaningLevelsLayout.addItem(spacer8,3,0)
 
-        self.PopupCheckBox = QCheckBox(self.PopupAlerts,"PopupCheckBox")
+        self.CleaningLevel = QButtonGroup(self.CleaningLevels,"CleaningLevel")
+        self.CleaningLevel.setColumnLayout(0,Qt.Vertical)
+        self.CleaningLevel.layout().setSpacing(6)
+        self.CleaningLevel.layout().setMargin(11)
+        CleaningLevelLayout = QGridLayout(self.CleaningLevel.layout())
+        CleaningLevelLayout.setAlignment(Qt.AlignTop)
+        spacer9_2 = QSpacerItem(181,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        CleaningLevelLayout.addItem(spacer9_2,0,1)
 
-        PopupAlertsLayout.addWidget(self.PopupCheckBox,2,0)
-        spacer7 = QSpacerItem(21,171,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        PopupAlertsLayout.addItem(spacer7,3,0)
-        self.TabWidget.insertTab(self.PopupAlerts,QString(""))
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+
+        self.AutoRefreshRate = QSpinBox(self.CleaningLevel,"AutoRefreshRate")
+        self.AutoRefreshRate.setWrapping(1)
+        self.AutoRefreshRate.setButtonSymbols(QSpinBox.PlusMinus)
+        self.AutoRefreshRate.setMaxValue(360)
+        self.AutoRefreshRate.setMinValue(5)
+        layout7.addWidget(self.AutoRefreshRate)
+
+        self.textLabel1_3 = QLabel(self.CleaningLevel,"textLabel1_3")
+        layout7.addWidget(self.textLabel1_3)
+
+        CleaningLevelLayout.addLayout(layout7,0,0)
+
+        CleaningLevelsLayout.addWidget(self.CleaningLevel,2,0)
+        self.TabWidget.insertTab(self.CleaningLevels,QString.fromLatin1(""))
 
         self.EmailAlerts = QWidget(self.TabWidget,"EmailAlerts")
         EmailAlertsLayout = QGridLayout(self.EmailAlerts,1,1,11,6,"EmailAlertsLayout")
@@ -130,49 +151,7 @@ class SettingsDialog_base(QDialog):
         EmailAlertsLayout.addWidget(self.EmailTestButton,7,0)
         spacer12 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         EmailAlertsLayout.addItem(spacer12,8,0)
-        self.TabWidget.insertTab(self.EmailAlerts,QString(""))
-
-        self.CleaningLevels = QWidget(self.TabWidget,"CleaningLevels")
-        CleaningLevelsLayout = QGridLayout(self.CleaningLevels,1,1,11,6,"CleaningLevelsLayout")
-
-        self.textLabel3_2_2 = QLabel(self.CleaningLevels,"textLabel3_2_2")
-
-        CleaningLevelsLayout.addWidget(self.textLabel3_2_2,0,0)
-
-        self.line1_2_2 = QFrame(self.CleaningLevels,"line1_2_2")
-        self.line1_2_2.setFrameShape(QFrame.HLine)
-        self.line1_2_2.setFrameShadow(QFrame.Sunken)
-        self.line1_2_2.setFrameShape(QFrame.HLine)
-
-        CleaningLevelsLayout.addWidget(self.line1_2_2,1,0)
-        spacer8 = QSpacerItem(20,200,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        CleaningLevelsLayout.addItem(spacer8,3,0)
-
-        self.CleaningLevel = QButtonGroup(self.CleaningLevels,"CleaningLevel")
-        self.CleaningLevel.setColumnLayout(0,Qt.Vertical)
-        self.CleaningLevel.layout().setSpacing(6)
-        self.CleaningLevel.layout().setMargin(11)
-        CleaningLevelLayout = QGridLayout(self.CleaningLevel.layout())
-        CleaningLevelLayout.setAlignment(Qt.AlignTop)
-        spacer9_2 = QSpacerItem(181,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        CleaningLevelLayout.addItem(spacer9_2,0,1)
-
-        layout7 = QHBoxLayout(None,0,6,"layout7")
-
-        self.AutoRefreshRate = QSpinBox(self.CleaningLevel,"AutoRefreshRate")
-        self.AutoRefreshRate.setWrapping(1)
-        self.AutoRefreshRate.setButtonSymbols(QSpinBox.PlusMinus)
-        self.AutoRefreshRate.setMaxValue(360)
-        self.AutoRefreshRate.setMinValue(5)
-        layout7.addWidget(self.AutoRefreshRate)
-
-        self.textLabel1_3 = QLabel(self.CleaningLevel,"textLabel1_3")
-        layout7.addWidget(self.textLabel1_3)
-
-        CleaningLevelLayout.addLayout(layout7,0,0)
-
-        CleaningLevelsLayout.addWidget(self.CleaningLevel,2,0)
-        self.TabWidget.insertTab(self.CleaningLevels,QString(""))
+        self.TabWidget.insertTab(self.EmailAlerts,QString.fromLatin1(""))
 
         self.FunctionCommands = QWidget(self.TabWidget,"FunctionCommands")
         FunctionCommandsLayout = QGridLayout(self.FunctionCommands,1,1,11,6,"FunctionCommandsLayout")
@@ -255,7 +234,7 @@ class SettingsDialog_base(QDialog):
         FunctionCommandsLayout.addItem(spacer8_2,13,1)
         spacer9 = QSpacerItem(20,81,QSizePolicy.Minimum,QSizePolicy.Expanding)
         FunctionCommandsLayout.addItem(spacer9,12,0)
-        self.TabWidget.insertTab(self.FunctionCommands,QString(""))
+        self.TabWidget.insertTab(self.FunctionCommands,QString.fromLatin1(""))
 
         SettingsDialog_baseLayout.addMultiCellWidget(self.TabWidget,0,0,0,3)
         spacer40 = QSpacerItem(430,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -280,8 +259,7 @@ class SettingsDialog_base(QDialog):
         self.setTabOrder(self.TabWidget,self.pushButton30)
         self.setTabOrder(self.pushButton30,self.pushButton32)
         self.setTabOrder(self.pushButton32,self.pushButton31)
-        self.setTabOrder(self.pushButton31,self.PopupCheckBox)
-        self.setTabOrder(self.PopupCheckBox,self.EmailAddress)
+        self.setTabOrder(self.pushButton31,self.EmailAddress)
         self.setTabOrder(self.EmailAddress,self.SMTPServer)
         self.setTabOrder(self.SMTPServer,self.Username)
         self.setTabOrder(self.Username,self.Password)
@@ -301,9 +279,10 @@ class SettingsDialog_base(QDialog):
         self.pushButton30.setText(self.__tr("OK"))
         self.pushButton32.setText(self.__tr("Help"))
         self.pushButton31.setText(self.__tr("Cancel"))
-        self.textLabel3.setText(self.__tr("<b>Configure if the HP Device Manager will popup on alerts</b>"))
-        self.PopupCheckBox.setText(self.__tr("Popup Device Manager when status alerts occur"))
-        self.TabWidget.changeTab(self.PopupAlerts,self.__tr("Popup Alerts"))
+        self.textLabel3_2_2.setText(self.__tr("<b>Configure the rate at which devices are automaically refreshed</b>"))
+        self.CleaningLevel.setTitle(self.__tr("Auto refresh rate"))
+        self.textLabel1_3.setText(self.__tr("seconds"))
+        self.TabWidget.changeTab(self.CleaningLevels,self.__tr("Auto Refresh"))
         self.textLabel3_2.setText(self.__tr("<b>Configure if the HP Device Manager will send email on alerts</b>"))
         self.textLabel21.setText(self.__tr("SMTP server name:"))
         self.textLabel20.setText(self.__tr("Email address(es):"))
@@ -313,10 +292,6 @@ class SettingsDialog_base(QDialog):
         self.EmailCheckBox.setText(self.__tr("Send email when status alerts occur:"))
         self.EmailTestButton.setText(self.__tr("Test"))
         self.TabWidget.changeTab(self.EmailAlerts,self.__tr("Email Alerts"))
-        self.textLabel3_2_2.setText(self.__tr("<b>Configure the rate at which devices are automaically refreshed</b>"))
-        self.CleaningLevel.setTitle(self.__tr("Auto refresh rate"))
-        self.textLabel1_3.setText(self.__tr("seconds"))
-        self.TabWidget.changeTab(self.CleaningLevels,self.__tr("Auto Refresh"))
         self.textLabel3_2_2_2.setText(self.__tr("<b>Configure what commands to run for device functions</b>"))
         self.textLabel1_2.setText(self.__tr("Print Command"))
         self.textLabel1_2_2.setText(self.__tr("Scan Command"))

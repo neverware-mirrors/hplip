@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/coloradjform_base.ui'
 #
-# Created: Tue Feb 8 11:05:13 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.13
+# Created: Fri Apr 1 14:51:28 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -44,7 +44,7 @@ class ColorAdjForm_base(QDialog):
         buttonGroupLayout.setAlignment(Qt.AlignTop)
 
         self.Icon = QLabel(self.buttonGroup,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setScaledContents(1)
 
         buttonGroupLayout.addWidget(self.Icon,0,0)

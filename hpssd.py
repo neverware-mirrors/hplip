@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 
-# $Revision: 1.75 $ 
-# $Date: 2005/03/29 21:06:48 $
+# $Revision: 1.76 $ 
+# $Date: 2005/04/13 21:16:07 $
 # $Author: dwelch $
 
 #
@@ -27,10 +27,10 @@
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
 
-# Remove in 2.3
+# Remove in 2.3?
 from __future__ import generators
 
-_VERSION = '4.1'
+_VERSION = '4.2'
 
 # Std Lib
 import sys
@@ -136,7 +136,6 @@ class hpssd_handler( async.dispatcher ):
             'setalerts'            : self.handle_setalerts,
             'testemail'            : self.handle_test_email,
 
-            #'getalerts'            : self.handle_getalerts,
             'getgui'               : self.handle_getgui,
             'devicequery'          : self.handle_device_query,
 
@@ -346,12 +345,11 @@ class hpssd_handler( async.dispatcher ):
         email_alerts = self.fields.get( 'email-alerts', False )
         email_address = self.fields.get( 'email-address', '' )
         smtp_server = self.fields.get( 'smtp-server', '' )
-        popup_alerts = self.fields.get( 'popup-alerts', True )
 
         database.alerts[ username ] = { 'email-alerts'  : email_alerts,
                                         'email-address' : email_address,
                                         'smtp-server'   : smtp_server,
-                                        'popup-alerts'  : popup_alerts }
+                                       }
 
         return buildResultMessage( 'SetAlertsResult', None, result_code )
 
@@ -436,7 +434,6 @@ class hpssd_handler( async.dispatcher ):
             username = self.fields[ 'username' ]
             server_pass = self.fields[ 'server-pass' ] 
             from_address = '@localhost.com'
-            #log.debug( "########  HOST: %s" % from_address )
 
             try:
                 if username and server_pass:
@@ -494,7 +491,6 @@ class hpssd_handler( async.dispatcher ):
         try:
             payload = database.queryStrings( string_id )
         except Error: 
-            #utils.log_exception()
             log.error( "String query failed for id %s" % string_id )
             payload = None
             result_code = ERROR_STRING_QUERY_FAILED
@@ -516,115 +512,107 @@ class hpssd_handler( async.dispatcher ):
 
     # EVENT
     def handle_event( self ):
-        #try:
-        if 1:
-            gui_port, gui_host = None, None
+        gui_port, gui_host = None, None
 
-            event_code = self.fields[ 'event-code' ]
-            event_type = self.fields[ 'event-type' ]
+        event_code = self.fields[ 'event-code' ]
+        event_type = self.fields[ 'event-type' ]
 
-            log.debug( "code (type): %d (%s)" % ( event_code, event_type ) )
+        log.debug( "code (type): %d (%s)" % ( event_code, event_type ) )
 
-            try:
-                error_string_short = database.queryStrings( str( event_code ), 0 )
-            except Error:
-                error_string_short = ''
+        try:
+            error_string_short = database.queryStrings( str( event_code ), 0 )
+        except Error:
+            error_string_short = ''
 
-            try:
-                error_string_long = database.queryStrings( str( event_code ), 1 )
-            except Error:
-                error_string_long = ''
+        try:
+            error_string_long = database.queryStrings( str( event_code ), 1 )
+        except Error:
+            error_string_long = ''
 
-            log.debug( "short: %s" % error_string_short )
-            log.debug( "long: %s" % error_string_long )
+        log.debug( "short: %s" % error_string_short )
+        log.debug( "long: %s" % error_string_long )
 
-            job_id = self.fields.get( 'job-id', 0 )
+        job_id = self.fields.get( 'job-id', 0 )
 
-            try:
-                username = self.fields[ 'username' ]
-            except KeyError:
-                if job_id == 0:
-                    username = prop.username
-                else:
-                    jobs = cups.getAllJobs() 
-
-                    for j in jobs:
-                        if j.id == job_id:
-                            username = j.user
-                            break
-                    else:
-                        username = prop.username
-
-
-            no_fwd = self.fields.get( 'no-fwd', False )
-
-            log.debug( "username (jobid): %s (%d)" % ( username, job_id ) )
-
-            retry_timeout = self.fields.get( 'retry-timeout', 0 )
-            device_uri = self.fields.get( 'device-uri', '' )
-
-            database.createHistory( device_uri, event_code, job_id, username )
-
-            try:
-                gui_host, gui_port = self.get_guid( username )
-            except Error, e:
-                log.warn( "No GUI available. (%d)" % e.opt )
-                raise Error( e.opt )
-
-            log.debug( "%s:%d" % ( gui_host, gui_port ) )
-
-            user_alerts = database.alerts.get( username, {} )
-
-            if not no_fwd:
-                if gui_host is not None and gui_port is not None:
-
-                    log.debug( "Sending to GUI..." )
-                    try:
-                        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-                        s.connect( ( gui_host, gui_port) )
-                    except socket.error:
-                        log.error( "Unable to communicate with GUI on port %d" % gui_port )
-                    else:
-                        try:
-                            sendEvent( s, 'EventGUI', 
-                                          '%s\n%s\n' % ( error_string_short, error_string_long ),
-                                         { 'job-id' : job_id,
-                                           'event-code' : event_code,
-                                           'event-type' : event_type,
-                                           'retry-timeout' : retry_timeout,
-                                           'device-uri' : device_uri,
-                                           'popup' : user_alerts.get( 'popup-alerts', False ),
-                                         }
-                                        )
-                        except Error,e:
-                            log.error( "Error sending event to GUI. (%d)" % e.opt )
-
-                        s.close()
-
-                    # TODO: also send msg to all admin guid's???
-
-                else: # gui not registered or user no longer logged on
-                    log.warn( "Unable to find GUI to display error" )
+        try:
+            username = self.fields[ 'username' ]
+        except KeyError:
+            if job_id == 0:
+                username = prop.username
             else:
-                log.debug( "Not sending to GUI, no_fwd=True" )
+                jobs = cups.getAllJobs() 
+
+                for j in jobs:
+                    if j.id == job_id:
+                        username = j.user
+                        break
+                else:
+                    username = prop.username
 
 
-            if user_alerts.get( 'email-alerts', False ) and event_type == 'error':
+        no_fwd = self.fields.get( 'no-fwd', False )
 
-                fromaddr = prop.username + '@localhost'
-                toaddrs = user_alerts.get( 'email-address', 'root@localhost' ).split()
-                smtp_server = user_alerts.get( 'smtp-server', 'localhost' )
-                msg = "From: %s\r\nTo: %s\r\n\r\n" % ( fromaddr, ', '.join(toaddrs) )
-                msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % ( device_uri, event_code, error_string_short )
+        log.debug( "username (jobid): %s (%d)" % ( username, job_id ) )
 
-                mt = MailThread( msg, 
-                                 smtp_server, 
-                                 fromaddr, 
-                                 toaddrs )
-                mt.start()
+        retry_timeout = self.fields.get( 'retry-timeout', 0 )
+        device_uri = self.fields.get( 'device-uri', '' )
 
-        #finally:
-        #    utils.log_exception()
+        database.createHistory( device_uri, event_code, job_id, username )
+
+        try:
+            gui_host, gui_port = self.get_guid( username )
+        except Error, e:
+            log.warn( "No GUI available. (%d)" % e.opt )
+            raise Error( e.opt )
+
+        log.debug( "%s:%d" % ( gui_host, gui_port ) )
+
+        user_alerts = database.alerts.get( username, {} )
+
+        if not no_fwd:
+            if gui_host is not None and gui_port is not None:
+
+                log.debug( "Sending to GUI..." )
+                try:
+                    s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+                    s.connect( ( gui_host, gui_port) )
+                except socket.error:
+                    log.error( "Unable to communicate with GUI on port %d" % gui_port )
+                else:
+                    try:
+                        sendEvent( s, 'EventGUI', 
+                                      '%s\n%s\n' % ( error_string_short, error_string_long ),
+                                     { 'job-id' : job_id,
+                                       'event-code' : event_code,
+                                       'event-type' : event_type,
+                                       'retry-timeout' : retry_timeout,
+                                       'device-uri' : device_uri,
+                                     }
+                                    )
+                    except Error,e:
+                        log.error( "Error sending event to GUI. (%d)" % e.opt )
+
+                    s.close()
+
+            else: # gui not registered or user no longer logged on
+                log.warn( "Unable to find GUI to display error" )
+        else:
+            log.debug( "Not sending to GUI, no_fwd=True" )
+
+
+        if user_alerts.get( 'email-alerts', False ) and event_type == 'error':
+
+            fromaddr = prop.username + '@localhost'
+            toaddrs = user_alerts.get( 'email-address', 'root@localhost' ).split()
+            smtp_server = user_alerts.get( 'smtp-server', 'localhost' )
+            msg = "From: %s\r\nTo: %s\r\n\r\n" % ( fromaddr, ', '.join(toaddrs) )
+            msg = msg + 'Printer: %s\r\nCode: %d\r\nError: %s\r\n' % ( device_uri, event_code, error_string_short )
+
+            mt = MailThread( msg, 
+                             smtp_server, 
+                             fromaddr, 
+                             toaddrs )
+            mt.start()
 
         return ''
 
@@ -652,39 +640,6 @@ class hpssd_handler( async.dispatcher ):
             utils.log_exception()
 
         return ''
-
-    # EVENT    
-    def handle_showuievent( self ):
-        try:
-            ui_id = self.fields[ 'ui-id' ]
-            username = self.fields[ 'username' ]
-
-            log.debug( "ShowUI: %s %s" % ( ui_id, username ) )
-            try:
-                gui_host, gui_port = self.get_guid( username )
-            except Error, e:
-                log.warning( "No GUI available. (%d)" % e.opt )
-                raise Error( e.opt )
-
-            log.debug( "Sending to GUI..." )
-            s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-            s.connect( ( gui_host, gui_port ) )
-
-            try:
-                sendEvent( s, 'ShowGUIEvent', None, 
-                           { 'ui-id' : ui_id, 
-                            'username' : username } )
-            except Error, e:
-                log.warning( "Error sending event to GUI. (%d)" % e.opt )
-                raise Error( e.opt )
-
-            s.close()
-
-        finally:
-            utils.log_exception()
-
-        return ''
-
 
     def handle_probedevicesfiltered( self ):
         payload, result_code = '', ERROR_SUCCESS
@@ -929,7 +884,6 @@ class MailThread( threading.Thread ):
 def reInit():    
     database.initModels()
     database.initStrings()
-    #device_r_cache.update( database.initHistories( hpiod_sock ) )
 
 def handleSIGHUP( signo, frame ):
     log.info( "SIGHUP" )

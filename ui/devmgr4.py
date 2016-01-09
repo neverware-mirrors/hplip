@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.63 $ 
-# $Date: 2005/03/29 21:06:23 $
+# $Revision: 1.66 $ 
+# $Date: 2005/04/14 19:36:44 $
 # $Author: dwelch $
 #
 #
@@ -29,7 +29,6 @@ import sys
 import socket
 import time
 import os
-import cStringIO
 
 # Local
 from base.g import *
@@ -54,7 +53,6 @@ from colorcalform2 import ColorCalForm2 # Type 2 color cal
 
 # Misc forms
 from loadpaperform import LoadPaperForm
-#from advancedinfoform import AdvancedInfoForm
 from settingsdialog import SettingsDialog
 from nodevicesform import NoDevicesForm
 from aboutdlg import AboutDlg
@@ -89,9 +87,7 @@ class DummyDevice:
         self.ds = {}
         self.mq = {}
         self.cups_printers = []
-        #self.job_id = 0
         self.last_event = None
-        #self.last_event_code = 0
         self.types_cached = False
 
 
@@ -204,11 +200,13 @@ class IconViewItem( QIconViewItem ):
 
 
 class devmgr4(DevMgr4_base):
-    def __init__(self, initial_device_uri=None, parent=None, name=None, fl = 0 ):
+    def __init__(self, cleanup=None, initial_device_uri=None, parent=None, name=None, fl = 0 ):
         DevMgr4_base.__init__( self, parent, name, fl )
-
+        
+        
         log.debug( "Initializing toolbox UI" )
-
+        self.cleanup = cleanup
+        
         # Make some adjustments to the UI
         self.StatusHistoryList.setSorting( -1 ) 
         self.AdvInfoList.setSorting( -1 )
@@ -299,7 +297,6 @@ class devmgr4(DevMgr4_base):
         self.email_alerts = False
         self.email_address = ''
         self.smtp_server = ''
-        self.popup_alerts = True
 
         self.auto_refresh = True
         self.auto_refresh_rate = DEF_AUTO_REFRESH_RATE
@@ -322,7 +319,6 @@ class devmgr4(DevMgr4_base):
                     self.email_alerts  = config.getboolean( "alerts", 'email-alerts' )
                     self.email_address = config.get( "alerts", 'email-address'  )
                     self.smtp_server   = config.get( "alerts", 'smtp-server' )
-                    self.popup_alerts  = config.getboolean( "alerts", 'popup-alerts' )
 
                 if config.has_section( "refresh" ):
                     self.auto_refresh = config.getboolean( "refresh", "enable" )
@@ -354,7 +350,6 @@ class devmgr4(DevMgr4_base):
         log.debug( "Email alerts: %s" % self.email_alerts )
         log.debug( "Email address: %s" % self.email_address )
         log.debug( "SMTP server: %s" % self.smtp_server )
-        log.debug( "Popup alerts: %s" % self.popup_alerts )
         log.debug( "Auto refresh: %s" % self.auto_refresh )
         log.debug( "Auto refresh rate: %s" % self.auto_refresh_rate )
 
@@ -372,13 +367,7 @@ class devmgr4(DevMgr4_base):
         QTimer.singleShot( 0, self.InitialUpdate )
 
     def InitialUpdate( self ):
-        #print "initalUpdate()"
         self.RescanDevices( True )
-
-        #if self.initial_device_uri is not None:
-        #    self.ActivateDevice( self.initial_device_uri )
-        #    self.UpdateStatusTab()
-        #    self.Tabs.setCurrentPage( 1 )
 
         self.refresh_timer = QTimer(self, "RefreshTimer")
         self.connect( self.refresh_timer, SIGNAL('timeout()'), self.TimedRefresh )
@@ -389,6 +378,7 @@ class devmgr4(DevMgr4_base):
     def TimedRefresh( self ):
         if self.auto_refresh and self.cur_device.polling:
             log.debug( "Refresh timer..." )
+            self.CleanupChildren()
             self.UpdateDevice()
 
     def autoRefresh_toggled(self,a0):
@@ -400,25 +390,28 @@ class devmgr4(DevMgr4_base):
         event.accept()
 
     def RescanDevices( self, make_history ):
-        #print "RescanDevices()"
-        #self.ToggleFunctionButtons( False )
         self.deviceRefreshAll.setEnabled( False )
-
         self.DeviceListRefresh( make_history )
-
         self.deviceRescanAction.setEnabled( True )
         self.deviceRefreshAll.setEnabled( True )
-        #self.ToggleFunctionButtons( True )
 
     def Cleanup( self ):
-        pass
+        self.CleanupChildren()
+        if self.cleanup is not None:
+            self.cleanup()
 
+    def CleanupChildren( self ):
+        log.debug( "Cleaning up child processes." )
+        try:
+            os.waitpid(-1, os.WNOHANG )
+        except OSError:
+            pass
+    
     def DeviceList_currentChanged(self,a0):
         self.cur_device_uri = self.DeviceList.currentItem().device_uri
         self.cur_device = self.devices[ self.cur_device_uri ]
 
         self.UpdateDevice()
-        #self.UpdateTabs()
 
     def DeviceList_rightButtonClicked( self, item, pos ):
         popup = QPopupMenu( self )
@@ -448,18 +441,13 @@ class devmgr4(DevMgr4_base):
         popup.popup( pos )
 
     def UpdateDevice( self, check_state=True ): 
-        #log.debug( ''.join( [ 'Update device:', '*'*40, self.cur_device_uri, '*'*40 ] ) )
         log.debug( utils.bold( "Update: %s %s %s" % ( "*"*20, self.cur_device_uri, "*"*20 ) ) )
-        #print "UpdateDevice()"
         self.update_called = True
         cd = self.cur_device
-        #QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.setCaption( "%s - HP Device Manager" % cd.model_ui ) 
         log.debug( "Device URI=%s" % self.cur_device_uri )
 
         if check_state: # get "live" status of printer
-
-            #ds = self.cur_device.ds
             try:
                 # Check device status and create appropriate history
                 self.cur_device.ds = self.service.queryDevice( self.cur_device_uri, 
@@ -470,9 +458,6 @@ class devmgr4(DevMgr4_base):
                 self.cur_device.ds['device-state'] = DEVICE_STATE_NOT_FOUND
 
             cd.device_state = self.cur_device.ds.get( 'device-state', DEVICE_STATE_NOT_FOUND )
-
-        #if cd.status_code in ( STATUS_PRINTER_IDLE, ):
-        #    cd.polling = True
 
         if not self.cur_device.types_cached:
             try:
@@ -515,7 +500,6 @@ class devmgr4(DevMgr4_base):
                 'HOME'       : prop.home_dir,
                                }
 
-        #QApplication.restoreOverrideCursor()
 
     default_pics = { 'deskjet'    : 'default_deskjet.png',
                      'business'   : 'default_business_inkjet.png',
@@ -600,7 +584,7 @@ class devmgr4(DevMgr4_base):
 
     def ContinueDeviceListRefresh( self ):
         if self.printer_num == self.num_printers:
-            self.rescanning = False
+
             self.scan_timer.stop()
             self.disconnect( self.scan_timer, SIGNAL('timeout()'), 
                              self.ContinueDeviceListRefresh )
@@ -614,9 +598,14 @@ class devmgr4(DevMgr4_base):
             self.DeviceList.adjustItems()
             self.DeviceList.updateGeometry()
 
+            self.rescanning = False
+
             self.DeviceList.setCurrentItem( self.DeviceList.firstItem() )
 
-            if self.num_printers == 0:
+            if self.num_devices == 1:
+                self.UpdateDevice( False )
+
+            elif self.num_devices == 0:
                 dlg = NoDevicesForm( self, "", True )
                 dlg.show()
 
@@ -689,13 +678,11 @@ class devmgr4(DevMgr4_base):
         self.CancelPrintJobButton.setEnabled( num_jobs > 0 )
 
     def PrintJobList_currentChanged( self, item ):
-        #print item
         pass
 
     def CancelPrintJobButton_clicked(self):
         item = self.PrintJobList.currentItem()
         if item is not None:
-            #print item.job_id, item.printer
             self.service.cancelJob( item.job_id, self.cur_device_uri )
 
     def UpdateTabs( self ):
@@ -716,9 +703,7 @@ class devmgr4(DevMgr4_base):
         else:
             line1 = self.__tr( "Front panel display" )
             line2 = self.__tr( "unavailable" )
-            
-        #print line1, line2
-        
+
         pm = QPixmap( self.blank_lcd )
 
         p = QPainter()
@@ -763,12 +748,10 @@ class devmgr4(DevMgr4_base):
         except Error:
             log.error( "History query failed." )
             cd.last_event = None
-            #cd.job_id = 0
             cd.error_state = ERROR_STATE_ERROR
             cd.status_code = STATUS_UNKNOWN
         else:
             cd.last_event = cd.hist[-1]
-            #cd.job_id = cd.last_event[9]
             cd.status_code = int( cd.last_event[11] )
             cd.error_state = STATUS_TO_ERROR_STATE_MAP.get( cd.status_code, ERROR_STATE_CLEAR )
 
@@ -783,8 +766,6 @@ class devmgr4(DevMgr4_base):
         if last_event is None:
             self.UpdateHistory()
             last_event = cd.last_event
-
-        #print last_event
 
         for x in cd.hist:
             job_id = x[9]
@@ -812,38 +793,23 @@ class devmgr4(DevMgr4_base):
         self.StatusText.setText( last_event[12] )
         self.StatusText2.setText( last_event[13] )
 
-        #self.StatusCode.setText( str( last_event[11] ) )
+        if cd.error_state == ERROR_STATE_CLEAR:
+            self.StatusIcon.clear()
 
-        #self.StatusDateTime.setText( time.strftime( "%a, %d %b %Y, %H:%M:%S", 
-        #                             last_event[:9] ) )
+        elif cd.error_state == ERROR_STATE_OK:
+            self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "ok.png" ) ) )
 
-        #self.StatusTime.setText( time.strftime( "%H:%M:%S", 
-        #                         last_event[:9] ) )
+        elif cd.error_state == ERROR_STATE_WARNING:
+            self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "warning.png" ) ) )
 
-        #job_id = cd.job_id
-        #self.StatusJobID.setText( str( job_id ) )
+        elif cd.error_state == ERROR_STATE_LOW_SUPPLIES:
+            self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "warning.png" ) ) )
 
-        #self.CancelJobButton.setEnabled( job_id != 0 )
+        elif cd.error_state == ERROR_STATE_ERROR:
+            self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "error.png" ) ) )
 
-        if 1:
-
-            if cd.error_state == ERROR_STATE_CLEAR:
-                self.StatusIcon.clear()
-
-            elif cd.error_state == ERROR_STATE_OK:
-                self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "ok.png" ) ) )
-
-            elif cd.error_state == ERROR_STATE_WARNING:
-                self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "warning.png" ) ) )
-
-            elif cd.error_state == ERROR_STATE_LOW_SUPPLIES:
-                self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "warning.png" ) ) )
-
-            elif cd.error_state == ERROR_STATE_ERROR:
-                self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "error.png" ) ) )
-
-            elif cd.error_state == ERROR_STATE_BUSY:
-                self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "busy.png" ) ) )
+        elif cd.error_state == ERROR_STATE_BUSY:
+            self.StatusIcon.setPixmap( QPixmap( os.path.join( prop.image_dir, "busy.png" ) ) )
 
 
     def UpdateSuppliesTab( self ):
@@ -901,12 +867,10 @@ class devmgr4(DevMgr4_base):
             self.CleanPensButton.setEnabled( self.cur_device.clean_type )
             self.AlignPensButton.setEnabled( self.cur_device.align_type )
             self.ColorCalibrationButton.setEnabled( self.cur_device.color_cal_type )
-            #self.PrintTestPageButton.setEnabled( True )
         else:
             self.CleanPensButton.setEnabled( False )
             self.AlignPensButton.setEnabled( False )
             self.ColorCalibrationButton.setEnabled( False )
-            #self.PrintTestPageButton.setEnabled( False )
 
     def ToggleInfoButtons( self, toggle ):
         if toggle:
@@ -949,21 +913,16 @@ class devmgr4(DevMgr4_base):
         log.debug( "Event: code=%d type=%s string=%s timeout=%d id=%d uri=%s" % 
                  ( event_code, event_type,  error_string_short, retry_timeout, job_id, device_uri ) )
 
-        if event_code == EVENT_UI_SHOW_TOOLBOX:
-            #self.rescan( True ) 
-            pass
 
-        elif self.ActivateDevice( device_uri ):
+        if self.ActivateDevice( device_uri ):
             self.cur_device.status_code = event_code 
             self.UpdateDevice( False )
             self.Tabs.setCurrentPage( 1 )
 
 
-
     def settingsConfigure_activated(self, tab_to_show=0 ):
         dlg = SettingsDialog( self )
 
-        dlg.PopupCheckBox.setChecked( self.popup_alerts )
         dlg.EmailCheckBox.setChecked( self.email_alerts )
         dlg.EmailAddress.setText( self.email_address )
         dlg.SMTPServer.setText( self.smtp_server )
@@ -987,7 +946,6 @@ class devmgr4(DevMgr4_base):
             self.cmd_copy  = str( dlg.MakeCopiesCommand.text() )
 
             self.email_alerts = bool( dlg.EmailCheckBox.isChecked() )
-            self.popup_alerts = bool( dlg.PopupCheckBox.isChecked() )
             self.email_address = str( dlg.EmailAddress.text() )
             self.smtp_server = str( dlg.SMTPServer.text() )
 
@@ -1002,8 +960,7 @@ class devmgr4(DevMgr4_base):
 
 
     def SetAlerts( self ):
-        self.service.setAlerts( self.popup_alerts,
-                                self.email_alerts,
+        self.service.setAlerts( self.email_alerts,
                                 self.email_address,
                                 self.smtp_server,
                               )
@@ -1031,7 +988,6 @@ class devmgr4(DevMgr4_base):
         config.set( "alerts", 'email-alerts', self.email_alerts )
         config.set( "alerts", 'email-address', self.email_address  )
         config.set( "alerts", 'smtp-server', self.smtp_server )
-        config.set( "alerts", 'popup-alerts', self.popup_alerts )
 
         if not config.has_section( 'maint' ):
             config.add_section( 'maint' )
@@ -1274,9 +1230,6 @@ class devmgr4(DevMgr4_base):
         self.RescanDevices( True )
 
     def DeviceList_clicked(self,a0):
-        #if not self.update_called:
-        #    self.UpdateDevice()
-        #self.update_called = False
         pass
 
     def OpenEmbeddedBrowserButton_clicked(self):
@@ -1323,9 +1276,11 @@ class devmgr4(DevMgr4_base):
 
             log.debug( path )
             log.debug( args )
-
+            
+            self.CleanupChildren()
             os.spawnvp( os.P_NOWAIT, path, args )
-        #self.UpdateFunctionsTab()
+            
+            
         self.ToggleFunctionButtons( True )
 
 

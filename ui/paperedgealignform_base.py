@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/paperedgealignform_base.ui'
 #
-# Created: Thu Jan 20 09:35:46 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:28 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -37,7 +37,7 @@ class PaperEdgeAlignForm_base(QDialog):
         PaperEdgeAlignForm_baseLayout.addWidget(self.CancelButton,1,2)
 
         self.buttonGroup = QButtonGroup(self,"buttonGroup")
-        self.buttonGroup.setSizePolicy(QSizePolicy(1,5,0,0,self.buttonGroup.sizePolicy().hasHeightForWidth()))
+        self.buttonGroup.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.buttonGroup.sizePolicy().hasHeightForWidth()))
         self.buttonGroup.setColumnLayout(0,Qt.Vertical)
         self.buttonGroup.layout().setSpacing(6)
         self.buttonGroup.layout().setMargin(11)
@@ -89,7 +89,7 @@ class PaperEdgeAlignForm_base(QDialog):
         buttonGroupLayout.addMultiCellLayout(layout24,1,1,0,1)
 
         self.Icon = QLabel(self.buttonGroup,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setScaledContents(1)
 
         buttonGroupLayout.addWidget(self.Icon,0,0)
@@ -106,8 +106,8 @@ class PaperEdgeAlignForm_base(QDialog):
         self.resize(QSize(618,233).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ContinueButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.CancelButton,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ContinueButton,SIGNAL("clicked()"),self.accept)
         self.connect(self.buttonGroup,SIGNAL("clicked(int)"),self.buttonGroup_clicked)
 
 

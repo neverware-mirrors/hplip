@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# $Revision: 1.12 $ 
-# $Date: 2005/03/22 19:49:44 $
+# $Revision: 1.13 $ 
+# $Date: 2005/04/14 17:45:32 $
 # $Author: dwelch $
 #
 # (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
@@ -63,7 +63,7 @@ def usage():
                """         2. If -p* is specified, the default CUPS printer will be used.\n""" )
         
 
-def enterNumber( letter, text, minimum, maximum ):
+def enterNumber( text, minimum, maximum ):
     while True:
         x = raw_input( utils.bold( text ) )
         try:

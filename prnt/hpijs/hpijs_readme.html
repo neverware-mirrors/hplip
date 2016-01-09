@@ -650,6 +650,8 @@ The following options can be selected with Ghostscript commands.
      hp business inkjet 1100
      HP Business Inkjet 1200
 
+   <b>FastDraft Grayscale</b> 
+     Quality=4 ColorMode=0 MediaType=0 PenSet=2
    <b>Draft Grayscale</b> 
      Quality=1 ColorMode=0 MediaType=0 PenSet=2
    <b>FastDraft Color</b> 
@@ -3266,6 +3268,16 @@ Left edge, Top edge, Width and Height values are in inches. "n/a" means option i
 <H2><a name="Updates"></a>5 Updates</H2>
 <ul>
 <li>
+<b>HPIJS 2.1.2</b> - This release has the following changes.
+<pre>
+   1. Added new print mode "FastDraft Grayscale" to DJGenericVIP.
+   2. Rebuilt PPD files with new "FastDraft Grayscale" support.
+   3. Put limit (max=5) on syslog messages when output device write() fails (Debian request).  
+   4. Removed specified gcc options in hpijs configure.in (Debian request).
+   5. Fixed a 64-bit compile issue in ljjetready.cpp.
+</pre>
+<p>
+<li>
 <b>HPIJS 2.1.1</b> - This release has the following changes.
 <pre>
    1. Fixed bi-di support issue for Business Inkjet 1100/1200.
@@ -4025,7 +4037,7 @@ $ gs -sDEVICE=ijs -sIjsServer=hpijs -dIjsUseOutputFD -sDeviceManufacturer="HEWLE
 <font size=2>
 <a href="mailto:david_suffield@hp.com">David Suffield</a><br>
 &#169 2001-2005 Hewlett-Packard Company<br>
-HPIJS 2.1.1, last updated April 1, 2005
+HPIJS 2.1.2, last updated April 15, 2005
 </font>
  </BODY>
 </HTML>

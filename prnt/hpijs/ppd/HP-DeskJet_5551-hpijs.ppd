@@ -96,8 +96,8 @@ r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 5551&quot;"
 orCMYK"
 *End
 *PrintoutMode Draft.Gray/Draft Grayscale (auto-detect paper type): "%% FoomaticRIPOptionSetting: PrintoutMode=Draft.Gray"
-*FoomaticRIPOptionSetting PrintoutMode=Draft.Gray: "Quality=300DraftGr&&
-ayscaleCMYK"
+*FoomaticRIPOptionSetting PrintoutMode=Draft.Gray: "Quality=300FastDra&&
+ftGrayscaleCMYK"
 *End
 *PrintoutMode Normal/Normal (auto-detect paper type): "%% FoomaticRIPOptionSetting: PrintoutMode=Normal"
 *FoomaticRIPOptionSetting PrintoutMode=Normal: "Quality=300ColorCMYK"
@@ -364,6 +364,11 @@ ty:PenSet=2"
 *FoomaticRIPOptionSetting Quality=300FastDraftColorCMYK: " -r300 -sIjs&&
 Params=Quality:Quality=4,Quality:ColorMode=2,Quality:MediaType=0,Quali&&
 ty:PenSet=2"
+*End
+*Quality 300FastDraftGrayscaleCMYK/300 dpi, FastDraft, Grayscale, Black + Color Cartr.: "%% FoomaticRIPOptionSetting: Quality=300FastDraftGrayscaleCMYK"
+*FoomaticRIPOptionSetting Quality=300FastDraftGrayscaleCMYK: " -r300 -&&
+sIjsParams=Quality:Quality=4,Quality:ColorMode=0,Quality:MediaType=0,Q&&
+uality:PenSet=2"
 *End
 *Quality 300GrayscaleCMYK/300 dpi, Grayscale, Black + Color Cartr.: "%% FoomaticRIPOptionSetting: Quality=300GrayscaleCMYK"
 *FoomaticRIPOptionSetting Quality=300GrayscaleCMYK: " -r300 -sIjsParam&&

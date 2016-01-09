@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/loadpaperform_base.ui'
 #
-# Created: Thu Jan 20 09:35:47 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Fri Apr 1 14:51:29 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,7 +38,7 @@ class LoadPaperForm_base(QDialog):
         LoadPaperForm_baseLayout.addMultiCellWidget(self.textLabel7,0,0,1,3)
 
         self.Icon = QLabel(self,"Icon")
-        self.Icon.setSizePolicy(QSizePolicy(0,0,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
+        self.Icon.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.Icon.sizePolicy().hasHeightForWidth()))
         self.Icon.setScaledContents(1)
 
         LoadPaperForm_baseLayout.addWidget(self.Icon,0,0)
@@ -48,8 +48,8 @@ class LoadPaperForm_base(QDialog):
         self.resize(QSize(621,178).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.CancelButton,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ContinueButton,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.CancelButton,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ContinueButton,SIGNAL("clicked()"),self.accept)
 
 
     def languageChange(self):

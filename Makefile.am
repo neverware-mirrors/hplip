@@ -12,7 +12,7 @@ docdir = $(datadir)/doc/$(distdir)
 doc_DATA =  hplip_readme.html hplip_overview.png COPYING
 
 dist_hplip_DATA = $(doc_DATA) hplip.conf
-dist_hplip_SCRIPTS = hpguid.py hpssd.py __init__.py hplip.sh
+dist_hplip_SCRIPTS = hpssd.py __init__.py hplip.sh
 
 cmddir = $(hplipdir)
 dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py photo.py unload.py probe.py rpu.py testpage.py makeuri.py check.py
@@ -100,7 +100,7 @@ libsane_hpaio_la_LIBADD = libhpip.la
 # ui
 uidir = $(hplipdir)/ui
 dist_ui_SCRIPTS = ui/alignform.py \
-    ui/colorcalform_base.py ui/colorcalform.py ui/coloradjform_base.py ui/coloradjform.py ui/devmgr4_base.py ui/devmgr4.py ui/form1.py \
+    ui/colorcalform_base.py ui/colorcalform.py ui/coloradjform_base.py ui/coloradjform.py ui/devmgr4_base.py ui/devmgr4.py \
     ui/__init__.py ui/loadpaperform_base.py ui/loadpaperform.py \
     ui/paperedgealignform_base.py ui/paperedgealignform.py \
     ui/settingsdialog_base.py ui/settingsdialog.py ui/aligntype6form1.py ui/aligntype6form1_base.py ui/aligntype6form2_base.py \
@@ -110,7 +110,7 @@ dist_ui_SCRIPTS = ui/alignform.py \
     ui/cleaningform2_base.py ui/cleaningform2.py ui/colorcalform2_base.py ui/colorcalform2.py
 
 dist_noinst_DATA = ui/unloadform_base.ui ui/colorcalform2_base.ui ui/settingsdialog_base.ui ui/aligntype6form1_base.ui \
-    ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/form1.ui ui/aligntype6form2_base.ui \
+    ui/aboutdlg_base.ui ui/imagepropertiesdlg_base.ui ui/paperedgealignform_base.ui ui/aligntype6form2_base.ui \
     ui/nodevicesform_base.ui ui/cleaningform_base.ui ui/colorcalform_base.ui ui/devmgr4_base.ui ui/loadpaperform_base.ui \
     ui/cleaningform2_base.ui ui/waitform_base.ui ui/coloradjform_base.ui
 
@@ -138,7 +138,7 @@ install-exec-hook:
 	fi
 
 install-data-hook:
-	cd $(DESTDIR)$(imagesdir); tar xzvf images.tgz
+	cd $(DESTDIR)$(imagesdir); tar xzvf images.tgz; rm -f images.tgz
 	if [ "$(ICON_FILE)" = "hplip.desktop" ]; then \
 	   echo -e "[Desktop Entry]" > $(srcdir)/$(ICON_FILE); \
 	   echo -e "Version=0.6" >> $(srcdir)/$(ICON_FILE); \
