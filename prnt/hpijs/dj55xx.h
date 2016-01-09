@@ -63,6 +63,8 @@ public:
         "Deskjet 460\0"
         "deskjet 5550\0"
         "deskjet 5551\0"
+		"OfficeJet 6100\0"
+		"OfficeJet 6150\0"
     ) {m_iPrinterType = eDJ55xx;}
     inline Printer* CreatePrinter(SystemServices* pSS) const { return new DJ55xx(pSS); }
 	inline PRINTER_TYPE GetPrinterType() const { return eDJ55xx;}

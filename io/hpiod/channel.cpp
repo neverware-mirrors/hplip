@@ -49,7 +49,7 @@ int Channel::Close(char *sendBuf, int *result)
 
 int Channel::WriteData(unsigned char *data, int length, char *sendBuf, int *result)
 {
-   char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
+   const char res[] = "msg=ChannelDataOutResult\nresult-code=%d\nbytes-written=%d\n"; 
    int len, size, sLen, total=0;
 
    *result=R_IO_ERROR;
@@ -60,7 +60,7 @@ int Channel::WriteData(unsigned char *data, int length, char *sendBuf, int *resu
       len = pDev->Write(pDev->GetOpenFD(), data+total, size);
       if (len < 0)
       {
-         syslog(LOG_ERR, "unable to write data: %m\n");
+         syslog(LOG_ERR, "unable to write data %s: %m %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
          goto bugout;
       }
       size-=len;
@@ -77,7 +77,7 @@ bugout:
 
 int Channel::CutBuf(char *sendBuf, int length)
 {
-   char res[] =  "msg=ChannelDataInResult\nresult-code=%d\nlength=%d\ndata:\n";
+   const char res[] =  "msg=ChannelDataInResult\nresult-code=%d\nlength=%d\ndata:\n";
    int sendLen, total;
 
    if (rcnt > length)
@@ -109,12 +109,12 @@ int Channel::CutBuf(char *sendBuf, int length)
 //! ReadData() tries to read "length" bytes from the peripheral.  
 //! The returned read count may be zero (timeout, no data available), less than "length" or equal "length".
 //!
-//! The "timeout" specifies how many seconds to wait for a data packet. 
+//! The "timeout" specifies how many microseconds to wait for a data packet. 
 /*!
 ******************************************************************************/
 int Channel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength, int *result)
 {
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int len=0, sLen;
    char buffer[BUFFER_SIZE];
 
@@ -129,10 +129,10 @@ int Channel::ReadData(int length, int timeout, char *sendBuf, int sendBufLength,
 
    while (len==0)
    {
-      len = pDev->Read(pDev->GetOpenFD(), buffer, length, timeout, 0);
+      len = pDev->Read(pDev->GetOpenFD(), buffer, length, timeout);
       if (len < 0)
       {
-         syslog(LOG_ERR, "unable to read data Channel::ReadData: %m\n");
+         syslog(LOG_ERR, "unable to read data Channel::ReadData %s: %m %s %d\n", pDev->GetURI(), __FILE__, __LINE__);
          sLen = sprintf(sendBuf, res, *result);  
          goto bugout;
       }

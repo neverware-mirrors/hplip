@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@ import os.path
 from qt import *
 from coloradjform_base import ColorAdjForm_base
 
-class ColorAdjForm( ColorAdjForm_base ):
-    def __init__( self, parent, line, name = None, modal = 0, fl = 0 ):
+class ColorAdjForm(ColorAdjForm_base):
+    def __init__(self, parent, line, name = None, modal = 0, fl = 0):
         ColorAdjForm_base.__init__(self,parent,name,modal,fl)
-        self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir,  'color-adj.png' ) ) )
-        self.LineLabel.setText( """<b><font size="+1">%s</font></b>""" % line )
+        self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir,  'color-adj.png')))
+        self.LineLabel.setText("""<b><font size="+1">%s</font></b>""" % line)
         self.value = 11
         
     def buttonGroup_clicked(self,a0):

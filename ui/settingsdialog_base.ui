@@ -453,7 +453,7 @@
                             <cstring>textLabel1_2_3</cstring>
                         </property>
                         <property name="enabled">
-                            <bool>false</bool>
+                            <bool>true</bool>
                         </property>
                         <property name="text">
                             <string>Send Fax Command</string>
@@ -472,7 +472,7 @@
                                     <cstring>SendFaxCommand</cstring>
                                 </property>
                                 <property name="enabled">
-                                    <bool>false</bool>
+                                    <bool>true</bool>
                                 </property>
                             </widget>
                         </hbox>

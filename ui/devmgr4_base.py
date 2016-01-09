@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/dwelch/linux-imaging-and-printing/src/ui/devmgr4_base.ui'
+# Form implementation generated from reading ui file 'devmgr4_base.ui'
 #
-# Created: Fri Aug 26 15:28:34 2005
+# Created: Mon Dec 12 14:27:37 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
 
 
@@ -211,6 +210,7 @@ class DevMgr4_base(QMainWindow):
         self.autoRefresh.setOn(1)
         self.setupDevice = QAction(self,"setupDevice")
         self.setupDevice.setEnabled(0)
+        self.viewSupportAction = QAction(self,"viewSupportAction")
 
 
 
@@ -233,6 +233,7 @@ class DevMgr4_base(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.Configure,2)
 
         self.helpMenu = QPopupMenu(self)
+        self.viewSupportAction.addTo(self.helpMenu)
         self.helpContentsAction.addTo(self.helpMenu)
         self.helpIndexAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
@@ -267,6 +268,7 @@ class DevMgr4_base(QMainWindow):
         self.connect(self.PrintJobList,SIGNAL("selectionChanged(QListViewItem*)"),self.PrintJobList_selectionChanged)
         self.connect(self.DeviceList,SIGNAL("rightButtonClicked(QIconViewItem*,const QPoint&)"),self.DeviceList_rightButtonClicked)
         self.connect(self.setupDevice,SIGNAL("activated()"),self.setupDevice_activated)
+        self.connect(self.viewSupportAction,SIGNAL("activated()"),self.viewSupportAction_activated)
 
 
     def languageChange(self):
@@ -307,8 +309,9 @@ class DevMgr4_base(QMainWindow):
         self.helpIndexAction.setText(self.__tr("Index"))
         self.helpIndexAction.setMenuText(self.__tr("&Index..."))
         self.helpIndexAction.setAccel(QString.null)
-        self.helpAboutAction.setText(self.__tr("About HP Device Manager"))
-        self.helpAboutAction.setMenuText(self.__tr("&About HP Device Manager"))
+        self.helpAboutAction.setText(self.__tr("&About..."))
+        self.helpAboutAction.setMenuText(self.__tr("&About..."))
+        self.helpAboutAction.setToolTip(self.__tr("About HP Device Manager..."))
         self.deviceRescanAction.setText(self.__tr("Refresh Device"))
         self.deviceRescanAction.setMenuText(self.__tr("Refresh Device"))
         self.deviceRescanAction.setToolTip(self.__tr("Refresh Device (F5)"))
@@ -334,6 +337,7 @@ class DevMgr4_base(QMainWindow):
         self.setupDevice.setMenuText(self.__tr("Settings..."))
         self.setupDevice.setToolTip(self.__tr("Device Settings (F3)"))
         self.setupDevice.setAccel(self.__tr("F3"))
+        self.viewSupportAction.setText(self.__tr("Support..."))
         if self.MenuBar.findItem(1):
             self.MenuBar.findItem(1).setText(self.__tr("Device"))
         if self.MenuBar.findItem(2):
@@ -471,13 +475,8 @@ class DevMgr4_base(QMainWindow):
     def setupDevice_activated(self):
         print "DevMgr4_base.setupDevice_activated(): Not implemented yet"
 
+    def viewSupportAction_activated(self):
+        print "DevMgr4_base.viewSupportAction_activated(): Not implemented yet"
+
     def __tr(self,s,c = None):
         return qApp.translate("DevMgr4_base",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = DevMgr4_base()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

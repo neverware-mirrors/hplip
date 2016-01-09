@@ -304,6 +304,7 @@ int hpijs_set_cb (void *set_cb_data, IjsServerCtx *ctx, IjsJobId job_id,
 int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const char *key, char *value_buf, int value_size)
 {
    UXServices *pSS = (UXServices*)get_cb_data;
+   float        fX;
    float        fY;
 
    if (!strcmp (key, "PrintableArea"))
@@ -324,11 +325,27 @@ int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const ch
          }
 #endif
          fY = pSS->pPC->PhysicalPageSizeY () - 1.0;
-//         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PhysicalPageSizeY()-1);
+
+         // SuperB size paper requires larger margins
+         if (pSS->pPC->PhysicalPageSizeY () > 18.0)
+         {
+             fY = 1.5;
+         }
+
       }
-//      else
-//         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth(), pSS->pPC->PrintableHeight());
-      return (snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableWidth (), fY));
+
+/*
+ *      Fullbleed printing is requested and printer supports it, then
+ *      return the unadjusted physical width and height.
+ */
+
+      if ((fX = pSS->pPC->PrintableWidth ()) > pSS->PaperWidth)
+      {
+          fX = pSS->PaperWidth;
+          fY = pSS->PaperHeight;
+      }
+
+      return (snprintf (value_buf, value_size, "%.4fx%.4f", fX, fY));
    }
    else if (!strcmp (key, "PrintableTopLeft"))
    {
@@ -343,14 +360,15 @@ int hpijs_get_cb(void *get_cb_data, IjsServerCtx *ctx, IjsJobId job_id, const ch
          }
 #endif
          fY = 0.5;
-      }
-      return snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX (), fY);
+         // SuperB size paper requires larger margins
+         if (pSS->pPC->PhysicalPageSizeY () > 18.0)
+         {
+             fY = 0.75;
+         }
 
-/*
-         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX(), 0.5);
-      else
-         return snprintf(value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX(), pSS->pPC->PrintableStartY());
- */
+      }
+
+      return snprintf (value_buf, value_size, "%.4fx%.4f", pSS->pPC->PrintableStartX (), fY);
    }
    else if ((!strcmp (key, "Duplex")) || (!strcmp (key, "PS:Duplex")))
    {

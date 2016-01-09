@@ -1,13 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-
-# $Revision: 1.4 $
-# $Date: 2005/07/28 16:54:39 $
-# $Author: dwelch $
-
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,11 +18,19 @@
 #
 # Author: Don Welch
 #
-import sys, os, os.path
+
+import sys, os, os.path, socket
 
 from base.g import *
-from base import utils
-from fax import fax
+from base import utils, service
+
+try:
+    from fax import fax
+except ImportError:
+    # This can fail on Python < 2.3 due to the datetime module
+    log.error("Fax address book disabled - Python 2.3+ required.")
+    sys.exit(1)
+
 
 from qt import *
 from faxaddrbookform_base import FaxAddrBookForm_base
@@ -42,40 +43,46 @@ db = None # kirbybase instance
 
 # **************************************************************************** #
 
-class AddressBookItem( QListViewItem ):
+class AddressBookItem(QListViewItem):
 
-    def __init__( self, parent, abe ):
-        QListViewItem.__init__( self, parent )
+    def __init__(self, parent, abe):
+        QListViewItem.__init__(self, parent)
         self.abe = abe
         self.recno = abe.recno
-        self.setText( 0, abe.name )
-        self.setText( 1, abe.title )
-        self.setText( 2, abe.firstname )
-        self.setText( 3, abe.lastname )
-        self.setText( 4, abe.fax )
-        self.setText( 5, ', '.join( abe.group_list ) )
-        self.setText( 6, abe.notes )
+        self.setText(0, abe.name)
+        self.setText(1, abe.title)
+        self.setText(2, abe.firstname)
+        self.setText(3, abe.lastname)
+        self.setText(4, abe.fax)
+        self.setText(5, ', '.join(abe.group_list))
+        self.setText(6, abe.notes)
 
 
-class GroupValidator( QValidator ):
-    def __init__( self, parent=None, name=None):
-        QValidator.__init__( self, parent, name )
+class GroupValidator(QValidator):
+    def __init__(self, parent=None, name=None):
+        QValidator.__init__(self, parent, name)
 
-    def validate( self, input, pos ):
-        if input.find( ',' ) > 0:
+    def validate(self, input, pos):
+        input = str(input)
+        if input.find(',') > 0:
+            return QValidator.Invalid, pos
+        elif len(input) > 50:
             return QValidator.Invalid, pos
         else:
             return QValidator.Acceptable, pos
 
 
-class PhoneNumValidator( QValidator ):
-    def __init__( self, parent=None, name=None):
-        QValidator.__init__( self, parent, name )
+class PhoneNumValidator(QValidator):
+    def __init__(self, parent=None, name=None):
+        QValidator.__init__(self, parent, name)
 
-    def validate( self, input, pos ):
+    def validate(self, input, pos):
+        input = str(input)
         if not input:
             return QValidator.Acceptable, pos
-        elif input[pos-1] not in ('0','1','2','3','4','5','6','7','8','9','-','(','+'):
+        elif input[pos-1] not in '0123456789-(+) ':
+            return QValidator.Invalid, pos
+        elif len(input) > 50:
             return QValidator.Invalid, pos
         else:
             return QValidator.Acceptable, pos
@@ -87,39 +94,39 @@ class FaxAddrBookGroupEditForm(FaxAddrBookGroupEditForm_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         FaxAddrBookGroupEditForm_base.__init__(self,parent,name,modal,fl)
         self.edit_mode = False
-        self.okButton.setEnabled( True )
+        self.okButton.setEnabled(True)
         self.all_groups = db.AllGroups()
-        self.groupnameEdit.setValidator( GroupValidator( self.groupnameEdit ) )
+        self.groupnameEdit.setValidator(GroupValidator(self.groupnameEdit))
 
-    def setDlgData( self, group_name ):
+    def setDlgData(self, group_name):
         self.edit_mode = True
-        self.groupnameEdit.setText( group_name )
-        self.groupnameEdit.setReadOnly( True )
-        self.setEntries( group_name )
+        self.groupnameEdit.setText(group_name)
+        self.groupnameEdit.setReadOnly(True)
+        self.setEntries(group_name)
 
-    def setEntries( self, group_name='' ):
+    def setEntries(self, group_name=''):
         self.entriesListView.clear()
 
         all_entries = db.AllRecordEntries()
 
         for e in all_entries:
-            i = QCheckListItem( self.entriesListView, e.name, QCheckListItem.CheckBox )
+            i = QCheckListItem(self.entriesListView, e.name, QCheckListItem.CheckBox)
 
             if group_name and group_name in e.group_list:
-                i.setState( QCheckListItem.On )
+                i.setState(QCheckListItem.On)
 
         self.CheckOKButton()
 
 
-    def getDlgData( self ):
-        group_name = str( self.groupnameEdit.text() )
+    def getDlgData(self):
+        group_name = str(self.groupnameEdit.text())
         entries = []
 
         i = self.entriesListView.firstChild()
 
         while i is not None:
             if i.isOn():
-                entries.append( str( i.text() ) )
+                entries.append(str(i.text()))
 
             i = i.itemBelow()
 
@@ -134,13 +141,13 @@ class FaxAddrBookGroupEditForm(FaxAddrBookGroupEditForm_base):
         self.CheckOKButton()
 
 
-    def CheckOKButton( self ):
-        group_name = str( self.groupnameEdit.text() )
+    def CheckOKButton(self):
+        group_name = str(self.groupnameEdit.text())
 
         if not group_name or \
-            ( not self.edit_mode and group_name in self.all_groups ):
+            (not self.edit_mode and group_name in self.all_groups):
 
-            self.okButton.setEnabled( False )
+            self.okButton.setEnabled(False)
             return
 
         i = self.entriesListView.firstChild()
@@ -152,10 +159,10 @@ class FaxAddrBookGroupEditForm(FaxAddrBookGroupEditForm_base):
             i = i.itemBelow()
 
         else:
-            self.okButton.setEnabled( False )
+            self.okButton.setEnabled(False)
             return
 
-        self.okButton.setEnabled( True )
+        self.okButton.setEnabled(True)
 
 # **************************************************************************** #
 
@@ -165,19 +172,19 @@ class FaxAddrBookGroupsForm(FaxAddrBookGroupsForm_base):
         FaxAddrBookGroupsForm_base.__init__(self,parent,name,modal,fl)
 
         self.current = None
-        QTimer.singleShot( 0, self.InitialUpdate )
+        QTimer.singleShot(0, self.InitialUpdate)
 
 
-    def InitialUpdate( self ):
+    def InitialUpdate(self):
         self.UpdateList()
 
 
-    def UpdateList( self ):
+    def UpdateList(self):
         self.groupListView.clear()
         first_rec = None
         all_groups = db.AllGroups()
 
-        if len( all_groups ):
+        if len(all_groups):
 
             for group in all_groups:
                 i = QListViewItem(self.groupListView, group,
@@ -186,67 +193,67 @@ class FaxAddrBookGroupsForm(FaxAddrBookGroupsForm_base):
                 if first_rec is None:
                     first_rec = i
 
-            self.groupListView.setCurrentItem( i )
+            self.groupListView.setCurrentItem(i)
             self.current = i
 
-            self.editButton.setEnabled( True )
-            self.deleteButton.setEnabled( True )
+            self.editButton.setEnabled(True)
+            self.deleteButton.setEnabled(True)
 
         else:
-            self.editButton.setEnabled( False )
-            self.deleteButton.setEnabled( False )
+            self.editButton.setEnabled(False)
+            self.deleteButton.setEnabled(False)
 
 
-    def newButton_clicked( self ):
-        dlg = FaxAddrBookGroupEditForm( self )
+    def newButton_clicked(self):
+        dlg = FaxAddrBookGroupEditForm(self)
         dlg.setEntries()
         if dlg.exec_loop() == QDialog.Accepted:
             group_name, entries = dlg.getDlgData()
             db.UpdateGroupEntries(group_name, entries)
             self.UpdateList()
 
-    def editButton_clicked( self ):
-        dlg = FaxAddrBookGroupEditForm( self )
-        group_name = str( self.current.text(0) )
-        dlg.setDlgData( group_name )
+    def editButton_clicked(self):
+        dlg = FaxAddrBookGroupEditForm(self)
+        group_name = str(self.current.text(0))
+        dlg.setDlgData(group_name)
         if dlg.exec_loop() == QDialog.Accepted:
             group_name, entries = dlg.getDlgData()
             db.UpdateGroupEntries(group_name, entries)
             self.UpdateList()
 
 
-    def deleteButton_clicked( self ):
-        x = QMessageBox.critical( self,
+    def deleteButton_clicked(self):
+        x = QMessageBox.critical(self,
                                  self.caption(),
                                  "<b>Annoying Confirmation: Are you sure you want to delete this group?</b>" ,
                                   QMessageBox.Yes,
                                   QMessageBox.No | QMessageBox.Default,
-                                  QMessageBox.NoButton )
+                                  QMessageBox.NoButton)
         if x == QMessageBox.Yes:
             db.DeleteGroup(str(self.current.text(0)))
             self.UpdateList()
 
 
-    def groupListView_currentChanged( self, a0 ):
+    def groupListView_currentChanged(self, a0):
         self.current = a0
 
 
-    def groupListView_doubleClicked( self, a0 ):
+    def groupListView_doubleClicked(self, a0):
         self.editButton_clicked()
 
 
-    def groupListView_rightButtonClicked( self, item, pos, a2 ):
-        popup = QPopupMenu( self )
+    def groupListView_rightButtonClicked(self, item, pos, a2):
+        popup = QPopupMenu(self)
 
-        popup.insertItem( self.__tr( "New..." ), self.newButton_clicked )
+        popup.insertItem(self.__tr("New..."), self.newButton_clicked)
 
         if item is not None:
-            popup.insertItem( self.__tr( "Edit..." ), self.editButton_clicked )
-            popup.insertItem( self.__tr( "Delete..." ), self.deleteButton_clicked )
+            popup.insertItem(self.__tr("Edit..."), self.editButton_clicked)
+            popup.insertItem(self.__tr("Delete..."), self.deleteButton_clicked)
 
         popup.insertSeparator()
-        popup.insertItem( self.__tr( "Refresh List" ), self.UpdateList )
-        popup.popup( pos )
+        popup.insertItem(self.__tr("Refresh List"), self.UpdateList)
+        popup.popup(pos)
 
     def __tr(self,s,c = None):
         return qApp.translate("FAB",s,c)
@@ -260,29 +267,29 @@ class FaxAddrBookEditForm(FaxAddrBookEditForm_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         FaxAddrBookEditForm_base.__init__(self,parent,name,modal,fl)
         self.recno = -1
-        self.faxEdit.setValidator( PhoneNumValidator( self.faxEdit ) )
+        self.faxEdit.setValidator(PhoneNumValidator(self.faxEdit))
 
-    def setDlgData( self, abe ):
+    def setDlgData(self, abe):
         self.recno = abe.recno
-        self.titleEdit.setText( abe.title )
-        self.firstnameEdit.setText( abe.firstname )
-        self.lastnameEdit.setText( abe.lastname )
-        self.faxEdit.setText( abe.fax )
-        self.notesEdit.setText( abe.notes )
-        self.nicknameEdit.setText( abe.name )
+        self.titleEdit.setText(abe.title)
+        self.firstnameEdit.setText(abe.firstname)
+        self.lastnameEdit.setText(abe.lastname)
+        self.faxEdit.setText(abe.fax)
+        self.notesEdit.setText(abe.notes)
+        self.nicknameEdit.setText(abe.name)
 
-        self.setGroups( abe.group_list )
+        self.setGroups(abe.group_list)
 
-    def setGroups( self, entry_groups=[] ):
+    def setGroups(self, entry_groups=[]):
         self.groupListView.clear()
 
         for g in db.AllGroups():
-            i = QCheckListItem( self.groupListView, g, QCheckListItem.CheckBox )
+            i = QCheckListItem(self.groupListView, g, QCheckListItem.CheckBox)
 
             if g in entry_groups:
-                i.setState( QCheckListItem.On )
+                i.setState(QCheckListItem.On)
 
-    def getDlgData( self ):
+    def getDlgData(self):
         in_groups = []
         i = self.groupListView.firstChild()
 
@@ -311,35 +318,35 @@ class FaxAddrBookEditForm(FaxAddrBookEditForm_base):
 
 
     def groupsButton2_clicked(self): # New Group...
-        new_group_name, ok = QInputDialog.getText( self.__tr( "New Fax Group" ),
-                                                   self.__tr( "New Group Name:" ) )
+        new_group_name, ok = QInputDialog.getText(self.__tr("New Fax Group"),
+                                                   self.__tr("New Group Name:"))
 
-        if ok and len( new_group_name ):
-            new_group_name = str( new_group_name )
+        if ok and len(new_group_name):
+            new_group_name = str(new_group_name)
             abe = db.GetEntryByRecno(self.recno)
 
             if new_group_name not in abe.group_list:
-                abe.group_list.append( new_group_name )
+                abe.group_list.append(new_group_name)
                 db.update(['recno'], [self.recno], [','.join(abe.group_list)], ['groups'])
-
-                self.setGroups( abe.group_list )
-
-
-    def nicknameEdit_textChanged( self, nickname ):
-        self.CheckOKButton( nickname, None )
+                self.setGroups(abe.group_list)
+            
 
 
-    def faxEdit_textChanged( self, fax ):
-        self.CheckOKButton( None, fax )
+    def nicknameEdit_textChanged(self, nickname):
+        self.CheckOKButton(nickname, None)
 
 
-    def CheckOKButton( self, nickname=None, fax=None ):
+    def faxEdit_textChanged(self, fax):
+        self.CheckOKButton(None, fax)
+
+
+    def CheckOKButton(self, nickname=None, fax=None):
         if nickname is None:
-            nickname = str( self.nicknameEdit.text() )
+            nickname = str(self.nicknameEdit.text())
         if fax is None:
-            fax = str( self.faxEdit.text() )
+            fax = str(self.faxEdit.text())
 
-        self.OKButton.setEnabled( len( nickname ) and len( fax ) )
+        self.OKButton.setEnabled(len(nickname) and len(fax))
 
 
     def __tr(self,s,c = None):
@@ -352,8 +359,8 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         FaxAddrBookForm_base.__init__(self,parent,name,modal,fl)
 
-        icon = QPixmap( os.path.join( prop.image_dir, 'HPmenu.png' ) )
-        self.setIcon( icon )
+        icon = QPixmap(os.path.join(prop.image_dir, 'HPmenu.png'))
+        self.setIcon(icon)
 
         global db
         db =  fax.FaxAddressBook()
@@ -369,19 +376,27 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
             log.error("Fax address book file is invalid")
 
             if type(invalids) == type([]):
-                log.error( invalids )
+                log.error(invalids)
 
-            self.FailureUI( self.__tr("<b>Fax address book file %s is invalid.</b><p>Please check the file for problems." % db.filename()) )
+            self.FailureUI(self.__tr("<b>Fax address book file %s is invalid.</b><p>Please check the file for problems." % db.filename()))
             self.init_problem = True
 
         db.pack()
 
         self.all_groups = []
 
-        QTimer.singleShot( 0, self.InitialUpdate )
+        self.hpssd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.hpssd_sock.connect((prop.hpssd_host, prop.hpssd_port))
+        except socket.error:
+            log.error("Unable to contact HPLIP I/O (hpssd).")
+            self.hpssd_sock.close()
+            self.hpssd_sock = None
+
+        QTimer.singleShot(0, self.InitialUpdate)
 
 
-    def InitialUpdate( self ):
+    def InitialUpdate(self):
         if self.init_problem:
             self.close()
             return
@@ -389,13 +404,13 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
         self.UpdateList()
 
 
-    def UpdateList( self ):
+    def UpdateList(self):
         self.addressListView.clear()
         first_rec = None
         all_entries = db.AllRecordEntries()
-        log.debug( "Number of records is: %d" % len(all_entries) )
+        log.debug("Number of records is: %d" % len(all_entries))
 
-        if len( all_entries ) > 0:
+        if len(all_entries) > 0:
 
             for abe in all_entries:
                 i = AddressBookItem(self.addressListView, abe)
@@ -403,64 +418,68 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
                 if first_rec is None:
                     first_rec = i
 
-            self.addressListView.setCurrentItem( i )
+            self.addressListView.setCurrentItem(i)
             self.current = i
 
-            self.editButton.setEnabled( True )
-            self.deleteButton.setEnabled( True )
+            self.editButton.setEnabled(True)
+            self.deleteButton.setEnabled(True)
 
         else:
-            self.editButton.setEnabled( False )
-            self.deleteButton.setEnabled( False )
+            self.editButton.setEnabled(False)
+            self.deleteButton.setEnabled(False)
 
 
     def groupButton_clicked(self):
-        FaxAddrBookGroupsForm( self ).exec_loop()
+        FaxAddrBookGroupsForm(self).exec_loop()
+        self.sendUpdateEvent()
         self.UpdateList()
 
     def newButton_clicked(self):
-        dlg = FaxAddrBookEditForm( self )
+        dlg = FaxAddrBookEditForm(self)
         dlg.setGroups()
-        dlg.groupsButton2.setEnabled( False )
+        dlg.groupsButton2.setEnabled(False)
         if dlg.exec_loop() == QDialog.Accepted:
             db.insert(dlg.getDlgData())
+            self.sendUpdateEvent()
             self.UpdateList()
 
-    def CurrentRecordEntry( self ):
-        return fax.AddressBookEntry(db.select(['recno'], [self.current.recno] )[0])
+    def CurrentRecordEntry(self):
+        return fax.AddressBookEntry(db.select(['recno'], [self.current.recno])[0])
 
     def editButton_clicked(self):
-        dlg = FaxAddrBookEditForm( self )
-        dlg.setDlgData( self.CurrentRecordEntry() )
+        dlg = FaxAddrBookEditForm(self)
+        dlg.setDlgData(self.CurrentRecordEntry())
         if dlg.exec_loop() == QDialog.Accepted:
             db.update(['recno'], [self.current.recno], dlg.getDlgData())
+            self.sendUpdateEvent()
             self.UpdateList()
 
 
     def deleteButton_clicked(self):
-        x = QMessageBox.critical( self,
+        x = QMessageBox.critical(self,
                                  self.caption(),
                                  "<b>Annoying Confirmation: Are you sure you want to delete this address book entry?</b>" ,
                                   QMessageBox.Yes,
                                   QMessageBox.No | QMessageBox.Default,
-                                  QMessageBox.NoButton )
+                                  QMessageBox.NoButton)
         if x == QMessageBox.Yes:
             db.delete(['recno'], [self.current.recno])
             self.UpdateList()
+            self.sendUpdateEvent()
 
 
-    def addressListView_rightButtonClicked(self, item, pos, a2 ):
-        popup = QPopupMenu( self )
+    def addressListView_rightButtonClicked(self, item, pos, a2):
+        popup = QPopupMenu(self)
 
-        popup.insertItem( self.__tr( "New..." ), self.newButton_clicked )
+        popup.insertItem(self.__tr("New..."), self.newButton_clicked)
 
         if item is not None:
-            popup.insertItem( self.__tr( "Edit..." ), self.editButton_clicked )
-            popup.insertItem( self.__tr( "Delete..." ), self.deleteButton_clicked )
+            popup.insertItem(self.__tr("Edit..."), self.editButton_clicked)
+            popup.insertItem(self.__tr("Delete..."), self.deleteButton_clicked)
 
         popup.insertSeparator()
-        popup.insertItem( self.__tr( "Refresh List" ), self.UpdateList )
-        popup.popup( pos )
+        popup.insertItem(self.__tr("Refresh List"), self.UpdateList)
+        popup.popup(pos)
 
 
     def addressListView_doubleClicked(self,a0):
@@ -471,23 +490,35 @@ class FaxAddrBookForm(FaxAddrBookForm_base):
         self.current = item
 
 
-    def FailureUI( self, error_text ):
-        QMessageBox.critical( self,
+    def FailureUI(self, error_text):
+        QMessageBox.critical(self,
                              self.caption(),
                              error_text,
                               QMessageBox.Ok,
                               QMessageBox.NoButton,
-                              QMessageBox.NoButton )
+                              QMessageBox.NoButton)
 
 
-    def WarningUI( self, msg ):
-        QMessageBox.warning( self,
+    def WarningUI(self, msg):
+        QMessageBox.warning(self,
                              self.caption(),
                              msg,
                               QMessageBox.Ok,
                               QMessageBox.NoButton,
-                              QMessageBox.NoButton )
+                              QMessageBox.NoButton)
 
 
     def __tr(self,s,c = None):
         return qApp.translate("FAB",s,c)
+
+    def accept(self):
+        self.sendUpdateEvent()
+        if self.hpssd_sock is not None:
+            self.hpssd_sock.close()
+            
+        FaxAddrBookForm_base.accept(self)
+
+    def sendUpdateEvent(self):
+        if self.hpssd_sock is not None:
+            service.sendEvent(self.hpssd_sock, EVENT_FAX_ADDRESS_BOOK_UPDATED)
+

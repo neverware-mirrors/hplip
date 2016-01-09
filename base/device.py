@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.105 $
-# $Date: 2005/11/22 00:53:34 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,8 +26,10 @@ import gzip
 import os.path
 import time
 import struct
-
-#from pprint import pprint
+import threading
+import urllib
+import StringIO
+import httplib
 
 # Local
 from g import *
@@ -45,13 +43,131 @@ DEFAULT_FILTER = 'none'
 VALID_FILTERS = ('none', 'print', 'scan', 'fax', 'pcard', 'copy')
 
 pat_deviceuri = re.compile(r"""(.*?):/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*)|ip=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[^&]*))(?:&port=(\d))?""", re.IGNORECASE)
+http_pat_url = re.compile(r"""/(.*?)/(\S*?)\?(?:serial=(\S*)|device=(\S*))&loc=(\S*)""", re.IGNORECASE)
 
 # Pattern to check for ; at end of CTR fields
 # Note: If ; not present, CTR value is invalid
 pat_dynamic_ctr = re.compile(r"""CTR:\d*\s.*;""", re.IGNORECASE)
 
+MAX_BUFFER = 8192
 
-def getInteractiveDeviceURI(bus='cups,usb,par', filter='none'):
+
+def makeuri(hpiod_sock, hpssd_sock, param, port=1):  
+    ip_pat = re.compile(r"""\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b""", re.IGNORECASE)
+    dev_pat = re.compile(r"""/dev/.+""", re.IGNORECASE)
+    usb_pat = re.compile(r"""(\d+):(\d+)""", re.IGNORECASE)
+
+    cups_uri, sane_uri, fax_uri = '', '', ''
+    found = False
+
+    # see if the param represents a hostname
+    try:
+        param = socket.gethostbyname(param)
+    except socket.gaierror:
+        log.debug("Gethostbyname() failed.")
+        pass
+
+    if dev_pat.search(param) is not None: # parallel
+        log.debug("Trying parallel")
+        try:
+            fields, data, result_code = \
+                msg.xmitMessage(hpiod_sock, "MakeURI", None, 
+                                {'device-file' : param, 'bus' : 'par',})
+        except Error:
+            result_code = ERROR_INTERNAL
+
+        if result_code == ERROR_SUCCESS:
+            cups_uri = fields.get( 'device-uri', '' )
+            found = True
+
+
+    elif usb_pat.search(param) is not None: # USB
+        log.debug("Trying USB")
+        match_obj = usb_pat.search(param)
+        usb_bus_id = match_obj.group(1)
+        usb_dev_id = match_obj.group(2)
+
+        try:
+            fields, data, result_code = \
+                msg.xmitMessage(hpiod_sock, "MakeURI", None, 
+                                {'usb-bus' : usb_bus_id, 'usb-dev': usb_dev_id, 'bus' : 'usb',})
+        except Error:
+            result_code = ERROR_INTERNAL
+
+        if result_code == ERROR_SUCCESS:
+            cups_uri = fields.get( 'device-uri', '' )
+            found = True
+
+    elif ip_pat.search(param) is not None: # IPv4 dotted quad
+        log.debug("Trying IP address")
+        try:
+            fields, data, result_code = \
+                msg.xmitMessage(hpiod_sock, "MakeURI", None, 
+                                {'hostname' : param, 'port': port, 'bus' : 'net',})
+        except Error:
+            result_code = ERROR_INTERNAL
+
+        if result_code == ERROR_SUCCESS:
+            cups_uri = fields.get( 'device-uri', '' )
+            found = True
+
+    else: # serial
+        log.debug("Trying serial number")
+        devices = probeDevices(hpssd_sock, bus="usb,par")
+
+        for d in devices:
+            log.debug(d)
+
+            # usb has serial in URI...
+            back_end, is_hp, bus, model, serial, dev_file, host, port = \
+                parseDeviceURI(d)
+
+            if bus == 'par': # ...parallel does not. Must get Device ID to obtain it...
+                
+                mq, data, result_code = \
+                    msg.xmitMessage(hpssd_sock, 'QueryModel', None, 
+                    {'device-uri' : d,})
+
+                fields, data, result_code = \
+                    msg.xmitMessage(hpiod_sock, "DeviceOpen", None,
+                                    {'device-uri':    d,
+                                      'io-mode' :     mq.get('io-mode', '0'),
+                                      'io-mfp-mode' : mq.get('io-mfp-mode', '2'),
+                                      'io-control' :  mq.get('io-control', '0'),
+                                      'io-scan-port': mq.get('io-scan-port', '0'),
+                                    })
+                                    
+                if result_code == ERROR_SUCCESS:
+                    device_id = fields['device-id']
+
+                    fields, data, result_code = \
+                        msg.xmitMessage(hpiod_sock, 'DeviceID', None, {'device-id' : device_id,})
+
+                    serial = parseDeviceID(data).get('SN', '')
+
+                fields, data, result_code = \
+                    msg.xmitMessage(hpiod_sock, "DeviceClose", None, {'device-id': device_id,})
+
+            if serial.lower() == param.lower():
+                found = True
+                cups_uri = d
+                break
+
+    if found:
+        fields, data, result_code = \
+            msg.xmitMessage(hpssd_sock, 'QueryModel', None, 
+            {'device-uri' : cups_uri,})
+
+        if fields.get('scan-type', 0):
+            sane_uri = cups_uri.replace("hp:", "hpaio:")
+
+        if fields.get('fax-type', 0):
+            fax_uri = cups_uri.replace("hp:", "hpfax:")
+
+    return cups_uri, sane_uri, fax_uri
+
+
+def getInteractiveDeviceURI(bus='cups,usb,par', filter='none', back_end_filter=['hp']):
     bus = bus.lower()
     probed_devices = probeDevices(bus=bus, filter=filter)
     cups_printers = cups.getPrinters()
@@ -62,13 +178,17 @@ def getInteractiveDeviceURI(bus='cups,usb,par', filter='none'):
     for d in probed_devices:
         printers = []
 
-        for p in cups_printers:
-            if p.device_uri == d:
-                printers.append(p.name)
+        back_end, is_hp, bus, model, serial, dev_file, host, port = \
+            parseDeviceURI(d)
 
-        devices[x] = (d, printers)
-        x += 1
-        max_deviceid_size = max(len(d), max_deviceid_size)
+        if back_end in back_end_filter:
+            for p in cups_printers:
+                if p.device_uri == d:
+                    printers.append(p.name)
+
+            devices[x] = (d, printers)
+            x += 1
+            max_deviceid_size = max(len(d), max_deviceid_size)
 
     if x == 0:
         log.error("No devices found.")
@@ -84,7 +204,7 @@ def getInteractiveDeviceURI(bus='cups,usb,par', filter='none'):
                 (
                     {'width': 4},
                     {'width': max_deviceid_size, 'margin': 2},
-                    {'width': 80-max_deviceid_size-8, 'margin': 2},
+                    {'width': 100-max_deviceid_size-8, 'margin': 2},
                 )
             )
         log.info(formatter.compose(("Num.", "Device-URI", "CUPS printer(s)")))
@@ -121,7 +241,8 @@ def getInteractiveDeviceURI(bus='cups,usb,par', filter='none'):
 
 
 def probeDevices(sock=None, bus='cups,usb,par', timeout=5,
-                  ttl=4, filter='', format='default'):
+                  ttl=4, filter='none', format='default'):
+
     close_sock = False
 
     if sock is None:
@@ -130,7 +251,7 @@ def probeDevices(sock=None, bus='cups,usb,par', timeout=5,
         try:
             sock.connect((prop.hpssd_host, prop.hpssd_port))
         except socket.error:
-            log.error("Unable to connect to HPLIP I/O. Please restart HPLIP and try again.")
+            #log.error("Unable to connect to HPLIP I/O. Please restart HPLIP and try again.")
             raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
 
     fields, data, result_code = \
@@ -146,21 +267,22 @@ def probeDevices(sock=None, bus='cups,usb,par', timeout=5,
                           }
                        )
 
-    if result_code > ERROR_SUCCESS:
-        return ''
-
     if close_sock:
         sock.close()
 
+    if result_code > ERROR_SUCCESS:
+        return ''
+
     temp = data.splitlines()
     probed_devices = []
+
     for t in temp:
         probed_devices.append(t.split(',')[0])
 
     return probed_devices
 
 
-def getSupportedCUPSDevices():
+def getSupportedCUPSDevices(back_end_filter=['hp']):
     devices = {}
     printers = cups.getPrinters()
 
@@ -172,7 +294,7 @@ def getSupportedCUPSDevices():
         except Error:
             continue
 
-        if is_hp:
+        if back_end in back_end_filter:
             try:
                 devices[p.device_uri]
             except KeyError:
@@ -238,13 +360,13 @@ def parseDeviceURI(device_uri):
 
     back_end = m.group(1).lower() or ''
     #is_hp = (back_end in ('hp', 'hpfax'))
-    is_hp = (back_end == 'hp')
+    is_hp = (back_end in ('hp', 'hpfax', 'hpaio'))
     bus = m.group(2).lower() or ''
 
     if bus not in ('usb', 'net', 'bt', 'fw', 'par'):
         raise Error(ERROR_INVALID_DEVICE_URI)
 
-    model = m.group(3).replace(' ', '_')  or ''
+    model = m.group(3) or ''
     serial = m.group(4) or ''
     dev_file = m.group(5) or ''
     host = m.group(6) or ''
@@ -266,7 +388,7 @@ def validateBusList(bus):
     for x in bus.split(','):
         bb = x.lower().strip()
         if bb not in VALID_BUSES:
-            log.error( "Invalid bus name: %s" % bb )
+            log.error("Invalid bus name: %s" % bb)
             return False
 
     return True
@@ -274,7 +396,7 @@ def validateBusList(bus):
 def validateFilterList(filter):
     for f in filter.split(','):
         if f not in VALID_FILTERS:
-            log.error( "Invalid term '%s' in filter list" % f )
+            log.error("Invalid term '%s' in filter list" % f)
             return False
 
     return True
@@ -292,6 +414,14 @@ AGENT_types = {AGENT_TYPE_NONE        : 'invalid',
                 AGENT_TYPE_YELLOW_LOW  : 'photo_yellow',
                 AGENT_TYPE_GGK         : 'photo_gray',
                 AGENT_TYPE_BLUE        : 'photo_blue',
+                AGENT_TYPE_KCMY_CM     : 'kcmy_cm',
+                AGENT_TYPE_LC_LM       : 'photo_cyan_and_photo_magenta',
+                AGENT_TYPE_Y_M         : 'yellow_and_magenta',
+                AGENT_TYPE_C_K         : 'cyan_and_black',
+                AGENT_TYPE_LG_PK       : 'light_gray_and_photo_black',
+                AGENT_TYPE_LG          : 'light_gray',
+                AGENT_TYPE_G           : 'medium_gray',
+                AGENT_TYPE_PG          : 'photo_gray', 
                 AGENT_TYPE_UNSPECIFIED : 'unspecified', # Kind=5,6
             }
 
@@ -309,7 +439,9 @@ AGENT_kinds = {AGENT_KIND_NONE            : 'invalid',
               }
 
 AGENT_healths = {AGENT_HEALTH_OK           : 'ok',
-                  AGENT_HEALTH_MISINSTALLED : 'misinstalled',
+                  AGENT_HEALTH_MISINSTALLED : 'misinstalled', # supply/cart
+                  #AGENT_HEALTH_FAIR_MODERATE : 'fair_moderate', # head
+                  AGENT_HEALTH_FAIR_MODERATE : '',
                   AGENT_HEALTH_INCORRECT    : 'incorrect',
                   AGENT_HEALTH_FAILED       : 'failed',
                   AGENT_HEALTH_OVERTEMP     : 'overtemp', # battery
@@ -340,7 +472,7 @@ MODEL_UI_REPLACEMENTS = {'laserjet'   : 'LaserJet',
                         }
 
 
-def normalizeModelName(model):
+def normalizeModelUIName(model):
     if not model.lower().startswith('hp'):
         z = 'HP ' + model.replace('_', ' ')
     else:
@@ -351,9 +483,11 @@ def normalizeModelName(model):
         xx = x.lower()
         y.append(MODEL_UI_REPLACEMENTS.get(xx, xx))
 
-    model_ui = ' '.join(y)
+    return ' '.join(y)
 
-    return model, model_ui
+def normalizeModelName(model):
+    return model.replace(' ', '_').replace('__', '_').replace('~','').replace('/', '_').strip('_')
+
 
 def isLocal(bus):
     return bus in ('par', 'usb', 'fw', 'bt')
@@ -361,16 +495,27 @@ def isLocal(bus):
 
 # **************************************************************************** #
 
+string_cache = {}
 
-class BaseDevice(object):
+class Device(object):
+    def __init__(self, device_uri, printer_name=None,
+                hpssd_sock=None, hpiod_sock=None,
+                callback=None):
 
-    def __init__(self, device_uri, sock=None, host=None, port=None, callback=None):
+        if device_uri is None:
+            printers = cups.getPrinters()
+            for p in printers:
+                if p.name.lower() == printer_name.lower():
+                    device_uri = p.device_uri
+                    break
+            else:
+                raise Error(ERROR_DEVICE_NOT_FOUND)
+
+
         self.device_uri = device_uri
         self.callback = callback
         self.close_socket = False
-
-        self.sock_host = host
-        self.sock_port = port
+        self.query_device_thread = None
 
         try:
             self.back_end, self.is_hp, self.bus, self.model, \
@@ -383,656 +528,63 @@ class BaseDevice(object):
         log.debug("URI: backend=%s, is_hp=%s, bus=%s, model=%s, serial=%s, dev=%s, host=%s, port=%d" % \
             (self.back_end, self.is_hp, self.bus, self.model, self.serial, self.dev_file, self.host, self.port))
 
-        self.model, self.model_ui = normalizeModelName(self.model)
+        self.model_ui = normalizeModelUIName(self.model)
+        self.model = normalizeModelName(self.model)
+
         log.debug("Model/UI model: %s/%s" % (self.model, self.model_ui))
 
-        if sock is None:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if hpiod_sock is None:
+            self.hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                self.sock.connect((self.sock_host, self.sock_port))
-                self.close_socket = True
+                self.hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))
+                self.close_hpiod_socket = True
             except socket.error:
                 raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
         else:
-            self.sock = sock
+            self.hpiod_sock = hpiod_sock
 
+        log.debug("hpiod socket: %d" % self.hpiod_sock.fileno())
 
-        # Items cached in both client and server
+        if hpssd_sock is None:
+            self.hpssd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                self.hpssd_sock.connect((prop.hpssd_host, prop.hpssd_port))
+                self.close_hpssd_socket = True
+            except socket.error:
+                raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
+        else:
+            self.hpssd_sock = hpssd_sock
+
+        log.debug("hpssd socket: %d" % self.hpssd_sock.fileno())
+
         self.mq = {} # Model query
         self.dq = {} # Device query
         self.cups_printers = []
-        self.supported = False
-
-
-    def xmitMessage(self, msg_type, other_fields={},
-                      payload=None, timeout=prop.read_timeout):
-
-        return msg.xmitMessage(self.sock, msg_type,
-                                payload, other_fields, timeout)
-
-
-    def quit(self):
-        if self.close_socket:
-            self.sock.close()
-
-# **************************************************************************** #
-
-class Device(BaseDevice):
-    def __init__(self, device_uri=None, printer_name=None,
-                  hpssd_sock=None, callback=None,
-                  cups_printers=[]):
-
-        if device_uri is None:
-            printers = cups.getPrinters()
-            for p in printers:
-                if p.name.lower() == printer_name.lower():
-                    device_uri = p.device_uri
-                    break
-            else:
-                raise Error(ERROR_DEVICE_NOT_FOUND)
-
-        BaseDevice.__init__(self, device_uri, hpssd_sock,
-                             prop.hpssd_host, prop.hpssd_port,
-                             callback)
-
-        self.cups_printers = cups_printers
-            
-        if not self.cups_printers:
-            printers = cups.getPrinters()
-            for p in printers:
-                if self.device_uri == p.device_uri:
-                    self.cups_printers.append(p.name)
-        
-        try:
-            self.first_cups_printer = self.cups_printers[0]
-        except IndexError:
-            self.first_cups_printer = ''
-
-        self.device_vars = {
-            'URI'        : self.device_uri,
-            'DEVICE_URI' : self.device_uri,
-            'SANE_URI'   : self.device_uri.replace('hp:', 'hpaio:'),
-            'PRINTER'    : self.first_cups_printer,
-            'HOME'       : prop.home_dir,
-                           }
-
-        self.device_id = -1
-
-        self.error_state = ERROR_STATE_ERROR
-        self.device_state = DEVICE_STATE_NOT_FOUND
-        self.status_code = EVENT_ERROR_DEVICE_NOT_FOUND
-
-        # PCard support, for direct HPIOD communication
-        # BaseDevice connects to hpssd for services and I/O (print, pml, etc)
-        self.hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.hpiod_sock_connected = False
-        self.pcard_channel_id = -1
-        self.pcard = False
-
-
-    def open(self, pcard=False):
-        self.pcard = pcard
-
-        if pcard:
-            if not self.hpiod_sock_connected:
-                log.debug("Connecting to hpiod at %s:%d..." % (prop.hpiod_host, prop.hpiod_port))
-                try:
-                    self.hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))
-                except socket.error:
-                    raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
-
-            self.queryModel()
-
-            fields, data, result_code = \
-                self.xmitHpiodMessage("DeviceOpen",
-                                        {'device-uri':   self.device_uri,
-                                          'io-mode' :     self.mq.get('io-mode', '0'),
-                                          'io-mfp-mode' : self.mq.get('io-mfp-mode', '2'),
-                                          'io-control' :  self.mq.get('io-control', '0'),
-                                          'io-scan-port': self.mq.get('io-scan-port', '0'),
-                                        }
-                                      )
-
-            if result_code == ERROR_SUCCESS:
-                self.device_id = fields['device-id']
-            else:
-                raise Error(result_code)
-
-        else:
-
-            fields, data, result_code = \
-                self.xmitMessage("OpenDevice",
-                                  {'device-uri' : self.device_uri,})
-
-            self.queryModel()
-            
-            return result_code
-
-
-    def close(self):
-        if self.pcard:
-
-            fields, data, result_code = \
-                self.xmitHpiodMessage("DeviceClose",
-                                        {
-                                           'device-id': self.device_id,
-                                        }
-                                      )
-
-            if self.hpiod_sock_connected:
-                self.hpiod_sock_connected.close()
-        else:
-            fields, data, result_code = \
-                self.xmitMessage("CloseDevice",
-                                  {'device-uri' : self.device_uri,})
-
-
-        return result_code
-
-
-    def __openChannel(self, service_name):
-        fields, data, result_code = \
-            self.xmitMessage("OpenChannel",
-                              {
-                                'device-uri' : self.device_uri,
-                                'service-name' : service_name,
-                              }
-                            )
-        return result_code
-
-
-    def __closeChannel(self, service_name):
-        fields, data, result_code = \
-            self.xmitMessage("CloseChannel",
-                               {
-                                    'device-uri' : self.device_uri,
-                                    'service-name' : service_name,
-                                }
-                              )
-        return result_code
-
-    
-    def queryDevice(self):
-        self.dq, data, result_code = \
-            self.xmitMessage("QueryDevice",
-                              {
-                                'device-uri' : self.device_uri,
-                              }
-                            )
-
-        for d in self.dq:
-            self.__dict__[d.replace('-','_')] = self.dq[d]
-
-        try:
-            self.cups_printers = self.cups_printers.split(',')
-        except:
-            self.cups_printers = []
-
-
-
-    def getStatusFromDeviceID(self):
-        fields, data, result_code = \
-            self.xmitMessage("DeviceId",
-                              {
-                                'device-uri' : self.device_uri,
-                              }
-                            )
-
-        return status.parseStatus(parseDeviceID(data))
-
-    def getDeviceID(self):
-        fields, data, result_code = \
-            self.xmitMessage("DeviceId",
-                              {
-                                'device-uri' : self.device_uri,
-                              }
-                            )
-
-        return parseDeviceID(data)
-
-    
-    
-    def queryModel(self):
-        result_code = ERROR_SUCCESS
-
-        if not self.mq:
-            self.mq, data, result_code = \
-                self.xmitMessage("QueryModel",
-                                  {
-                                    'device-uri' : self.device_uri,
-                                  }
-                                )
-
-        self.supported = bool(self.mq)
-        if self.supported:
-            for m in self.mq:
-                self.__dict__[m.replace('-','_')] = self.mq[m]
-
-
-    def queryHistory(self):
-        fields, data, result_code = \
-            self.xmitMessage("QueryHistory",
-                               {
-                                    'device-uri' : self.device_uri,
-                                }
-                             )
-
-        result = []
-        lines = data.strip().splitlines()
-        lines.reverse()
-
-        for x in lines:
-            yr, mt, dy, hr, mi, sec, wd, yd, dst, job, user, ec, ess, esl = x.strip().split(',', 13)
-            result.append((int(yr), int(mt), int(dy), int(hr), int(mi), int(sec), int(wd),
-                             int(yd), int(dst), int(job), user, int(ec), ess, esl))
-
-        return result
-
-
-    def openPML(self):
-        if not self.mq['io-mode'] == IO_MODE_UNI:
-            return self.__openChannel('HP-MESSAGE')
-        else:
-            return -1
-
-
-    def getPML(self, oid):
-        if not self.mq['io-mode'] == IO_MODE_UNI:
-            fields, data, result_code = \
-                self.xmitMessage("GetPML",
-                                  {
-                                    'device-uri' : self.device_uri,
-                                    'oid' : oid[0],
-                                    'type' : oid[1],
-                                  }
-                                )
-        else:
-            data, result_code = '', ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION
-
-        return data, result_code
-
-
-    def setPML(self, oid, value):
-        if not self.mq['io-mode'] == IO_MODE_UNI:
-            fields, data, result_code = \
-                self.xmitMessage("SetPML",
-                                  {
-                                    'device-uri' : self.device_uri,
-                                    'oid' : oid[0],
-                                    'type' : oid[1],
-                                  },
-                                  value
-                                )
-        else:
-            result_code = ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION
-
-        return result_code
-
-
-    def closePML(self):
-        if not self.mq['io-mode'] == IO_MODE_UNI:
-            return self.__closeChannel('HP-MESSAGE')
-
-
-    def getDynamicCounter(self, counter, convert_to_int=True):
-        fields, value, result_code = \
-            self.xmitMessage("GetDynamicCounter",
-                              {
-                                'device-uri' : self.device_uri,
-                                'counter' : counter,
-                                #'convert-int' : convert_int,
-                              }
-                            )
-
-        if value.startswith('#'):
-            value = value[1:]
-
-        if convert_to_int:
-            try:
-                value = int(value)
-            except ValueError:
-                pass
-
-        return value
-
-
-    def openPrint(self):
-        return self.__openChannel('PRINT')
-
-
-    def readPrint(self, bytes_to_read=prop.max_message_len):
-        fields, data, result_code = \
-            self.xmitMessage("ReadPrintChannel",
-                              {
-                                'device-uri' : self.device_uri,
-                                'bytes-to-read' : bytes_to_read,
-                              }
-                            )
-
-        return data, result_code
-
-
-    def writePrint(self, data):
-        buffer, bytes_out, total_bytes_to_write = data, 0, len(data)
-
-        while len(buffer) > 0:
-            fields, data, result_code = \
-                self.xmitMessage('WritePrintChannel',
-                                    {
-                                        'device-uri': self.device_uri,
-                                    },
-                                    buffer[:prop.max_message_len],
-                                  )
-
-            if result_code != ERROR_SUCCESS:
-                log.error("WritePrintChannel error")
-                raise Error(ERROR_INTERNAL)
-
-            buffer = buffer[prop.max_message_len:]
-
-            if self.callback is not None:
-                self.callback()
-
-
-
-    def printData(self, data, direct=False, raw=True):
-        if direct:
-            return self.writePrint(data)
-        else:
-            temp_file_fd, temp_file_name = utils.make_temp_file()
-            os.write(temp_file_fd, data)
-            os.close(temp_file_fd)
-
-            if len(data) < 1024 and \
-                log.get_level() == log.LOG_LEVEL_DEBUG:
-
-                log.debug("Printing data: %s" % repr(data))
-
-            self.printFile(temp_file_name, direct, raw, remove=True)
-            #os.remove(temp_file_name)
-
-
-
-    def printFile(self, filename, direct=False, raw=True, remove=False):
-        if os.path.exists(filename):
-            is_gzip = os.path.splitext(filename)[-1].lower() == '.gz'
-
-            if direct:
-                if is_gzip:
-                    f = gzip.open(filename, 'r')
-                else:
-                    f = file(filename, 'r')
-
-                self.writePrint(f.read())
-
-                f.close()
-
-                if remove:
-                    os.remove(filename)
-
-            else:
-                raw_str = ('', '-l')[raw]
-                rem_str = ('', '-r')[remove]
-
-                if is_gzip:
-                    c = ' '.join(['gunzip -c', filename, '| lpr -P', self.first_cups_printer, raw_str, rem_str])
-                else:
-                    c = ' '.join(['lpr -P', self.first_cups_printer, raw_str, rem_str, filename])
-
-                log.debug(c)
-                os.system(c)
-
-
-    def printGzipFile(self, filename, direct=False, raw=True, remove=False):
-        return self.printFile(filename, direct, raw, remove)
-
-
-    def printTestPage(self):
-        return self.printParsedGzipPostscript(os.path.join( prop.home_dir, 'data',
-                                              'ps', 'testpage.ps.gz' ))
-
-
-    def writeEmbeddedPML(self, oid, value, direct=False):
-        fields, data, result_code = \
-            self.xmitMessage("WriteEmbeddedPML",
-                              {
-                                'device-uri' : self.device_uri,
-                                'oid' : oid[0],
-                                'type' : oid[1],
-                                'direct' : direct,
-                              },
-                              value,
-                            )
-
-
-    def closePrint(self):
-        return self.__closeChannel('PRINT')
-
-    def cancelJob(self, jobid):
-        cups.cancelJob(jobid)
-        self.sendEvent(STATUS_PRINTER_CANCELING, 'event', jobid,
-            prop.username, self.device_uri)
-
-
-    def printParsedGzipPostscript(self, print_file):
-        # direct=False, raw=False
-        try:
-            os.stat(print_file)
-        except OSError:
-            log.error("File not found: %s" % print_file)
-            return
-
-        temp_file_fd, temp_file_name = utils.make_temp_file()
-        f = gzip.open(print_file, 'r')
-
-        x = f.readline()
-        while not x.startswith('%PY_BEGIN'):
-            os.write(temp_file_fd, x)
-            x = f.readline()
-
-        sub_lines = []
-        x = f.readline()
-        while not x.startswith('%PY_END'):
-            sub_lines.append(x)
-            x = f.readline()
-            
-        SUBS = {'VERSION' : prop.version,
-                 'MODEL'   : self.model_ui,
-                 'URI'     : self.device_uri,
-                 'BUS'     : self.bus,
-                 'SERIAL'  : self.serial,
-                 'IP'      : self.host,
-                 'PORT'    : self.port,
-                 'DEVNODE' : self.dev_file,
-                 }
-
-        if self.bus == 'net':
-            SUBS['DEVNODE'] = 'n/a'
-        else:
-            SUBS['IP'] = 'n/a'
-            SUBS['PORT'] = 'n/a'
-
-        for s in sub_lines:
-            os.write(temp_file_fd, s % SUBS)
-
-        os.write(temp_file_fd, f.read())
-        f.close()
-        os.close(temp_file_fd)
-
-        self.printFile(temp_file_name, direct=False, raw=False, remove=True)
-
-
-    def setAlerts(self, email_alerts, email_address, smtp_server):
-
-        fields, data, result_code = \
-            self.xmitMessage("SetAlerts",
-                              {
-                                'username'      : prop.username,
-                                'email-alerts'  : email_alerts,
-                                'email-address' : email_address,
-                                'smtp-server'   : smtp_server,
-                               }
-                            )
-
-
-    def sendEvent(self, event, typ, jobid, username, device_uri):
-        msg.sendEvent(self.sock, 'Event', None,
-                      {
-                          'job-id'        : jobid,
-                          'event-type'    : typ,
-                          'event-code'    : event,
-                          'username'      : username,
-                          'device-uri'    : device_uri,
-                          'retry-timeout' : 0,
-                      }
-                     )
-
-
-    def reserveChannel(self, service_name):
-        fields, data, result_code = \
-            self.xmitMessage("ReserveChannel",
-                              {
-                                'device-uri' : self.device_uri,
-                                'service-name' : service_name,
-                              }
-                            )
-        return result_code
-
-    def unreserveChannel(self, service_name):
-        fields, data, result_code = \
-            self.xmitMessage("UnReserveChannel",
-                              {
-                                'device-uri' : self.device_uri,
-                                'service-name' : service_name,
-                              }
-                            )
-        return result_code
-
-
-
-    def xmitHpiodMessage(self, msg_type, other_fields={},
-                          payload=None, timeout=prop.read_timeout):
-
-        return msg.xmitMessage(self.hpiod_sock, msg_type,
-                                payload, other_fields, timeout)
-
-
-    def openPCard(self):
-        fields, data, result_code = \
-            self.xmitHpiodMessage("ChannelOpen",
-                                   {'device-id':  self.device_id,
-                                     'service-name' : 'HP-CARD-ACCESS',
-                                   }
-                                 )
-
-        self.pcard_channel_id = fields['channel-id']
-        self.reserveChannel('HP-CARD-ACCESS')
-
-
-    def closePCard(self):
-        self.unreserveChannel('HP-CARD-ACCESS')
-
-        fields, data, result_code = \
-            self.xmitHpiodMessage('ChannelClose',
-                                   {
-                                    'device-id': self.device_id,
-                                    'channel-id' : self.pcard_channel_id,
-                                   }
-                                 )
-
-
-    def readPCard(self, bytes_to_read=prop.max_message_len, timeout=prop.read_timeout):
-        num_bytes = 0
-        buffer = ''
-
-        while True:
-            fields, data, result_code = \
-                self.xmitHpiodMessage('ChannelDataIn',
-
-                                        {'device-id': self.device_id,
-                                          'channel-id' : self.pcard_channel_id,
-                                          'bytes-to-read' : bytes_to_read,
-                                          'timeout' : timeout,
-                                        }
-                                      )
-
-            l = len(data)
-
-            if result_code != ERROR_SUCCESS:
-                log.error("Print channel read error")
-                raise Error(ERROR_DEVICE_IO_ERROR)
-
-            if l == 0:
-                log.debug("End of data")
-                break
-
-            buffer = ''.join([buffer, data])
-
-            num_bytes += l
-
-            if num_bytes >= bytes_to_read:
-                break
-
-            if self.callback is not None:
-                self.callback()
-
-        log.debug("Returned %d total bytes in buffer." % num_bytes)
-        return buffer
-
-
-    def writePCard(self, data):
-        buffer, bytes_out, total_bytes_to_write = data, 0, len(data)
-
-        while len(buffer) > 0:
-            fields, data, result_code =                self.xmitHpiodMessage('ChannelDataOut',
-                                        {
-                                            'device-id': self.device_id,
-                                            'channel-id' : self.pcard_channel_id,
-                                        },
-                                        buffer[:prop.max_message_len],
-                                      )
-
-            if result_code != ERROR_SUCCESS:
-                log.error("Print channel write error")
-                raise Error(ERROR_DEVICE_IO_ERROR)
-
-            buffer = buffer[prop.max_message_len:]
-            bytes_out += fields['bytes-written']
-
-            if self.callback is not None:
-                self.callback()
-
-        if total_bytes_to_write != bytes_out:
-            raise Error(ERROR_DEVICE_IO_ERROR)
-
-        return bytes_out
-
-
-# **************************************************************************** #
-
-class ServerDevice(BaseDevice):
-    def __init__(self, device_uri, hpiod_sock=None,
-                  model_query_func=None, string_query_func=None,
-                  callback=None):
-
-        self.model_query_func = model_query_func
-        self.string_query_func = string_query_func
-
-        BaseDevice.__init__(self, device_uri, hpiod_sock,
-                             prop.hpiod_host, prop.hpiod_port,
-                             callback)
-
         self.channels = {} # { 'SERVICENAME' : channel_id, ... }
         self.device_id = -1
         self.r_values = None # ( r_value, r_value_str, rg, rr )
         self.deviceID = ''
         self.panel_check = True
-        self.history = utils.RingBuffer(prop.history_size)
         self.io_state = IO_STATE_HP_READY
         self.is_local = isLocal(self.bus)
-        self.dev_file = ''
-        self.serial = ''
-        
+
+        self.supported = False
+
+        self.queryModel()
+        if not self.supported:
+            log.error("Unsupported model: %s" % self.model)
+            self.sendEvent(STATUS_DEVICE_UNSUPPORTED)
+        else:
+            self.supported = True
+
+
+        self.mq.update({'model'    : self.model,
+                        'model-ui' : self.model_ui})
+
+        self.error_state = ERROR_STATE_ERROR
+        self.device_state = DEVICE_STATE_NOT_FOUND
+        self.status_code = EVENT_ERROR_DEVICE_NOT_FOUND
+
         printers = cups.getPrinters()
         for p in printers:
             if self.device_uri == p.device_uri:
@@ -1043,19 +595,15 @@ class ServerDevice(BaseDevice):
                     self.model = p.makemodel.split(',')[0]
 
         try:
-            self.mq = self.model_query_func(self.model)
-        except Error:
-            log.error("Unsupported model: %s" % self.model)
-            self.createHistory(STATUS_DEVICE_UNSUPPORTED)
-        else:
-            self.supported = True
+            self.first_cups_printer = self.cups_printers[0]
+        except IndexError:
+            self.first_cups_printer = ''
 
-        self.mq.update({'model'    : self.model,
-                        'model-ui' : self.model_ui})
+        if self.mq.get('fax-type', FAX_TYPE_NONE) != FAX_TYPE_NONE:
+            self.dq.update({ 'fax-uri' : self.device_uri.replace('hp:/', 'hpfax:/')})
 
-        self.error_state = ERROR_STATE_ERROR
-        self.device_state = DEVICE_STATE_NOT_FOUND
-        self.status_code = EVENT_ERROR_DEVICE_NOT_FOUND
+        if self.mq.get('scan-type', SCAN_TYPE_NONE) != SCAN_TYPE_NONE:
+            self.dq.update({ 'scan-uri' : self.device_uri.replace('hp:/', 'hpaio:/')})
 
         self.dq.update({
             'back-end'         : self.back_end,
@@ -1064,7 +612,7 @@ class ServerDevice(BaseDevice):
             'dev-file'         : self.dev_file,
             'host'             : self.host,
             'port'             : self.port,
-            'cups-printers'    : ','.join(self.cups_printers),
+            'cups-printer'     : ','.join(self.cups_printers),
             'status-code'      : self.status_code,
             'status-desc'      : '',
             'deviceid'         : '',
@@ -1079,27 +627,62 @@ class ServerDevice(BaseDevice):
             'cups-uri'         : self.device_uri,
             })
 
-        if self.mq.get('fax-type', FAX_TYPE_NONE) != FAX_TYPE_NONE:
-            self.dq.update({ 'fax-uri' : self.device_uri.replace('hp:/', 'hpfax:/')})
+        self.device_vars = {
+            'URI'        : self.device_uri,
+            'DEVICE_URI' : self.device_uri,
+            'SCAN_URI'   : self.device_uri.replace('hp:', 'hpaio:'),
+            'SANE_URI'   : self.device_uri.replace('hp:', 'hpaio:'),
+            'FAX_URI'    : self.device_uri.replace('hp:', 'hpfax:'),
+            'PRINTER'    : self.first_cups_printer,
+            'HOME'       : prop.home_dir,
+                           }            
 
-        if self.mq.get('scan-type', SCAN_TYPE_NONE) != SCAN_TYPE_NONE:
-            self.dq.update({ 'scan-uri' : self.device_uri.replace('hp:/', 'hpaio:/')})
+
+    def xmitHpiodMessage(self, msg_type, other_fields={},
+                         payload=None, timeout=prop.read_timeout):
+
+        return msg.xmitMessage(self.hpiod_sock, msg_type,
+                                payload, other_fields, timeout)
+
+    def xmitHpssdMessage(self, msg_type, other_fields={},
+                         payload=None, timeout=prop.read_timeout):
+
+        return msg.xmitMessage(self.hpssd_sock, msg_type,
+                                payload, other_fields, timeout)
+
+    def quit(self):
+        if self.close_hpiod_socket:
+            self.hpiod_sock.close()                
+
+        if self.close_hpssd_socket:
+            self.hpssd_sock.close()                
 
 
-    def createHistory(self, code, jobid=0, username=prop.username):
-        try:
-            short_string = self.string_query_func(code, 0)
-        except Error:
-            short_string = ''
 
-        try:
-            long_string = self.string_query_func(code, 1)
-        except Error:
-            long_string = ''
+    def queryModel(self):
+        if not self.mq:
+            self.mq, data, result_code = \
+                self.xmitHpssdMessage("QueryModel", {'device-uri' : self.device_uri,})
 
-        self.history.append(tuple(time.localtime()) +
-                            (jobid, username, code,
-                             short_string, long_string))
+        self.supported = bool(self.mq)
+
+        if self.supported:
+            for m in self.mq:
+                self.__dict__[m.replace('-','_')] = self.mq[m]
+
+
+    def queryString(self, string_id):
+        if string_id not in string_cache:
+            fields, data, result_code = \
+                self.xmitHpssdMessage('QueryString', {'string-id' : string_id,})
+
+            if result_code == ERROR_SUCCESS:
+                string_cache[string_id] = data
+                return data
+            else:
+                return ''
+        else:
+            return string_cache[string_id]
 
 
     def open(self, network_timeout=3):
@@ -1112,31 +695,18 @@ class ServerDevice(BaseDevice):
             self.status_code = EVENT_ERROR_DEVICE_NOT_FOUND
             self.device_id = -1
 
-            if not self.is_local:
-                log.debug("Pinging %s..." % self.host)
-                try:
-                    delay = utils.ping(self.host, network_timeout)
-                except socket.error:
-                    self.createHistory(self.status_code)
-                    raise Error(ERROR_DEVICE_NOT_FOUND)
-                    #return
-                else:
-                    if delay < 0.0:
-                        self.createHistory(self.status_code)
-                        raise Error(ERROR_DEVICE_NOT_FOUND)
-
             fields, data, result_code = \
-                self.xmitMessage("DeviceOpen",
-                                    {'device-uri':   self.device_uri,
-                                      'io-mode' :     self.mq.get('io-mode', '0'),
-                                      'io-mfp-mode' : self.mq.get('io-mfp-mode', '2'),
-                                      'io-control' :  self.mq.get('io-control', '0'),
-                                      'io-scan-port': self.mq.get('io-scan-port', '0'),
-                                    }
-                                  )
+                self.xmitHpiodMessage("DeviceOpen",
+                                        {'device-uri':   self.device_uri,
+                                          'io-mode' :     self.mq.get('io-mode', '0'),
+                                          'io-mfp-mode' : self.mq.get('io-mfp-mode', '2'),
+                                          'io-control' :  self.mq.get('io-control', '0'),
+                                          'io-scan-port': self.mq.get('io-scan-port', '0'),
+                                        }
+                                      )
 
             if result_code != ERROR_SUCCESS:
-                self.createHistory(self.status_code)
+                self.sendEvent(EVENT_ERROR_DEVICE_NOT_FOUND)
                 log.error("Unable to communicate with device: %s" % self.device_uri)
                 raise Error(ERROR_DEVICE_NOT_FOUND)
             else:
@@ -1144,8 +714,8 @@ class ServerDevice(BaseDevice):
                 log.debug("device-id=%d" % self.device_id)
                 self.io_state = IO_STATE_HP_OPEN
                 self.error_state = ERROR_STATE_CLEAR
-                log.debug("Opened device: %s (hp=%s,bus=%s,model=%s,dev=%s,serial=%s)" %
-                          (self.device_uri, self.is_hp, self.bus, self.model, self.dev_file, self.serial))
+                log.debug("Opened device: %s (backend=%s,is_hp=%s,bus=%s,model=%s,dev=%s,serial=%s,host=%s,port=%d)" %
+                    (self.back_end, self.device_uri, self.is_hp, self.bus, self.model, self.dev_file, self.serial, self.host, self.port))
 
                 if prev_device_state == DEVICE_STATE_NOT_FOUND:
                     self.device_state = DEVICE_STATE_JUST_FOUND
@@ -1154,6 +724,7 @@ class ServerDevice(BaseDevice):
 
                 self.getDeviceID()
                 self.getSerialNumber()
+                return self.device_id
 
 
 
@@ -1167,105 +738,108 @@ class ServerDevice(BaseDevice):
                     self.__closeChannel(c)
 
             fields, data, result_code = \
-                self.xmitMessage("DeviceClose",
-                                    {
-                                       'device-id': self.device_id,
-                                    }
-                                  )
+                self.xmitHpiodMessage("DeviceClose", {'device-id': self.device_id,})
 
             self.channels.clear()
             self.io_state = IO_STATE_HP_READY
 
 
-    def reserveChannel(self, service_name, channel_id=-1):
-        service_name = service_name.upper()
-        try:
-            self.channels[service_name]
-        except KeyError:
-            self.channels[service_name] = channel_id
-        else:
-            pass # TODO: Handle multiple access to single (non PML) channel
-
-    def unreserveChannel(self, service_name):
-        service_name = service_name.upper()
-        try:
-            self.channels[service_name]
-        except KeyError:
-            pass
-        else:
-            del self.channels[service_name]
-
     def __openChannel(self, service_name):
         self.open()
 
-        service_name = service_name.upper()
+        if not self.mq['io-mode'] == IO_MODE_UNI:
+            service_name = service_name.upper()
 
-        if service_name not in self.channels:
-            log.debug("Opening %s channel..." % service_name)
+            if service_name not in self.channels:
+                log.debug("Opening %s channel..." % service_name)
 
-            fields, data, result_code = \
-                self.xmitMessage("ChannelOpen",
-                                  {'device-id':  self.device_id,
-                                    'service-name' : service_name,
-                                  }
-                                )
-            try:
-                channel_id = fields['channel-id']
-            except KeyError:
-                raise Error(ERROR_INTERNAL)
+                fields, data, result_code = \
+                    self.xmitHpiodMessage("ChannelOpen",
+                                          {'device-id':  self.device_id,
+                                            'service-name' : service_name,
+                                          }
+                                        )
+                try:
+                    channel_id = fields['channel-id']
+                except KeyError:
+                    raise Error(ERROR_INTERNAL)
 
-            self.reserveChannel(service_name, channel_id)
-            log.debug("channel-id=%d" % channel_id)
-            return channel_id
+                self.channels[service_name] = channel_id
+                log.debug("channel-id=%d" % channel_id)
+                return channel_id
+            else:
+                return self.channels[service_name]
         else:
-            return self.channels[service_name]
+            return -1
 
 
     def openChannel(self, service_name):
         return self.__openChannel(service_name)
 
-
     def openPrint(self):
         return self.__openChannel('PRINT')
 
+    def openFax(self):
+        return self.__openChannel('HP-FAX-SEND')
 
     def openPCard(self):
         return self.__openChannel('HP-CARD-ACCESS')
 
+    def openFax(self):
+        return self.__openChannel('HP-FAX-SEND')
+
+    def openEWS(self):
+        return self.__openChannel('HP-EWS')
 
     def closePrint(self):
         return self.__closeChannel('PRINT')
 
-
     def closePCard(self):
         return self.__closeChannel('HP-CARD-ACCESS')
 
+    def closeFax(self):
+        return self.__closeChannel('HP-FAX')
 
     def openPML(self):
         return self.__openChannel('HP-MESSAGE')
 
-
     def closePML(self):
         return self.__closeChannel('HP-MESSAGE')
 
+    def closeEWS(self):
+        return self.__closeChannel('HP-EWS')
+
+    def openCfgUpload(self):
+        return self.__openChannel('HP-CONFIGURATION-UPLOAD')
+
+    def closeCfgUpload(self):
+        return self.__closeChannel('HP-CONFIGURATION-UPLOAD')
+
+    def openCfgDownload(self):
+        return self.__openChannel('HP-CONFIGURATION-DOWNLOAD')
+
+    def closeCfgDownload(self):
+        return self.__closeChannel('HP-CONFIGURATION-DOWNLOAD')
+
 
     def __closeChannel(self, service_name):
+        if not self.mq['io-mode'] == IO_MODE_UNI and \
+            self.io_state == IO_STATE_HP_OPEN:
 
-        if self.io_state == IO_STATE_HP_OPEN:
             service_name = service_name.upper()
 
             if service_name in self.channels:
                 log.debug("Closing %s channel..." % service_name)
 
                 fields, data, result_code = \
-                    self.xmitMessage('ChannelClose',
-                                      {
-                                        'device-id': self.device_id,
-                                        'channel-id' : self.channels[service_name],
-                                      }
-                                    )
+                    self.xmitHpiodMessage('ChannelClose',
+                                          {
+                                            'device-id': self.device_id,
+                                            'channel-id' : self.channels[service_name],
+                                          }
+                                        )
 
-                self.unreserveChannel(service_name)
+                del self.channels[service_name]
 
 
     def closeChannel(self, service_name):
@@ -1274,8 +848,7 @@ class ServerDevice(BaseDevice):
 
     def getDeviceID(self):
         fields, data, result_code = \
-            self.xmitMessage('DeviceID',
-                              {'device-id' : self.device_id,})
+            self.xmitHpiodMessage('DeviceID', {'device-id' : self.device_id,})
 
         if result_code != ERROR_SUCCESS:
             self.raw_deviceID = ''
@@ -1284,9 +857,11 @@ class ServerDevice(BaseDevice):
             self.raw_deviceID = data
             self.deviceID = parseDeviceID(data)
 
+        return self.deviceID
+
 
     def getSerialNumber(self):
-        if len(self.serial):
+        if self.serial:
             return
 
         try:
@@ -1294,7 +869,7 @@ class ServerDevice(BaseDevice):
         except KeyError:
             pass
         else:
-            if len(self.serial):
+            if self.serial:
                 return
 
         if self.mq.get('status-type', STATUS_TYPE_NONE) != STATUS_TYPE_NONE and \
@@ -1307,15 +882,14 @@ class ServerDevice(BaseDevice):
                     self.serial = ''
             finally:
                 self.closePML()
-            
+
         if self.serial is None:
             self.serial = ''
 
 
     def getThreeBitStatus(self):
         fields, data, result_code = \
-            self.xmitMessage('DeviceStatus',
-                              {'device-id' : self.device_id,})
+            self.xmitHpiodMessage('DeviceStatus', {'device-id' : self.device_id,})
 
         if result_code != ERROR_SUCCESS:
             self.three_bit_status_code = 0
@@ -1325,16 +899,12 @@ class ServerDevice(BaseDevice):
             self.three_bit_status_name = fields['status-name']
 
 
-    def getDevFile(self):
-        fields, data, result_code = \
-            self.xmitMessage('DeviceFile',
-                              {'device-id' : self.device_id,})
-
-        if result_code == ERROR_SUCCESS:
-            self.dev_file = fields['device-file']
+    def getStatusFromDeviceID(self):
+        self.getDeviceID()
+        return status.parseStatus(parseDeviceID(self.raw_deviceID))
 
 
-    def queryDevice(self):
+    def queryDevice(self, quick=False):
         if not self.supported:
             self.dq = {}
             return
@@ -1347,37 +917,31 @@ class ServerDevice(BaseDevice):
         # Turn off status if local connection and bi-di not avail.
         if io_mode  == IO_MODE_UNI and self.back_end != 'net':
             status_type = STATUS_TYPE_NONE
-        
+
         agents = []
-            
+
         if self.device_state != DEVICE_STATE_NOT_FOUND:
             try:
                 self.getThreeBitStatus()
             except Error, e:
-                pass
-    
+                log.error("Error getting 3-bit status.")
+                raise Error(ERROR_DEVICE_IO_ERROR)
+
+            if self.tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
+                try:
+                    self.getDeviceID()
+                except Error, e:
+                    log.error("Error getting device ID.")
+                    raise Error(ERROR_DEVICE_IO_ERROR)
+
             try:
-                self.getDeviceID()
-            except Error, e:
-                pass
-    
-            try:
-                self.getDevFile()
-            except Error, e:
-                pass
-    
-            try:
-                status_desc = self.string_query_func(self.status_code)
+                status_desc = self.queryString(self.status_code)
             except Error:
                 status_desc = ''
-        
+
             self.dq.update({
-                'back-end'         : self.back_end,
-                'is-hp'            : self.is_hp,
                 'serial'           : self.serial,
-                'host'             : self.host,
-                'port'             : self.port,
-                'cups-printers'    : ','.join(self.cups_printers),
+                'cups-printer'     : ','.join(self.cups_printers),
                 'status-code'      : self.status_code,
                 'status-desc'      : status_desc,
                 'deviceid'         : self.raw_deviceID,
@@ -1388,7 +952,6 @@ class ServerDevice(BaseDevice):
                 '3bit-status-name' : self.three_bit_status_name,
                 'device-state'     : self.device_state,
                 'error-state'      : self.error_state,
-                'dev-file'         : self.dev_file,
                 })
 
             status_block = {}
@@ -1397,7 +960,7 @@ class ServerDevice(BaseDevice):
                 log.warn("No status available for device.")
                 status_block = {'status-code' : STATUS_PRINTER_IDLE}
 
-            elif status_type in (STATUS_TYPE_VSTATUS, STATUS_TYPE_S):
+            elif status_type in (STATUS_TYPE_VSTATUS, STATUS_TYPE_S, STATUS_TYPE_S_SNMP):
                 log.debug("Type 1/2 (S: or VSTATUS:) status")
                 status_block = status.parseStatus(self.deviceID)
 
@@ -1409,6 +972,10 @@ class ServerDevice(BaseDevice):
                 log.debug("Type 4 S: status with battery check")
                 status_block = status.parseStatus(self.deviceID)
                 status.BatteryCheck(self, status_block)
+
+            elif status_type == STATUS_TYPE_LJ_XML:
+                log.debug("Type 6: LJ XML")
+                status_block = status.StatusType6(self)
 
             else:
                 log.error("Unimplemented status type: %d" % status_type)
@@ -1424,249 +991,340 @@ class ServerDevice(BaseDevice):
                     agents = status_block['agents']
                     del self.dq['agents']
 
+
             status_code = self.dq.get('status-code', STATUS_UNKNOWN)
-            self.createHistory(status_code)
+
+            if self.mq.get('fax-type', 0) and status_code == STATUS_PRINTER_IDLE:
+                tx_active, rx_active = status.getFaxStatus(self)
+
+                if tx_active:
+                    status_code = STATUS_FAX_TX_ACTIVE
+                elif rx_active:
+                    status_code = STATUS_FAX_RX_ACTIVE
+
+
+            self.sendEvent(status_code)
 
             try:
-                self.dq.update({'status-desc' : self.string_query_func(status_code),
+                self.dq.update({'status-desc' : self.queryString(status_code),
                                 'error-state' : STATUS_TO_ERROR_STATE_MAP.get(status_code, ERROR_STATE_CLEAR),
                                 })
+
             except (KeyError, Error):
                 self.dq.update({'status-desc' : '',
                                 'error-state' : ERROR_STATE_CLEAR,
                                 })
 
-            r_value, rg, rr, r_value_str = 0, '000', '000000', '000000000'
+            if not quick:
+                r_value, rg, rr, r_value_str = 0, '000', '000000', '000000000'
 
-            if status_type != STATUS_TYPE_NONE:
+                if status_type != STATUS_TYPE_NONE:
 
-                if self.panel_check:
-                    self.panel_check = bool(self.mq.get('panel-check-type', 0))
+                    if self.panel_check:
+                        self.panel_check = bool(self.mq.get('panel-check-type', 0))
 
-                if self.panel_check and status_type != STATUS_TYPE_NONE:
-                    try:
-                        self.panel_check, line1, line2 = status.PanelCheck(self)
-                    finally:
-                        self.closePML()
+                    if self.panel_check and status_type in (STATUS_TYPE_NONE, STATUS_TYPE_LJ, 
+                                                            STATUS_TYPE_S_W_BATTERY, STATUS_TYPE_S_SNMP):
 
-                    self.dq.update({'panel'       : int(self.panel_check),
-                                      'panel-line1' : line1,
-                                      'panel-line2' : line2,})
-
-                if r_type > 0:
-
-                    if self.r_values is None:
                         try:
-                            try:
-                                r_value = self.getDynamicCounter(140)
-    
-                                if r_value is not None:
+                            self.panel_check, line1, line2 = status.PanelCheck(self)
+                        finally:
+                            self.closePML()
+
+                        self.dq.update({'panel': int(self.panel_check),
+                                          'panel-line1': line1,
+                                          'panel-line2': line2,})
+
+
+                    if r_type > 0: # and self.is_local:
+                        if self.r_values is None:
+                            fields, data, result_code = \
+                                self.xmitHpssdMessage('GetValue', {'device-uri': self.device_uri, 'key': 'r_value'})
+
+                            if result_code == ERROR_SUCCESS and data:
+                                try:
+                                    r_value = int(data.strip())
+                                except:
+                                    pass
+                                else:
+                                    log.debug("r_value=%d" % r_value)
                                     r_value_str = str(r_value)
                                     r_value_str = ''.join(['0'*(9 - len(r_value_str)), r_value_str])
-                                    rg, rr, r_value = r_value_str[:3], r_value_str[3:], int(rr)
+                                    rg, rr = r_value_str[:3], r_value_str[3:]
+                                    r_value = int(rr)
                                     self.r_values = r_value, r_value_str, rg, rr
-                                else:
-                                    log.error("Error attempting to read r-value (2).")
-                                    r_value = 0
-                            except Error:
-                                log.error("Error attempting to read r-value (1).")
-                                r_value = 0
+
+                            if self.r_values is None:
+                                if status_type ==  STATUS_TYPE_S and self.is_local:
+                                    try:    
+                                        try:
+                                            r_value = self.getDynamicCounter(140)
+
+                                            if r_value is not None:
+                                                log.debug("r_value=%d" % r_value)
+                                                r_value_str = str(r_value)
+                                                r_value_str = ''.join(['0'*(9 - len(r_value_str)), r_value_str])
+                                                rg, rr = r_value_str[:3], r_value_str[3:]
+                                                r_value = int(rr)
+                                                self.r_values = r_value, r_value_str, rg, rr
+
+                                                fields, data, result_code = \
+                                                    self.xmitHpssdMessage('SetValue', {'device-uri': self.device_uri, 'key': 'r_value', 'value': r_value})
+
+                                            else:
+                                                log.error("Error attempting to read r-value (2).")
+                                                r_value = 0
+                                        except Error:
+                                            log.error("Error attempting to read r-value (1).")
+                                            r_value = 0
+                                    finally:
+                                        self.closePrint()
+
+
+                                elif status_type == STATUS_TYPE_S_SNMP:
+                                    try:
+                                        result_code, r_value = self.getPML(pml.OID_R_SETTING)
+
+                                        if r_value is not None:
+                                            log.debug("r_value=%d" % r_value)
+                                            r_value_str = str(r_value)
+                                            r_value_str = ''.join(['0'*(9 - len(r_value_str)), r_value_str])
+                                            rg, rr = r_value_str[:3], r_value_str[3:]
+                                            r_value = int(rr)
+                                            self.r_values = r_value, r_value_str, rg, rr
+
+                                            fields, data, result_code = \
+                                                self.xmitHpssdMessage('SetValue', {'device-uri': self.device_uri, 'key': 'r_value', 'value': r_value})
+                                        else:
+                                            r_value = 0
+                                    finally:
+                                        self.closePML()
+
+                        else:
+                            r_value, r_value_str, rg, rr = self.r_values
+
+                self.dq.update({'r'  : r_value,
+                                'rs' : r_value_str,
+                                'rg' : rg,
+                                'rr' : rr,
+                              })
+
+            if not quick:
+                a = 1
+                while True:
+                    mq_agent_kind = self.mq.get('r%d-agent%d-kind' % (r_value, a), 0)
+
+                    if mq_agent_kind == 0:
+                        break
+
+                    mq_agent_type = self.mq.get('r%d-agent%d-type' % (r_value, a), 0)
+                    mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
+
+                    found = False
+                    
+                    for agent in agents:
+                        agent_kind = agent['kind']
+                        agent_type = agent['type']
+
+                        if agent_kind == mq_agent_kind and \
+                           agent_type == mq_agent_type:
+                           found = True
+                           break
+
+                    if found:
+                        agent_health = agent.get('health', AGENT_HEALTH_OK)
+                        agent_level_trigger = agent.get('level-trigger',
+                            AGENT_LEVEL_TRIGGER_SUFFICIENT_0)
+
+                        query = 'agent_%s_%s' % (AGENT_types.get(agent_type, 'unknown'), 
+                                                 AGENT_kinds.get(agent_kind, 'unknown'))
                         
-                        finally:
-                            self.closePrint()
+                        #print "1", query
                         
+                        try:
+                            agent_desc = self.queryString(query)
+                        except Error:
+                            agent_desc = ''
+
+                        self.dq.update(
+                        {
+                            'agent%d-kind' % a :          agent_kind,
+                            'agent%d-type' % a :          agent_type,
+                            'agent%d-known' % a :         agent.get('known', False),
+                            'agent%d-sku' % a :           mq_agent_sku,
+                            'agent%d-level' % a :         agent.get('level', 0),
+                            'agent%d-level-trigger' % a : agent_level_trigger,
+                            'agent%d-ack' % a :           agent.get('ack', False),
+                            'agent%d-hp-ink' % a :        agent.get('hp-ink', False),
+                            'agent%d-health' % a :        agent_health,
+                            'agent%d-dvc' % a :           agent.get('dvc', 0),
+                            'agent%d-virgin' % a :        agent.get('virgin', False),
+                            'agent%d-desc' % a :          agent_desc,
+                            'agent%d-id' % a :            agent.get('id', 0)
+                        })
+
                     else:
-                        r_value, r_value_str, rg, rr = self.r_values
+                        agent_health = AGENT_HEALTH_MISINSTALLED
+                        agent_level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
 
-            self.dq.update({'r'  : r_value,
-                            'rs' : r_value_str,
-                            'rg' : rg,
-                            'rr' : rr,
-                          })
+                        query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
+                                                 AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                        #print "2", query
+                        
+                        try:
+                            agent_desc = self.queryString(query)
+                        except Error:
+                            agent_desc = ''
 
-            a = 1
-            while True:
-                mq_agent_kind = self.mq.get('r%d-agent%d-kind' % (r_value, a), 0)
-
-                if mq_agent_kind == 0:
-                    break
-
-                mq_agent_type = self.mq.get('r%d-agent%d-type' % (r_value, a), 0)
-                mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
-
-                found = False
-                for agent in agents:
-                    agent_kind = agent['kind']
-                    agent_type = agent['type']
-
-                    if agent_kind == mq_agent_kind and \
-                       agent_type == mq_agent_type:
-                       found = True
-                       break
-
-                if found:
-                    agent_health = agent.get('health', AGENT_HEALTH_OK)
-                    agent_level_trigger = agent.get('level-trigger',
-                        AGENT_LEVEL_TRIGGER_SUFFICIENT_0)
-
-                    query = 'agent_%s_%s' % (AGENT_types.get(agent_type, 'unknown'), 
-                                             AGENT_kinds.get(agent_kind, 'unknown'))
-                    log.debug(query)
-                    try:
-                        agent_desc = self.string_query_func(query)
-                    except Error:
-                        agent_desc = ''
-
-                    self.dq.update(
-                    {
-                        'agent%d-kind' % a :          agent_kind,
-                        'agent%d-type' % a :          agent_type,
-                        'agent%d-known' % a :         agent.get('known', False),
-                        'agent%d-sku' % a :           mq_agent_sku,
-                        'agent%d-level' % a :         agent.get('level', 0),
-                        'agent%d-level-trigger' % a : agent_level_trigger,
-                        'agent%d-ack' % a :           agent.get('ack', False),
-                        'agent%d-hp-ink' % a :        agent.get('hp-ink', False),
-                        'agent%d-health' % a :        agent_health,
-                        'agent%d-dvc' % a :           agent.get('dvc', 0),
-                        'agent%d-virgin' % a :        agent.get('virgin', False),
-                        'agent%d-desc' % a :          agent_desc,
-                        'agent%d-id' % a :            agent.get('id', 0 )
-                    })
-
-                else:
-                    agent_health = AGENT_HEALTH_MISINSTALLED
-                    agent_level_trigger = AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT
+                        self.dq.update(
+                        {
+                            'agent%d-kind' % a :          mq_agent_kind,
+                            'agent%d-type' % a :          mq_agent_type,
+                            'agent%d-known' % a :         False,
+                            'agent%d-sku' % a :           mq_agent_sku,
+                            'agent%d-level' % a :         0,
+                            'agent%d-level-trigger' % a : agent_level_trigger,
+                            'agent%d-ack' % a :           False,
+                            'agent%d-hp-ink' % a :        False,
+                            'agent%d-health' % a :        agent_health,
+                            'agent%d-dvc' % a :           0,
+                            'agent%d-virgin' % a :        False,
+                            'agent%d-desc' % a :          agent_desc,
+                            'agent%d-id' % a :            0,
+                        })
 
                     query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
                                              AGENT_kinds.get(mq_agent_kind, 'unknown'))
-                    log.debug(query)
+                    
+                    #print "3", query
+                    
                     try:
-                        agent_desc = self.string_query_func(query)
+                        self.dq['agent%d-desc' % a] = self.queryString(query)
                     except Error:
-                        agent_desc = ''
+                        self.dq['agent%d-desc' % a] = ''
 
-                    self.dq.update(
-                    {
-                        'agent%d-kind' % a :          mq_agent_kind,
-                        'agent%d-type' % a :          mq_agent_type,
-                        'agent%d-known' % a :         False,
-                        'agent%d-sku' % a :           mq_agent_sku,
-                        'agent%d-level' % a :         0,
-                        'agent%d-level-trigger' % a : agent_level_trigger,
-                        'agent%d-ack' % a :           False,
-                        'agent%d-hp-ink' % a :        False,
-                        'agent%d-health' % a :        agent_health,
-                        'agent%d-dvc' % a :           0,
-                        'agent%d-virgin' % a :        False,
-                        'agent%d-desc' % a :          agent_desc,
-                        'agent%d-id' % a :            0,
-                    })
+                    # If printer is not in an error state, and
+                    # if agent health is OK, check for low supplies. If low, use
+                    # the agent level trigger description for the agent description.
+                    # Otherwise, report the agent health.
+                    if found:
+                        if status_code == STATUS_PRINTER_IDLE and \
+                            (agent_health == AGENT_HEALTH_OK or 
+                             (agent_health == AGENT_HEALTH_FAIR_MODERATE and agent_kind == AGENT_KIND_HEAD)) and \
+                            agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
 
-                query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
-                                         AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                            # Low
+                            query = 'agent_level_%s' % AGENT_levels.get(agent_level_trigger, 'unknown')
 
-                log.debug(query)
-                try:
-                    self.dq['agent%d-desc' % a] = self.string_query_func(query)
-                except Error:
-                    self.dq['agent%d-desc' % a] = ''
+                            if tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
+                                code = agent_type + STATUS_PRINTER_LOW_INK_BASE
+                            else:
+                                code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
 
-                # If printer is not in an error state, and
-                # if agent health is OK, check for low supplies. If low, use
-                # the agent level trigger description for the agent description.
-                # Otherwise, report the agent health.
-                if status_code == STATUS_PRINTER_IDLE and \
-                    agent_health == AGENT_HEALTH_OK and \
-                    agent_level_trigger >= AGENT_LEVEL_TRIGGER_MAY_BE_LOW:
+                            self.dq['status-code'] = code
+                            try:
+                                self.dq['status-desc'] = self.queryString(code)
+                            except Error:
+                                self.dq['status-desc'] = ''
 
-                    # Low
-                    query = 'agent_level_%s' % AGENT_levels.get(agent_level_trigger, 'unknown')
+                            self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
+                            self.sendEvent(code)
+                            
+                            if agent_level_trigger in (AGENT_LEVEL_TRIGGER_PROBABLY_OUT, AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT):
+                                query = 'agent_level_out'
+                            else:
+                                query = 'agent_level_low'
 
-                    if tech_type in (TECH_TYPE_MONO_INK, TECH_TYPE_COLOR_INK):
-                        code = agent_type + STATUS_PRINTER_LOW_INK_BASE
+                        else:
+                            # OK (or fair/moderate)
+                            if agent_health == AGENT_HEALTH_FAIR_MODERATE and agent_kind == AGENT_KIND_HEAD:
+                                query = 'agent_health_fair_moderate'
+                            else:    
+                                query = 'agent_health_%s' % AGENT_healths.get(agent_health, 'unknown')
+
                     else:
-                        code = agent_type + STATUS_PRINTER_LOW_TONER_BASE
-
-                    self.dq['status-code'] = code
+                        query = "agent_health_misinstalled"
+                    
+                    #print "4", query
+                    
                     try:
-                        self.dq['status-desc'] = self.string_query_func(code)
+                        self.dq['agent%d-health-desc' % a] = self.queryString(query)
                     except Error:
-                        self.dq['status-desc'] = ''
-                        
-                    self.dq['error-state'] = STATUS_TO_ERROR_STATE_MAP.get(code, ERROR_STATE_LOW_SUPPLIES)
-                    self.createHistory(code)
+                        self.dq['agent%d-health-desc' % a] = ''
 
-                else:
-                    # OK
-                    query = 'agent_health_%s' % AGENT_healths.get(agent_health, 'unknown')
+                    a += 1
 
-                log.debug(query)
-                
-                try:
-                    self.dq['agent%d-health-desc' % a] = self.string_query_func(query)
-                except Error:
-                    self.dq['agent%d-health-desc' % a] = ''
+                else: # Create agent keys for not-found devices
 
-                a += 1
+                    r_value = 0
+                    if r_type > 0 and self.r_values is not None:
+                        r_value = self.r_values[0]
 
-        else: # Create agent keys for not-found devices
+                    a = 1
+                    while True:
+                        mq_agent_kind = self.mq.get('r%d-agent%d-kind' % (r_value, a), 0)
 
-            r_value = 0
-            if r_type > 0 and self.r_values is not None:
-                r_value = self.r_values[0]
+                        if mq_agent_kind == 0:
+                            break
 
-            a = 1
-            while True:
-                mq_agent_kind = self.mq.get('r%d-agent%d-kind' % (r_value, a), 0)
-
-                if mq_agent_kind == 0:
-                    break
-
-                mq_agent_type = self.mq.get('r%d-agent%d-type' % (r_value, a), 0)
-                mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
-                query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
-                                         AGENT_kinds.get(mq_agent_kind, 'unknown'))
-                log.debug(query)
-                try:
-                    agent_desc = self.string_query_func(query)
-                except Error:
-                    agent_desc = ''
+                        mq_agent_type = self.mq.get('r%d-agent%d-type' % (r_value, a), 0)
+                        mq_agent_sku = self.mq.get('r%d-agent%d-sku' % (r_value, a), '')
+                        query = 'agent_%s_%s' % (AGENT_types.get(mq_agent_type, 'unknown'),
+                                                 AGENT_kinds.get(mq_agent_kind, 'unknown'))
+                        #log.debug(query)
+                        try:
+                            agent_desc = self.queryString(query)
+                        except Error:
+                            agent_desc = ''
 
 
-                self.dq.update(
-                {
-                    'agent%d-kind' % a :          mq_agent_kind,
-                    'agent%d-type' % a :          mq_agent_type,
-                    'agent%d-known' % a :         False,
-                    'agent%d-sku' % a :           mq_agent_sku,
-                    'agent%d-level' % a :         0,
-                    'agent%d-level-trigger' % a : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
-                    'agent%d-ack' % a :           False,
-                    'agent%d-hp-ink' % a :        False,
-                    'agent%d-health' % a :        AGENT_HEALTH_MISINSTALLED,
-                    'agent%d-dvc' % a :           0,
-                    'agent%d-virgin' % a :        False,
-                    'agent%d-health-desc' % a :   self.string_query_func('agent_health_unknown'),
-                    'agent%d-desc' % a :          agent_desc,
-                    'agent%d-id' % a :            0,
-                })
+                        self.dq.update(
+                        {
+                            'agent%d-kind' % a :          mq_agent_kind,
+                            'agent%d-type' % a :          mq_agent_type,
+                            'agent%d-known' % a :         False,
+                            'agent%d-sku' % a :           mq_agent_sku,
+                            'agent%d-level' % a :         0,
+                            'agent%d-level-trigger' % a : AGENT_LEVEL_TRIGGER_ALMOST_DEFINITELY_OUT,
+                            'agent%d-ack' % a :           False,
+                            'agent%d-hp-ink' % a :        False,
+                            'agent%d-health' % a :        AGENT_HEALTH_MISINSTALLED,
+                            'agent%d-dvc' % a :           0,
+                            'agent%d-virgin' % a :        False,
+                            'agent%d-health-desc' % a :   self.queryString('agent_health_unknown'),
+                            'agent%d-desc' % a :          agent_desc,
+                            'agent%d-id' % a :            0,
+                        })
 
-                a += 1
+                        a += 1
+
+        for d in self.dq:
+            self.__dict__[d.replace('-','_')] = self.dq[d]
+            
+        log.debug(self.dq)
+
+
+    def isBusyOrInErrorState(self):
+        self.queryDevice(quick=True)
+        return self.error_state in (ERROR_STATE_ERROR, ERROR_STATE_BUSY)
+
+    def isIdleAndNoError(self):
+        self.queryDevice(quick=True)
+        return self.error_state not in (ERROR_STATE_ERROR, ERROR_STATE_BUSY)
 
 
     def getPML(self, oid, desired_int_size=pml.INT_SIZE_INT): # oid => ( 'dotted oid value', pml type )
         channel_id = self.openPML()
 
         fields, data, result_code = \
-            self.xmitMessage("GetPML",
-                              {
-                                'device-id' :  self.device_id,
-                                'channel-id' : channel_id,
-                                'oid' :        pml.PMLToSNMP(oid[0]),
-                                'type' :       oid[1],
-                               }
-                            )
+            self.xmitHpiodMessage("GetPML",
+                                  {
+                                    'device-id' :  self.device_id,
+                                    'channel-id' : channel_id,
+                                    'oid' :        pml.PMLToSNMP(oid[0]),
+                                    'type' :       oid[1],
+                                   }
+                                )
 
         pml_result_code = fields.get('pml-result-code', pml.ERROR_OK)
 
@@ -1682,27 +1340,25 @@ class ServerDevice(BaseDevice):
         value = pml.ConvertToPMLDataFormat(value, oid[1])
 
         fields, data, result_code = \
-            self.xmitMessage("SetPML",
-                              {
-                                'device-id' :  self.device_id,
-                                'channel-id' : channel_id,
-                                'oid' :        pml.PMLToSNMP(oid[0]),
-                                'type' :      oid[1],
-                              },
-                             value,
-                            )
+            self.xmitHpiodMessage("SetPML",
+                                  {
+                                    'device-id' :  self.device_id,
+                                    'channel-id' : channel_id,
+                                    'oid' :        pml.PMLToSNMP(oid[0]),
+                                    'type' :      oid[1],
+                                  },
+                                 value,
+                                )
 
         return fields.get('pml-result-code', pml.ERROR_OK)
 
 
     def getDynamicCounter(self, counter, convert_to_int=True):
-        self.getDeviceID()
-
         if 'DYN' in self.deviceID.get('CMD', '').split(','):
 
             self.printData(pcl.buildDynamicCounter(counter), direct=True)
 
-            value, tries, times_seen, sleepy_time, max_tries = 0, 0, 0, 0.1, 10
+            value, tries, times_seen, sleepy_time, max_tries = 0, 0, 0, 0.1, 5
             time.sleep(0.1)
 
             while True:
@@ -1732,13 +1388,32 @@ class ServerDevice(BaseDevice):
                     self.printData(pcl.buildDynamicCounter(0), direct=True)
                     return None
 
+                self.printData(pcl.buildDynamicCounter(counter), direct=True)
+
         else:
             raise Error(ERROR_DEVICE_DOES_NOT_SUPPORT_OPERATION)
 
 
+    def readPrint(self, bytes_to_read, stream=None, timeout=prop.read_timeout):
+        return self.__readChannel(self.openPrint, bytes_to_read, stream, timeout)
 
-    def readPrint(self, stream=None, timeout=prop.read_timeout):
-        channel_id = self.openPrint()
+    def readPCard(self, bytes_to_read, stream=None, timeout=prop.read_timeout):
+        return self.__readChannel(self.openPCard, bytes_to_read, stream, timeout)
+
+    def readFax(self, bytes_to_read, stream=None, timeout=prop.read_timeout):
+        return self.__readChannel(self.openFax, bytes_to_read, stream, timeout)
+
+    def readCfgUpload(self, bytes_to_read, stream=None, timeout=prop.read_timeout):
+        return self.__readChannel(self.openCfgUpload, bytes_to_read, stream, timeout)
+
+    def readEWS(self, bytes_to_read, stream=None, timeout=prop.read_timeout):
+        return self.__readChannel(self.openEWS, bytes_to_read, stream, timeout, True)
+
+
+    def __readChannel(self, opener, bytes_to_read, stream=None, 
+                      timeout=prop.read_timeout, allow_short_read=False):
+
+        channel_id = opener()
 
         log.debug("Reading channel %d..." % channel_id)
 
@@ -1749,22 +1424,21 @@ class ServerDevice(BaseDevice):
 
         while True:
             fields, data, result_code = \
-                self.xmitMessage('ChannelDataIn',
-                                    None,
-                                    {'device-id': self.device_id,
-                                      'channel-id' : channel_id,
-                                      'bytes-to-read' : bytes_to_read,
-                                      'timeout' : timeout,
-                                    }
-                                  )
+                self.xmitHpiodMessage('ChannelDataIn',
+                                        {'device-id': self.device_id,
+                                          'channel-id' : channel_id,
+                                          'bytes-to-read' : bytes_to_read,
+                                          'timeout' : timeout,
+                                        }, 
+                                      )
 
             l = len(data)
 
             if result_code != ERROR_SUCCESS:
-                log.error("Print channel read error")
+                log.error("Channel read error")
                 raise Error(ERROR_DEVICE_IO_ERROR)
 
-            if l == 0:
+            if not l:
                 log.debug("End of data")
                 break
 
@@ -1772,12 +1446,15 @@ class ServerDevice(BaseDevice):
                 buffer = ''.join([buffer, data])
             else:
                 stream.write(data)
-                log.debug("Wrote %d bytes to stream." % l)
 
             num_bytes += l
 
             if self.callback is not None:
                 self.callback()
+
+            if num_bytes == bytes_to_read or allow_short_read:
+                log.debug("Read complete")
+                break
 
         if stream is None:
             log.debug("Returned %d total bytes in buffer." % num_bytes)
@@ -1788,22 +1465,38 @@ class ServerDevice(BaseDevice):
 
 
     def writePrint(self, data):
-        channel_id = self.openPrint()
+        return self.__writeChannel(self.openPrint, data)
+
+    def writePCard(self, data):
+        return self.__writeChannel(self.openPCard, data)
+
+    def writeFax(self, data):
+        return self.__writeChannel(self.openFax, data)
+
+    def writeEWS(self, data):
+        return self.__writeChannel(self.openEWS, data)
+
+    def writeCfgDownload(self, data):
+        return self.__writeChannel(self.openCfgDownload, data)
+
+    def __writeChannel(self, opener, data):
+        channel_id = opener()
 
         log.debug("Writing channel %d..." % channel_id)
         buffer, bytes_out, total_bytes_to_write = data, 0, len(data)
 
         while len(buffer) > 0:
-            fields, data, result_code =                self.xmitMessage('ChannelDataOut',
-                                    {
-                                        'device-id': self.device_id,
-                                        'channel-id' : channel_id,
-                                    },
-                                    buffer[:prop.max_message_len],
-                                  )
+            fields, data, result_code =\
+                self.xmitHpiodMessage('ChannelDataOut',
+                                        {
+                                            'device-id': self.device_id,
+                                            'channel-id' : channel_id,
+                                        },
+                                        buffer[:prop.max_message_len],
+                                      )
 
             if result_code != ERROR_SUCCESS:
-                log.error("Print channel write error")
+                log.error("Channel write error")
                 raise Error(ERROR_DEVICE_IO_ERROR)
 
             buffer = buffer[prop.max_message_len:]
@@ -1832,7 +1525,10 @@ class ServerDevice(BaseDevice):
         self.printData(data, direct=True)
 
 
-    def printFile(self, file_name, direct=True, raw=True, remove=False):
+    def printGzipFile(self, file_name, direct=False, raw=True, remove=False):
+        return self.printFile(file_name, direct, raw, remove)
+
+    def printFile(self, file_name, direct=False, raw=True, remove=False):
         is_gzip = os.path.splitext(file_name)[-1].lower() == '.gz'
         log.debug("Printing file '%s' (gzip=%s, direct=%s, raw=%s, remove=%s)" %
                    (file_name, is_gzip, direct, raw, remove))
@@ -1845,7 +1541,7 @@ class ServerDevice(BaseDevice):
 
         elif len(self.cups_printers) > 0:
             if is_gzip:
-                c = 'gunzip -c %s | lpr -P%s' % (file_name, cups_printers[0])
+                c = 'gunzip -c %s | lpr -P%s' % (file_name, self.cups_printers[0])
             else:
                 c = 'lpr -P%s %s' % (self.cups_printers[0], file_name)
 
@@ -1861,6 +1557,10 @@ class ServerDevice(BaseDevice):
         else:
             raise Error(ERROR_NO_CUPS_QUEUE_FOUND_FOR_DEVICE)
 
+    def printTestPage(self):
+        return self.printParsedGzipPostscript(os.path.join( prop.home_dir, 'data',
+                                              'ps', 'testpage.ps.gz' ))
+
 
     def printData(self, data, direct=True, raw=True):
         if direct:
@@ -1871,4 +1571,148 @@ class ServerDevice(BaseDevice):
             os.close(temp_file_fd)
 
             self.printFile(temp_file_name, direct, raw, remove=True)
+
+
+    def cancelJob(self, jobid):
+        cups.cancelJob(jobid)
+        self.sendEvent(STATUS_PRINTER_CANCELING, jobid)
+
+    def sendEvent(self, event, jobid=0, typ='event'): 
+        msg.sendEvent(self.hpssd_sock, 'Event', None,
+                      {
+                          'job-id'        : jobid,
+                          'event-type'    : typ,
+                          'event-code'    : event,
+                          'username'      : prop.username,
+                          'device-uri'    : self.device_uri,
+                          'retry-timeout' : 0,
+                      }
+                     )
+
+
+    def printParsedGzipPostscript(self, print_file):
+        # direct=False, raw=False
+        try:
+            os.stat(print_file)
+        except OSError:
+            log.error("File not found: %s" % print_file)
+            return
+
+        temp_file_fd, temp_file_name = utils.make_temp_file()
+        f = gzip.open(print_file, 'r')
+
+        x = f.readline()
+        while not x.startswith('%PY_BEGIN'):
+            os.write(temp_file_fd, x)
+            x = f.readline()
+
+        sub_lines = []
+        x = f.readline()
+        while not x.startswith('%PY_END'):
+            sub_lines.append(x)
+            x = f.readline()
+
+        SUBS = {'VERSION' : prop.version,
+                 'MODEL'   : self.model_ui,
+                 'URI'     : self.device_uri,
+                 'BUS'     : self.bus,
+                 'SERIAL'  : self.serial,
+                 'IP'      : self.host,
+                 'PORT'    : self.port,
+                 'DEVNODE' : self.dev_file,
+                 }
+
+        if self.bus == 'net':
+            SUBS['DEVNODE'] = 'n/a'
+        else:
+            SUBS['IP'] = 'n/a'
+            SUBS['PORT'] = 'n/a'
+
+        for s in sub_lines:
+            os.write(temp_file_fd, s % SUBS)
+
+        os.write(temp_file_fd, f.read())
+        f.close()
+        os.close(temp_file_fd)
+
+        self.printFile(temp_file_name, direct=False, raw=False, remove=True)
+
+    def queryHistory(self):
+        fields, data, result_code = \
+            self.xmitHpssdMessage("QueryHistory", {'device-uri' : self.device_uri,})
+
+        result = []
+        lines = data.strip().splitlines()
+        lines.reverse()
+
+        for x in lines:
+            yr, mt, dy, hr, mi, sec, wd, yd, dst, job, user, ec, ess, esl = x.strip().split(',', 13)
+            result.append((int(yr), int(mt), int(dy), int(hr), int(mi), int(sec), int(wd),
+                             int(yd), int(dst), int(job), user, int(ec), ess, esl))
+
+        return result
+
+
+    def getEWSUrl(self, url, stream):
+        try:
+            if self.is_local:
+                url2 = "%s&loc=%s" % (self.device_uri, url)
+                data = self
+            else:
+                url2 = "http://%s%s" % (self.host, url)
+                data = None
+
+            log.debug("Opening: %s" % url2)
+            opener = LocalOpener({})
+            try:
+                f = opener.open(url2, data)
+            except Error:
+                log.error("Status read failed: %s" % url2)
+                stream.seek(0)
+                stream.truncate()
+            else:
+                try:
+                    stream.write(f.read())
+                finally:
+                    f.close()
+
+        finally:
+            self.closeEWS()
+
+
+
+# ********************************** Support classes/functions
+
+
+class xStringIO(StringIO.StringIO):
+    def makefile(self, x, y):
+        return self
+
+# URLs: hp:/usb/HP_LaserJet_3050?serial=00XXXXXXXXXX&loc=/hp/device/info_device_status.xml
+class LocalOpener(urllib.URLopener):
+    def open_hp(self, url, dev):
+        log.debug("open_hp(%s)" % url)
+
+        match_obj = http_pat_url.search(url)
+        bus = match_obj.group(1) or ''
+        model = match_obj.group(2) or ''
+        serial = match_obj.group(3) or ''
+        device = match_obj.group(4) or ''
+        loc = match_obj.group(5) or ''
+
+        dev.openEWS()
+        dev.writeEWS("""GET %s HTTP/1.0\nContent-Length:0\nHost:localhost\nUser-Agent:hplip\n\n""" % loc)
+
+        reply = xStringIO()
+        dev.readEWS(MAX_BUFFER, reply)
+
+        reply.seek(0)
+
+        response = httplib.HTTPResponse(reply)
+        response.begin()
+
+        if response.status != httplib.OK:
+            raise Error(ERROR_DEVICE_STATUS_NOT_AVAILABLE)
+        else:
+            return response.fp
 

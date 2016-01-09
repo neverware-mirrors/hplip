@@ -1,4 +1,4 @@
-# -*- Mode: Python -*-
+# -*- coding: utf-8 -*-
 #   Id: asyncore.py,v 2.51 2000/09/07 22:29:26 rushing Exp
 # Modified for hplips 2003/06/20
 #   Author: Sam Rushing <rushing@nightmare.com>
@@ -25,11 +25,7 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # ======================================================================
 #
-# $Revision: 1.11 $ 
-# $Date: 2005/10/28 18:34:16 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -90,25 +86,25 @@ from errno import EALREADY, EINPROGRESS, EWOULDBLOCK, ECONNRESET, \
      ENOTCONN, ESHUTDOWN, EINTR, EISCONN, EAGAIN
 
 
-class ExitNow( Exception ):
+class ExitNow(Exception):
     pass
 
 
 channels = {}    
 
-class dispatcher( QObject ):
+class dispatcher(QObject):
     connected = False
     accepting = False
     closing = False
     addr = None
 
-    def __init__ (self, sock=None ):
+    def __init__ (self, sock=None):
         self.sock_write_notifier = None
         self.sock_read_notifier = None
 
         if sock:
-            self.set_socket( sock ) 
-            self.socket.setblocking( 0 )
+            self.set_socket(sock) 
+            self.socket.setblocking(0)
             self.connected = True
             try:
                 self.addr = sock.getpeername()
@@ -119,49 +115,49 @@ class dispatcher( QObject ):
             self.socket = None
         
 
-    def add_channel ( self ): 
+    def add_channel(self): 
         global channels
-        channels[ self._fileno ] = self
+        channels[self._fileno] = self
         
-        self.sock_read_notifier = QSocketNotifier( self._fileno, QSocketNotifier.Read ) 
-        QObject.connect( self.sock_read_notifier, SIGNAL( "activated(int)" ), self.handle_read_event )
+        self.sock_read_notifier = QSocketNotifier(self._fileno, QSocketNotifier.Read) 
+        QObject.connect(self.sock_read_notifier, SIGNAL("activated(int)"), self.handle_read_event)
         
-        self.sock_read_notifier.setEnabled( True )
+        self.sock_read_notifier.setEnabled(True)
         
-        self.sock_write_notifier = QSocketNotifier( self._fileno, QSocketNotifier.Write ) 
-        QObject.connect( self.sock_write_notifier, SIGNAL( "activated(int)" ), self.handle_write_event )
+        self.sock_write_notifier = QSocketNotifier(self._fileno, QSocketNotifier.Write) 
+        QObject.connect(self.sock_write_notifier, SIGNAL("activated(int)"), self.handle_write_event)
         
-        self.sock_write_notifier.setEnabled( False )
+        self.sock_write_notifier.setEnabled(False)
 
-    def del_channel( self ): 
-        QObject.disconnect( self.sock_read_notifier, SIGNAL( "activated(int)" ), self.handle_read_event )
-        QObject.disconnect( self.sock_write_notifier, SIGNAL( "activated(int)" ), self.handle_write_event )
+    def del_channel(self): 
+        QObject.disconnect(self.sock_read_notifier, SIGNAL("activated(int)"), self.handle_read_event)
+        QObject.disconnect(self.sock_write_notifier, SIGNAL("activated(int)"), self.handle_write_event)
 
-        self.sock_write_notifier.setEnabled( False )
-        self.sock_read_notifier.setEnabled( False )
+        self.sock_write_notifier.setEnabled(False)
+        self.sock_read_notifier.setEnabled(False)
 
         global channels
         try:
-            del channels[ self._fileno ]
+            del channels[self._fileno]
         except KeyError:
             pass 
         
         self._fileno = 0
         
 
-    def create_socket( self, family, type ):
+    def create_socket(self, family, type):
         self.family_and_type = family, type
         self.socket = socket.socket (family, type)
-        self.socket.setblocking( 0 )
+        self.socket.setblocking(0)
         self._fileno = self.socket.fileno()
         self.add_channel()
 
-    def set_socket( self, sock ): 
+    def set_socket(self, sock): 
         self.socket = sock
         self._fileno = sock.fileno()
         self.add_channel()
 
-    def set_reuse_addr( self ):
+    def set_reuse_addr(self):
         # try to re-use a server port if possible
         try:
             self.socket.setsockopt (
@@ -179,20 +175,20 @@ class dispatcher( QObject ):
 
     def listen (self, num):
         self.accepting = True
-        return self.socket.listen( num )
+        return self.socket.listen(num)
 
-    def bind( self, addr ):
+    def bind(self, addr):
         self.addr = addr
-        return self.socket.bind( addr )
+        return self.socket.bind(addr)
 
-    def connect( self, address ):
+    def connect(self, address):
         self.connected = False
-        err = self.socket.connect_ex( address )
+        err = self.socket.connect_ex(address)
         
-        if err in ( EINPROGRESS, EALREADY, EWOULDBLOCK ):
-            #print "1"
+        if err in (EINPROGRESS, EALREADY, EWOULDBLOCK):
             r, w, e = select.select([], [self.socket.fileno()], [], 5.0)
             err = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+
         if err in (0, EISCONN):
             self.addr = address
             self.connected = True
@@ -212,20 +208,20 @@ class dispatcher( QObject ):
 
     def send (self, data):
         try:
-            result = self.socket.send( data )
+            result = self.socket.send(data)
         except socket.error, why:
             if why[0] == EWOULDBLOCK:
                 return 0
             elif why[0] == EAGAIN:
-                self.sock_write_notifier.setEnabled( True )
+                self.sock_write_notifier.setEnabled(True)
                 return 0
             else:
                 raise socket.error, why
         else: # write succeeded
-            self.sock_write_notifier.setEnabled( False )
+            self.sock_write_notifier.setEnabled(False)
             return result
 
-    def recv( self, buffer_size ):
+    def recv(self, buffer_size):
         try:
             data = self.socket.recv (buffer_size)
             if not data:
@@ -253,7 +249,7 @@ class dispatcher( QObject ):
     def __getattr__ (self, attr):
         return getattr (self.socket, attr)
 
-    def handle_read_event( self ):
+    def handle_read_event(self):
         if self.accepting:
             # for an accepting socket, getting a read implies
             # that we are connected
@@ -267,36 +263,35 @@ class dispatcher( QObject ):
         else:
             self.handle_read()
 
-    def handle_write_event( self ):
+    def handle_write_event(self):
         # getting a write implies that we are connected
         if not self.connected:
             self.handle_connect()
             self.connected = True
         self.handle_write()
 
-    def handle_expt_event( self ):
+    def handle_expt_event(self):
         self.handle_expt()
 
-    def handle_error( self ):
+    def handle_error(self):
         self.handle_close()
 
-    def handle_expt( self ):
+    def handle_expt(self):
         raise Error
 
-    def handle_read( self ):
+    def handle_read(self):
         raise Error
 
-    def handle_write( self ):
+    def handle_write(self):
         raise Error
         
-    def handle_connect( self ):
-        #raise Error
+    def handle_connect(self):
         pass
 
-    def handle_accept( self ):
+    def handle_accept(self):
         raise Error
 
-    def handle_close( self ):
+    def handle_close(self):
         self.close()
 
 

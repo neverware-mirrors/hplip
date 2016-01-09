@@ -41,10 +41,10 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = hpijs$(EXEEXT)
-DIST_COMMON = $(am__configure_deps) $(srcdir)/../config.guess \
-	$(srcdir)/../config.sub $(srcdir)/../depcomp \
-	$(srcdir)/../install-sh $(srcdir)/../ltmain.sh \
-	$(srcdir)/../missing $(srcdir)/Makefile.am \
+DIST_COMMON = $(am__configure_deps) $(srcdir)/../../config.guess \
+	$(srcdir)/../../config.sub $(srcdir)/../../depcomp \
+	$(srcdir)/../../install-sh $(srcdir)/../../ltmain.sh \
+	$(srcdir)/../../missing $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure COPYING
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -91,7 +91,7 @@ hpijs_OBJECTS = $(am_hpijs_OBJECTS)
 binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 SCRIPTS = $(bin_SCRIPTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
-depcomp = $(SHELL) $(top_srcdir)/../depcomp
+depcomp = $(SHELL) $(top_srcdir)/../../depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -240,7 +240,7 @@ docdir = $(datadir)/doc/$(distdir)
 ppddir = $(datadir)/ppd/HP
 
 #APDKLABEL=JetReady_PreMerge_11-08-04 
-APDKLABEL = HPLIP-0_9_7_9
+APDKLABEL = HPLIP-0_9_9_10
 APDKCOMMON = slimhost/source/common
 APDKOPEN = slimhost/source/open
 APDKDEBUG = slimhost/source/debug
@@ -287,7 +287,7 @@ hpijs_SOURCES = hpijs.cpp ijs_server.c ijs.c models.cpp breaks_open.cpp hpijsfax
 @HPLIP_BUILD_TRUE@hpijs_LDADD = ../../libhpip.la
 doc_DATA = hpijs_readme.html gs_hpijs.png COPYING README_LIBJPG
 bin_SCRIPTS = $(rip)
-EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.1.patch
+EXTRA_DIST = $(doc_DATA) ppd foomatic-rip hpijs-ppd gdevijs-krgb-1.2-gs7.07.patch gdevijs-krgb-1.2-gs8.50.patch
 all: all-am
 
 .SUFFIXES:
@@ -576,7 +576,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/..
+	$(mkdir_p) $(distdir)/../..
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -811,10 +811,10 @@ uninstall-hook: $(unfoomatichook) $(uncupshook)
 
 install-foomatic:
 	$(mkinstalldirs) $(DESTDIR)$(ppddir)
-	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
-	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
+#	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*
+#	rm -f $(DESTDIR)$(ppddir)/hp*.ppd*
 	$(INSTALL_DATA) ppd/* $(DESTDIR)$(ppddir)
-	gzip -f $(DESTDIR)$(ppddir)/*
+	gzip -qf $(DESTDIR)$(ppddir)/*
 
 uninstall-foomatic:
 	rm -f $(DESTDIR)$(ppddir)/HP*.ppd*

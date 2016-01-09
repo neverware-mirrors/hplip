@@ -41,10 +41,6 @@
 #include "fat.h"
 #include "hplip_api.h"
 
-#if defined(__APPLE__) && defined(__MACH__)
-    typedef unsigned long uint32_t;
-#endif
-
 #define DEV_ACK 0x0100
 
 #pragma pack(1)

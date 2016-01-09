@@ -30,6 +30,13 @@
 
 
 #ifdef APDK_LJJETREADY
+/*
+ *  Not sure need HAVE_PROTOTYPES here, a user reported a compiler error under Tru64. The error
+ *  was for the assignment jerr.error_exit = Gjpeg_error; This seems to be due to JMETHOD
+ *  definition in jmorecfg.h
+ */
+
+//#define HAVE_PROTOTYPES
 
 #include "header.h"
 #include "io_defs.h"
@@ -823,6 +830,8 @@ BYTE* ModeJPEG::GetBuffer()
 
 extern "C"
 {
+/*
+ * These are declared in libjpeg.h, some compilers don't like declaration here as well.
 void jpeg_finish_compress (j_compress_ptr cinfo);
 JDIMENSION jpeg_write_scanlines (j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines);
 void jpeg_start_compress(struct jpeg_compress_struct *,unsigned char);
@@ -832,8 +841,9 @@ void jpeg_default_colorspace(struct jpeg_compress_struct *);
 void jpeg_set_defaults(struct jpeg_compress_struct *);
 void jpeg_CreateCompress(struct jpeg_compress_struct *,int,unsigned int);
 void jpeg_destroy_compress(struct jpeg_compress_struct *);
-void jpeg_buffer_dest (j_compress_ptr cinfo, JOCTET* outbuff, void* flush_output_buffer_callback);
 struct jpeg_error_mgr * jpeg_std_error(struct jpeg_error_mgr * err);
+*/
+void jpeg_buffer_dest (j_compress_ptr cinfo, JOCTET* outbuff, void* flush_output_buffer_callback);
 }
 
 #define ConvertToGrayMacro(red, green, blue) ((unsigned char)( ( (red * 30) + (green * 59) + (blue * 11) ) / 100 ))
@@ -1159,7 +1169,7 @@ BOOL  ModeJPEG::Compress( HPLJBITMAP *pSrcBitmap,
 
     fpJPEGStart = fpJPEGBuffer;
 
-    jpeg_buffer_dest(&cinfo, fpJPEGBuffer, (void*) (ModeJPEG::jpeg_flush_output_buffer_callback));
+    jpeg_buffer_dest(&cinfo, (JOCTET *) fpJPEGBuffer, (void*) (ModeJPEG::jpeg_flush_output_buffer_callback));
     if(bGrayscaleSet)
     {
         cinfo.write_JFIF_header  =
@@ -1192,7 +1202,7 @@ BOOL  ModeJPEG::Compress( HPLJBITMAP *pSrcBitmap,
 
 	for(unsigned int nrow = 0; nrow < cinfo.image_height; nrow++)
     {
-        pRowArray[0] = pCurLine;
+        pRowArray[0] = (JSAMPROW) pCurLine;
         jpeg_write_scanlines(&cinfo, pRowArray, 1);
         pCurLine += dwScanLine;
     }

@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.37 $
-# $Date: 2005/09/14 22:49:39 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +19,6 @@
 # Author: Don Welch
 #
 
-
 # Local
 from g import *
 from codes import *
@@ -36,7 +31,7 @@ def AlignType1(dev, loadpaper_ui): # Auto VIP
     ok = loadpaper_ui()
     if ok:
         dev.writeEmbeddedPML(pml.OID_AUTO_ALIGNMENT,
-                              pml.AUTO_ALIGNMENT)
+                              pml.AUTO_ALIGNMENT, style=0)
 
     return ok
 

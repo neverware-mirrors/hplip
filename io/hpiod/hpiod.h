@@ -40,7 +40,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <linux/lp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
@@ -50,6 +49,8 @@
 #include <linux/parport.h>
 #include <linux/ppdev.h>
 #endif
+#include "list.h"
+#include "usbext.h"
 
 //#define HPIOD_DEBUG
 
@@ -64,7 +65,10 @@
 #define MAX_CHANNEL 8     /* Max channels per device. */
 //#define HEADER_SIZE 256   /* Rough estimate of hpiod message header */
 #define HEADER_SIZE 4096   /* Rough estimate of hpiod message header */
-#define EXCEPTION_TIMEOUT 45  /* seconds */
+#define EXCEPTION_TIMEOUT 45000000  /* microseconds */
+
+#define LIBUSB_TIMEOUT 30000              /* milliseconds */
+#define LIBUSB_CONTROL_REQ_TIMEOUT 5000
 
 typedef struct
 {
@@ -89,6 +93,8 @@ typedef struct
    int type;             /* pml type */
    int pml_result; 
    char bus[LINE_SIZE];
+   char usb_bus[16];             /* usbfs bus number */
+   char usb_device[16];          /* usbfs device number */
    unsigned char *data;       /* pointer to data */
 } MsgAttributes;
 
@@ -98,6 +104,7 @@ typedef struct
   int descriptor;             /* device used */
   pthread_t tid;              /* thread id */
   int channel[MAX_CHANNEL];  /* channels used */
+  struct list_head list;
 } SessionAttributes;
 
 #define IOCNR_GET_DEVICE_ID     1
@@ -135,6 +142,19 @@ typedef struct
                        else if (x >= 'A' && x <= 'F') i |= 0xA + x - 'A'; \
                        else if (x >= 'a' && x <= 'f') i |= 0xA + x - 'a'
 
+#if defined(WORDS_BIGENDIAN)
+#define htole16(A) ((((uint16_t)(A) & 0xff00) >> 8) | (((uint16_t)(A) & 0x00ff) << 8))    /* host to little-endian 16-bit value */
+#define letoh16 htole16                         /* little-endian to host 16-bit value */
+#define htole32(A) ((((uint32_t)(A) & (uint32_t)0x000000ff) << 24) | (((uint32_t)(A) & (uint32_t)0x0000ff00) << 8) | \
+                  (((uint32_t)(A) & (uint32_t)0x00ff0000) >> 8) | (((uint32_t)(A) & (uint32_t)0xff000000) >> 24))
+#define letoh32 htole32
+#else
+#define htole16(A) (A)
+#define letoh16(A) (A)
+#define letoh32(A) (A)
+#define htole32(A) (A)
+#endif
+
 enum RESULT_CODE
 {
    R_AOK = 0,
@@ -164,9 +184,12 @@ enum CHANNEL_ID  /* MLC socket ids */
    SCAN_CHANNEL = 4,
    ECHO_CHANNEL = 6,
    FAX_SEND_CHANNEL = 7,
-   MEMORY_CARD_CHANNEL = 0x11
+   CONFIG_UPLOAD_CHANNEL = 0xe,
+   CONFIG_DOWNLOAD_CHANNEL = 0xf,
+   MEMORY_CARD_CHANNEL = 0x11,
+   EWS_CHANNEL = 0x12          /* Embeded Web Server interface ff/1/1, any unused socket id */
 };
-#define MAX_SOCKETID MEMORY_CARD_CHANNEL+1  /* must be largest numeric socketid + 1 */
+#define MAX_SOCKETID EWS_CHANNEL+1  /* must be largest numeric socketid + 1 */
 
 void sysdump(void *data, int size);
 

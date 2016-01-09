@@ -1,12 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-
-# $Revision: 1.33 $
-# $Date: 2005/09/26 22:57:42 $
-# $Author: dwelch $
-
-#
-# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,75 +28,38 @@ from g import *
 from codes import *
 import msg
 
-sock = None
 
-def __openServices():
-    global sock
-    sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-    #print prop.hpssd_host, prop.hpssd_port
-    try:
-        sock.connect( ( prop.hpssd_host, prop.hpssd_port ) )
-    except socket.error:
-        raise Error(ERROR_UNABLE_TO_CONTACT_SERVICE)
-
-
-def __closeServices():
-    global sock
-    sock.close()
-
-
-def registerGUI( username, host, port, pid, typ ):
-    __openServices()
-    msg.sendEvent( sock,
-                    "RegisterGUIEvent",
-                    None,
-                    { 'username' : username,
-                      'hostname' : host,
-                      'port' : port,
-                      'pid' : pid,
-                      'type' : typ }
+def registerGUI(sock, username, host, port, pid, typ):
+    msg.sendEvent(sock,
+                  "RegisterGUIEvent",
+                  None,
+                  { 'username' : username,
+                    'hostname' : host,
+                    'port' : port,
+                    'pid' : pid,
+                    'type' : typ }
                   )
 
-    __closeServices()
 
-def unregisterGUI( username, pid, typ ):
-    __openServices()
-    msg.sendEvent( sock,
-                    "UnRegisterGUIEvent",
-                    None,
-                    {
-                        'username' : username,
-                        'pid' : pid,
-                        'type' : typ,
-                    }
+def unregisterGUI(sock, username, pid, typ):
+    msg.sendEvent(sock,
+                   "UnRegisterGUIEvent",
+                   None,
+                   {
+                       'username' : username,
+                       'pid' : pid,
+                       'type' : typ,
+                   }
                   )
 
-    __closeServices()
 
 
-def showToolbox( username ):
-    __openServices()
-    msg.sendEvent( sock,
-                   'Event',
-                    None,
-                    {
-                        'event-code' : EVENT_UI_SHOW_TOOLBOX,
-                        'event-type' : 'event',
-                        'username' : username,
-                        'job-id' : 0,
-                        'retry-timeout' : 0,
-                    }
-                  )
-
-    __closeServices()
-
-def testEmail( email_address, smtp_server, username, password ):
-    __openServices()
+def testEmail(sock, email_address, smtp_server, username, password):
     fields = {}
     result_code = ERROR_SUCCESS
     try:
         fields, data, result_code = \
-            msg.xmitMessage( sock,
+            msg.xmitMessage(sock,
                             "TestEmail",
                             None,
                             {
@@ -116,32 +73,13 @@ def testEmail( email_address, smtp_server, username, password ):
         result_code = e.opt
         utils.log_exception()
 
-    __closeServices()
-
-
     return result_code
 
-def getGUI( username ):
-    __openServices()
-    fields = {}
-    try:
-        fields, data, result_code = \
-            msg.xmitMessage( sock,
-                            "GetGUI",
-                            None,
-                            {
-                                'username' : username,
-                            }
-                            )
-    except Error:
-        pass
 
-    __closeServices()
-
-    return ( fields.get( 'port', 0 ),  fields.get( 'hostname', '' ) )
-
-def sendEvent(event, typ, jobid, username, device_uri, other_fields={}):
-    __openServices()
+def sendEvent(sock, event, typ='event', jobid=0, 
+              username=prop.username, device_uri='', 
+              other_fields={}, data=None):
+    
     fields = {'job-id'        : jobid,
               'event-type'    : typ,
               'event-code'    : event,
@@ -151,18 +89,14 @@ def sendEvent(event, typ, jobid, username, device_uri, other_fields={}):
 
     if other_fields:
         fields.update(other_fields)
-    #print fields
 
-    #def sendEvent(sock, msg_type, payload=None, other_fields={}):
-    msg.sendEvent(sock, 'Event', None, fields)
-
-    __closeServices()
+    msg.sendEvent(sock, 'Event', data, fields)
 
 
-def setAlerts( email_alerts, email_address, smtp_server ):
-    __openServices()
+
+def setAlerts(sock, email_alerts, email_address, smtp_server):
     fields, data, result_code = \
-        msg.xmitMessage( sock,
+        msg.xmitMessage(sock,
                         "SetAlerts",
                         None,
                         {
@@ -172,6 +106,3 @@ def setAlerts( email_alerts, email_address, smtp_server ):
                             'smtp-server'   : smtp_server,
                         }
                         )
-
-
-    __closeServices()

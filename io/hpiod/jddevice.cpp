@@ -113,17 +113,23 @@ bugout:
 
 int JetDirectDevice::Close(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceCloseResult\nresult-code=%d\n";
+   const char res[] = "msg=DeviceCloseResult\nresult-code=%d\n";
    int len=0;
 
    *result = R_AOK;
 
-   //   if (pthread_mutex_trylock(&mutex) != 0)
-   //      goto bugout;   /* device is still in use */
+   if (pthread_mutex_trylock(&mutex) != 0)
+      goto bugout;   /* device is still in use */
 
-   //   pthread_mutex_unlock(&mutex);
+   if (ClientCnt==1)
+   {
+      /* Reset variables here while locked, don't count on constructor with threads. */
+      ID[0] = 0;
+   }
 
-   //bugout:
+   pthread_mutex_unlock(&mutex);
+
+bugout:
    len = sprintf(sendBuf, res, *result);  
 
    return len;
@@ -131,7 +137,7 @@ int JetDirectDevice::Close(char *sendBuf, int *result)
 
 int JetDirectDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+   const char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
    int len=0;
    unsigned char status = NFAULT_BIT;
 
@@ -144,7 +150,7 @@ int JetDirectDevice::GetDeviceStatus(char *sendBuf, int *result)
 
 int JetDirectDevice::WriteData(unsigned char *data, int length, int channel, char *sendBuf, int *result)
 {   
-   char res[] = "msg=ChannelDataOutResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataOutResult\nresult-code=%d\n";
    int sLen;
 
    if (pChannel[channel] == NULL)
@@ -163,7 +169,7 @@ wjmp:
 
 int JetDirectDevice::ReadData(int length, int channel, int timeout, char *sendBuf, int slen, int *result)
 {   
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int sLen;
 
    if (pChannel[channel] == NULL)
@@ -197,7 +203,7 @@ Channel *JetDirectDevice::NewChannel(unsigned char sockid, char *sn)
          n++;
          if (strcasecmp(sn, pChannel[i]->GetService()) == 0)
          {
-            if (sockid == PML_CHANNEL)
+            if (sockid == PML_CHANNEL || sockid == EWS_CHANNEL)
             {
                pC = pChannel[i];
                pC->SetClientCnt(pC->GetClientCnt()+1);    /* same channel, re-use it (PML only) */

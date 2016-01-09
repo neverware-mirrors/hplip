@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@ import os.path
 from qt import *
 #from alignform_base import AlignForm_base
 
-class AlignForm( QDialog ):
-    def __init__( self, parent, line_id, orientation, colors, line_count, 
-                 choice_count, name = None, modal = 0, fl = 0 ):
-        QDialog.__init__( self, parent, name, modal, fl )
+class AlignForm(QDialog):
+    def __init__(self, parent, line_id, orientation, colors, line_count, 
+                 choice_count, name = None, modal = 0, fl = 0):
+        QDialog.__init__(self, parent, name, modal, fl)
 
         # line_id: 'A', 'B', etc.
         # orientation: 'v' or 'h'
@@ -37,7 +37,7 @@ class AlignForm( QDialog ):
         mid_point = (choice_count+1)/2
         
         if not name:
-            self.setProperty( "name", QVariant("AlignForm") )
+            self.setProperty("name", QVariant("AlignForm"))
 
         AlignFormLayout = QGridLayout(self,1,1,11,6,"AlignFormLayout")
 
@@ -65,8 +65,8 @@ class AlignForm( QDialog ):
 
         ChoiceLayout = QHBoxLayout(None,0,6,"ChoiceLayout")
 
-        for x in range( 1, choice_count+1 ):
-            exec 'self.radioButton%d = QRadioButton( self.buttonGroup, "radioButton%d" )' % ( x, x ) 
+        for x in range(1, choice_count+1):
+            exec 'self.radioButton%d = QRadioButton( self.buttonGroup, "radioButton%d" )' % (x, x) 
             exec 'self.radioButton%d.setText( "%s%d" )' % (x, line_id, x) 
             if x == mid_point:
                 exec 'self.radioButton%d.setChecked( 1 )' % x
@@ -96,15 +96,15 @@ class AlignForm( QDialog ):
         self.connect(self.ContinueButton,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.buttonGroup,SIGNAL("clicked(int)"),self.buttonGroup_clicked)
 
-        self.Icon.setPixmap( QPixmap( os.path.join( prop.image_dir, '%s-%s-%d.png' % ( orientation, colors, line_count ) ) ) )
+        self.Icon.setPixmap(QPixmap(os.path.join(prop.image_dir, '%s-%s-%d.png' % (orientation, colors, line_count))))
 
-        self.buttonGroup.setTitle( line_id )
+        self.buttonGroup.setTitle(line_id)
         
-        self.value = ( choice_count + 1) / 2
+        self.value = (choice_count + 1) / 2
 
     def buttonGroup_clicked(self,a0):
         self.value = a0 + 1
-        log.debug( self.value )
+        log.debug(self.value)
 
     def languageChange(self):
         self.setProperty("caption",QVariant(self.__tr("HP Device Manager - Alignment")))

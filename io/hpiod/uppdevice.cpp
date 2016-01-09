@@ -29,7 +29,7 @@
 
 int UniParDevice::GetDeviceStatus(char *sendBuf, int *result)
 {
-   char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
+   const char res[] = "msg=DeviceStatusResult\nresult-code=%d\nstatus-code=%d\nstatus-name=%s\n";
    int len=0;
    unsigned char status = NFAULT_BIT;
 
@@ -42,7 +42,7 @@ int UniParDevice::GetDeviceStatus(char *sendBuf, int *result)
 
 int UniParDevice::GetDeviceID(char *sendBuf, int slen, int *result)
 {
-   char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
+   const char res[] = "msg=DeviceIDResult\nresult-code=%d\n";
    int len=0, idLen;
 
    *result = R_AOK;
@@ -158,7 +158,7 @@ bugout:
 
 int UniParDevice::ReadData(int length, int channel, int timeout, char *sendBuf, int slen, int *result)
 {   
-   char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
+   const char res[] = "msg=ChannelDataInResult\nresult-code=%d\n";
    int sLen;
 
    syslog(LOG_ERR, "invalid command UniParDevice::ReadData: %m\n");

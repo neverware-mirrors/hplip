@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.12 $
-# $Date: 2005/09/08 17:53:23 $
-# $Author: dwelch $
-#
-# (c) Copyright 2002-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2002-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,14 +19,17 @@
 # Authors: Doug Deprenger, Don Welch
 #
 
-
-
 # Std Lib
-import sys, thread, syslog, traceback
+import sys, thread, syslog, traceback, string
 
-# 3rd Party
 
-# Local
+
+identity = string.maketrans('','')
+unprintable = identity.translate(identity, string.printable)
+
+def printable(s):
+    return s.translate(identity, unprintable)
+
 
 DEFAULT_LOG_LEVEL = 'info'
 
@@ -98,20 +97,56 @@ class Logger(object):
         self.module = module
 
 
+    def set_logfile(self, log_file):
+        self._log_file = log_file
+        try:
+            self._log_file_f = file(self._log_file, 'w')
+        except IOError:
+            self._log_file = None
+
+    def set_where(self, where):
+        self._where = where
+
     def get_level(self):
         return self._level
+        
+    def is_debug(self):
+        return self._level == Logger.LOG_LEVEL_DEBUG
 
     level = property(get_level, set_level)
 
+    
     def log(self, message, level):
+        if self._where in (Logger.LOG_TO_CONSOLE, Logger.LOG_TO_CONSOLE_AND_FILE):
+            try:
+                self._lock.acquire()
+                if level >= Logger.LOG_LEVEL_WARN:
+                    out = sys.stderr
+                else:
+                    out = sys.stdout
+                out.write(message)
+                out.write('\n')
+            finally:
+                self._lock.release()
+
+        if self._log_file is not None and \
+            self._where in (Logger.LOG_TO_FILE, Logger.LOG_TO_CONSOLE_AND_FILE):
+
+            try:
+                self._lock.acquire()
+                #self._log_file_f.write(printable(message))
+                self._log_file_f.write(message.replace('\x1b', ''))
+                self._log_file_f.write('\n')
+
+            finally:
+                self._lock.release()
+
+
+    def stderr(self, message):
         try:
             self._lock.acquire()
-            if level >= Logger.LOG_LEVEL_WARN:
-                out = sys.stderr
-            else:
-                out = sys.stdout
-            out.write(message)
-            out.write('\n')
+            sys.stderr.write(message)
+            sys.stderr.write('\n')
         finally:
             self._lock.release()
 
@@ -121,10 +156,18 @@ class Logger(object):
             syslog.syslog(syslog.LOG_DEBUG, "%s [DEBUG] %s" % (self.module, message))
 
     dbg = debug
+    
+    def debug_block(self, title, block):
+        if self._level <= Logger.LOG_LEVEL_DEBUG:
+            self.log("%s%s [DEBUG]: %s:%s" % ('\x1b[34;01m', self.module, title, '\x1b[0m'), Logger.LOG_LEVEL_DEBUG)
+            self.log("%s%s%s" % ('\x1b[34;01m', block, '\x1b[0m'), Logger.LOG_LEVEL_DEBUG)
 
     def info(self, message):
         if self._level <= Logger.LOG_LEVEL_INFO:
-            self.log("%s %s" % (self.module, message), Logger.LOG_LEVEL_INFO)
+            if self.module:
+                self.log("%s %s" % (self.module, message), Logger.LOG_LEVEL_INFO)
+            else:
+                self.log(message, Logger.LOG_LEVEL_INFO)
 
     information = info
 

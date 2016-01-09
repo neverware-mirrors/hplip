@@ -42,7 +42,6 @@
 #include <syslog.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <linux/lp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <ctype.h>

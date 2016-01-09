@@ -1,11 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# $Revision: 1.64 $
-# $Date: 2005/09/26 19:58:43 $
-# $Author: dwelch $
-#
-# (c) Copyright 2001-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +52,7 @@ prv_pidfile = None
 prv_pidfile_name = ""
 
 
-def get_pidfile_lock ( a_pidfile_name="" ):
+def get_pidfile_lock (a_pidfile_name=""):
     """ Call this to either lock the pidfile, or to update it after a fork()
         Credit: Henrique M. Holschuh <hmh@debian.org>
     """
@@ -99,7 +94,7 @@ def get_pidfile_lock ( a_pidfile_name="" ):
 
 
 
-def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
+def daemonize (stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     """
     Credit: Jürgen Hermann, Andy Gimblett, and Noah Spurrier
             http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66012
@@ -108,7 +103,7 @@ def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
     """
     # Try to lock pidfile if not locked already
     if prv_pidfile_name != '' or prv_pidfile_name != "":
-        get_pidfile_lock( prv_pidfile_name )
+        get_pidfile_lock(prv_pidfile_name)
 
     # Do first fork.
     try:
@@ -116,7 +111,7 @@ def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
         if pid > 0:
             sys.exit(0) # Exit first parent.
     except OSError, e:
-        sys.stderr.write ("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror)    )
+        sys.stderr.write ("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
         sys.exit(1)
 
     # Decouple from parent environment.
@@ -130,7 +125,7 @@ def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
         if pid > 0:
             sys.exit(0) # Exit second parent.
     except OSError, e:
-        sys.stderr.write ("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror)    )
+        sys.stderr.write ("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
         sys.exit(1)
 
     if prv_pidfile_name != "":
@@ -148,35 +143,35 @@ def daemonize ( stdin='/dev/null', stdout='/dev/null', stderr='/dev/null' ):
 
 
 
-def ifelse( cond, t, f ):
+def ifelse(cond, t, f):
     if cond: return t
     else: return f
 
-def to_bool_str( s, default='0' ):
+def to_bool_str(s, default='0'):
     """ Convert an arbitrary 0/1/T/F/Y/N string to a normalized string 0/1."""
-    if len( s ):
-        if s[0].lower() in [ '1', 't', 'y' ]:
+    if len(s):
+        if s[0].lower() in ['1', 't', 'y']:
             return '1'
-        elif s[0].lower() in [ '0', 'f', 'n' ]:
+        elif s[0].lower() in ['0', 'f', 'n']:
             return '0'
 
     return default
 
-def to_bool( s, default=False ):
+def to_bool(s, default=False):
     """ Convert an arbitrary 0/1/T/F/Y/N string to a boolean True/False value."""
-    if len( s ):
-        if s[0].lower() in [ '1', 't', 'y' ]:
+    if len(s):
+        if s[0].lower() in ['1', 't', 'y']:
             return True
-        elif s[0].lower() in [ '0', 'f', 'n' ]:
+        elif s[0].lower() in ['0', 'f', 'n']:
             return False
 
     return default
 
-def path_exists_safely( path ):
+def path_exists_safely(path):
     """ Returns True if path exists, and points to a file with permissions at least as strict as 0755.
         Credit: Contributed by Henrique M. Holschuh <hmh@debian.org>"""
     try:
-        pathmode = os.stat( path )[stat.ST_MODE]
+        pathmode = os.stat(path)[stat.ST_MODE]
         if pathmode & 0022 != 0:
             return False
     except (IOError,OSError):
@@ -184,51 +179,50 @@ def path_exists_safely( path ):
     return True
 
 
-def walkFiles( root, recurse=True, abs_paths=False, return_folders=False, pattern='*', path=None ):
+def walkFiles(root, recurse=True, abs_paths=False, return_folders=False, pattern='*', path=None):
     if path is None:
         path = root
 
     try:
-        names = os.listdir( root )
+        names = os.listdir(root)
     except os.error:
         raise StopIteration
 
     pattern = pattern or '*'
-    pat_list = pattern.split( ';' )
+    pat_list = pattern.split(';')
 
     for name in names:
-        fullname = os.path.normpath( os.path.join( root, name ) )
+        fullname = os.path.normpath(os.path.join(root, name))
 
         for pat in pat_list:
-            if fnmatch.fnmatch( name, pat ):
-                if return_folders or not os.path.isdir( fullname ):
+            if fnmatch.fnmatch(name, pat):
+                if return_folders or not os.path.isdir(fullname):
                     if abs_paths:
                         yield fullname
                     else:
                         try:
-                            yield fullname[ fullname.find( path ) + len( path ) : ]
+                            yield os.path.basename(fullname)
                         except ValueError:
                             yield fullname
 
-        if os.path.islink( fullname ):
-            fullname = os.path.realpath( os.readlink( fullname ) )
+        if os.path.islink(fullname):
+            fullname = os.path.realpath(os.readlink(fullname))
 
-        if recurse and os.path.isdir( fullname ) or os.path.islink( fullname ):
-            for f in walkFiles( fullname, recurse, abs_paths, return_folders, pattern, path ):
+        if recurse and os.path.isdir(fullname) or os.path.islink(fullname):
+            for f in walkFiles(fullname, recurse, abs_paths, return_folders, pattern, path):
                 yield f
 
 
-def is_path_writable( path ):
-
-    if os.path.exists( path ):
-        s = os.stat( path )
-        mode = s[ stat.ST_MODE ] & 0777
+def is_path_writable(path):
+    if os.path.exists(path):
+        s = os.stat(path)
+        mode = s[stat.ST_MODE] & 0777
 
         if mode & 02:
             return True
-        elif s[ stat.ST_GID ] == os.getgid() and mode & 020:
+        elif s[stat.ST_GID] == os.getgid() and mode & 020:
             return True
-        elif s[ stat.ST_UID ] == os.getuid() and mode & 0200:
+        elif s[stat.ST_UID] == os.getuid() and mode & 0200:
             return True
 
     return False
@@ -243,16 +237,16 @@ class TextFormatter:
     CENTER = 1
     RIGHT  = 2
 
-    def __init__( self, colspeclist ):
+    def __init__(self, colspeclist):
         self.columns = []
         for colspec in colspeclist:
-            self.columns.append( Column( **colspec ) )
+            self.columns.append(Column(**colspec))
 
     def compose(self, textlist, add_newline=False):
         numlines = 0
         textlist = list(textlist)
         if len(textlist) != len(self.columns):
-            log.error( "Formatter: Number of text items does not match columns" )
+            log.error("Formatter: Number of text items does not match columns")
             return
         for text, column in map(None, textlist, self.columns):
             column.wrap(text)
@@ -266,10 +260,10 @@ class TextFormatter:
         else:
             return '\n'.join(complines)
 
-    def bold( text ):
-        return ''.join( [ "\033[1m", text, "\033[0m" ] )
+    def bold(text):
+        return ''.join(["\033[1m", text, "\033[0m"])
 
-    bold = staticmethod( bold )
+    bold = staticmethod(bold)
 
 
 class Column:
@@ -319,19 +313,19 @@ class Column:
 
 
 class Stack:
-    def __init__( self ):
+    def __init__(self):
         self.stack = []
 
-    def pop( self ):
+    def pop(self):
         return self.stack.pop()
 
-    def push( self, value ):
-        self.stack.append( value )
+    def push(self, value):
+        self.stack.append(value)
 
-    def as_list( self ):
+    def as_list(self):
         return self.stack
 
-    def clear( self ):
+    def clear(self):
         self.stack = []
 
 
@@ -367,11 +361,11 @@ class RingBufferFull:
 
 # CRC routines for RP
 if 0:
-    def updateCRC( crc, ch ):
+    def updateCRC(crc, ch):
         ch = ord(ch)
-        for i in range( 8 ):
-            if ( (crc ^ ch ) & 1 ):
-                crc = ( crc >> 1 ) ^ 0xa001
+        for i in range(8):
+            if ((crc ^ ch) & 1):
+                crc = (crc >> 1) ^ 0xa001
             else:
                 crc = crc >> 1
             ch = ch >> 1
@@ -404,15 +398,15 @@ def updateCRC(crc, data, mask=MASK_CRC16):
 
     return crc & 0xffffL
 
-def calcCRC( data ):
+def calcCRC(data):
     crc = 0
     #for c in data:
     #    crc = updateCRC( crc, c )
 
-    crc = updateCRC( crc, data )
+    crc = updateCRC(crc, data)
 
     if crc == 0:
-        crc = len( data )
+        crc = len(data)
 
     return crc
 
@@ -422,9 +416,9 @@ def calcCRC( data ):
 def sort_dict_by_value(d):
     """ Returns the keys of dictionary d sorted by their values """
     items=d.items()
-    backitems=[ [v[1],v[0]] for v in items]
+    backitems=[[v[1],v[0]] for v in items]
     backitems.sort()
-    return [ backitems[i][1] for i in range(0,len(backitems))]
+    return [backitems[i][1] for i in range(0,len(backitems))]
 
 
 # Copied from Gentoo Portage output.py
@@ -504,55 +498,55 @@ def darkred(text):
 
 
 def commafy(val):
-    return val < 0 and '-' + commafy( abs( val ) ) \
-        or val < 1000 and str( val ) \
-        or '%s,%03d' % ( commafy( val / 1000 ), (val % 1000) )
+    return val < 0 and '-' + commafy(abs(val)) \
+        or val < 1000 and str(val) \
+        or '%s,%03d' % (commafy(val / 1000), (val % 1000))
 
 
-def format_bytes( s, show_bytes=False ):
+def format_bytes(s, show_bytes=False):
     if s < 1024:
-        return ''.join( [ commafy( s ), ' B' ] )
+        return ''.join([commafy(s), ' B'])
     elif 1024 < s < 1048576:
         if show_bytes:
-            return ''.join( [ str( round( s/1024.0, 1 ) ) , ' KB (',  commafy(s), ')' ] )
+            return ''.join([str(round(s/1024.0, 1)) , ' KB (',  commafy(s), ')'])
         else:
-            return ''.join( [ str( round( s/1024.0, 1 ) ) , ' KB' ] )
+            return ''.join([str(round(s/1024.0, 1)) , ' KB'])
     else:
         if show_bytes:
-            return ''.join( [ str( round( s/1048576.0, 1 ) ), ' MB (',  commafy(s), ')' ] )
+            return ''.join([str(round(s/1048576.0, 1)), ' MB (',  commafy(s), ')'])
         else:
-            return ''.join( [ str( round( s/1048576.0, 1 ) ), ' MB' ] )
+            return ''.join([str(round(s/1048576.0, 1)), ' MB'])
 
 
 
 try:
     make_temp_file = tempfile.mkstemp # 2.3+
 except AttributeError:
-    def make_temp_file( suffix='', prefix='', dir='', text=False ): # pre-2.3
-        path = tempfile.mktemp( suffix )
-        fd = os.open( path, os.O_RDWR|os.O_CREAT|os.O_EXCL, 0700 )
+    def make_temp_file(suffix='', prefix='', dir='', text=False): # pre-2.3
+        path = tempfile.mktemp(suffix)
+        fd = os.open(path, os.O_RDWR|os.O_CREAT|os.O_EXCL, 0700)
         #os.unlink( path ) # TODO... make this secure
-        #return ( os.fdopen( fd, 'w+b' ), path )
-        return ( fd, path )
+        return ( os.fdopen( fd, 'w+b' ), path )
+        #return (fd, path)
 
-def log_title( program_name, version ):
-    log.info( "" )
-    log.info( bold( "HP Linux Imaging and Printing System (ver. %s)" % prop.version ) )
-    log.info( bold( "%s ver. %s" % ( program_name,version) ) )
-    log.info( "" )
-    log.info( "Copyright (c) 2003-5 Hewlett-Packard Development Company, LP" )
-    log.info( "This software comes with ABSOLUTELY NO WARRANTY." )
-    log.info( "This is free software, and you are welcome to distribute it" )
-    log.info( "under certain conditions. See COPYING file for more details." )
-    log.info( "" )
+def log_title(program_name, version):
+    log.info("")
+    log.info(bold("HP Linux Imaging and Printing System (ver. %s)" % prop.version))
+    log.info(bold("%s ver. %s" % (program_name,version)))
+    log.info("")
+    log.info("Copyright (c) 2003-6 Hewlett-Packard Development Company, LP")
+    log.info("This software comes with ABSOLUTELY NO WARRANTY.")
+    log.info("This is free software, and you are welcome to distribute it")
+    log.info("under certain conditions. See COPYING file for more details.")
+    log.info("")
 
 
-def which( command ):
-    path = os.getenv( 'PATH' ).split( ':' )
+def which(command):
+    path = os.getenv('PATH').split(':')
     found_path = ''
     for p in path:
         try:
-            files = os.listdir( p )
+            files = os.listdir(p)
         except:
             continue
         else:
@@ -564,201 +558,86 @@ def which( command ):
 
 
 def deviceDefaultFunctions():
-    cmd_print, cmd_copy, cmd_fax, cmd_pcard, cmd_scan = \
-        '', '', '', '', ''
+    cmd_print, cmd_copy, cmd_fax, \
+        cmd_pcard, cmd_scan, cmd_fab = \
+        '', '', '', '', '', ''
 
     # Print
-    path = which( 'hp-print' )
+    path = which('hp-print')
 
-    if len( path ) > 0:
+    if len(path) > 0:
         cmd_print = 'hp-print -p%PRINTER%'
     else:
-        path = which( 'kprinter' )
+        path = which('kprinter')
 
         if len(path) > 0:
             cmd_print = 'kprinter -P%PRINTER% --system cups'
         else:
-            path = which( 'gtklp' )
+            path = which('gtklp')
 
             if len(path) > 0:
                 cmd_print = 'gtklp -P%PRINTER%'
 
             else:
-                path = which( 'xpp' )
+                path = which('xpp')
 
-                if len( path ) > 0:
+                if len(path) > 0:
                     cmd_print = 'xpp -P%PRINTER%'
 
 
     # Scan
-    path = which( 'xsane' )
+    path = which('xsane')
 
     if len(path) > 0:
         cmd_scan = 'xsane -V %SANE_URI%'
     else:
-        path = which( 'kooka' )
+        path = which('kooka')
 
         if len(path)>0:
             #cmd_scan = 'kooka -d "%SANE_URI%"'
             cmd_scan = 'kooka'
 
         else:
-            path = which( 'xscanimage' )
+            path = which('xscanimage')
 
             if len(path)>0:
                 cmd_scan = 'xscanimage'
 
     # Photo Card
-    path = which( 'hp-unload' )
+    path = which('hp-unload')
 
-    if len( path ) > 0:
+    if len(path):
         cmd_pcard = 'hp-unload -d %DEVICE_URI%'
 
     else:
         cmd_pcard = 'python %HOME%/unload.py -d %DEVICE_URI%'
 
     # Copy
-    #
 
     # Fax
-    #
+    path = which('hp-sendfax')
 
-    return cmd_print, cmd_scan, cmd_pcard, cmd_copy, cmd_fax
+    if len(path):
+        cmd_fax = 'hp-sendfax -d %FAX_URI% --standalone'
 
-
-
-
-# Derived from ping.c distributed in Linux's netkit. That code is
-# copyright (c) 1989 by The Regents of the University of California.
-# That code is in turn derived from code written by Mike Muuss of the
-# US Army Ballistic Research Laboratory in December, 1983 and
-# placed in the public domain. They have my thanks.
-
-# Bugs are naturally mine. I'd be glad to hear about them. There are
-# certainly word-size dependenceies here.
-
-# Copyright (c) Matthew Dixon Cowles, <http://www.visi.com/~mdc/>.
-# Distributable under the terms of the GNU General Public License
-# version 2. Provided with no warranties of any sort.
-
-# Note that ICMP messages can only be sent from processes running
-# as root.
-
-# Revision history:
-#
-# November 22, 1997
-# Initial hack. Doesn't do much, but rather than try to guess
-# what features I (or others) will want in the future, I've only
-# put in what I need now.
-#
-# December 16, 1997
-# For some reason, the checksum bytes are in the wrong order when
-# this is run under Solaris 2.X for SPARC but it works right under
-# Linux x86. Since I don't know just what's wrong, I'll swap the
-# bytes always and then do an htons().
-#
-# December 4, 2000
-# Changed the struct.pack() calls to pack the checksum and ID as
-# unsigned. My thanks to Jerome Poincheval for the fix.
-#
-
-# From /usr/include/linux/icmp.h; your milage may vary.
-ICMP_ECHO_REQUEST = 8 # Seems to be the same on Solaris.
-
-# I'm not too confident that this is right but testing seems
-# to suggest that it gives the same answers as in_cksum in ping.c
-def checksum( str ):
-    csum = 0
-    countTo = ( len(str) / 2 ) * 2
-    count = 0
-    while count < countTo:
-        thisVal = ord( str[count+1] ) * 256 + ord( str[count] )
-        csum = csum + thisVal
-        csum = csum & 0xffffffffL # Necessary?
-        count = count + 2
-
-    if countTo < len(str):
-        csum = csum + ord( str[ len(str) - 1 ] )
-        csum = csum & 0xffffffffL # Necessary?
-
-    csum = ( csum >> 16 ) + ( csum & 0xffff )
-    csum = csum + ( csum >> 16 )
-    answer = ~csum
-    answer = answer & 0xffff
-
-    # Swap bytes. Bugger me if I know why.
-    answer = answer >> 8 | (answer << 8 & 0xff00)
-
-    return answer
-
-def receiveOnePing(mySocket, ID, timeout ):
-    timeLeft = timeout
-
-    while 1:
-        startedSelect = time.time()
-        whatReady = select.select( [mySocket], [], [], timeLeft )
-        howLongInSelect = ( time.time() - startedSelect )
-
-        if whatReady[0] == []: # Timeout
-            return -1
-
-        timeReceived = time.time()
-        recPacket, addr = mySocket.recvfrom(1024)
-        icmpHeader = recPacket[20:28]
-        typ, code, checksum, packetID, sequence = struct.unpack( "bbHHh", icmpHeader )
-
-        if packetID == ID:
-            bytesInDouble = struct.calcsize( "d" )
-            timeSent = struct.unpack( "d", recPacket[ 28:28 + bytesInDouble ] )[0]
-            return timeReceived - timeSent
-
-        timeLeft = timeLeft - howLongInSelect
-
-        if timeLeft <= 0:
-            return -1
-
-def sendOnePing( mySocket, destAddr, ID ):
-    # Header is type (8), code (8), checksum (16), id (16), sequence (16)
-    myChecksum = 0
-
-    # Make a dummy heder with a 0 checksum.
-    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1 )
-    bytesInDouble = struct.calcsize( "d" )
-    data = ( 192 - bytesInDouble ) * "Q"
-    data = struct.pack( "d", time.time() ) + data
-
-    # Calculate the checksum on the data and the dummy header.
-    myChecksum = checksum( header + data )
-
-    # Now that we have the right checksum, we put that in. It's just easier
-    # to make up a new header than to stuff it into the dummy.
-    if prop.platform == 'darwin':
-        myChecksum = socket.htons( myChecksum ) & 0xffff
     else:
-        myChecksum = socket.htons( myChecksum )
+        cmd_fax = 'python %HOME%/sendfax.py -d %FAX_URI% --standalone'
 
-    header = struct.pack( "bbHHh", ICMP_ECHO_REQUEST, 0,
-                        myChecksum, ID, 1 )
+    
+    # Fax Address Book
+    path = which('hp-fab')
 
-    packet = header + data
-    mySocket.sendto( packet, ( destAddr, 1 ) ) # Don't know about the 1
+    if len(path):
+        cmd_fab = 'hp-fab'
 
-def doOne( destAddr, timeout=10 ):
-    # Returns either the delay (in seconds) or none on timeout.
-    icmp = socket.getprotobyname( "icmp" )
-    mySocket = socket.socket( socket.AF_INET,socket.SOCK_RAW,icmp )
-    myID = os.getpid() & 0xFFFF
-    sendOnePing( mySocket, destAddr, myID )
-    delay = receiveOnePing( mySocket, myID, timeout )
-    mySocket.close()
+    else:
+        cmd_fab = 'python %HOME%/fab.py'
 
-    return delay
+    
+    
+    return cmd_print, cmd_scan, cmd_pcard, \
+           cmd_copy, cmd_fax, cmd_fab
 
-
-def ping( host, timeout=1 ):
-    dest = socket.gethostbyname( host )
-    delay = doOne( dest, timeout )
-    return delay
 
 
 def checkPyQtImport():
@@ -766,15 +645,15 @@ def checkPyQtImport():
     try:
         import qt
     except ImportError:
-        log.error( "PyQt not installed. GUI not available. Exiting." )
+        log.error("PyQt not installed. GUI not available. Exiting.")
         return False
 
     # check version of Qt
-    qtMajor = int( qt.qVersion().split('.')[0] )
+    qtMajor = int(qt.qVersion().split('.')[0])
 
     if qtMajor < MINIMUM_QT_MAJOR_VER:
 
-        log.error( "Incorrect version of Qt installed. Ver. 3.0.0 or greater required.")
+        log.error("Incorrect version of Qt installed. Ver. 3.0.0 or greater required.")
         return False
 
     #check version of PyQt
@@ -788,8 +667,8 @@ def checkPyQtImport():
 
     (maj_ver, min_ver, pat_ver) = pyqtVersion.split('.')
 
-    if pyqtVersion.find( 'snapshot' ) >= 0:
-        log.warning( "A non-stable snapshot version of PyQt is installed.")
+    if pyqtVersion.find('snapshot') >= 0:
+        log.warning("A non-stable snapshot version of PyQt is installed.")
     else:
         try:
             maj_ver = int(maj_ver)
@@ -800,30 +679,30 @@ def checkPyQtImport():
 
         if maj_ver < MINIMUM_PYQT_MAJOR_VER or \
             (maj_ver == MINIMUM_PYQT_MAJOR_VER and min_ver < MINIMUM_PYQT_MINOR_VER):
-            log.error( "This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver) )
-            log.error( "Incorrect version of pyQt installed. Ver. %d.%d or greater required." % ( MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER ) )
+            log.error("This program may not function properly with the version of PyQt that is installed (%d.%d.%d)." % (maj_ver, min_ver, pat_ver))
+            log.error("Incorrect version of pyQt installed. Ver. %d.%d or greater required." % (MINIMUM_PYQT_MAJOR_VER, MINIMUM_PYQT_MINOR_VER))
             return False
 
     return True
 
 
-def loadTranslators( app, user_config ):
+def loadTranslators(app, user_config):
     #from qt import *
     import qt
     loc = None
 
-    if os.path.exists( user_config ):
+    if os.path.exists(user_config):
         # user_config contains executables we will run, so we
         # must make sure it is a safe file, and refuse to run
         # otherwise.
-        if not path_exists_safely( user_config ):
-            log.warning( "File %s has insecure permissions! File ignored." % user_config )
+        if not path_exists_safely(user_config):
+            log.warning("File %s has insecure permissions! File ignored." % user_config)
         else:
             config = ConfigParser.ConfigParser()
-            config.read( user_config )
+            config.read(user_config)
 
-            if config.has_section( "ui" ):
-                loc = config.get( "ui", "loc" )
+            if config.has_section("ui"):
+                loc = config.get("ui", "loc")
 
                 if not loc:
                     loc = None
@@ -835,26 +714,26 @@ def loadTranslators( app, user_config ):
 
         if loc.lower() != 'c':
 
-            log.debug( "Trying to load .qm file for %s locale." % loc )
+            log.debug("Trying to load .qm file for %s locale." % loc)
 
-            dirs = [ prop.home_dir, prop.data_dir, prop.i18n_dir ]
+            dirs = [prop.home_dir, prop.data_dir, prop.i18n_dir]
 
             trans = qt.QTranslator(None)
 
             for dir in dirs:
                 qm_file = 'hplip_%s' % loc
-                loaded = trans.load( qm_file, dir)
+                loaded = trans.load(qm_file, dir)
 
                 if loaded:
-                    app.installTranslator( trans )
+                    app.installTranslator(trans)
                     break
         else:
             loc = None
 
     if loc is None:
-        log.debug( "Using default 'C' locale" )
+        log.debug("Using default 'C' locale")
     else:
-        log.debug( "Using locale: %s" % loc )
+        log.debug("Using locale: %s" % loc)
 
     return loc
 
@@ -993,47 +872,46 @@ cat = lambda _ : Template(_).substitute(sys._getframe(1).f_globals, **sys._getfr
 
 class ModelParser:
 
-    def __init__( self ):
+    def __init__(self):
         self.model = None
         self.cur_model = None
         self.stack = []
         self.in_model = False
         self.models = {}
 
-    def startElement( self, name, attrs ):
+    def startElement(self, name, attrs):
         if name == 'models':
             return
 
         elif name == 'model':
             self.model = {}
-            self.cur_model = str( attrs[ 'name' ] ).replace('_', ' ').\
-                replace( 'HP', '' ).replace( 'hp', '' ).strip()
+            self.cur_model = str(attrs['name']).replace('_', ' ').                replace('HP', '').replace('hp', '').strip()
             self.in_model = True
             self.stack = []
 
         else:
-            self.stack.append( str(name).lower() )
+            self.stack.append(str(name).lower())
             if len(attrs):
                 for a in attrs:
-                    self.stack.append( str(a).lower() )
+                    self.stack.append(str(a).lower())
                     try:
-                        i = int( attrs[a] )
+                        i = int(attrs[a])
                     except ValueError:
-                        i = str( attrs[a] )
+                        i = str(attrs[a])
 
-                    self.model[ str( '-'.join( self.stack ) ) ] = i
+                    self.model[str('-'.join(self.stack))] = i
                     self.stack.pop()
 
 
-    def endElement( self, name ):
+    def endElement(self, name):
         if name == 'model':
             self.in_model = False
 
             if self.cur_model in self.models:
-                log.error( "Duplicate model in XML: %s" % self.cur_model )
-                raise Error( ERROR_INTERNAL )
+                log.error("Duplicate model in XML: %s" % self.cur_model)
+                raise Error(ERROR_INTERNAL)
 
-            self.models[ self.cur_model ] = self.model
+            self.models[self.cur_model] = self.model
 
             self.model = None
         elif name == 'models':
@@ -1042,21 +920,21 @@ class ModelParser:
             self.stack.pop()
 
 
-    def charData( self, data ):
+    def charData(self, data):
         data = str(data).strip()
         if data and self.model is not None and self.stack:
-            self.model[ str( '-'.join( self.stack ) ) ] = str( data )
+            self.model[str('-'.join(self.stack))] = str(data)
 
-    def loadModels( self, filename, untested=False ):
+    def loadModels(self, filename, untested=False):
         parser = xml.parsers.expat.ParserCreate()
         parser.StartElementHandler = self.startElement
         parser.EndElementHandler = self.endElement
         parser.CharacterDataHandler = self.charData
         try:
-            parser.Parse( open( filename ).read(), True )
+            parser.Parse(open(filename).read(), True)
         except xml.parsers.expat.ExpatError, e:
-            log.error( "XML file parse error: %s" % e )
-            raise Error( ERROR_INTERNAL )
+            log.error("XML file parse error: %s" % e)
+            raise Error(ERROR_INTERNAL)
 
         return self.models
 
@@ -1066,61 +944,6 @@ unprintable = identity.translate(identity, string.printable)
 
 def printable(s):
     return s.translate(identity, unprintable)
-
-
-def usage_logging(formatter, space_after=False):
-    log.info( formatter.compose( ( "Set the logging level:", "-l<level> or --logging=<level>" ) ) )
-    log.info( formatter.compose( ( "", "<level>: none, info*, error, warn, debug (*default)" ), space_after ) )
-
-def usage_help(formatter, space_after=False):
-    log.info( formatter.compose( ( "This help information:", "-h or --help" ), space_after ) )
-
-def usage_device(formatter, space_after=False):
-    log.info( formatter.compose( ( "To specify a device-URI:", "-d<device-uri> or --device=<device-uri>" ) ) )
-
-def usage_printer(formatter, space_after=False):
-    log.info( formatter.compose( ( "To specify a CUPS printer:", "-p<printer> or --printer=<printer>" ), space_after ) )
-
-def usage_options():
-    log.info(bold("[OPTIONS]"))
-
-def usage_bus(formatter, space_after=False):
-    log.info( formatter.compose( ( "Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>" ) ) )
-    log.info( formatter.compose( ( "",
-        "<bus>: cups*, usb*, net, bt, fw, par* (*default) (Note: bt and fw not supported in this release.)" ), space_after ) )
-
-def usage_examples():
-    log.info(bold("Examples:"))
-
-def usage_notes():
-    log.info(bold("**NOTES"))
-    log.info( """\t1. If device or printer is not specified, the local device bus\n""" \
-              """ \t   is probed and the program enters interactive mode.\n""" \
-              """\t2. If -p* is specified, the default CUPS printer will be used.\n""" )
-
-def ttysize():
-    ln1 = commands.getoutput( 'stty -a' ).splitlines()[0]
-    vals = {'rows':None, 'columns':None}
-    for ph in ln1.split(';'):
-        x = ph.split()
-        if len(x) == 2:
-            vals[x[0]] = x[1]
-            vals[x[1]] = x[0]
-    return int( vals['rows'] ), int( vals['columns'] )
-
-
-def usage_formatter(override=0):
-    rows, cols = ttysize()
-    
-    if override:
-        col1 = override
-        col2 = cols - col1 - 8
-    else:
-        col1 = int(cols / 3) - 8
-        col2 = cols - col1 - 8
-    
-    return TextFormatter( ( {'width': col1, 'margin' : 2},
-                            {'width': col2, 'margin' : 2}, ))
 
 
 def any(S,f=lambda x:x):
@@ -1133,15 +956,309 @@ def all(S,f=lambda x:x):
         if not f(x): return False
     return True
 
-
 def openURL(url):
     browsers = ['firefox', 'mozilla', 'konqueror', 'galeon', 'skipstone']
     for b in browsers:
         if which(b):
             cmd = "%s %s &" % (b, url)
-            #print cmd
             log.debug(cmd)
             os.system(cmd)
             break
     else:
         log.warn("Unable to open URL: %s" % url)
+        
+        
+def uniqueList(input):
+    temp = []
+    [temp.append(i) for i in input if not temp.count(i)]
+    return temp
+
+    
+def list_move_up(l, m):
+    for i in range(1, len(l)):
+        if l[i] == m:
+            l[i-1],l[i] = l[i],l[i-1]
+
+            
+def list_move_down(l, m):
+    for i in range(len(l) - 2, 0, -1):
+        if l[i] == m:
+            l[i],l[i+1] = l[i+1],l[i] 
+            
+
+def levenshtein_distance(a,b):
+    """
+    Calculates the Levenshtein distance between a and b.
+    Written by Magnus Lie Hetland.
+    """
+    n, m = len(a), len(b)
+    if n > m:
+        a,b = b,a
+        n,m = m,n
+        
+    current = range(n+1)
+    for i in range(1,m+1):
+        previous, current = current, [i]+[0]*m
+        for j in range(1,n+1):
+            add, delete = previous[j]+1, current[j-1]+1
+            change = previous[j-1]
+            if a[j-1] != b[i-1]:
+                change = change + 1
+            current[j] = min(add, delete, change)
+            
+    return current[n]
+            
+            
+class XMLToDictParser:
+    def __init__(self):
+        self.stack = []
+        self.data = {}
+
+    def startElement(self, name, attrs):
+        self.stack.append(str(name).lower())
+        
+        if len(attrs):
+            for a in attrs:
+                self.stack.append(str(a).lower())
+                self.addData(attrs[a])
+                self.stack.pop()
+
+    def endElement(self, name):
+        self.stack.pop()
+
+    def charData(self, data):
+        data = str(data).strip()
+
+        if data and self.stack:
+            self.addData(data)
+                
+    def addData(self, data):
+        try:
+            data = int(data)
+        except ValueError:
+            data = str(data)
+        
+        stack_str = '-'.join(self.stack)
+        stack_str_0 = '-'.join([stack_str, '0'])
+        
+        try:
+            self.data[stack_str]
+        except KeyError:
+            try:
+                self.data[stack_str_0]
+            except KeyError:
+                self.data[stack_str] = data
+            else:
+                j = 2
+                while True:
+                    try:
+                        self.data['-'.join([stack_str, str(j)])]
+                    except KeyError:
+                        self.data['-'.join([stack_str, str(j)])] = data
+                        break
+                    j += 1                    
+                
+        else:
+            self.data[stack_str_0] = self.data[stack_str]
+            self.data['-'.join([stack_str, '1'])] = data
+            del self.data[stack_str]
+    
+
+    def parseXML(self, text):
+        parser = xml.parsers.expat.ParserCreate()
+        parser.StartElementHandler = self.startElement
+        parser.EndElementHandler = self.endElement
+        parser.CharacterDataHandler = self.charData
+        parser.Parse(text, True)
+        return self.data
+        
+ 
+ # ------------------------- Usage Help
+
+USAGE_OPTIONS = ("[OPTIONS]", "", "heading", False)
+USAGE_LOGGING1 = ("Set the logging level:", "-l<level> or --logging=<level>", 'option', False)
+USAGE_LOGGING2 = ("", "<level>: none, info*, error, warn, debug (\*default)", "option", False)
+USAGE_LOGGING3 = ("Run in debug mode:", "-g (same as option: -ldebug)", "option", False)
+USAGE_ARGS = ("[PRINTER|DEVICE-URI] (See Notes)", "", "heading", False)
+USAGE_DEVICE = ("To specify a device-URI:", "-d<device-uri> or --device=<device-uri>", "option", False)
+USAGE_PRINTER = ("To specify a CUPS printer:", "-p<printer> or --printer=<printer>", "option", False)
+USAGE_BUS1 = ("Bus to probe (if device not specified):", "-b<bus> or --bus=<bus>", "option", False)
+USAGE_BUS2 = ("", "<bus>: cups\*, usb*, net, bt, fw, par\* (\*default) (Note: bt and fw not supported in this release", 'option', False)
+USAGE_HELP = ("This help information:", "-h or --help", "option", True)
+USAGE_SPACE = ("", "", "space", False)
+USAGE_EXAMPLES = ("Examples:", "", "heading", False)
+USAGE_NOTES = ("Notes:", "", "heading", False)
+USAGE_STD_NOTES1 = ("1. If device or printer is not specified, the local device bus is probed and the program enters interactive mode.", "", "note", False)
+USAGE_STD_NOTES2 = ("2. If -p\* is specified, the default CUPS printer will be used.", "", "note", False)
+USAGE_SEEALSO = ("See Also:", "", "heading", False)
+
+def ttysize():
+    ln1 = commands.getoutput('stty -a').splitlines()[0]
+    vals = {'rows':None, 'columns':None}
+    for ph in ln1.split(';'):
+        x = ph.split()
+        if len(x) == 2:
+            vals[x[0]] = x[1]
+            vals[x[1]] = x[0]
+    return int(vals['rows']), int(vals['columns'])
+
+
+def usage_formatter(override=0):
+    rows, cols = ttysize()
+    
+    if override:
+        col1 = override
+        col2 = cols - col1 - 8
+    else:
+        col1 = int(cols / 3) - 8
+        col2 = cols - col1 - 8
+    
+    return TextFormatter(({'width': col1, 'margin' : 2},
+                            {'width': col2, 'margin' : 2},))
+
+
+def format_text(text_list, typ='text', title='', crumb='', version=''):
+    """
+    Format usage text in multiple formats:
+        text: for --help in the console
+        rest: for conversion with rst2web for the website
+        man: for manpages
+    """
+    if typ == 'text':
+        formatter = usage_formatter()
+        
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+            
+            # remove any reST/man escapes
+            text1 = text1.replace("\\", "")
+            text2 = text2.replace("\\", "")
+            
+            if format == 'summary':
+                log.info(bold(text1))
+                log.info("")
+            
+            elif format in ('para', 'name', 'seealso'):
+                log.info(text1)
+                
+                if trailing_space:
+                    log.info("")
+            
+            elif format in ('heading', 'header'):
+                log.info(bold(text1))
+                
+            elif format in ('option', 'example'):
+                log.info(formatter.compose((text1, text2), trailing_space))
+                
+            elif format == 'note':
+                if text1.startswith(' '):
+                    log.info('\t' + text1.lstrip())
+                else:
+                    log.info(text1)
+                    
+            elif format == 'space':
+                log.info("")
+            
+        log.info("")
+        
+                
+    elif typ == 'rest':
+        colwidth1, colwidth2 = 0, 0
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            if format in ('option', 'example'):
+                colwidth1 = max(len(text1), colwidth1)
+                colwidth2 = max(len(text2), colwidth2)
+            
+        tablewidth = colwidth1 + colwidth2
+        
+        # write the rst2web header
+        log.info("""restindex
+page-title: %s
+crumb: %s
+format: rest
+file-extension: html
+encoding: utf8
+/restindex\n""" % (title, crumb))
+        
+        links = []
+        
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+
+            if format == 'seealso':
+                links.append(text1)
+                text1 = "`%s`_" % text1
+
+            len1, len2 = len(text1), len(text2)
+            
+            if format == 'summary':
+                log.info(''.join(["**", text1, "**"]))
+                log.info("")
+            
+            elif format in ('para', 'name'):
+                log.info("")
+                log.info(text1)
+                log.info("")
+            
+            elif format in ('heading', 'header'):
+                    
+                log.info("")
+                log.info("**" + text1 + "**")
+                log.info("")
+                log.info(".. class:: borderless")
+                log.info("")
+                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
+                
+            elif format in ('option', 'example', 'seealso'):
+                    
+                log.info(''.join(["|", text1, " "*(colwidth1-len1), "|", text2, " "*(colwidth2-len2), "|"]))
+                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
+                
+            elif format == 'note':
+                if text1.startswith(' '):
+                    log.info(''.join(["|", " "*(tablewidth+1), "|"]))
+                    
+                log.info(''.join(["|", text1, " "*(tablewidth-len1+1), "|"]))
+                log.info(''.join(["+", "-"*colwidth1, "+", "-"*colwidth2, "+"]))
+            
+            elif format == 'space':
+                log.info("")
+        
+        for l in links:
+            log.info("\n.. _`%s`: %s.html\n" % (l, l.replace('hp-', '')))
+        
+        log.info("")
+        
+    elif typ == 'man':
+        log.info('.TH "%s" 1 "%s" Linux "User Manuals"' % (title, version))
+        
+        for line in text_list:
+            text1, text2, format, trailing_space = line
+            
+            text1 = text1.replace("\\*", "*")
+            text2 = text2.replace("\\*", "*")            
+            
+            len1, len2 = len(text1), len(text2)
+            
+            if format == 'summary':
+                log.info(".SH SYNOPSIS")
+                log.info(".B %s" % text1)
+                
+            elif format == 'name':
+                log.info(".SH NAME\n%s" % text1)
+                
+            elif format in ('option', 'example', 'note'):
+                if text1:
+                    log.info('.IP "%s"\n%s' % (text1, text2))
+                else:
+                    log.info(text2)
+                
+            elif format in ('header', 'heading'):
+                log.info(".SH %s" % text1.upper().replace(':', '').replace('[', '').replace(']', ''))
+                
+            elif format in ('seealso, para'):
+                log.info(text1)
+                
+        log.info("")

@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>424</width>
-            <height>87</height>
+            <height>115</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,7 +19,7 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" row="0" column="0">
+        <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="3">
             <property name="name">
                 <cstring>layout2</cstring>
             </property>
@@ -42,7 +42,7 @@
                 </widget>
             </vbox>
         </widget>
-        <spacer row="1" column="0">
+        <spacer row="1" column="1">
             <property name="name">
                 <cstring>spacer10</cstring>
             </property>
@@ -55,11 +55,70 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>31</height>
+                    <height>30</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QPushButton" row="2" column="1">
+            <property name="name">
+                <cstring>cancelPushButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="text">
+                <string>Cancel</string>
+            </property>
+        </widget>
+        <spacer row="2" column="2">
+            <property name="name">
+                <cstring>spacer2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>121</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <spacer row="2" column="0">
+            <property name="name">
+                <cstring>spacer3</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>131</width>
+                    <height>20</height>
                 </size>
             </property>
         </spacer>
     </grid>
 </widget>
+<connections>
+    <connection>
+        <sender>cancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>WaitForm_base</receiver>
+        <slot>cancelPushButton_clicked()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">waitform_base.ui.h</include>
+</includes>
+<slots>
+    <slot>cancelPushButton_clicked()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

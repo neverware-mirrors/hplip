@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.32 $
-# $Date: 2005/11/10 17:22:08 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,12 +18,8 @@
 #
 # Author: Don Welch
 #
-
-
-#
 # NOTE: This module is safe for 'from g import *'
 #
-
 
 # Std Lib
 import sys
@@ -35,10 +27,10 @@ import os, os.path
 import ConfigParser
 import locale
 import pwd
+import stat
 
 # Local
 from codes import *
-
 import logger
 
 # System wide logger
@@ -64,12 +56,81 @@ class Properties(dict):
 
 prop = Properties()
 
+
+# User config file
+class ConfigSection(dict):
+    def __init__(self, section_name, config_obj, filename, *args, **kwargs):
+        dict.__setattr__(self, "section_name", section_name)
+        dict.__setattr__(self, "config_obj", config_obj)
+        dict.__setattr__(self, "filename", filename)
+        dict.__init__(self, *args, **kwargs)
+        
+    def __getattr__(self, attr):
+        if attr in self.keys():
+            return self.__getitem__(attr)
+        else:
+            return ""
+
+    def __setattr__(self, option, val):
+        self.__setitem__(option, val)
+        if not self.config_obj.has_section(self.section_name):
+            self.config_obj.add_section(self.section_name)
+            
+        self.config_obj.set(self.section_name, option, val)
+        f = file(self.filename, 'w')
+        self.config_obj.write(f)
+        f.close()
+
+        
+class Config(dict):
+    def __init__(self, filename, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        dict.__setattr__(self, "config_obj", ConfigParser.ConfigParser())
+        dict.__setattr__(self, "filename", filename)
+        
+        try:
+            pathmode = os.stat(filename)[stat.ST_MODE]
+            if pathmode & 0022 != 0:
+                return
+        except (IOError,OSError):
+            return
+        
+        f = file(filename, 'r')
+        self.config_obj.readfp(f)
+        f.close()
+
+        for s in self.config_obj.sections():
+            opts = []
+            for o in self.config_obj.options(s):
+                opts.append((o, self.config_obj.get(s, o)))
+
+            self.__setitem__(s, ConfigSection(s, self.config_obj, filename, opts))
+        
+    def __getattr__(self, sect):
+        if sect not in self.keys():
+            self.__setitem__(sect, ConfigSection(sect, self.config_obj, self.filename))
+
+        return self.__getitem__(sect)
+
+    def __setattr__(self, sect, val):
+        self.__setitem__(sect, val)
+
+# Config file: directories and ports
+prop.sys_config_file = '/etc/hp/hplip.conf'
+prop.user_config_file = os.path.expanduser('~/.hplip.conf')
+  
+sys_cfg = Config(prop.sys_config_file)
+user_cfg = Config(prop.user_config_file)
+
+
 # Language settings
 try:
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, '') # fails on Ubuntu 5.04
 except locale.Error:
+    # TODO: Is this the right thing to do?
     log.error("Unable to set locale.")
-
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    
 try:
     t, prop.encoding = locale.getdefaultlocale()
 except ValueError:
@@ -81,32 +142,14 @@ try:
 except TypeError:
     prop.lang_code = 'en'
 
-# Config file: directories and ports
-prop.config_file = '/etc/hp/hplip.conf'
-
-if os.path.exists(prop.config_file):
-    config = ConfigParser.ConfigParser()
-    config.read(prop.config_file)
-
-    try:
-        prop.hpssd_cfg_port = config.getint("hpssd", "port")
-    except:
-        prop.hpssd_cfg_port = 0
-
-    try:
-        prop.version = config.get('hplip', 'version')
-    except:
-        prop.version = ''
-
-    try:
-        prop.home_dir = config.get('dirs', 'home')
-    except:
-        prop.home_dir = os.path.realpath(os.path.normpath(os.getcwd()))
-
-    try:
-        prop.run_dir = config.get('dirs', 'run')
-    except:
-        prop.run_dir = '/var/run'
+try:
+    prop.hpssd_cfg_port = int(sys_cfg.hpssd.port)
+except ValueError:
+    prop.hpssd_cfg_port = 0
+    
+prop.version = sys_cfg.hplip.version or 'x.x.x'
+prop.home_dir = sys_cfg.dirs.home or os.path.realpath(os.path.normpath(os.getcwd()))
+prop.run_dir = sys_cfg.dirs.run or '/var/run'
 
 try:
     prop.hpiod_port = int(file(os.path.join(prop.run_dir, 'hpiod.port'), 'r').read())
@@ -121,16 +164,15 @@ except:
 
 prop.hpiod_host = 'localhost'
 prop.hpssd_host = 'localhost'
-prop.hpfaxd_host = 'localhost'
-prop.hpguid_host = 'localhost'
 
 prop.username = pwd.getpwuid(os.getuid())[0]
+pdb = pwd.getpwnam(prop.username)
+prop.userhome = pdb[5]
 
 prop.data_dir = os.path.join(prop.home_dir, 'data')
 prop.i18n_dir = os.path.join(prop.home_dir, 'data', 'qm')
 prop.image_dir = os.path.join(prop.home_dir, 'data', 'images')
 prop.xml_dir = os.path.join(prop.home_dir, 'data', 'xml')
-#prop.html_dir = os.path.join(prop.home_dir, 'data', 'html', prop.lang_code)
 
 prop.max_message_len = 8192
 prop.max_message_read = 65536
@@ -228,6 +270,4 @@ try:
 except NameError:
     True = (1==1)
     False = not True
-
-
-
+    

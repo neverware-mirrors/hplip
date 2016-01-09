@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# (c) Copyright 2001-2004 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2001-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,9 +26,10 @@ from qt import *
 from settingsdialog_base import SettingsDialog_base
 
 class SettingsDialog(SettingsDialog_base):
-    def __init__(self, parent = None,name = None,modal = 0,fl = 0):
+    def __init__(self, hpssd_sock, parent = None,name = None,modal = 0,fl = 0):
         SettingsDialog_base.__init__(self,parent,name,modal,fl)
-        self.DefaultsButton.setEnabled( False )
+        self.DefaultsButton.setEnabled(False)
+        self.hpssd_sock = hpssd_sock
 
     def PrintCmdChangeButton_clicked(self):
         pass
@@ -46,28 +47,30 @@ class SettingsDialog(SettingsDialog_base):
         pass
 
     def DefaultsButton_clicked(self):
-        cmd_print, cmd_scan, cmd_pcard, cmd_copy, cmd_fax = utils.deviceDefaultFunctions()
-        self.PrintCommand.setText( cmd_print )
-        self.ScanCommand.setText( cmd_scan )
-        self.AccessPCardCommand.setText( cmd_pcard )
-        self.SendFaxCommand.setText( cmd_fax )
-        self.MakeCopiesCommand.setText( cmd_copy )
+        cmd_print, cmd_scan, cmd_pcard, \
+        cmd_copy, cmd_fax, cmd_fab = utils.deviceDefaultFunctions()
+        
+        self.PrintCommand.setText(cmd_print)
+        self.ScanCommand.setText(cmd_scan)
+        self.AccessPCardCommand.setText(cmd_pcard)
+        self.SendFaxCommand.setText(cmd_fax)
+        self.MakeCopiesCommand.setText(cmd_copy)
 
     def TabWidget_currentChanged(self,a0):
-        name = str( a0.name() )
+        name = str(a0.name())
 
         if name == 'FunctionCommands':
-            self.DefaultsButton.setEnabled( True )
+            self.DefaultsButton.setEnabled(True)
         else:
-            self.DefaultsButton.setEnabled( False )
+            self.DefaultsButton.setEnabled(False)
 
 
     def EmailTestButton_clicked(self): 
-        email_address = str( self.EmailAddress.text() )
-        smtp_server = str( self.SMTPServer.text() )
-        username = str( self.Username.text() )
-        password = str( self.Password.text() )
-        resultCode = service.testEmail(email_address, smtp_server, username, password)
+        email_address = str(self.EmailAddress.text())
+        smtp_server = str(self.SMTPServer.text())
+        username = str(self.Username.text())
+        password = str(self.Password.text())
+        resultCode = service.testEmail(self.hpssd_sock, email_address, smtp_server, username, password)
         if resultCode != ERROR_SUCCESS:
-            log.debug( "Failure-Result_Code: %s" % resultCode )
-        log.debug( "Success-Result_Code: %s" % resultCode )
+            log.debug("Failure-Result_Code: %s" % resultCode)
+        log.debug("Success-Result_Code: %s" % resultCode)

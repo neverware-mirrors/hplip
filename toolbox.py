@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# $Revision: 1.24 $
-# $Date: 2005/11/10 18:41:26 $
-# $Author: dwelch $
-#
-# (c) Copyright 2003-2005 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2003-2006 Hewlett-Packard Development Company, L.P.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +22,9 @@
 # Thanks to Henrique M. Holschuh <hmh@debian.org> for various security patches
 #
 
-_VERSION = '6.0'
+__version__ = '6.2'
+__title__ = 'HP Device Manager'
+__doc__ = "The HP Device Manager (aka Toolbox) for HPLIP supported devices. Provides status, tools, and supplies levels."
 
 # Std Lib
 import sys
@@ -34,7 +33,6 @@ import os, os.path
 import getopt
 import signal
 import atexit
-import ConfigParser
 
 # Local
 from base.g import *
@@ -46,9 +44,11 @@ from base import service
 app = None
 client = None
 toolbox  = None
+hpiod_sock = None
 
 # PyQt
 if not utils.checkPyQtImport():
+    log.error("PyQt/Qt initialization error. Please check install of PyQt/Qt and try again.")
     sys.exit(0)
 
 from qt import *
@@ -57,13 +57,28 @@ from qt import *
 from ui.devmgr4 import devmgr4
 
 
-def usage():
-    formatter = utils.usage_formatter()
-    log.info(utils.bold("""\nUsage: hp-toolbox [OPTIONS]\n\n""" ))
-    utils.usage_options()
-    utils.usage_logging(formatter)
-    utils.usage_help(formatter, True)
-    sys.exit(0)
+USAGE = [(__doc__, "", "name", True),
+         ("Usage: hp-toolbox [OPTIONS]", "", "summary", True),
+         utils.USAGE_OPTIONS,
+         utils.USAGE_LOGGING1, utils.USAGE_LOGGING2, utils.USAGE_LOGGING3,
+         utils.USAGE_HELP,
+         utils.USAGE_SEEALSO,
+         ("hp-info", "", "seealso", False),
+         ("hp-clean", "", "seealso", False),
+         ("hp-colorcal", "", "seealso", False),
+         ("hp-align", "", "seealso", False),
+         ("hp-print", "", "seealso", False),
+         ("hp-sendfax", "", "seealso", False),
+         ("hp-fab", "", "seealso", False),
+         ("hp-testpage", "", "seealso", False),
+        ]
+
+def usage(typ='text'):
+    if typ == 'text':
+        utils.log_title(__title__, __version__)
+        
+    utils.format_text(USAGE, typ, __title__, 'hp-toolbox', __version__)
+    sys.exit(0)        
 
 
 class tbx_client(async.dispatcher):
@@ -96,9 +111,9 @@ class tbx_client(async.dispatcher):
 
     def handle_read(self):
         log.debug("Reading data on channel (%d)" % self._fileno)
-        log.debug(repr(self.in_buffer))
 
         self.in_buffer = self.recv(prop.max_message_len)
+        log.debug(repr(self.in_buffer))
 
         if self.in_buffer == '':
             return False
@@ -116,7 +131,7 @@ class tbx_client(async.dispatcher):
                 return True
 
             msg_type = self.fields.get('msg', 'unknown')
-            log.debug("%s %s %s" % ("*"*40, msg_type, "*"*40))
+            log.debug("%s %s %s" % ("*"*20, msg_type, "*"*20))
             log.debug(repr(self.in_buffer))
 
             try:
@@ -162,29 +177,31 @@ class tbx_client(async.dispatcher):
 
     # EVENT
     def handle_eventgui(self):
-        global toolbox
-        try:
-            job_id = self.fields['job-id']
-            event_code = self.fields['event-code']
-            event_type = self.fields['event-type']
-            retry_timeout = self.fields['retry-timeout']
-            lines = self.data.splitlines()
-            error_string_short, error_string_long = lines[0], lines[1]
-            device_uri = self.fields['device-uri']
-
-            log.debug("Event: %d '%s'" % (event_code, event_type))
-
-            toolbox.EventUI(event_code, event_type, error_string_short,
-                             error_string_long, retry_timeout, job_id,
-                             device_uri)
-
-        except:
-            log.exception()
+        #global toolbox
+        if toolbox is not None:
+            try:
+                job_id = self.fields['job-id']
+                event_code = self.fields['event-code']
+                event_type = self.fields['event-type']
+                retry_timeout = self.fields['retry-timeout']
+                lines = self.data.splitlines()
+                error_string_short, error_string_long = lines[0], lines[1]
+                device_uri = self.fields['device-uri']
+    
+                log.debug("Event: %d '%s'" % (event_code, event_type))
+    
+                toolbox.EventUI(event_code, event_type, error_string_short,
+                                 error_string_long, retry_timeout, job_id,
+                                 device_uri)
+    
+            except:
+                log.exception()
 
         return ''
 
     def handle_unknown(self):
-        return buildResultMessage('MessageError', None, ERROR_INVALID_MSG_TYPE)
+        #return buildResultMessage('MessageError', None, ERROR_INVALID_MSG_TYPE)
+        return ''
 
     def handle_messageerror(self):
         return ''
@@ -195,9 +212,8 @@ class tbx_client(async.dispatcher):
         async.dispatcher.close(self)
 
     def register_gui(self):
-        out_buffer = buildMessage("RegisterGUIEvent", None, {'username': prop.username})
+        out_buffer = buildMessage("RegisterGUIEvent", None, {'username': prop.username, 'type':'tbx'})
         self.send(out_buffer)
-
 
 def toolboxCleanup():
     pass
@@ -208,6 +224,9 @@ def handleEXIT():
             client.close()
         except:
             pass
+            
+    if hpiod_sock is not None:
+        hpiod_sock.close()
 
     try:
         app.quit()
@@ -217,22 +236,37 @@ def handleEXIT():
 
 def main(args):
     prop.prog = sys.argv[0]
-    utils.log_title('HP Device Manager', _VERSION)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'l:h', ['level=', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], 'l:hg', 
+            ['level=', 'help', 'help-rest', 'help-man'])
 
     except getopt.GetoptError:
         usage()
 
+    if os.getenv("HPLIP_DEBUG"):
+        log.set_level('debug')
+        
+        
     for o, a in opts:
-
         if o in ('-l', '--logging'):
             log_level = a.lower().strip()
-            log.set_level(log_level)
+            if not log.set_level(log_level):
+                usage()
+                
+        elif o == '-g':
+            log.set_level('debug')
 
         elif o in ('-h', '--help'):
             usage()
+            
+        elif o == '--help-rest':
+            usage('rest')
+        
+        elif o == '--help-man':
+            usage('man')
+            
+    utils.log_title(__title__, __version__)
 
     # Security: Do *not* create files that other users can muck around with
     os.umask (0077)
@@ -241,18 +275,28 @@ def main(args):
     try:
         client = tbx_client()
     except Error:
-        log.error("Aborting.")
-        sys.exit(0)
+        log.error("Unable to create client object.")
+        sys.exit(1)
 
     log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
     log.set_module('toolbox')
+    log.debug("Connected to hpssd on %s:%d" % (prop.hpssd_host, prop.hpssd_port))
 
     # create the main application object
     global app
     app = QApplication(sys.argv)
 
+    hpiod_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        hpiod_sock.connect((prop.hpiod_host, prop.hpiod_port))
+    except socket.error:
+        log.error("Unable to connect to HPLIP I/O (hpiod).")
+        return 1
+    
+    log.debug("Connected to hpiod on %s:%d" % (prop.hpiod_host, prop.hpiod_port))
+    
     global toolbox
-    toolbox = devmgr4(toolboxCleanup)
+    toolbox = devmgr4(hpiod_sock, client.socket, toolboxCleanup)
     app.setMainWidget(toolbox)
 
     toolbox.show()
