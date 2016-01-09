@@ -465,5 +465,23 @@ binary-arch: install-arch
 	dh_md5sums -a
 	dh_builddeb -a
 
+get-orig-source:
+	set -e;\
+	quilt pop -af || true ;\
+	rm -Rf .pc ;\
+	gbp import-orig --no-pristine-tar --no-merge --uscan --upstream-branch=upstream/latest;\
+	git checkout upstream/latest-repack ;\
+	utag=`git describe --exact-match heads/upstream/latest | sed -e 's#^upstream/##'` ;\
+	git merge --no-commit upstream/$$utag ;\
+	find . -regextype posix-extended -iregex '.*\.(ldl|ppd|pdf|ps|pcl)\.gz' | xargs gunzip -f ;\
+	git add -A . ;\
+	git commit  -m "Merge upstream $$utag version; un-gzip source files" ;\
+	urtag=$$utag+repack0 ;\
+	git tag upstream/$$urtag -m "Upstream repacked $$utag version" ;\
+	git archive --format=tar --prefix=hplip-$$urtag/ upstream/$$urtag | xz -6e > ../hplip-modeswitch_$$urtag.orig.tar.xz ;\
+	pristine-tar commit ../hplip-modeswitch_$$urtag.orig.tar.xz upstream/$$urtag ;\
+	git checkout debian/master ;\
+	git merge upstream/$$urtag -m "Merge upstream-repacked $$urtag version"
+
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install install-arch install-indep
