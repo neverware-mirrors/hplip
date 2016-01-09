@@ -22,10 +22,11 @@
 #Global
 import os
 import time
+import signal
 
 # Local
 from base.g import *
-from base import device, utils, pkit
+from base import device, utils, pkit, os_utils
 from ui_utils import *
 
 # Qt
@@ -56,7 +57,8 @@ class UpgradeDialog(QDialog, Ui_Dialog):
         self.connect(self.installRadioBtton, SIGNAL("toggled(bool)"), self.installRadioBtton_toggled)
         self.connect(self.remindRadioBtton, SIGNAL("toggled(bool)"), self.remindRadioBtton_toggled)
         self.connect(self.dontRemindRadioBtton, SIGNAL("toggled(bool)"), self.dontRemindRadioBtton_toggled)
-        
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
         # Application icon
         self.setWindowIcon(QIcon(load_pixmap('hp_logo', '128x128')))
 
@@ -94,7 +96,7 @@ class UpgradeDialog(QDialog, Ui_Dialog):
         elif self.remindRadioBtton.isChecked():
             schedule_days = str(self.daysSpinBox.value())
             log.debug("HPLIP Upgrade, selected remind later radiobutton  days= %d" %(int(schedule_days)))
-            next_time = time.time() + (int(schedule_days) *24 * 60 *60) 
+            next_time = time.time() + (int(schedule_days) *24 * 60 *60)
             user_conf.set('upgrade', 'pending_upgrade_time', str(int(next_time)))
         else:
             log.debug("HPLIP Upgrade, selected Install radiobutton  distro_type=%d" %self.distro_tier)
@@ -102,14 +104,13 @@ class UpgradeDialog(QDialog, Ui_Dialog):
             if self.distro_tier != 1:		# not tier 1 distro
                 log.debug("OK pressed for tier 2 distro pressed")
                 utils.openURL(MANUAL_INSTALL_LINK)
-                
+
                 ## TBD::open browser
             else:
                 terminal_cmd = utils.get_terminal()
                 if terminal_cmd is not None and utils.which("hp-upgrade"):
                     cmd = terminal_cmd + " 'hp-upgrade -w'"
-                    log.debug("cmd = %s " %cmd)
-                    os.system(cmd)
+                    os_utils.execute(cmd)
                     self.result = True
                 else:
                     log.error("Failed to run hp-upgrade command from terminal =%s "%terminal_cmd)

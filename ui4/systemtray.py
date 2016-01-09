@@ -27,7 +27,7 @@ import os
 import signal
 import os.path
 import time
-
+import signal
 
 # Local
 from base.g import *
@@ -335,6 +335,7 @@ class SystemTrayApp(QApplication):
         notifier = QSocketNotifier(self.read_pipe, QSocketNotifier.Read)
         QObject.connect(notifier, SIGNAL("activated(int)"), self.notifierActivated)
         QObject.connect(self.tray_icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.trayActivated)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.tray_icon.show()
 
         if self.user_settings.systray_visible == SYSTRAY_VISIBLE_SHOW_ALWAYS:
@@ -345,7 +346,9 @@ class SystemTrayApp(QApplication):
         self.tray_icon.setIcon(self.prop_active_icon)
         self.active_icon = True
 
-        self.handle_hplip_updation()
+        if "--ignore-update-firsttime" not in args:
+            self.handle_hplip_updation()
+
         QTimer.singleShot(SET_MENU_DELAY, self.initDone)
 
         self.timer = QTimer()
