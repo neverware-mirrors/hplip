@@ -472,7 +472,7 @@ get-orig-source:
 	gbp import-orig --no-pristine-tar --no-merge --uscan --upstream-branch=upstream/latest;\
 	git checkout upstream/latest-repack ;\
 	utag=`git describe --exact-match heads/upstream/latest | sed -e 's#^upstream/##'` ;\
-	git merge --no-commit upstream/$$utag ;\
+	git merge --strategy-option=theirs --no-commit upstream/$$utag || true ;\
 	find . -regextype posix-extended -iregex '.*\.(ldl|ppd|pdf|ps|pcl)\.gz' | xargs gunzip -f ;\
 	git add -A . ;\
 	git commit  -m "Merge upstream $$utag version; un-gzip source files" ;\
