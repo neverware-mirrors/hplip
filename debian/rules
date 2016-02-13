@@ -52,6 +52,7 @@ HPLIP_UPSTREAM_VERSION:=$(shell echo "$(HPLIP_VERSION)" | \
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 export DEB_HOST_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 CONFFLAGS =
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
@@ -137,6 +138,7 @@ configure-stamp: configure
 		--with-hpppddir=\$${prefix}/share/ppd/hplip/HP \
 		--datadir=\$${prefix}/share \
 		--libexecdir=\$${prefix}/lib \
+		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
 		--without-icondir \

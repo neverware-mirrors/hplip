@@ -243,7 +243,9 @@ Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
 
 Package: libhpmud0
 Architecture: any
+Multi-Arch: same
 Section: libs
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Replaces: hplip (<< 3.10.6-3)
 Breaks: hplip (<< 3.10.6-3)
@@ -266,6 +268,7 @@ Description: HP Multi-Point Transport Driver (hpmud) run-time libraries
 
 Package: libhpmud-dev
 Architecture: any
+Multi-Arch: same
 Section: libdevel
 Depends: libhpmud0 (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 Description: HP Multi-Point Transport Driver (hpmud) development libraries
@@ -290,7 +293,9 @@ Description: HP Multi-Point Transport Driver (hpmud) development libraries
 
 Package: libsane-hpaio
 Architecture: any
+Multi-Arch: same
 Section: libs
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Replaces: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
 Breaks: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
