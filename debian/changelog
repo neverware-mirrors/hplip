@@ -1,3 +1,16 @@
+hplip (3.16.2+repack0-1) unstable; urgency=medium
+
+  * New 3.16.2 upstream release
+     - Repack the 3.16.2 upstream release
+       Uncompress various source files, for better upstream tracking in the VCS
+  * debian/rules - get-orig-source:
+    - force upstream/latest-repack merge to use 'theirs' merge strategy and
+      make it not fail the target
+    - drop 'modeswitch' copy-paste leftover
+  * Fix typo in previous changelog entry
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 13 Feb 2016 16:01:54 +0100
+
 hplip (3.15.11+repack0-1) unstable; urgency=medium
 
   * New upstream release
