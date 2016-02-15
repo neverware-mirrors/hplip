@@ -1,3 +1,9 @@
+hplip (3.16.2+repack0-2) unstable; urgency=medium
+
+  * Multi-arch'ify libsane-hpaio and libhpmud0 (Closes: #813043, #804379)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 15 Feb 2016 18:13:35 +0100
+
 hplip (3.16.2+repack0-1) unstable; urgency=medium
 
   * New 3.16.2 upstream release
