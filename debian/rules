@@ -279,7 +279,7 @@ install-stamp: build-stamp
 			../../bin/$$dest 2>/dev/null || :; \
 		    if true; then \
 		    PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
-			LD_LIBRARY_PATH=../../lib/ python3 ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
+			LD_LIBRARY_PATH=../../lib/$(DEB_HOST_MULTIARCH) python3 ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
 		    else \
 		    touch $(CURDIR)/$$dest.1; \
 		    fi; \
