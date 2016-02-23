@@ -1,3 +1,10 @@
+hplip (3.16.2+repack0-3) unstable; urgency=medium
+
+  * Fix LD_LIBRARY_PATH to include DEB_HOST_MULTIARCH when generating python
+    tools' manpages; fixes the FTBFS of -2
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 23 Feb 2016 21:03:19 +0100
+
 hplip (3.16.2+repack0-2) unstable; urgency=medium
 
   * Multi-arch'ify libsane-hpaio and libhpmud0 (Closes: #813043, #804379)
