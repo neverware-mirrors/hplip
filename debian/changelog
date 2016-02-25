@@ -1,3 +1,10 @@
+hplip (3.16.2+repack0-4) unstable; urgency=medium
+
+  * Add patch to order page sizes consistently in hp-scan, to ensure manpage
+    generation reproducibility
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 25 Feb 2016 09:40:32 +0100
+
 hplip (3.16.2+repack0-3) unstable; urgency=medium
 
   * Fix LD_LIBRARY_PATH to include DEB_HOST_MULTIARCH when generating python
