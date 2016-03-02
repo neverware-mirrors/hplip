@@ -1,3 +1,14 @@
+hplip (3.16.2+repack0-4~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports.
+  * Drop ddeb migration code, lower debhelper build-depends.
+    This is needed for backporting. We could re-add dbg packages,
+    but that's to much work to migrate from to ddebs.
+  * Add myself as uploader (for the backport)
+  * debian/gbp.conf: Adjust for backports
+
+ -- Julian Andres Klode <jak@debian.org>  Wed, 02 Mar 2016 20:26:29 +0100
+
 hplip (3.16.2+repack0-4) unstable; urgency=medium
 
   * Add patch to order page sizes consistently in hp-scan, to ensure manpage
