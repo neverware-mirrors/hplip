@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Debian Printing Team <debian-printing@lists.debian.org>
 Uploaders: Mark Purcell <msp@debian.org>,
            Didier Raboud <odyx@debian.org>,
-           Till Kamppeter <till.kamppeter@gmail.com>
+           Till Kamppeter <till.kamppeter@gmail.com>,
+           Julian Andres Klode <jak@debian.org>
 Build-Depends: autoconf,
                automake,
                autotools-dev,
