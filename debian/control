@@ -180,9 +180,7 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
 Package: printer-driver-hpijs
 Architecture: any
 Section: text
-Depends: libhpmud0 (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
+Depends: libhpmud0 (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 Recommends: cups (>= 1.4.0) | cupsddk | hpijs-ppds,
             cups-filters (>= 1.0.42) | foomatic-filters,
             ghostscript
