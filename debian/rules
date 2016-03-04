@@ -27,20 +27,6 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
-# Version information
-# We cannot get the hpijs version like this because we could be generating
-# it at runtime when we run autogen.sh
-HPLIP_BINARY_VERSION?=$(shell dpkg-parsechangelog | grep -E "^Version:" | \
-	tr -d ' \t' | cut -d ':' -f 2-)
-ifeq	(,$(HPLIP_BINARY_VERSION))
-	$(error Could not get debian package version from debian/changelog)
-endif
-
-HPLIP_VERSION:=$(shell echo "$(HPLIP_BINARY_VERSION)" | \
-			sed -e 's/+b[0-9]\+$$//')
-HPLIP_UPSTREAM_VERSION:=$(shell echo "$(HPLIP_VERSION)" | \
-			  sed -e 's/-[^-]\+$$//')
-
 # Autoconf
 export DEB_HOST_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
@@ -330,15 +316,6 @@ override_dh_python3:
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
-
-override_dh_gencontrol:
-	dh_gencontrol -- \
-		-V"hplip:source:Version=$(HPLIP_VERSION)" \
-		-V"hpijs:source:Version=$(HPLIP_VERSION)" \
-		-V"hplip:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
-		-V"hpijs:Upstream-Version=$(HPLIP_UPSTREAM_VERSION)" \
-		-V"hplip:binary:Version=$(HPLIP_BINARY_VERSION)" \
-		-V"hpijs:binary:Version=$(HPLIP_BINARY_VERSION)"
 
 get-orig-source:
 	set -e;\

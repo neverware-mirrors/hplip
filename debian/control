@@ -44,12 +44,12 @@ Architecture: any
 Depends: adduser (>= 3.34),
          coreutils (>= 5.1.0),
          cups (>= 1.1.20),
-         hplip-data (= ${hplip:source:Version}),
-         libhpmud0 (= ${hplip:binary:Version}),
-         libsane-hpaio (= ${hplip:binary:Version}),
+         hplip-data (= ${source:Version}),
+         libhpmud0 (= ${binary:Version}),
+         libsane-hpaio (= ${binary:Version}),
          lsb-base (>= 3),
          policykit-1,
-         printer-driver-hpcups (= ${hplip:binary:Version}),
+         printer-driver-hpcups (= ${binary:Version}),
          python3-dbus (>= 0.80),
          python3-gi,
          python3-pexpect,
@@ -106,7 +106,7 @@ Description: HP Linux Printing and Imaging - data files
 
 Package: printer-driver-postscript-hp
 Architecture: all
-Depends: hplip (>= ${hplip:source:Version}), ${misc:Depends}
+Depends: hplip (>= ${source:Version}), ${misc:Depends}
 Replaces: hplip (<< 3.11.10-1ubuntu2), hplip-data (<< 3.11.10-1ubuntu2)
 Breaks: cups (<< 1.5.0-11~),
         hplip (<< 3.11.10-1ubuntu2),
@@ -124,7 +124,7 @@ Package: hplip-gui
 Architecture: all
 Depends: dbus-x11,
          gksu | kdebase-bin (<< 4:4.4.0-1) | kde-runtime | kdebase-runtime | kdesudo | ktsuss,
-         hplip (>= ${hplip:source:Version}),
+         hplip (>= ${source:Version}),
          python3-dbus.mainloop.qt,
          python3-pyqt4,
          ${misc:Depends},
@@ -165,7 +165,7 @@ Provides: hplip-ppds
 Replaces: hplip-ppds
 Breaks: foomatic-filters-ppds (>> 20000101), hplip-ppds
 Depends: cups-filters (>= 1.0.42) | foomatic-filters (>= 3.0.2),
-         printer-driver-hpijs (>= ${hpijs:source:Version}),
+         printer-driver-hpijs (>= ${source:Version}),
          ${misc:Depends}
 Description: HP Linux Printing and Imaging - HPIJS PPD files
  This package contains PPD (printer definition) files for the
@@ -180,7 +180,7 @@ Description: HP Linux Printing and Imaging - HPIJS PPD files
 Package: printer-driver-hpijs
 Architecture: any
 Section: text
-Depends: libhpmud0 (= ${hplip:binary:Version}),
+Depends: libhpmud0 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Recommends: cups (>= 1.4.0) | cupsddk | hpijs-ppds,
@@ -220,7 +220,7 @@ Depends: cups,
          cups-filters (>= 1.0.36) | ghostscript-cups,
          ${misc:Depends},
          ${shlibs:Depends}
-Suggests: hplip (= ${hplip:binary:Version}), hplip-doc
+Suggests: hplip (= ${binary:Version}), hplip-doc
 Replaces: hplip-cups (<< 3.11.10-1ubuntu2)
 Breaks: hplip-cups (<< 3.11.10-1ubuntu2)
 Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
@@ -299,7 +299,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Replaces: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
 Breaks: hplip (<< 3.10.6-3), hplip-data (<< 3.10.5-4ubuntu1)
-Recommends: hplip (= ${hplip:binary:Version}), sane-utils
+Recommends: hplip (= ${binary:Version}), sane-utils
 Description: HP SANE backend for multi-function peripherals
  The HP Linux Printing and Imaging System provides full support for
  printing on most HP SFP (single function peripheral) inkjets and many
