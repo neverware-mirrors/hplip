@@ -69,6 +69,7 @@ override_dh_autoreconf:
 # at build time that needs not to be kept around in the Debian diff
 override_dh_clean:
 	dh_clean
+	find . -regextype posix-extended -iregex '.*\.(ldl|ppd|pdf|ps|pcl)\.gz' | xargs gunzip -f ;\
 	rm -f *.1
 	-rm -f prnt/hpijs/platform.h prnt/hpijs/auto-include.h
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
