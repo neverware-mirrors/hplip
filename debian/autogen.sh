@@ -14,14 +14,9 @@ find -type f \( -name missing -o -name install-sh -o -name mkinstalldirs \
 	-o -name config.sub -o -name config.guess -o -name config.cache \
 	-o -name config.log -o -name Makefile.in \) -print0 | xargs -0 rm -f
 
+touch NEWS README AUTHORS ChangeLog INSTALL
+
 echo Running autoreconf...
 autoreconf --force --install
 
-# For the Debian package build
-test -d debian && {
-	# link these in Debian builds
-	rm -f config.sub config.guess
-	ln -s /usr/share/misc/config.sub .
-	ln -s /usr/share/misc/config.guess .
-}
 exit 0
