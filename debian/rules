@@ -180,12 +180,6 @@ override_dh_install:
 
 	# Lintian and linda overrides
 	cd debian ; \
-	for i in *.linda ; do \
-	    [ -r "$$i" ] && { \
-		mkdir -p "$${i%%.linda}/usr/share/linda/overrides" ;\
-		install  -m 644 "$$i" "$${i%%.linda}/usr/share/linda/overrides/$${i%%.linda}" ;\
-	    } ;\
-	done ;\
 	for i in *.lintian ; do \
 	    [ -r "$$i" ] && { \
 		mkdir -p "$${i%%.lintian}/usr/share/lintian/overrides" ;\
