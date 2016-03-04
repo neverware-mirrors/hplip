@@ -31,9 +31,6 @@ DBGPKG:=$(BASEPKG)-dbg
 PKGTMP:=$(CURDIR)/debian/tmp
 PPDDIR:=$(PKGTMP)/usr/share/ppd
 
-SF_MIRRORS:= ovh puzzle superb-east
--include /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
-
 # Version information
 # We cannot get the hpijs version like this because we could be generating
 # it at runtime when we run autogen.sh
