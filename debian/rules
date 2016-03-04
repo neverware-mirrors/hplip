@@ -163,14 +163,6 @@ override_dh_install:
 	  rm *.orig \
 	)
 
-	# Edit the generated hplip.conf
-	( cd "$(PKGTMP)/etc/hp" && \
-	  cat hplip.conf | \
-	  sed -e 's#^doc=.*#doc=/usr/share/doc/hplip-doc/HTML#' | \
-	  sed -e 's#^ui-toolkit=.*#ui-toolkit=qt4#' \
-	    > hplip.conf.1 && \
-	    mv -f hplip.conf.1 hplip.conf )
-
 	# Link all executables to /usr/bin and generate the corresponding
 	# man pages
 	chmod 755 ./debian/tmp/usr/share/hplip/check-plugin.py
