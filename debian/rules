@@ -240,14 +240,6 @@ override_dh_install:
 	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
 	install -m 644 debian/$(BASEPKG).sane "$(PKGTMP)/etc/sane.d/dll.d/$(PACKAGE)"
 
-	# Fax PPDs, install to destdir directly
-	mkdir -p "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/hplip/HP"
-	mkdir -p "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP"
-	cp fax/ppd/HP-Fax*-hpijs.ppd.gz \
-	   "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/hplip/HP/"
-	cp fax/ppd/HP-Fax*-hpcups.ppd.gz \
-	   "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/hplip/HP/"
-
 	# Uncompress PPDs, this makes the package smaller for distribution
 	#-find "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
 	#-find "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
