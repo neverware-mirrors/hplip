@@ -256,14 +256,14 @@ override_dh_install:
 	# coomand line option. This makes rendering the pages much faster
 	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd
 
-	dh_install -a "--sourcedir=$(PKGTMP)" --list-missing >install-arch-stamp 2>&1 || \
+	dh_install -a --list-missing >install-arch-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-arch-stamp ; exit 1 )
 
 
 	# Remove the Fax PPDs, we have handled them in the arch-dependent part
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
 
-	dh_install -i "--sourcedir=$(PKGTMP)" --list-missing >install-indep-stamp 2>&1 || \
+	dh_install -i --list-missing >install-indep-stamp 2>&1 || \
 		( echo "Last five lines of error log:" ; tail -n 5 install-indep-stamp ; exit 1 )
 
 	# Patch the PPDs for the hpijs-ppds package to use foomatic-rip
