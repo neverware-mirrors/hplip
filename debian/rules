@@ -104,14 +104,12 @@ override_dh_auto_build:
 	-find . -name '*.ppd' | xargs ${GZIP} -f
 	-find data/ -regextype posix-extended -regex '.*\.(ldl|pcl|ps|pdf)' | xargs ${GZIP} -f
 
-	dh_auto_build -- docdir=\$${prefix}/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
+	dh_auto_build
 
 
 ##
 ## Debian packaging
 ##
-override_dh_auto_install:
-	dh_auto_install -- docdir=/usr/share/doc/hplip dist_firm_DATA= am__dist_firm_DATA_DIST=
 
 override_dh_install:
 	# Modify PPD generator of hpcups (hpcups.drv) so that standard paper
