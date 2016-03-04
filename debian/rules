@@ -7,10 +7,6 @@
 PACKAGE=hplip
 BASEPKG=hplip
 
-# DebHelper control
-export DH_ALWAYS_EXCLUDE=CVS:.cvsignore
-#export DH_VERBOSE=1
-
 -include /usr/share/python3/python.mk
 ifeq (,$(py_sitename))
    py_sitename = site-packages
