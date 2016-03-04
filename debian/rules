@@ -178,15 +178,6 @@ override_dh_install:
 	    > hplip.conf.1 && \
 	    mv -f hplip.conf.1 hplip.conf )
 
-	# Lintian and linda overrides
-	cd debian ; \
-	for i in *.lintian ; do \
-	    [ -r "$$i" ] && { \
-		mkdir -p "$${i%%.lintian}/usr/share/lintian/overrides" ;\
-		install  -m 644 "$$i" "$${i%%.lintian}/usr/share/lintian/overrides/$${i%%.lintian}" ;\
-	    } ;\
-	done
-
 	# Link all executables to /usr/bin and generate the corresponding
 	# man pages
 	chmod 755 ./debian/tmp/usr/share/hplip/check-plugin.py
