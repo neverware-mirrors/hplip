@@ -1,2 +1,2 @@
-usr/share/cups/ppd-updaters/hpijs-ppds.ppd-updater
+debian/hpijs-ppds.ppd-updater usr/share/cups/ppd-updaters/
 usr/share/ppd/hplip/*/*hpijs*.ppd*

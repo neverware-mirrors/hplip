@@ -137,14 +137,6 @@ override_dh_install:
 		install -m 755 debian/local/scripts/hp-plugin-ubuntu $(CURDIR)/debian/hplip/usr/bin/; \
 	fi
 
-	# Install the ppd updater data files so that CUPS can update the
-	# PPDs of the already existing queue after each update of HPLIP's
-	# printer driver/PPD packages
-	install -D -m 644 debian/printer-driver-postscript-hp.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-postscript-hp.ppd-updater
-	install -D -m 644 debian/printer-driver-hpcups.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpcups.ppd-updater
-	install -D -m 644 debian/printer-driver-hpijs.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/printer-driver-hpijs.ppd-updater
-	install -D -m 644 debian/hpijs-ppds.ppd-updater $(PKGTMP)/usr/share/cups/ppd-updaters/hpijs-ppds.ppd-updater
-
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
