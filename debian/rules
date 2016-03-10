@@ -30,6 +30,7 @@ PPDDIR:=$(PKGTMP)/usr/share/ppd
 # Autoconf
 export DEB_HOST_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 CONFFLAGS =
 
@@ -49,7 +50,7 @@ GZIP = gzip -n --best
 	dh $@ --buildsystem=autoconf --with autoreconf --with python3 --with pyppd
 
 override_dh_autoreconf:
-	dh_autoreconf sh -- debian/autogen.sh
+	dh_autoreconf --as-needed sh -- debian/autogen.sh
 
 # Clean everything up, including everything auto-generated
 # at build time that needs not to be kept around in the Debian diff
