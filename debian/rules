@@ -213,8 +213,6 @@ override_dh_install:
 	# executable-not-elf-or-script
 	chmod -x $(PKGTMP)/usr/share/hplip/installer/distros.dat
 
-	mkdir -p "$(PKGTMP)/usr/share/pixmaps"
-	install -m 644 debian/*.xpm "$(PKGTMP)/usr/share/pixmaps"
 	mkdir -p "$(PKGTMP)/usr/share/applications"
 	install -m 644 debian/*.desktop "$(PKGTMP)/usr/share/applications"
 
