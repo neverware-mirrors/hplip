@@ -15,3 +15,4 @@ pcardext-python3-workaround-upstream.patch
 hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch
 hp-plugin-download-fix.patch
 order-page-sizes-consistently.patch
+install-check-plugin.diff

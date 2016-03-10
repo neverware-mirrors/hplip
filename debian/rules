@@ -165,35 +165,25 @@ override_dh_install:
 
 	# Link all executables to /usr/bin and generate the corresponding
 	# man pages
-	chmod 755 ./debian/tmp/usr/share/hplip/check-plugin.py
 	export HPLIP_BUILD=1; \
-	( cd ./debian/tmp/usr/share/hplip/; \
-	    for file in *.py; do \
-		if [ -x $$file ] && [ $$file != install.py ] && \
-		   [ $$file != hpssd.py ] && [ $$file != dat2drv.py ] && \
-		   [ $$file != __init__.py ]; then \
-		    dest=hp-$${file%.py}; \
-		    ln -s ../../usr/share/hplip/$$file \
-			../../bin/$$dest 2>/dev/null || :; \
-		    if true; then \
-		    PYTHONPATH=../../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
-			LD_LIBRARY_PATH=../../lib/$(DEB_HOST_MULTIARCH) python3 ../../bin/$$dest --help-man > $(CURDIR)/$$dest.1 ; \
-		    else \
-		    touch $(CURDIR)/$$dest.1; \
-		    fi; \
-		fi; \
+	( cd ./debian/tmp/usr/bin/; \
+	    for file in *; do \
+			if readlink $$file | grep ".py"; then \
+				PYTHONPATH=../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
+				LD_LIBRARY_PATH=../lib/$(DEB_HOST_MULTIARCH) python3 ./$$file --help-man > $(CURDIR)/$$file.1 ; \
+			fi; \
 	    done \
 	)
 	install -d ./debian/tmp/usr/sbin/
 	ln -s ../../usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
 	# Correct Python interpreter path in all executables
-	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/sbin/* ./debian/tmp/usr/lib/cups/*/*; do \
+	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
 	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/env\s+python.*:#!/usr/bin/python:' `readlink -f $$file`; \
 	done
 
 	# "Upgrade" Python interpreter path to Python3
-	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/sbin/* ./debian/tmp/usr/lib/cups/*/*; do \
+	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
 	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/python\b:#!/usr/bin/python3:' `readlink -f $$file`; \
 	done
 
