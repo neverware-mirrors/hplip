@@ -25,7 +25,6 @@ usr/lib/cups/backend
 usr/lib/cups/filter/hpps
 usr/lib/cups/filter/pstotiff
 usr/lib/python*
-usr/sbin/hpssd
 usr/share/cups/mime/*.convs
 usr/share/cups/mime/*.types
 usr/share/dbus-1

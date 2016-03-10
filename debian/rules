@@ -174,8 +174,6 @@ override_dh_install:
 			fi; \
 	    done \
 	)
-	install -d ./debian/tmp/usr/sbin/
-	ln -s ../../usr/share/hplip/hpssd.py ./debian/tmp/usr/sbin/hpssd
 
 	# Correct Python interpreter path in all executables
 	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
