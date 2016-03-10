@@ -1,4 +1,5 @@
 #usr/bin/hp-mkuri
+#usr/bin/hp-unload
 etc/dbus-1
 etc/udev/rules.d/56-hpmud.rules lib/udev/rules.d
 usr/bin/hp-align
@@ -20,7 +21,6 @@ usr/bin/hp-scan
 usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
-usr/bin/hp-unload
 usr/lib/cups/backend
 usr/lib/cups/filter/hpps
 usr/lib/cups/filter/pstotiff
