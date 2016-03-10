@@ -34,7 +34,7 @@ Build-Depends: autoconf,
                python3-dbus (>= 0.80),
                python3-dev,
                python3-pyqt4
-Standards-Version: 3.9.4
+Standards-Version: 3.9.7
 Homepage: http://hplipopensource.com/hplip-web/index.html
 Vcs-Git: https://alioth.debian.org/anonscm/git/printing/hplip.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=printing/hplip.git
