@@ -156,8 +156,7 @@ override_dh_install-common:
 	      done; \
 	  done )
 
-	# Link all executables to /usr/bin and generate the corresponding
-	# man pages
+	# Generate man pages corresponding to the programs
 	export HPLIP_BUILD=1; \
 	( cd ./debian/tmp/usr/bin/; \
 	    for file in *; do \
