@@ -156,15 +156,6 @@ override_dh_install-common:
 	      done; \
 	  done )
 
-	# Patch PPD file for the HP LaserJet 4000
-	# See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742766
-	# We cannot use the usual mechanisms for patches, as the PPD files get
-	# shipped compressed by upstream
-	( cd $(PPDDIR)/hplip/HP/; \
-	  patch	-p0 < $(CURDIR)/debian/local/HP-LaserJet_4000-PostScript-PPD.patch; \
-	  rm *.orig \
-	)
-
 	# Link all executables to /usr/bin and generate the corresponding
 	# man pages
 	export HPLIP_BUILD=1; \
