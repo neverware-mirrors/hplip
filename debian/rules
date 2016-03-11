@@ -113,7 +113,7 @@ override_dh_auto_build:
 ## Debian packaging
 ##
 
-override_dh_install:
+override_dh_install-common:
 	# Clean up libtool archives
 	find debian/tmp -name '*.la' -delete
 	# Modify PPD generator of hpcups (hpcups.drv) so that standard paper
@@ -229,8 +229,10 @@ override_dh_install:
 	# coomand line option. This makes rendering the pages much faster
 	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd
 
+override_dh_install-arch: override_dh_install-common
 	dh_install -a --list-missing
 
+override_dh_install-indep: override_dh_install-common
 	# Remove the Fax PPDs, we have handled them in the arch-dependent part
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
 
