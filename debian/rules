@@ -113,7 +113,7 @@ override_dh_auto_build:
 ## Debian packaging
 ##
 
-override_dh_install-common:
+override_dh_install:
 	# Clean up libtool archives
 	find debian/tmp -name '*.la' -delete
 	# Modify PPD generator of hpcups (hpcups.drv) so that standard paper
@@ -219,10 +219,8 @@ override_dh_install-common:
 	# coomand line option. This makes rendering the pages much faster
 	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd
 
-override_dh_install-arch: override_dh_install-common
 	dh_install -a --list-missing
 
-override_dh_install-indep: override_dh_install-common
 	# Remove the Fax PPDs, we have handled them in the arch-dependent part
 	-find $(PPDDIR) -name '*Fax*.ppd*' | xargs rm
 
@@ -232,15 +230,18 @@ override_dh_install-indep: override_dh_install-common
 	# as CUPS filter and not foomatic-rip-hplip. Also add
 	# "-dNOINTERPOLATE" to the Ghostscript command lines to make rendering
 	# by Ghostscript faster.
-	(cd $(CURDIR)/debian/hpijs-ppds/usr/share/ppd/hplip/HP/ && \
+	(if dh_listpackages | grep -q hpijs-ppds; then  \
+	  cd $(CURDIR)/debian/hpijs-ppds/usr/share/ppd/hplip/HP/ && \
 	  for ppd in *.ppd; do \
 	    perl -p -i -e 's/foomatic-rip-hplip/foomatic-rip/g' $$ppd; \
 	    perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $$ppd; \
-	  done \
+	  done; fi \
 	)
 
 	# Remove models.dat from hplip-data - we ship with libsane-hpaio
-	rm $(CURDIR)/debian/hplip-data/usr/share/hplip/data/models/models.dat
+	if dh_listpackages | grep -q hplip-data; then \
+		rm $(CURDIR)/debian/hplip-data/usr/share/hplip/data/models/models.dat; \
+	fi
 
 override_dh_pyppd:
 	# Not sure why only that package
