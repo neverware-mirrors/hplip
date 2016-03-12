@@ -1,3 +1,10 @@
+hplip (3.16.2+repack0-7) unstable; urgency=medium
+
+  * Apply HP-LaserJet_4000-PostScript-PPD.patch like other patches
+  * Do not run install actions twice in indep+arch builds (Closes: #817883)
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 12 Mar 2016 13:58:26 +0100
+
 hplip (3.16.2+repack0-6) unstable; urgency=medium
 
   * Handle building of only Architecture: any packages
