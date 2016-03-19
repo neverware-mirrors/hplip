@@ -1,3 +1,9 @@
+hplip (3.16.3+repack0-1) unstable; urgency=medium
+
+  * Imported Upstream version 3.16.3
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 19 Mar 2016 11:38:01 +0100
+
 hplip (3.16.2+repack0-7) unstable; urgency=medium
 
   * Apply HP-LaserJet_4000-PostScript-PPD.patch like other patches
