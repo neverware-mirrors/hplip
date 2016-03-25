@@ -1,3 +1,64 @@
+hplip (3.16.3+repack0-1) unstable; urgency=medium
+
+  * Imported Upstream version 3.16.3
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 19 Mar 2016 11:38:01 +0100
+
+hplip (3.16.2+repack0-7) unstable; urgency=medium
+
+  * Apply HP-LaserJet_4000-PostScript-PPD.patch like other patches
+  * Do not run install actions twice in indep+arch builds (Closes: #817883)
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 12 Mar 2016 13:58:26 +0100
+
+hplip (3.16.2+repack0-6) unstable; urgency=medium
+
+  * Handle building of only Architecture: any packages
+  * Use --dbgsym-migration instead of --ddeb-migration
+
+ -- Julian Andres Klode <jak@debian.org>  Fri, 11 Mar 2016 01:17:03 +0100
+
+hplip (3.16.2+repack0-5) unstable; urgency=medium
+
+  * Add myself as an uploader
+  * Port the packaging to dh(1) and clean it up internally:
+    - Drop unused patches
+    - debian/rules: Drop /usr/share/gnome-pkg-tools/1/rules/sf-get-source.mk
+    - Delete unused debian/tmpno directory
+    - Do not set DH_ALWAYS_EXCLUDE for CVS and drop DH_VERBOSE comment
+    - Drop invalid use of X-Python-Version
+    - debian/rules: Port to dh(1)
+    - clean: Restore uncompressed files
+    - Use the standard source:Version substvar and its friends
+    - Remove support for installing Linda files
+    - Do not install lintian overrides manually, use dh_lintian
+    - Install ppd-updater files directly using dh_install
+    - Do not pass sourcedir to dh_install
+    - Install FAX ppds using install files
+    - Simply use dh_install --list-missing
+    - Let upstream install html into /usr/share/doc/hplip-doc/
+    - debian/rules: Stop patching hplip.conf
+    - Do not pass variables to build/install, not needed anymore
+    - Delete README.source, outdated
+    - Rename README.Source to README.source and drop outdated stuff
+    - Use upstream symlinks; drops hp-hpdio (not a script)
+    - Clean up lintian overrides
+    - hplip-data: Override two lintian tags
+    - Bump Standards-Version to 3.9.7
+  * Dropped stuff:
+    - Do not install .la files
+    - Do not install hpssd into bin, it's not executable
+    - Drop hp-unload for now, it does not support Python 3
+  * Install missing manual pages that are available
+  * Menu entry cleanup
+    - Drop hplip-gui.menu, having both .desktop and .menu is forbidden now
+    - Get rid of HPmenu.xpm and hp-logo.xpm, use upstream logo
+  * Build flag changes:
+    - Build with as-needed
+    - Use full hardening
+
+ -- Julian Andres Klode <jak@debian.org>  Thu, 10 Mar 2016 23:35:16 +0100
+
 hplip (3.16.2+repack0-4~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.

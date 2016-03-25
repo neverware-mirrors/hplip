@@ -1,4 +1,5 @@
 #usr/bin/hp-mkuri
+#usr/bin/hp-unload
 etc/dbus-1
 etc/udev/rules.d/56-hpmud.rules lib/udev/rules.d
 usr/bin/hp-align
@@ -8,7 +9,6 @@ usr/bin/hp-colorcal
 usr/bin/hp-config_usb_printer
 usr/bin/hp-doctor
 usr/bin/hp-firmware
-usr/bin/hp-hpdio
 usr/bin/hp-info
 usr/bin/hp-levels
 usr/bin/hp-logcapture
@@ -21,12 +21,10 @@ usr/bin/hp-scan
 usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
-usr/bin/hp-unload
 usr/lib/cups/backend
 usr/lib/cups/filter/hpps
 usr/lib/cups/filter/pstotiff
 usr/lib/python*
-usr/sbin/hpssd
 usr/share/cups/mime/*.convs
 usr/share/cups/mime/*.types
 usr/share/dbus-1
