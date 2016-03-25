@@ -1,3 +1,10 @@
+hplip (3.16.3+repack0-1~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports.
+  * Difference to stretch: No -dbgsym support
+
+ -- Julian Andres Klode <jak@debian.org>  Fri, 25 Mar 2016 19:18:31 +0100
+
 hplip (3.16.3+repack0-1) unstable; urgency=medium
 
   * Imported Upstream version 3.16.3
