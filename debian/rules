@@ -62,7 +62,7 @@ override_dh_clean:
 	-rm -f prnt/hpijs/platform.h prnt/hpijs/auto-include.h
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	# We prefer to regenerate these using pyuic
-	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
+	(cd ui5 && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
 
 ##
