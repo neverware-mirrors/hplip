@@ -95,7 +95,8 @@ override_dh_auto_configure:
 		--enable-gui-build \
 		--enable-fax-build \
 		--disable-qt3 \
-		--enable-qt4 \
+		--disable-qt4 \
+		--enable-qt5 \
 		--enable-policykit \
 		--enable-udev-acl-rules
 
