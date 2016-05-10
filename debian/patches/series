@@ -1,6 +1,5 @@
 01_rss.patch
 14_charsign_fixes.patch
-85_rebuild_python_ui.patch
 hp_photosmart_pro_b9100_support.patch
 pjl-duplex-binding.patch
 simple-scan-as-default.patch
