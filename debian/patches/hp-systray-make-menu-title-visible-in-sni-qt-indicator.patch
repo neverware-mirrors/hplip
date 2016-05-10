@@ -1,22 +1,23 @@
 Author:  <till.kamppeter@gmail.com>
 Description: No description.
 
---- a/ui4/systemtray.py
-+++ b/ui4/systemtray.py
-@@ -437,29 +437,11 @@
+--- a/ui5/systemtray.py
++++ b/ui5/systemtray.py
+@@ -442,30 +442,13 @@ class SystemTrayApp(QApplication):
      def setMenu(self):
          self.menu = QMenu()
  
 -        title = QWidgetAction(self.menu)
 +        title = QAction(self.menu)
          #title.setDisabled(True)
--
+ 
 -        hbox = QFrame(self.menu)
 -        layout = QHBoxLayout(hbox)
--        layout.setMargin(3)
+-        # layout.setMargin(3)
+-        layout.setContentsMargins(3, 3, 3, 3)
 -        layout.setSpacing(5)
 -        pix_label = QLabel(hbox)
--
+ 
 -        layout.insertWidget(-1, pix_label, 0)
 -
 -        icon_size = self.menu.style().pixelMetric(QStyle.PM_SmallIconSize)

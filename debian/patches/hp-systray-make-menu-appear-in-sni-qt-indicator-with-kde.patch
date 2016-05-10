@@ -1,9 +1,9 @@
 Author:  <till.kamppeter@gmail.com>
 Description: No description.
 
---- a/ui4/systemtray.py
-+++ b/ui4/systemtray.py
-@@ -569,6 +569,9 @@
+--- a/ui5/systemtray.py
++++ b/ui5/systemtray.py
+@@ -576,6 +576,9 @@ class SystemTrayApp(QApplication):
  
          elif reason == QSystemTrayIcon.Trigger:
              #print "single click"
