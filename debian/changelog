@@ -1,3 +1,16 @@
+hplip (3.16.5+repack0-1) unstable; urgency=medium
+
+  * Imported Upstream version 3.16.5
+  * Switch to Qt5 (Closes: #793458)
+  * Bump Standards-Version to 3.9.8
+  * Actually rebuild the UI files we use (Qt5), not the Qt3 ones
+  * Update Vcs-Git and Vcs-Browser to use canonical HTTPS URIs
+  * Rebuild UI files and make imports relative
+  * Port Qt4 patches to Qt5
+  * Remove 85_rebuild_python_ui.patch, rebuilding in rules now
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 10 May 2016 10:42:14 +0200
+
 hplip (3.16.3+repack0-1) unstable; urgency=medium
 
   * Imported Upstream version 3.16.3
