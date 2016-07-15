@@ -3,7 +3,7 @@ Description: No description.
 
 --- a/base/utils.py
 +++ b/base/utils.py
-@@ -567,18 +567,21 @@
+@@ -565,18 +565,21 @@ class UserSettings(object): # Note: Depr
  
          # Scan
          self.cmd_scan = ''
@@ -32,9 +32,9 @@ Description: No description.
  
          # Photo Card
          path = which('hp-unload')
---- a/ui4/ui_utils.py
-+++ b/ui4/ui_utils.py
-@@ -188,7 +188,7 @@
+--- a/ui5/ui_utils.py
++++ b/ui5/ui_utils.py
+@@ -205,7 +205,7 @@ class UserSettings(QSettings):
          return ''
  
      def loadDefaults(self):

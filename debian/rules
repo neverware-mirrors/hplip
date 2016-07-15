@@ -62,7 +62,7 @@ override_dh_clean:
 	-rm -f prnt/hpijs/platform.h prnt/hpijs/auto-include.h
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	# We prefer to regenerate these using pyuic
-	(cd ui && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
+	(cd ui5 && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
 
 
 ##
@@ -95,16 +95,26 @@ override_dh_auto_configure:
 		--enable-gui-build \
 		--enable-fax-build \
 		--disable-qt3 \
-		--enable-qt4 \
+		--disable-qt4 \
+		--enable-qt5 \
 		--enable-policykit \
 		--enable-udev-acl-rules
-
 
 override_dh_auto_build:
 	# Compress various files before building, they are needed for the build, and were
 	# compressed in the non-repacked upstream tarballs
 	-find . -name '*.ppd' | xargs ${GZIP} -f
 	-find data/ -regextype posix-extended -regex '.*\.(ldl|pcl|ps|pdf)' | xargs ${GZIP} -f
+
+	# Rebuild the UI files and patch the imports to be relative
+	(set -e; cd ui5; \
+		for i in *.ui ; do pyuic5 -o $${i%.ui}.py $$i; done; \
+		modules=$$(for i in *.py; do echo -n $${i%%.py}\|; done; echo dummyalternative); \
+		sed -r "s#from ($$modules)#from .\1#" -i *.py \
+	)
+	# Patch out retranslateUi call like upstream does
+	sed -i s/self.retranslateUi/#self.retranslateUi/ ui5/devmgr5_base.py
+
 
 	dh_auto_build
 
