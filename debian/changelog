@@ -1,3 +1,12 @@
+hplip (3.16.5+repack1-1) unstable; urgency=medium
+
+  * Repack the 3.16.5 upstream release to remove
+    prnt/hpcups/ErnieFilter.{cpp,h} source files as they are non-free
+    (Closes: #816870) (LP: #1553628)
+  * Add patch to disable ErnieFilter usage everywhere, to cope with the repack
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 10 Jul 2016 12:34:10 +0200
+
 hplip (3.16.5+repack0-1~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.
