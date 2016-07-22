@@ -1,3 +1,26 @@
+hplip (3.16.7+repack0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Support for new HP printers:
+      × Officejet Pro 8730
+      × Officejet Pro 8210 Printer
+      × Pagewide P55250
+      × Pagewide MFP P57750
+      × Pagewide Color 556
+      × Pagewide Color MFP 586
+      × Pagewide Color flow MFP 586
+      × DeskJet Ink Advantage Ultra 5730 All-in-One Printer
+      × Color Laserjet MFP M377 fnw
+    - Repack:
+      × Uncompress various source files, for better upstream tracking in the
+        VCS
+      × Remove prnt/hpcups/ErnieFilter.{cpp,h} source files as they are
+        non-free
+  * Initialize git-dpm; reword most patch descriptions from the original
+    commits
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 22 Jul 2016 17:43:26 +0200
+
 hplip (3.16.5+repack1-1) unstable; urgency=medium
 
   * Repack the 3.16.5 upstream release to remove

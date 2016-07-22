@@ -6,3 +6,5 @@ aff0ea3d647f7b137a9da2eee7b7a8d7c9c199dd
 hplip_3.16.7+repack0.orig.tar.xz
 5bbc6b4196bfce8980ea20cfe9fdde3cf985f093
 8857864
+debianTag="debian/%e%v"
+upstreamTag="upstream/%e%u"
