@@ -157,10 +157,10 @@ cmddir = $(hplipdir)
 dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
 	sendfax.py setup.py makecopies.py probe.py timedate.py firmware.py scan.py systray.py plugin.py linefeedcal.py pqdiag.py \
 	faxsetup.py devicesettings.py printsettings.py query.py pkservice.py wificonfig.py diagnose_plugin.py uninstall.py \
-	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py
+	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py check-plugin.py
 
 homedir = $(hplipdir)
-dist_home_DATA =  check-plugin.py 
+dist_home_DATA =
 dist_home_DATA +=  hplip_clean.sh
 
 # base
@@ -519,7 +519,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
 	prnt/hpcups/Mode2.cpp prnt/hpcups/Mode2.h prnt/hpcups/Mode3.cpp prnt/hpcups/Mode3.h \
 	prnt/hpcups/Mode9.cpp prnt/hpcups/Mode9.h prnt/hpcups/Mode10.cpp prnt/hpcups/Mode10.h \
 	prnt/hpcups/ModeDeltaPlus.cpp prnt/hpcups/ModeDeltaPlus.h prnt/hpcups/ModeJbig.cpp prnt/hpcups/ModeJbig.h \
-	prnt/hpcups/ErnieFilter.cpp prnt/hpcups/ErnieFilter.h prnt/hpcups/EncapsulatorFactory.cpp prnt/hpcups/EncapsulatorFactory.h \
+	prnt/hpcups/EncapsulatorFactory.cpp prnt/hpcups/EncapsulatorFactory.h \
 	prnt/hpcups/Encapsulator.cpp prnt/hpcups/Encapsulator.h prnt/hpcups/Pcl3.cpp prnt/hpcups/Pcl3.h \
 	prnt/hpcups/Pcl3Gui.cpp prnt/hpcups/Pcl3Gui.h prnt/hpcups/Pcl3Gui2.cpp prnt/hpcups/Pcl3Gui2.h \
 	prnt/hpcups/LJMono.cpp prnt/hpcups/LJMono.h prnt/hpcups/LJColor.cpp prnt/hpcups/LJColor.h \

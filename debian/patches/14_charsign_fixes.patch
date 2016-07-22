@@ -1,6 +1,15 @@
-Author:  <till.kamppeter@gmail.com>
-Description: some missing charsign
+From 6f174ef246fe2e9a73561f88954242c0f6aad11a Mon Sep 17 00:00:00 2001
+From: Till Kamppeter <till.kamppeter@gmail.com>
+Date: Fri, 22 Jul 2016 09:32:52 +0200
+Subject: some missing charsign
 
+Patch-Name: 14_charsign_fixes.patch
+---
+ scan/sane/scl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/scan/sane/scl.c b/scan/sane/scl.c
+index cc640f4..eccd990 100755
 --- a/scan/sane/scl.c
 +++ b/scan/sane/scl.c
 @@ -37,10 +37,11 @@

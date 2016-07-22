@@ -1,6 +1,19 @@
+From 55a580180489e24dc0411a61fe10c7047867238f Mon Sep 17 00:00:00 2001
+From: Matej Vela <vela@debian.org>
+Date: Fri, 22 Jul 2016 09:33:02 +0200
+Subject: Fix "duplex descriptor uninitialized"
+
+Closes: #583273
+Patch-Name: hpaio-option-duplex.diff
+---
+ scan/sane/sclpml.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+
+diff --git a/scan/sane/sclpml.c b/scan/sane/sclpml.c
+index 9a5975f..61500da 100644
 --- a/scan/sane/sclpml.c
 +++ b/scan/sane/sclpml.c
-@@ -1084,20 +1084,17 @@
+@@ -1084,20 +1084,17 @@ static void init_options( hpaioScanner_t hpaio )
      hpaio->option[OPTION_ADF_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
      hpaio->option[OPTION_ADF_MODE].constraint.string_list = hpaio->adfModeList;
  

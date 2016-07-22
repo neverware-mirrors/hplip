@@ -1,6 +1,19 @@
-Author:  <till.kamppeter@gmail.com>
-Description: No description.
+From 10bc5952dd92412c6b528d0586f3f78cf09d7294 Mon Sep 17 00:00:00 2001
+From: Till Kamppeter <till.kamppeter@gmail.com>
+Date: Fri, 22 Jul 2016 09:33:00 +0200
+Subject: Simplified the construction of the title line of the hp-systray
+ applet menu, so that the applet-to-indicator converter sni-qt also imports
+ this title line (at least the text of it).
 
+Thanks to Aurelien Gateau for this patch.
+
+Patch-Name: hp-systray-make-menu-title-visible-in-sni-qt-indicator.patch
+---
+ ui5/systemtray.py | 25 ++++---------------------
+ 1 file changed, 4 insertions(+), 21 deletions(-)
+
+diff --git a/ui5/systemtray.py b/ui5/systemtray.py
+index 5b69d2b..8888dec 100644
 --- a/ui5/systemtray.py
 +++ b/ui5/systemtray.py
 @@ -442,30 +442,13 @@ class SystemTrayApp(QApplication):

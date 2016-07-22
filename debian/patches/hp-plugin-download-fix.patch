@@ -1,6 +1,20 @@
+From a9b24141ce2a0d4d1b6f165f099cf0dd5366eae1 Mon Sep 17 00:00:00 2001
+From: Till Kamppeter <till.kamppeter@gmail.com>
+Date: Fri, 22 Jul 2016 09:33:06 +0200
+Subject: Fix download and installation of HP's proprietary plug-in in Python3
+ environments
+
+LP: #1422004
+Patch-Name: hp-plugin-download-fix.patch
+---
+ base/pkit.py | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/base/pkit.py b/base/pkit.py
+index f3f1e44..6a848ef 100644
 --- a/base/pkit.py
 +++ b/base/pkit.py
-@@ -35,9 +35,12 @@
+@@ -35,9 +35,12 @@ import dbus
  import dbus.service
  
  if PY3:
@@ -15,7 +29,7 @@
  
  import warnings
  # Ignore: .../dbus/connection.py:242: DeprecationWarning: object.__init__() takes no parameters
-@@ -207,7 +210,7 @@
+@@ -207,7 +210,7 @@ if utils.to_bool(sys_conf.get('configure', 'policy-kit')):
              super(BackendService, self).__init__(connection, path)
  
              self.name = dbus.service.BusName(self.SERVICE_NAME, connection)

@@ -1,6 +1,22 @@
+From 7ccd585e12fbb9d19e4365895e24b76c1ed5746f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lubo=C5=A1=20Dole=C5=BEel?= <lubos@dolezel.info>
+Date: Fri, 22 Jul 2016 09:33:05 +0200
+Subject: Allow non-JPEG scanning on the HP DeskJet 3520 All-in-One and similar
+ devices
+
+LP: #1245578
+
+Patch-Name: hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch
+---
+ scan/sane/bb_ledm.c | 47 +++++++++++++++++++++++++++++++++++++++++------
+ scan/sane/ledm.c    | 12 +++++++-----
+ 2 files changed, 48 insertions(+), 11 deletions(-)
+
+diff --git a/scan/sane/bb_ledm.c b/scan/sane/bb_ledm.c
+index b233d1e..27d73a0 100644
 --- a/scan/sane/bb_ledm.c
 +++ b/scan/sane/bb_ledm.c
-@@ -189,7 +189,7 @@
+@@ -189,7 +189,7 @@ Keep-Alive: 20\r\nProxy-Connection: keep-alive\r\nCookie: AccessCounter=new\r\n0
  <YStart>%d</YStart>\
  <Height>%d</Height>\
  <Format>%s</Format>\
@@ -9,7 +25,7 @@
  <ColorSpace>%s</ColorSpace>\
  <BitDepth>%d</BitDepth>\
  <InputSource>%s</InputSource>\
-@@ -234,6 +234,38 @@
+@@ -234,6 +234,38 @@ Keep-Alive: 300\r\nProxy-Connection: keep-alive\r\nCookie: AccessCounter=new\r\n
  # define JOBSTATE_COMPLETED "<j:JobState>Completed</j:JobState>"
  # define PRESCANPAGE "<PreScanPage>"
  
@@ -48,7 +64,7 @@
  static int parse_scan_elements(const char *payload, int size, struct wscn_scan_elements *elements)
  {
    char tag[512];
-@@ -762,8 +794,7 @@
+@@ -762,8 +794,7 @@ int bb_get_parameters(struct ledm_session *ps, SANE_Parameters *pp, int option)
        if (ps->currentCompression == SF_RAW && ps->currentScanMode != CE_GRAY8)
        {
           /* Set scan parameters based on scan job response values */
@@ -58,7 +74,7 @@
          pp->pixels_per_line = pbb->job.pixels_per_line;
          pp->bytes_per_line = pbb->job.bytes_per_line;
        }
-@@ -784,8 +815,8 @@
+@@ -784,8 +815,8 @@ int bb_get_parameters(struct ledm_session *ps, SANE_Parameters *pp, int option)
        break;
      case SPO_BEST_GUESS:  /* called by xsane & sane_start */
        /* Set scan parameters based on best guess. */
@@ -69,7 +85,7 @@
        pp->bytes_per_line = BYTES_PER_LINE(pp->pixels_per_line, pp->depth * factor);
        break;
      default:
-@@ -889,7 +920,7 @@
+@@ -889,7 +920,7 @@ SANE_Status bb_start_scan(struct ledm_session *ps)
          (int) ((ps->currentBrx / 5548.7133) - (ps->currentTlx / 5548.7133)),//<Width>
          (int) (ps->currentTly / 5548.7133),//<YStart>
          (int) ((ps->currentBry / 5548.7133) - (ps->currentTly / 5548.7133)),//<Height>
@@ -78,7 +94,7 @@
          (! strcmp(ce_element[ps->currentScanMode], "Color8")) ? "Color" : (! strcmp(ce_element[ps->currentScanMode], "Gray8")) ? "Gray" : "Gray",//<ColorSpace>
          ((! strcmp(ce_element[ps->currentScanMode], "Color8")) || (! strcmp(ce_element[ps->currentScanMode], "Gray8"))) ? 8: 8,//<BitDepth>
          ps->currentInputSource == IS_PLATEN ? is_element[1] : is_element[2],//<InputSource>
-@@ -987,6 +1018,7 @@
+@@ -987,6 +1018,7 @@ SANE_Status bb_start_scan(struct ledm_session *ps)
          _DBG("bb_start_scan() read_http_payload FAILED len=%d buf=%s\n", len, buf);
          break;
       }
@@ -86,7 +102,7 @@
        //For a new scan, buf must contain <PreScanPage>. 
       if (NULL == strstr(buf,PRESCANPAGE)) 
       {         //i.e Paper is not present in Scanner
-@@ -1005,6 +1037,9 @@
+@@ -1005,6 +1037,9 @@ SANE_Status bb_start_scan(struct ledm_session *ps)
          stat = SANE_STATUS_GOOD;
          goto bugout;
       }
@@ -96,9 +112,11 @@
       usleep(500000);//0.5 sec delay
    }//end while()
  
+diff --git a/scan/sane/ledm.c b/scan/sane/ledm.c
+index 9a1ff02..8f04338 100644
 --- a/scan/sane/ledm.c
 +++ b/scan/sane/ledm.c
-@@ -170,11 +170,11 @@
+@@ -170,11 +170,11 @@ static int set_scan_mode_side_effects(struct ledm_session *ps, enum COLOR_ENTRY
        case CE_GRAY8:
        case CE_COLOR8:
        default:
@@ -113,7 +131,7 @@
           ps->option[LEDM_OPTION_JPEG_QUALITY].cap |= SANE_CAP_SOFT_SELECT;   /* enable jpeg quality */
           break;
     }
-@@ -679,7 +679,7 @@
+@@ -679,7 +679,7 @@ SANE_Status ledm_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           }
           else
           {  /* Set default. */
@@ -122,7 +140,7 @@
              stat = SANE_STATUS_GOOD;
           }
           break;
-@@ -984,7 +984,9 @@
+@@ -984,7 +984,9 @@ SANE_Status ledm_start(SANE_Handle handle)
      }
    }
    else
