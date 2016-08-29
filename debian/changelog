@@ -1,3 +1,11 @@
+hplip (3.16.7+repack0-2) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * Migrate hplip-gui dependency from dbus-x11 to 'default-dbus-session-bus |
+    dbus-session-bus' (Closes: #835911)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 29 Aug 2016 12:47:31 +0200
+
 hplip (3.16.7+repack0-1) unstable; urgency=medium
 
   * New upstream release
