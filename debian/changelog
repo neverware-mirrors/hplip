@@ -1,3 +1,21 @@
+hplip (3.16.8+repack0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Support for new HP printers:
+      × HP OfficeJet Pro 6970 All-in-One Printer
+      × HP OfficeJet Pro 6960 All-in-One Printer
+      × HP OfficeJet 250 Mobile All-in-One
+      × HP DeskJet 3700 All-in-One
+      × HP DeskJet Ink Advantage 3700 All-in-One
+    - Repack:
+      × Uncompress various source files, for better upstream tracking in the
+        VCS
+      × Remove prnt/hpcups/ErnieFilter.{cpp,h} source files as they are
+        non-free
+  * Update get-orig-source target to also record the new upstream with git-dpm
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 01 Sep 2016 08:13:38 +0200
+
 hplip (3.16.7+repack0-2) unstable; urgency=medium
 
   [ Simon McVittie ]
