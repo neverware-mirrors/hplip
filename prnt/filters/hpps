@@ -191,11 +191,11 @@ if 'HPPinPrnt' in options and 'noHPPinPrnt' not in options:
             msg("Setting Pin to default")
     else:
         szKeyInitials = ['HPFIDigit', 'HPSEDigit', 'HPTHDigit', 'HPFTDigit']                                 
-	for x in szKeyInitials:
+        for x in szKeyInitials:
            try:
-	        secpin += opts[x]
+               secpin += opts[x]
            except KeyError:
-	        secpin += '0'
+               secpin += '0'
 
     os.write(output_fd, to_bytes_utf8('@PJL SET HOLDKEY="%s"\x0a' % secpin))
 
