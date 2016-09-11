@@ -1,9 +1,66 @@
+hplip (3.16.8+repack0-2) unstable; urgency=medium
+
+  * Add patch to fix regression introduced by erroneous tabs in hpps python
+    code (Closes: #836581, LP: #1619207)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 05 Sep 2016 08:35:31 +0200
+
+hplip (3.16.8+repack0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Support for new HP printers:
+      × HP OfficeJet Pro 6970 All-in-One Printer
+      × HP OfficeJet Pro 6960 All-in-One Printer
+      × HP OfficeJet 250 Mobile All-in-One
+      × HP DeskJet 3700 All-in-One
+      × HP DeskJet Ink Advantage 3700 All-in-One
+    - Repack:
+      × Uncompress various source files, for better upstream tracking in the
+        VCS
+      × Remove prnt/hpcups/ErnieFilter.{cpp,h} source files as they are
+        non-free
+  * Update get-orig-source target to also record the new upstream with git-dpm
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 01 Sep 2016 08:13:38 +0200
+
+hplip (3.16.7+repack0-2) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * Migrate hplip-gui dependency from dbus-x11 to 'default-dbus-session-bus |
+    dbus-session-bus' (Closes: #835911)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 29 Aug 2016 12:47:31 +0200
+
+hplip (3.16.7+repack0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Support for new HP printers:
+      × Officejet Pro 8730
+      × Officejet Pro 8210 Printer
+      × Pagewide P55250
+      × Pagewide MFP P57750
+      × Pagewide Color 556
+      × Pagewide Color MFP 586
+      × Pagewide Color flow MFP 586
+      × DeskJet Ink Advantage Ultra 5730 All-in-One Printer
+      × Color Laserjet MFP M377 fnw
+    - Repack:
+      × Uncompress various source files, for better upstream tracking in the
+        VCS
+      × Remove prnt/hpcups/ErnieFilter.{cpp,h} source files as they are
+        non-free
+  * Initialize git-dpm; reword most patch descriptions from the original
+    commits
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 22 Jul 2016 17:43:26 +0200
+
 hplip (3.16.5+repack1-1~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.
   * Difference to stretch: No -dbgsym support
 
  -- Didier Raboud <odyx@debian.org>  Thu, 21 Jul 2016 07:45:22 +0200
+
 
 hplip (3.16.5+repack1-1) unstable; urgency=medium
 

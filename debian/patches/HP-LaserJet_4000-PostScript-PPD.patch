@@ -1,14 +1,21 @@
-Description: LaserJet PostScript 4000 PPD bugfix
- The PostScript PPD for the HP LaserJet 4000 is buggy, and prevent printing
- complex documents.
- The 4000 and 4050 are pretty much the same printer. The fix was to extract the
- missing snipset from the PPD for the 4050 and put it in the PPD for the 4000.
-Author: Jean Tourrilhes <jt@hpl.hp.com>
+From d24364eff3767669e12d0605faebe6b426f353ea Mon Sep 17 00:00:00 2001
+From: Jean Tourrilhes <jt@hpl.hp.com>
+Date: Fri, 22 Jul 2016 09:33:10 +0200
+Subject: LaserJet PostScript 4000 PPD bugfix
+
+The PostScript PPD for the HP LaserJet 4000 is buggy, and prevent printing complex documents.
+The 4000 and 4050 are pretty much the same printer. The fix was to extract the missing snipset from the PPD for the 4050 and put it in the PPD for the 4000.
+
 Origin: vendor
 Bug: https://bugs.launchpad.net/hplip/+bug/1298194
 Bug-Debian: https://bugs.debian.org/742766
+Patch-Name: HP-LaserJet_4000-PostScript-PPD.patch
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+ prnt/ps/hp-laserjet_4000_series-ps.ppd | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/prnt/ps/hp-laserjet_4000_series-ps.ppd b/prnt/ps/hp-laserjet_4000_series-ps.ppd
+index db1248c..66c4032 100644
 --- a/prnt/ps/hp-laserjet_4000_series-ps.ppd
 +++ b/prnt/ps/hp-laserjet_4000_series-ps.ppd
 @@ -97,6 +97,17 @@

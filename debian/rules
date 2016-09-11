@@ -276,8 +276,10 @@ get-orig-source:
 	git add -A . ;\
 	git commit  -m "Merge upstream $$utag version; un-gzip source files" ;\
 	urtag=$$utag+repack0 ;\
+	urcommit=`git rev-parse --verify HEAD`;\
 	git tag upstream/$$urtag -m "Upstream repacked $$utag version" ;\
 	git archive --format=tar --prefix=hplip-$$urtag/ upstream/$$urtag | xz -6e > ../hplip_$$urtag.orig.tar.xz ;\
 	pristine-tar commit ../hplip_$$urtag.orig.tar.xz upstream/$$urtag ;\
 	git checkout debian/master ;\
-	git merge upstream/$$urtag -m "Merge upstream-repacked $$urtag version"
+	git dpm record-new-upstream --rebase-patched ../hplip_$$urtag.orig.tar.xz $$urcommit ;\
+	git dpm update-patches -m "Merge upstream-repacked $$urtag version and refresh git-dpm patches"

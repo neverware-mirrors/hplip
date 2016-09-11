@@ -695,7 +695,8 @@ static libusb_device *get_libusb_device(const char *uri)
     int numdevs = 0;        /* number of connected devices */
     int i, conf, iface, altset ;
 
-    libusb_init(&libusb_ctx);
+    i = libusb_init(&libusb_ctx);
+    if (i) goto bugout;
     numdevs = libusb_get_device_list(libusb_ctx, &libusb_dev_list);
     for (i=0; i< numdevs; i++)
     {
@@ -1456,6 +1457,11 @@ enum HPMUD_RESULT __attribute__ ((visibility ("hidden"))) musb_raw_channel_write
                 BUG("unable to write data (len = %d) %s: %m\n", msp->device[pc->dindex].uri, len);
             goto bugout;
         }
+		if(len == 0 && size > 0)
+		{
+			stat = HPMUD_R_IO_ERROR;
+			goto bugout;	
+		}
         size-=len;
         total+=len;
         *bytes_wrote+=len;
@@ -2048,7 +2054,8 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
     char serial[128], mfg[128], sz[HPMUD_LINE_SIZE];
     int r, size=0;
 
-    libusb_init(&ctx);
+    i = libusb_init(&ctx);
+    if (i) goto bugout;
     numdevs = libusb_get_device_list(ctx, &list);
 
     if (numdevs <= 0)
@@ -2149,12 +2156,14 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
     }//end for loop
 
 bugout:
-    if (!hd)
+    if (hd)
         libusb_close(hd);
     if (confptr)
         libusb_free_config_descriptor(confptr);
-    libusb_free_device_list(list, 1);
-    libusb_exit(ctx);
+    if (list)
+      libusb_free_device_list(list, 1);
+    if (ctx)
+      libusb_exit(ctx);
 
     return size;
 }
@@ -2180,7 +2189,8 @@ enum HPMUD_RESULT hpmud_make_usb_uri(const char *busnum, const char *devnum, cha
 
     *bytes_read=0;
 
-    libusb_init(&ctx);
+    i = libusb_init(&ctx);
+    if (i) goto bugout;
     numdevs = libusb_get_device_list(ctx, &list);
 
     if (numdevs <= 0)
@@ -2283,8 +2293,10 @@ bugout:
     if (hd != NULL)
         libusb_close(hd);
 
-    libusb_free_device_list(list, 1);
-    libusb_exit(ctx);
+    if (list)
+      libusb_free_device_list(list, 1);
+    if (ctx)
+      libusb_exit(ctx);
 
     return stat;
 }
@@ -2303,7 +2315,8 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
 
     *bytes_read=0;
 
-    libusb_init(&ctx);
+    i = libusb_init(&ctx);
+    if (i) goto bugout;
     numdevs = libusb_get_device_list(ctx, &list);
 
     if (numdevs <= 0)
@@ -2329,8 +2342,10 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
     stat = HPMUD_R_OK;
 
 bugout:
-    libusb_free_device_list(list, 1);
-    libusb_exit(ctx);
+    if (list)
+      libusb_free_device_list(list, 1);
+    if (ctx)
+      libusb_exit(ctx);
 
     return stat;
 }

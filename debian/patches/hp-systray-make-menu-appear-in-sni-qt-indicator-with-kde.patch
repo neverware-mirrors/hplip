@@ -1,6 +1,18 @@
-Author:  <till.kamppeter@gmail.com>
-Description: No description.
+From ed0649776e710a7de5c693cd7bb16a0e9245973a Mon Sep 17 00:00:00 2001
+From: Till Kamppeter <till.kamppeter@gmail.com>
+Date: Fri, 22 Jul 2016 09:33:01 +0200
+Subject: Make the menu of the hp-systray applet appearing when the applet is
+ converted to an indicator applet by sni-qt and put into the notification area
+ of KDE
 
+LP: #857929
+Patch-Name: hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.patch
+---
+ ui5/systemtray.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/ui5/systemtray.py b/ui5/systemtray.py
+index 8888dec..ec3574f 100644
 --- a/ui5/systemtray.py
 +++ b/ui5/systemtray.py
 @@ -576,6 +576,9 @@ class SystemTrayApp(QApplication):

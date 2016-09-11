@@ -1,8 +1,18 @@
-Description: Patch UI files to match upstream produced .py code
- The update tab was manually patched out in the generated code,
- and the label_2 was renamed in the code.
-Author: Julian Andres Klode <jak@debian.org>
+From a4be1c4c8151e8a2f642c492c1d19632488afaf0 Mon Sep 17 00:00:00 2001
+From: Julian Andres Klode <jak@debian.org>
+Date: Fri, 22 Jul 2016 09:33:11 +0200
+Subject: Patch UI files to match upstream produced .py code
 
+The update tab was manually patched out in the generated code, and the label_2 was renamed in the code.
+
+Patch-Name: ui-patch-upstream-like.patch
+---
+ ui5/devmgr5_base.ui         | 31 -------------------------------
+ ui5/wifisetupdialog_base.ui |  2 +-
+ 2 files changed, 1 insertion(+), 32 deletions(-)
+
+diff --git a/ui5/devmgr5_base.ui b/ui5/devmgr5_base.ui
+index 7d0c7f5..09f72bf 100644
 --- a/ui5/devmgr5_base.ui
 +++ b/ui5/devmgr5_base.ui
 @@ -547,37 +547,6 @@
@@ -43,6 +53,8 @@ Author: Julian Andres Klode <jak@debian.org>
        </widget>
       </widget>
      </item>
+diff --git a/ui5/wifisetupdialog_base.ui b/ui5/wifisetupdialog_base.ui
+index a85d14c..4e33640 100644
 --- a/ui5/wifisetupdialog_base.ui
 +++ b/ui5/wifisetupdialog_base.ui
 @@ -47,7 +47,7 @@

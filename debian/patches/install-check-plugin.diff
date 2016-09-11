@@ -1,14 +1,22 @@
-Description: Install check-plugin.py as a script
- The installer installs check-plugin.py as hp-check-plugin, do the same from the
- Makefile.
-Author: Julian Andres Klode <jak@debian.org>
+From d445455dc7970a6d4f6cffbaf732147f8fd5c3aa Mon Sep 17 00:00:00 2001
+From: Julian Andres Klode <jak@debian.org>
+Date: Fri, 22 Jul 2016 09:33:08 +0200
+Subject: Install check-plugin.py as a script
+
+The installer installs check-plugin.py as hp-check-plugin, do the same from the Makefile.
+
 Origin: vendor
 Forwarded: no
+Patch-Name: install-check-plugin.diff
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+ Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 7d69ae0..8452a06 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -162,10 +162,10 @@ cmddir = $(hplipdir)
+@@ -157,10 +157,10 @@ cmddir = $(hplipdir)
  dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
  	sendfax.py setup.py makecopies.py probe.py timedate.py firmware.py scan.py systray.py plugin.py linefeedcal.py pqdiag.py \
  	faxsetup.py devicesettings.py printsettings.py query.py pkservice.py wificonfig.py diagnose_plugin.py uninstall.py \
