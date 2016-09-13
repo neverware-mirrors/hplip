@@ -122,7 +122,7 @@ Description: HP Printers PostScript Descriptions
 
 Package: hplip-gui
 Architecture: all
-Depends: default-dbus-session-bus | dbus-session-bus,
+Depends: dbus-x11,
          gksu | kdebase-bin (<< 4:4.4.0-1) | kde-runtime | kdebase-runtime | kdesudo | ktsuss,
          hplip (>= ${source:Version}),
          python3-dbus.mainloop.pyqt5,
