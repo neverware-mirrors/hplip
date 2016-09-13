@@ -1,3 +1,10 @@
+hplip (3.16.8+repack0-2~bpo8+2) jessie-backports; urgency=medium
+
+  * Revert "Migrate hplip-gui dependency from dbus-x11 to
+    'default-dbus-session-bus | dbus-session-bus'" (Closes: #837612)
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 13 Sep 2016 07:52:13 +0200
+
 hplip (3.16.8+repack0-2~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.
