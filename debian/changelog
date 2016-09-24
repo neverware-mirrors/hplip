@@ -1,3 +1,14 @@
+hplip (3.16.8+repack0-3) unstable; urgency=medium
+
+  [ Till Kamppeter ]
+  * De-activated script to rename the paper sizes. The hpcups.drv file got too
+    complex to do the automated renaming and so some printer's PPDs got broken
+    (LP: #1626245)
+  * Add patch to add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved
+    some definitions to ppd.h
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 24 Sep 2016 18:47:48 +0200
+
 hplip (3.16.8+repack0-2) unstable; urgency=medium
 
   * Add patch to fix regression introduced by erroneous tabs in hpps python
