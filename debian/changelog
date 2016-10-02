@@ -1,3 +1,28 @@
+hplip (3.16.9+repack0-1) unstable; urgency=medium
+
+  * New upstream version 3.16.9
+    - HP OfficeJet Pro 8732M All-in-One Printer
+    - HP OfficeJet 8702 All-in-One Printer
+    - HP OfficeJet 6960 All-in-One Printer
+    - HP PageWide 377dw Multifunction Printer
+    - HP PageWide 352dw Printer
+    - HP PageWide Managed Color MFP E58650 series
+    - HP PageWide Managed Color E55650 series
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 25 Sep 2016 11:00:21 +0200
+
+hplip (3.16.8+repack0-3) unstable; urgency=medium
+
+  [ Till Kamppeter ]
+  * De-activated script to rename the paper sizes. The hpcups.drv file got too
+    complex to do the automated renaming and so some printer's PPDs got broken
+    (LP: #1626245)
+  * Add patch to add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved
+    some definitions to ppd.h
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 24 Sep 2016 18:47:48 +0200
+
 hplip (3.16.8+repack0-2~bpo8+2) jessie-backports; urgency=medium
 
   * Revert "Migrate hplip-gui dependency from dbus-x11 to

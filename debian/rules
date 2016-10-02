@@ -126,11 +126,6 @@ override_dh_auto_build:
 override_dh_install:
 	# Clean up libtool archives
 	find debian/tmp -name '*.la' -delete
-	# Modify PPD generator of hpcups (hpcups.drv) so that standard paper
-	# sizes support duplex printing. The former standard paper sizes with
-	# narrower borders get optional choices now (Ubuntu/upstream bug
-	# 487695)
-	sh debian/local/make-duplex-page-sizes-default.sh $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 
 	# Remove hpcups support for the HP Officejet Pro K550 as it is known
 	# to not work. This way hpijs (which works) will be used (Ubuntu bugs
