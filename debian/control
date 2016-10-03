@@ -147,6 +147,7 @@ Description: HP Linux Printing and Imaging - GUI utilities (Qt-based)
 
 Package: hplip-doc
 Architecture: all
+Multi-Arch: foreign
 Section: doc
 Suggests: hplip
 Depends: ${misc:Depends}
