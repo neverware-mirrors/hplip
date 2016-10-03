@@ -1,3 +1,15 @@
+hplip (3.16.9+repack0-2) unstable; urgency=medium
+
+  * Remove leading asterisks from two NEWS entries
+  * Fix list wrapping in scan.py to fix generated manpage
+  * Add python3-gi as B-D to fix hp-check-plugin's manpage generation
+  * Export HOME when building the manpages to permit hp-toolbox's manpage
+    generation
+  * Remove unnecessary ldconfig trigger for libsane-hpaio
+  * Mark hplip-doc as M-A: foreign
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 03 Oct 2016 12:08:37 +0200
+
 hplip (3.16.9+repack0-1) unstable; urgency=medium
 
   * New upstream version 3.16.9
