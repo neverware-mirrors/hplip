@@ -20,3 +20,4 @@ HP-LaserJet_4000-PostScript-PPD.patch
 ui-patch-upstream-like.patch
 0021-Fix-erroneous-tabs-in-hpps-python-code.patch
 0022-Add-include-cups-ppd.h-in-various-places-as-CUPS-2.2.patch
+0023-Fix-list-wrapping-in-scan.py-to-fix-generated-manpag.patch
