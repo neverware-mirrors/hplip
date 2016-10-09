@@ -167,6 +167,7 @@ override_dh_install:
 	    for file in *; do \
 			if readlink $$file | grep ".py"; then \
 				PYTHONPATH=../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
+				HOME=./ \
 				LD_LIBRARY_PATH=../lib/$(DEB_HOST_MULTIARCH) python3 ./$$file --help-man > $(CURDIR)/$$file.1 ; \
 			fi; \
 	    done \
@@ -251,6 +252,10 @@ override_dh_install:
 override_dh_pyppd:
 	# Not sure why only that package
 	dh_pyppd -pprinter-driver-postscript-hp
+
+override_dh_makeshlibs:
+	dh_makeshlibs -plibsane-hpaio --no-scripts
+	dh_makeshlibs --remaining-packages
 
 override_dh_python3:
 	dh_python3 --no-shebang-rewrite
