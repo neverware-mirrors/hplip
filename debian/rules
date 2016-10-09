@@ -253,10 +253,6 @@ override_dh_pyppd:
 	# Not sure why only that package
 	dh_pyppd -pprinter-driver-postscript-hp
 
-override_dh_makeshlibs:
-	dh_makeshlibs -plibsane-hpaio --no-scripts
-	dh_makeshlibs --remaining-packages
-
 override_dh_python3:
 	dh_python3 --no-shebang-rewrite
 	dh_python3 /usr/share/hplip --no-shebang-rewrite
