@@ -35,7 +35,7 @@
 #include "SystemServices.h"
 #include "Compressor.h"
 #include "Job.h"
-
+#include <cups/ppd.h>
 #include "dbuscomm.h"
 
 #include <cups/ppd.h>

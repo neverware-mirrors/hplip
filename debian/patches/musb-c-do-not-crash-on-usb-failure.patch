@@ -1,4 +1,4 @@
-From 2c37bf22d01262962dd90dc5389931daa9b78027 Mon Sep 17 00:00:00 2001
+From 2f035b9ba2442abb70d479ed56f1d0ba4a0f7e3e Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:03 +0200
 Subject: Make sure that the HPLIP components which access the USB (especially
@@ -14,7 +14,7 @@ Patch-Name: musb-c-do-not-crash-on-usb-failure.patch
  1 file changed, 21 insertions(+), 11 deletions(-)
 
 diff --git a/io/hpmud/musb.c b/io/hpmud/musb.c
-index b71e7ab..e62c9e5 100644
+index 6e99c15..fe5d50f 100644
 --- a/io/hpmud/musb.c
 +++ b/io/hpmud/musb.c
 @@ -695,7 +695,8 @@ static libusb_device *get_libusb_device(const char *uri)
@@ -27,7 +27,7 @@ index b71e7ab..e62c9e5 100644
      numdevs = libusb_get_device_list(libusb_ctx, &libusb_dev_list);
      for (i=0; i< numdevs; i++)
      {
-@@ -2053,7 +2054,8 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
+@@ -2054,7 +2055,8 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
      char serial[128], mfg[128], sz[HPMUD_LINE_SIZE];
      int r, size=0;
  
@@ -37,7 +37,7 @@ index b71e7ab..e62c9e5 100644
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2154,12 +2156,14 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
+@@ -2155,12 +2157,14 @@ int __attribute__ ((visibility ("hidden"))) musb_probe_devices(char *lst, int ls
      }//end for loop
  
  bugout:
@@ -55,7 +55,7 @@ index b71e7ab..e62c9e5 100644
  
      return size;
  }
-@@ -2185,7 +2189,8 @@ enum HPMUD_RESULT hpmud_make_usb_uri(const char *busnum, const char *devnum, cha
+@@ -2186,7 +2190,8 @@ enum HPMUD_RESULT hpmud_make_usb_uri(const char *busnum, const char *devnum, cha
  
      *bytes_read=0;
  
@@ -65,7 +65,7 @@ index b71e7ab..e62c9e5 100644
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2288,8 +2293,10 @@ bugout:
+@@ -2289,8 +2294,10 @@ bugout:
      if (hd != NULL)
          libusb_close(hd);
  
@@ -78,7 +78,7 @@ index b71e7ab..e62c9e5 100644
  
      return stat;
  }
-@@ -2308,7 +2315,8 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
+@@ -2309,7 +2316,8 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
  
      *bytes_read=0;
  
@@ -88,7 +88,7 @@ index b71e7ab..e62c9e5 100644
      numdevs = libusb_get_device_list(ctx, &list);
  
      if (numdevs <= 0)
-@@ -2334,8 +2342,10 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
+@@ -2335,8 +2343,10 @@ enum HPMUD_RESULT hpmud_make_usb_serial_uri(const char *sn, char *uri, int uri_s
      stat = HPMUD_R_OK;
  
  bugout:
