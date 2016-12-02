@@ -1,4 +1,4 @@
-From 9655034c6d98d5652d91ae24cfe164f8b94ba531 Mon Sep 17 00:00:00 2001
+From 6a59ca7605fa3c5cd7a9664fa49dc14246c001a3 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Thu, 1 Sep 2016 11:18:27 +0200
 Subject: Fix erroneous tabs in hpps python code

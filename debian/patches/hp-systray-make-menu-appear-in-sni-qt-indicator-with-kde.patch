@@ -1,4 +1,4 @@
-From ffa65e34cf83ec63a107aa6d0912bf47e19e1774 Mon Sep 17 00:00:00 2001
+From dcc77fe1671a99b98700dbec5c9573a5407a1601 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:01 +0200
 Subject: Make the menu of the hp-systray applet appearing when the applet is

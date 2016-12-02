@@ -1,4 +1,4 @@
-From c942a31174307d462739240261efac2479030441 Mon Sep 17 00:00:00 2001
+From a6bd237cbca43a645d3e74a9ee5e42434104bf83 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:55 +0200
 Subject: Make simple-scan the default scanning frontend
