@@ -1,3 +1,14 @@
+hplip (3.16.11+repack0-1) unstable; urgency=medium
+
+  * New upstream version 3.16.11
+    - HP LaserJet M101-M106 Printer
+    - HP LaserJet Pro M203-M206 Printer
+    - HP LaserJet Pro MFP M227-M231 Printer
+    - HP LaserJet Pro MFP M129-M134
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 05 Dec 2016 11:03:08 +0100
+
 hplip (3.16.10+repack0-1) unstable; urgency=medium
 
   * New upstream version 3.16.10
