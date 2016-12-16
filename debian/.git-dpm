@@ -1,10 +1,10 @@
 # see git-dpm(1) from git-dpm package
-95589fab4bbbaf1f1d7783ff456569cd901bac3b
-95589fab4bbbaf1f1d7783ff456569cd901bac3b
-ee55f687f736084e101aef02f4a8f4761e6acf75
-ee55f687f736084e101aef02f4a8f4761e6acf75
-hplip_3.16.9+repack0.orig.tar.xz
-e8a96e3fef252ec7b65fe8943418abf7c367be78
-8866968
+23ef661a83d0a96ba61be2eef3ac502a2c000724
+23ef661a83d0a96ba61be2eef3ac502a2c000724
+eafc834119e19d43010499f9205cd5f4485973f4
+eafc834119e19d43010499f9205cd5f4485973f4
+hplip_3.16.11+repack0.orig.tar.xz
+011fff4153b7d02fe48a8bbd5cb7779fe06e4c07
+8875852
 debianTag="debian/%e%v"
 upstreamTag="upstream/%e%u"

@@ -1,3 +1,27 @@
+hplip (3.16.11+repack0-1) unstable; urgency=medium
+
+  * New upstream version 3.16.11
+    - HP LaserJet M101-M106 Printer
+    - HP LaserJet Pro M203-M206 Printer
+    - HP LaserJet Pro MFP M227-M231 Printer
+    - HP LaserJet Pro MFP M129-M134
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 05 Dec 2016 11:03:08 +0100
+
+hplip (3.16.10+repack0-1) unstable; urgency=medium
+
+  * New upstream version 3.16.10
+    - HP OfficeJet Pro 7740 Wide Format All-in-One
+    - HP OfficeJet 6950 All-in-One
+    - HP Scanjet Pro 3000 S3
+    - HP Scanjet Enterprise Flow 5000 S4
+    - HP Scanjet Enterprise Flow 7000 S3
+    - HP Color LaserJet MFP M277c6
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 01 Nov 2016 22:11:09 +0100
+
 hplip (3.16.9+repack0-2~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.
