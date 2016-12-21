@@ -102,8 +102,8 @@ Description: HP Linux Printing and Imaging - data files
  LaserJets, and for scanning, sending faxes and for photo-card access on
  most HP MFP (multi-function peripheral) printers.
  .
- This package contains data files and PPDs for the HP Linux Printing and
- Imaging System.
+ This package contains data files for the HP Linux Printing and Imaging
+ System.
 
 Package: printer-driver-postscript-hp
 Architecture: all
