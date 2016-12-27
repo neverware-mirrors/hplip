@@ -26,3 +26,4 @@ hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch
 hp-mkuri-libnotify-so-4-support.dpatch
 hpaio-option-duplex.diff
 debian-changes
+CVE-2013-0200.patch
