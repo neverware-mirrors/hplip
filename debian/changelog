@@ -1,3 +1,11 @@
+hplip (3.14.6-1+deb8u1) stable; urgency=medium
+
+  * Backport CVE-2015-0839 fix from upstream's 3.15.7: use full gpg key
+    fingerprint when fetching key from keyservers
+    (Closes: #787353, LP: #1432516)
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 27 Dec 2016 09:13:54 +0100
+
 hplip (3.14.6-1) unstable; urgency=low
 
   * New upstream release
