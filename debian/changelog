@@ -1,3 +1,15 @@
+hplip (3.16.11+repack0-2) unstable; urgency=medium
+
+  [ Brian Potkin ]
+  * Drop inaccurate 'and PPDs' from the hplip-data description
+    (Closes: #848889)
+
+  [ Didier Raboud ]
+  * Explicitly build-depend on libssl-dev (Closes: #852921)
+  * Explicitly build-depend on dh-python
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 30 Jan 2017 21:36:12 +0100
+
 hplip (3.16.11+repack0-1) unstable; urgency=medium
 
   * New upstream version 3.16.11
