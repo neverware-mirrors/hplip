@@ -1,4 +1,4 @@
-From 8676c2002ee68d182ca040e03468e3a131a222cb Mon Sep 17 00:00:00 2001
+From cb2bf939aae9338556de4b41a7beb5dd097c4719 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:03 +0200
 Subject: Make sure that the HPLIP components which access the USB (especially
@@ -14,7 +14,7 @@ Patch-Name: musb-c-do-not-crash-on-usb-failure.patch
  1 file changed, 21 insertions(+), 11 deletions(-)
 
 diff --git a/io/hpmud/musb.c b/io/hpmud/musb.c
-index 6e99c15..fe5d50f 100644
+index 6e99c15c8..fe5d50f95 100644
 --- a/io/hpmud/musb.c
 +++ b/io/hpmud/musb.c
 @@ -695,7 +695,8 @@ static libusb_device *get_libusb_device(const char *uri)

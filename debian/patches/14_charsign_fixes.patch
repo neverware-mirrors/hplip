@@ -1,4 +1,4 @@
-From 04d031645edf6c685d15a8f9cd2d0627828d32f9 Mon Sep 17 00:00:00 2001
+From bff08e267658aef728b9afc00226508818756913 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:52 +0200
 Subject: some missing charsign
@@ -9,7 +9,7 @@ Patch-Name: 14_charsign_fixes.patch
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/scan/sane/scl.c b/scan/sane/scl.c
-index cc640f4..eccd990 100755
+index cc640f444..eccd99052 100755
 --- a/scan/sane/scl.c
 +++ b/scan/sane/scl.c
 @@ -37,10 +37,11 @@

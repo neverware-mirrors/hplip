@@ -1,4 +1,4 @@
-From 6b812dc19e8323eb47e490f2986b2c60493714e8 Mon Sep 17 00:00:00 2001
+From 632622a3d1dffc3bf97aa32db0924ebe8b5060ba Mon Sep 17 00:00:00 2001
 From: Matej Vela <vela@debian.org>
 Date: Fri, 22 Jul 2016 09:33:02 +0200
 Subject: Fix "duplex descriptor uninitialized"
@@ -10,7 +10,7 @@ Patch-Name: hpaio-option-duplex.diff
  1 file changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/scan/sane/sclpml.c b/scan/sane/sclpml.c
-index 9a5975f..61500da 100644
+index 9a5975f32..61500da57 100644
 --- a/scan/sane/sclpml.c
 +++ b/scan/sane/sclpml.c
 @@ -1084,20 +1084,17 @@ static void init_options( hpaioScanner_t hpaio )

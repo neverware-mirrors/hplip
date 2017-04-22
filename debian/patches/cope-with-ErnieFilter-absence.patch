@@ -1,4 +1,4 @@
-From 5ee2ba6823fdcaa5b512d0b7d4cb4aa75aadbb99 Mon Sep 17 00:00:00 2001
+From 1e40068e07a9c9f1677a775841723752996edc6b Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:32:50 +0200
 Subject: Cope with prnt/hpcups/ErnieFilter.{cpp,h} removal by disabling the
@@ -13,7 +13,7 @@ Patch-Name: cope-with-ErnieFilter-absence.patch
  3 files changed, 1 insertion(+), 19 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 2e7cb27..7d69ae0 100644
+index 2e7cb2799..7d69ae034 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -519,7 +519,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
@@ -26,7 +26,7 @@ index 2e7cb27..7d69ae0 100644
  	prnt/hpcups/Pcl3Gui.cpp prnt/hpcups/Pcl3Gui.h prnt/hpcups/Pcl3Gui2.cpp prnt/hpcups/Pcl3Gui2.h \
  	prnt/hpcups/LJMono.cpp prnt/hpcups/LJMono.h prnt/hpcups/LJColor.cpp prnt/hpcups/LJColor.h \
 diff --git a/prnt/hpcups/Pcl3Gui2.cpp b/prnt/hpcups/Pcl3Gui2.cpp
-index 893bcfd..1678c39 100644
+index 893bcfd7c..1678c3989 100644
 --- a/prnt/hpcups/Pcl3Gui2.cpp
 +++ b/prnt/hpcups/Pcl3Gui2.cpp
 @@ -30,7 +30,6 @@
@@ -68,7 +68,7 @@ index 893bcfd..1678c39 100644
      if (crd_type != eCrd_black_only) {
          Mode10    *pMode10;
 diff --git a/prnt/hpcups/Pcl3Gui2.h b/prnt/hpcups/Pcl3Gui2.h
-index 8907078..543f8bd 100644
+index 890707831..543f8bd76 100644
 --- a/prnt/hpcups/Pcl3Gui2.h
 +++ b/prnt/hpcups/Pcl3Gui2.h
 @@ -60,7 +60,6 @@ private:

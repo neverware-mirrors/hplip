@@ -1,4 +1,4 @@
-From 5db754065e2aeab2bc0e9f8cd5551d36e9e38d28 Mon Sep 17 00:00:00 2001
+From a6d4092a1d6063a6fb51277ca4a2f9402b87162a Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:11 +0200
 Subject: Patch UI files to match upstream produced .py code
@@ -12,7 +12,7 @@ Patch-Name: ui-patch-upstream-like.patch
  2 files changed, 1 insertion(+), 32 deletions(-)
 
 diff --git a/ui5/devmgr5_base.ui b/ui5/devmgr5_base.ui
-index 7d0c7f5..09f72bf 100644
+index 7d0c7f53e..09f72bf83 100644
 --- a/ui5/devmgr5_base.ui
 +++ b/ui5/devmgr5_base.ui
 @@ -547,37 +547,6 @@
@@ -54,7 +54,7 @@ index 7d0c7f5..09f72bf 100644
       </widget>
      </item>
 diff --git a/ui5/wifisetupdialog_base.ui b/ui5/wifisetupdialog_base.ui
-index a85d14c..4e33640 100644
+index a85d14c3d..4e336404a 100644
 --- a/ui5/wifisetupdialog_base.ui
 +++ b/ui5/wifisetupdialog_base.ui
 @@ -47,7 +47,7 @@

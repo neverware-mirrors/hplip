@@ -1,4 +1,4 @@
-From 048a77314d7b7ae3f0cd6c3389f40fda0dc1ddce Mon Sep 17 00:00:00 2001
+From 0ce7dec7d24c4e6e70af99c74eb78b4b8792dc71 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:59 +0200
 Subject: The hpfax CUPS backend uses its function bug() (which in turnuses
@@ -12,7 +12,7 @@ Patch-Name: hpfax-bug-function-used-before-importing-log.patch
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/fax/backend/hpfax.py b/fax/backend/hpfax.py
-index 9560e84..7aaef35 100755
+index 9560e840b..7aaef35b5 100755
 --- a/fax/backend/hpfax.py
 +++ b/fax/backend/hpfax.py
 @@ -55,7 +55,10 @@ home_dir = ''

@@ -1,4 +1,4 @@
-From a6bd237cbca43a645d3e74a9ee5e42434104bf83 Mon Sep 17 00:00:00 2001
+From 171cbf933587af974788ffd62b8d5234f3a06224 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:55 +0200
 Subject: Make simple-scan the default scanning frontend
@@ -11,7 +11,7 @@ Patch-Name: simple-scan-as-default.patch
  2 files changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/base/utils.py b/base/utils.py
-index 75a9b95..9eefdf8 100644
+index 75a9b9574..9eefdf874 100644
 --- a/base/utils.py
 +++ b/base/utils.py
 @@ -565,18 +565,21 @@ class UserSettings(object): # Note: Deprecated after 2.8.8 in Qt4 (see ui4/ui_ut
@@ -44,7 +44,7 @@ index 75a9b95..9eefdf8 100644
          # Photo Card
          path = which('hp-unload')
 diff --git a/ui5/ui_utils.py b/ui5/ui_utils.py
-index caba339..865d6eb 100644
+index caba33910..865d6eb2b 100644
 --- a/ui5/ui_utils.py
 +++ b/ui5/ui_utils.py
 @@ -205,7 +205,7 @@ class UserSettings(QSettings):

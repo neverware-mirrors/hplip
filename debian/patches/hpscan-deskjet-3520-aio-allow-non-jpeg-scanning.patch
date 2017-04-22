@@ -1,4 +1,4 @@
-From 88a5d9a4c71ba1f048dd6e53fcbd4493d7a93e81 Mon Sep 17 00:00:00 2001
+From f0ab9ce6232a2ffcdcf9796009c40d2150275ce3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Lubo=C5=A1=20Dole=C5=BEel?= <lubos@dolezel.info>
 Date: Fri, 22 Jul 2016 09:33:05 +0200
 Subject: Allow non-JPEG scanning on the HP DeskJet 3520 All-in-One and similar
@@ -13,7 +13,7 @@ Patch-Name: hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch
  2 files changed, 48 insertions(+), 11 deletions(-)
 
 diff --git a/scan/sane/bb_ledm.c b/scan/sane/bb_ledm.c
-index b233d1e..27d73a0 100644
+index b233d1e28..27d73a0c6 100644
 --- a/scan/sane/bb_ledm.c
 +++ b/scan/sane/bb_ledm.c
 @@ -189,7 +189,7 @@ Keep-Alive: 20\r\nProxy-Connection: keep-alive\r\nCookie: AccessCounter=new\r\n0
@@ -113,7 +113,7 @@ index b233d1e..27d73a0 100644
    }//end while()
  
 diff --git a/scan/sane/ledm.c b/scan/sane/ledm.c
-index 9a1ff02..8f04338 100644
+index 9a1ff02d1..8f0433853 100644
 --- a/scan/sane/ledm.c
 +++ b/scan/sane/ledm.c
 @@ -170,11 +170,11 @@ static int set_scan_mode_side_effects(struct ledm_session *ps, enum COLOR_ENTRY

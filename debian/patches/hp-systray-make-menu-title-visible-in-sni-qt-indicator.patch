@@ -1,4 +1,4 @@
-From 0d55c7e7e12aa549ce82dcc6088ea7af583b5003 Mon Sep 17 00:00:00 2001
+From bf8d94269973e9b678bd4c1c1aa70e256c163a0e Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:00 +0200
 Subject: Simplified the construction of the title line of the hp-systray
@@ -13,7 +13,7 @@ Patch-Name: hp-systray-make-menu-title-visible-in-sni-qt-indicator.patch
  1 file changed, 4 insertions(+), 21 deletions(-)
 
 diff --git a/ui5/systemtray.py b/ui5/systemtray.py
-index 5b69d2b..8888dec 100644
+index 5b69d2be9..8888dec6d 100644
 --- a/ui5/systemtray.py
 +++ b/ui5/systemtray.py
 @@ -442,30 +442,13 @@ class SystemTrayApp(QApplication):

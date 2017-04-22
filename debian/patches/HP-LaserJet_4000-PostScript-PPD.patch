@@ -1,4 +1,4 @@
-From f8bc133977c45141402ef8a72ce06c4e0e4e4b05 Mon Sep 17 00:00:00 2001
+From 2507bfc005fffdef4efa4708cda6cdb29903cdfb Mon Sep 17 00:00:00 2001
 From: Jean Tourrilhes <jt@hpl.hp.com>
 Date: Fri, 22 Jul 2016 09:33:10 +0200
 Subject: LaserJet PostScript 4000 PPD bugfix
@@ -15,7 +15,7 @@ Patch-Name: HP-LaserJet_4000-PostScript-PPD.patch
  1 file changed, 11 insertions(+)
 
 diff --git a/prnt/ps/hp-laserjet_4000_series-ps.ppd b/prnt/ps/hp-laserjet_4000_series-ps.ppd
-index db1248c..66c4032 100644
+index db1248c45..66c403271 100644
 --- a/prnt/ps/hp-laserjet_4000_series-ps.ppd
 +++ b/prnt/ps/hp-laserjet_4000_series-ps.ppd
 @@ -97,6 +97,17 @@
