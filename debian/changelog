@@ -1,3 +1,16 @@
+hplip (3.17.4+repack0-1) experimental; urgency=medium
+
+  * New upstream version 3.17.4
+    - Support for 32 HP LaserJet printers
+    - cups Filter Failed with HP Laserjet (LP: #1656348)
+    - HP OfficeJet Pro 7740:no tray choice (LP: #1649550)
+    - Encapsulator.cpp send 10000 bytes of 0X00 to the Printer before real PCL
+      commands (LP: #1648954)
+    - hpps has no error handling (LP: #1521134)
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 22 Apr 2017 08:50:53 +0200
+
 hplip (3.16.11+repack0-2) unstable; urgency=medium
 
   [ Brian Potkin ]
