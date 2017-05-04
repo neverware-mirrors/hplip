@@ -1,3 +1,11 @@
+hplip (3.16.11+repack0-3) unstable; urgency=low
+
+  [ Gaurav Sood ]
+  * Fix handling of unicode filenames in sixext.py
+    (Closes: #861731, LP: #1480152)
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 04 May 2017 18:35:44 +0200
+
 hplip (3.16.11+repack0-2) unstable; urgency=medium
 
   [ Brian Potkin ]
