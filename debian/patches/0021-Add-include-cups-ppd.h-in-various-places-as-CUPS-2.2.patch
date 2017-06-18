@@ -1,4 +1,4 @@
-From 4226e38db3a6690ce0c4cd9e88e0ba61ecc01c63 Mon Sep 17 00:00:00 2001
+From 95dc2eba9f8f3fdc08d6381229c67fa0b92f9f0b Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@canonical.com>
 Date: Sat, 24 Sep 2016 10:37:20 +0200
 Subject: Add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved some
@@ -11,7 +11,7 @@ Subject: Add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved some
  3 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/configure.in b/configure.in
-index ac2746535..84ee30784 100755
+index d96add4d7..567bf43a0 100755
 --- a/configure.in
 +++ b/configure.in
 @@ -554,7 +554,7 @@ fi

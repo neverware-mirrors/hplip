@@ -1,4 +1,4 @@
-From bf8d94269973e9b678bd4c1c1aa70e256c163a0e Mon Sep 17 00:00:00 2001
+From 7b855d4298b41005c290d155821d2cd645df121c Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:00 +0200
 Subject: Simplified the construction of the title line of the hp-systray

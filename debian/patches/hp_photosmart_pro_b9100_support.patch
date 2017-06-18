@@ -1,4 +1,4 @@
-From ac3a7a2fa65d7ffca79302ec314c9aa3e0496cd3 Mon Sep 17 00:00:00 2001
+From a1077891ee09333d890e036f1f8319180ed7f184 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:53 +0200
 Subject: Corrections: models.dat entry for the HP PhotoSmart Pro B9100
@@ -11,7 +11,7 @@ Patch-Name: hp_photosmart_pro_b9100_support.patch
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/data/models/models.dat b/data/models/models.dat
-index 92cdeb04b..c1a6dd49d 100644
+index 8a4599f16..af817ba7e 100644
 --- a/data/models/models.dat
 +++ b/data/models/models.dat
 @@ -56548,9 +56548,9 @@ status-dynamic-counters=0
