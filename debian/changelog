@@ -1,3 +1,13 @@
+hplip (3.17.6+repack0-1) unstable; urgency=low
+
+  * New upstream 3.17.6
+    - Support for 53 HP printers
+    - DeskJet 3775 - scanner not found (LP: #1690515)
+    - Head alignment don't work (LP: #1690516)
+  * Refresh patches
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 18 Jun 2017 17:34:17 +0200
+
 hplip (3.17.4+repack0-1) experimental; urgency=medium
 
   * New upstream version 3.17.4
