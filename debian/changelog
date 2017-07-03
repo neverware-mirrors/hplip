@@ -1,3 +1,10 @@
+hplip (3.17.6+repack0-2) unstable; urgency=medium
+
+  [ Scott Kitterman ]
+  * Correct python3 build-depends to match debian/rules (Closes: #866948)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 03 Jul 2017 08:24:53 +0200
+
 hplip (3.17.6+repack0-1) unstable; urgency=low
 
   * New upstream 3.17.6
