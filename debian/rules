@@ -156,25 +156,20 @@ override_dh_install:
 			if readlink $$file | grep ".py"; then \
 				PYTHONPATH=../lib/python$(PYTHON_DEFAULT_VERSION)/$(PYTHON_SITENAME)/ \
 				HOME=./ \
-				LD_LIBRARY_PATH=../lib/$(DEB_HOST_MULTIARCH) python3 ./$$file --help-man > $(CURDIR)/$$file.1 ; \
+				LD_LIBRARY_PATH=../lib/$(DEB_HOST_MULTIARCH) $(PYTHON) ./$$file --help-man > $(CURDIR)/$$file.1 ; \
 			fi; \
 	    done \
 	)
 
-	# Correct Python interpreter path in all executables
+	# Correct Python interpreter path in all executables, and 'upgrade' it to $(PYTHON)
 	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
-	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/env\s+python.*:#!/usr/bin/python:' `readlink -f $$file`; \
-	done
-
-	# "Upgrade" Python interpreter path to Python3
-	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
-	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/python\b:#!/usr/bin/python3:' `readlink -f $$file`; \
+	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/env\s+python.*:#!/usr/bin/$(PYTHON):' `readlink -f $$file`; \
 	done
 
 	# Remove unneeded explicit calls of the Python interpreter to let the
 	# (upgraded) shebangs rule
 	for file in ./debian/tmp/*/udev/rules.d/*.rules; do \
-	    perl -p -i -e 's:/usr/bin/python\b\s*::' `readlink -f $$file`; \
+	    perl -p -i -e 's:/usr/bin/$(PYTHON)\b\s*::' `readlink -f $$file`; \
 	done
 
 	# Remove all *.pyc files, they do not need to be shipped with the
