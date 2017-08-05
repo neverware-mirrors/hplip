@@ -1,4 +1,4 @@
-From 08365d976a66b7bd8d56940a2af7a18891cc008f Mon Sep 17 00:00:00 2001
+From 876c05177152fab1d9d2ff6b0d03dfab0a470483 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:32:50 +0200
 Subject: Cope with prnt/hpcups/ErnieFilter.{cpp,h} removal by disabling the
@@ -13,7 +13,7 @@ Patch-Name: cope-with-ErnieFilter-absence.patch
  3 files changed, 1 insertion(+), 19 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 2e7cb2799..7d69ae034 100644
+index 15287714f..06c1f61c7 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -519,7 +519,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp

@@ -1,4 +1,4 @@
-From a12ca4769e9ff6958019816d2a55171b9d1465ae Mon Sep 17 00:00:00 2001
+From 484f2ce3606f7aabe171a4764204f86c0040c45c Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:03 +0200
 Subject: Make sure that the HPLIP components which access the USB (especially

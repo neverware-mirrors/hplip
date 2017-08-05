@@ -1,4 +1,4 @@
-From 0869744ec8fb43fbf73e4243f22932231e6ea4ac Mon Sep 17 00:00:00 2001
+From d982478828205471b5a926db4929e3b8d3ef48aa Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:08 +0200
 Subject: Install check-plugin.py as a script
@@ -13,7 +13,7 @@ Patch-Name: install-check-plugin.diff
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 7d69ae034..8452a06f4 100644
+index 06c1f61c7..a658b8cef 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -157,10 +157,10 @@ cmddir = $(hplipdir)
