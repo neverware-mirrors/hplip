@@ -121,10 +121,6 @@ override_dh_install:
 	rm $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 	mv $(PKGTMP)/usr/share/cups/drv/hpcups.drv.new $(PKGTMP)/usr/share/cups/drv/hpcups.drv
 
-	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
-	# coomand line option. This makes rendering the pages much faster
-	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(PKGTMP)/usr/share/cups/drv/hpijs.drv $(PKGTMP)/usr/lib/cups/filter/pstotiff
-
 ifeq ($(derives_from_ubuntu),yes)
 	# Install wrapper script for hp-plugin, to be called by update-notifier
 	# on udev signal (Ubuntu only)
@@ -133,9 +129,6 @@ ifeq ($(derives_from_ubuntu),yes)
 endif
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
-
-	# Uncompress PPDs, this makes the package smaller for distribution
-	-find $(PPDDIR) -name '*.ppd.gz' | xargs gunzip -f
 
 	# Remove identical PPD files shipped under different names
 	( cd "$(PKGTMP)" && fdupes -r1q usr/share/ppd | while read s; do \
@@ -179,8 +172,6 @@ endif
 	@cat debian/non-shipped-files.txt | \
 		( cd "$(PKGTMP)" && xargs -d '\n' -t -r rm -fv )
 
-# install arch-dependent packages specific files
-
 	# Remove stray #! lines on python libraries, and fix permissions
 	find "$(PKGTMP)/usr/share/hplip" -maxdepth 1 -mindepth 1 -type d -print0 | \
 		xargs -0 -r -i@ find @ -type f -name '*.py' | \
@@ -189,6 +180,7 @@ endif
 			sed < "$$i" > "$$i.tmp" -e '/^#!/ {1 d}' && \
 			mv -f "$$i.tmp" "$$i" ; \
 		done
+
 	# executable-not-elf-or-script
 	chmod -x $(PKGTMP)/usr/share/hplip/installer/distros.dat
 
@@ -198,18 +190,14 @@ endif
 	mkdir -p "$(PKGTMP)/etc/sane.d/dll.d"
 	install -m 644 debian/hplip.sane "$(PKGTMP)/etc/sane.d/dll.d/hplip"
 
-	# Uncompress PPDs, this makes the package smaller for distribution
-	#-find "$(CURDIR)/debian/printer-driver-hpijs/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
-	#-find "$(CURDIR)/debian/printer-driver-hpcups/usr/share/ppd/" -name '*.ppd.gz' | xargs gunzip -f
+	dh_install
 
 	# Modify all Ghostscript command lines to have the "-dNOINTERPOLATE"
 	# coomand line option. This makes rendering the pages much faster
-	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd
-
-	dh_install
-
-	# Remove the Fax PPDs, we have handled them in the arch-dependent part
-	-find $(PPDDIR) -name '*Fax*.ppd*' -delete
+	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" \
+		$(CURDIR)/debian/*/usr/share/ppd/hplip/HP/HP-Fax*.ppd \
+		$(CURDIR)/debian/*/usr/share/cups/drv/hpijs.drv \
+		$(CURDIR)/debian/*/usr/lib/cups/filter/pstotiff
 
 	# Patch the PPDs for the hpijs-ppds package to use foomatic-rip
 	# as CUPS filter and not foomatic-rip-hplip. Also add
@@ -217,7 +205,9 @@ endif
 	# by Ghostscript faster.
 	(if dh_listpackages | grep -q hpijs-ppds; then  \
 	  cd $(CURDIR)/debian/hpijs-ppds/usr/share/ppd/hplip/HP/ && \
-	  for ppd in *.ppd; do \
+	  for ppdgz in *.ppd.gz; do \
+	    gunzip -f $$ppdgz; \
+	    ppd=$$(basename $$ppdgz .gz);\
 	    perl -p -i -e 's/foomatic-rip-hplip/foomatic-rip/g' $$ppd; \
 	    perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $$ppd; \
 	  done; fi \
