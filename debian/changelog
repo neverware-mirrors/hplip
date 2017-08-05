@@ -1,3 +1,11 @@
+hplip (3.17.7+repack0-1~OdyX0) unstable; urgency=medium
+
+  * New upstream 3.17.7
+    - Re-implementation of “hpps” filter in C
+    - Support for 14 HP printers
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 05 Aug 2017 02:48:34 +0200
+
 hplip (3.17.6+repack0-2) unstable; urgency=medium
 
   [ Scott Kitterman ]
