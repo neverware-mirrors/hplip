@@ -22,8 +22,7 @@ case "$1" in
 
 	for i in /var/run/hplip
 	do
-		if ! dpkg-statoverride --list $i > /dev/null
-		then
+		if ! dpkg-statoverride --list $i > /dev/null; then
 			dpkg-statoverride --update --add hplip root 755 $i
 		fi
 	done
@@ -32,8 +31,7 @@ case "$1" in
 	# directory (https://bugs.launchpad.net/bugs/1187132)
 	for i in /var/log/hp/tmp
 	do
-		if ! dpkg-statoverride --list $i > /dev/null
-		then
+		if ! dpkg-statoverride --list $i > /dev/null; then
 			dpkg-statoverride --update --add root lp 775 $i
 		fi
 	done
