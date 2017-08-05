@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+derives_from_ubuntu := $(shell (dpkg-vendor --derives-from Ubuntu && echo "yes") || echo "no")
+
 -include /usr/share/python3/python.mk
 ifeq (,$(py_sitename))
    py_sitename = site-packages
@@ -126,13 +128,12 @@ override_dh_install:
 	# coomand line option. This makes rendering the pages much faster
 	perl -p -i -e "s/(\-sDEVICE=)/-dNOINTERPOLATE \1/" $(PKGTMP)/usr/share/cups/drv/hpijs.drv $(PKGTMP)/usr/lib/cups/filter/pstotiff
 
+ifeq ($(derives_from_ubuntu),yes)
 	# Install wrapper script for hp-plugin, to be called by update-notifier
 	# on udev signal (Ubuntu only)
-	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
-		install -d $(CURDIR)/debian/hplip/usr/bin/; \
-		install -m 755 debian/local/scripts/hp-plugin-ubuntu $(CURDIR)/debian/hplip/usr/bin/; \
-	fi
-
+	install -d $(CURDIR)/debian/hplip/usr/bin/
+	install -m 755 debian/local/scripts/hp-plugin-ubuntu $(CURDIR)/debian/hplip/usr/bin/
+endif
 	# Install Apport hook
 	install -D -m 644 debian/local/apport-hook.py $(PKGTMP)/usr/share/apport/package-hooks/source_hplip.py
 
