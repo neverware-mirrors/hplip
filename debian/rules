@@ -219,8 +219,8 @@ endif
 	fi
 
 override_dh_pyppd:
-	# Not sure why only that package
-	dh_pyppd -pprinter-driver-postscript-hp
+	# Don't compress the 4 Fax PPDs
+	dh_pyppd -Nprinter-driver-hpijs -Nprinter-driver-hpcups
 
 override_dh_strip:
 	dh_strip  --dbgsym-migration='hplip-dbg (<< 3.15.11+repack0-1~), hplip (<< 3.10.2-2ubuntu2)'
