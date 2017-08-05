@@ -1,3 +1,21 @@
+hplip (3.17.7+repack0-2) unstable; urgency=medium
+
+  * DebConf17 packaging cleanup
+
+  * Migrate to debhelper 10, cleanup debian/rules
+  * Cleanup maintainer script comments
+  * Simplify the python3 handling in d/rules
+  * Drop build-time lsb_release usage in favour of dpkg-vendor
+  * Drop --enable-udev-acl-rules configure flag, unused since 3.14.6
+  * Reorder debian/rules for doing the -dNOINTERPOLATE dance less times
+  * Bump Standards-Version to 4.0.0
+  * Revert the dh_pyppd package selection logic
+  * Cleanup the custom non-shipped-files list
+  * Add debian/not-installed for dh_missing already
+  * Remove single-debian-patch source local-option
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 05 Aug 2017 16:07:51 -0400
+
 hplip (3.17.7+repack0-1) unstable; urgency=medium
 
   * New upstream 3.17.7
