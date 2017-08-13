@@ -103,6 +103,8 @@ override_dh_auto_build:
 		modules=$$(for i in *.py; do echo -n $${i%%.py}\|; done; echo dummyalternative); \
 		sed -r "s#from ($$modules)#from .\1#" -i *.py \
 	)
+	# Patch out retranslateUi call like upstream does
+	sed -i s/self.retranslateUi/#self.retranslateUi/ ui5/devmgr5_base.py
 
 	dh_auto_build
 
