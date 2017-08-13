@@ -1,3 +1,10 @@
+hplip (3.17.7+repack0-3) unstable; urgency=high
+
+  * Reintroduce ui5/devmgr5_base.py patching of self.retranslateUi
+    (Closes: #871917)
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 12 Aug 2017 22:16:35 -0400
+
 hplip (3.17.7+repack0-2) unstable; urgency=medium
 
   * DebConf17 packaging cleanup
