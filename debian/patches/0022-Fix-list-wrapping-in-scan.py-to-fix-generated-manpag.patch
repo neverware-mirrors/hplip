@@ -1,4 +1,4 @@
-From db524c08bb6c8702f3509e21d16f46853484a9a1 Mon Sep 17 00:00:00 2001
+From dc63e00c1d5dca83a3d607979c5aa18a4d05895c Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 3 Oct 2016 11:16:48 +0200
 Subject: Fix list wrapping in scan.py to fix generated manpage

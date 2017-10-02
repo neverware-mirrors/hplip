@@ -1,4 +1,4 @@
-From 116a6d59f6b4d56595861cfe5908ee4e99f67e56 Mon Sep 17 00:00:00 2001
+From 9784560afc8dbaee7ca236638a7acb6acf207432 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:04 +0200
 Subject: Workaround patch for missing Python3 transition of the old

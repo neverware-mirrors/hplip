@@ -1,4 +1,4 @@
-From ca705d1504bc82ffd6e48c340c2ea58e60d1e2fc Mon Sep 17 00:00:00 2001
+From e71b1ac155bce336b261826d0ce706e55e1bf015 Mon Sep 17 00:00:00 2001
 From: Jean Tourrilhes <jt@hpl.hp.com>
 Date: Fri, 22 Jul 2016 09:33:10 +0200
 Subject: LaserJet PostScript 4000 PPD bugfix
