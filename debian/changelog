@@ -1,3 +1,11 @@
+hplip (3.17.9+repack0-1) unstable; urgency=medium
+
+  * New upstream version 3.17.9
+    - Support for 44 HP printers
+  * Bump S-V to 4.1.1 without changes needed
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 02 Oct 2017 09:45:53 +0200
+
 hplip (3.17.7+repack0-3) unstable; urgency=high
 
   * Reintroduce ui5/devmgr5_base.py patching of self.retranslateUi
