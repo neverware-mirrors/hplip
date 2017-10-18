@@ -1,0 +1,24 @@
+From 10ae68cd2569883ce370b3c346591117e6b7405f Mon Sep 17 00:00:00 2001
+From: Didier Raboud <odyx@debian.org>
+Date: Fri, 22 Jul 2016 09:33:07 +0200
+Subject: In hp-scan's manpage, sort PAGE_SIZES in help, for the manpage to be
+ reproducibly created
+
+Patch-Name: order-page-sizes-consistently.patch
+---
+ scan.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scan.py b/scan.py
+index c33d84b7d..976d25adb 100755
+--- a/scan.py
++++ b/scan.py
+@@ -174,7 +174,7 @@ try:
+         ("", "Coordinates are relative to the upper left corner of the scan area.", "option", False),
+         ("", "Units are specified by -t/--units (default is 'mm').", "option", False),
+         ("Specify the scan area based on a paper size:", "--size=<paper size name>", "option", False),
+-        ("", "where <paper size name> is one of: %s" % ', '.join(list(PAGE_SIZES.keys())), "option", False),
++        ("", "where <paper size name> is one of: %s" % ', '.join(sorted(list(PAGE_SIZES.keys()))), "option", False),
+         utils.USAGE_SPACE,
+         ("[OPTIONS] ('file' dest)", "", "header", False),
+         ("Filename for 'file' destination:", "-o<file> or -f<file> or --file=<file> or --output=<file>", "option", False),
