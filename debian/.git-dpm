@@ -2,9 +2,9 @@
 b7d6ad27963583abaaf185a828eb590e59afa2f6
 b7d6ad27963583abaaf185a828eb590e59afa2f6
 b3c1aac01a020d1ac5cfd0e2afdd2189ffbc2acd
-b3c1aac01a020d1ac5cfd0e2afdd2189ffbc2acd
-hplip_3.17.9+repack0.orig.tar.xz
-db61374ffba5d04663b5f7f05bfbc599f5e2ceb9
-8943016
+0dc2cd1869b0d4afbf7abfce67aff76aeb91820e
+hplip_3.17.10+repack0.orig.tar.xz
+c55433af0527d0abbbafc1edd28159116ed9e87e
+8938100
 debianTag="debian/%e%v"
 upstreamTag="upstream/%e%u"
