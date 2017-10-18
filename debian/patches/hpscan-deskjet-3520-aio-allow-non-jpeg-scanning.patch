@@ -1,4 +1,4 @@
-From 0cec8cbf15e567a40fe4f3b1ca829885cc61a5ab Mon Sep 17 00:00:00 2001
+From 6109ffed40e8c44cb1432dd4ebb3eb3306b67389 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Lubo=C5=A1=20Dole=C5=BEel?= <lubos@dolezel.info>
 Date: Fri, 22 Jul 2016 09:33:05 +0200
 Subject: Allow non-JPEG scanning on the HP DeskJet 3520 All-in-One and similar
