@@ -1,0 +1,3 @@
+version=3
+opts=uversionmangle=s/^(\S+py\d)/0.0.$1/;s/_/./g,pgpsigurlmangle=s/$/.asc/ \
+http://sf.net/hplip/hplip-(\d.*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))

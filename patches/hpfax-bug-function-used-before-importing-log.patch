@@ -1,0 +1,29 @@
+From a2953031e54f98010556693a1cf854412051566a Mon Sep 17 00:00:00 2001
+From: Till Kamppeter <till.kamppeter@gmail.com>
+Date: Fri, 22 Jul 2016 09:32:59 +0200
+Subject: The hpfax CUPS backend uses its function bug() (which in turnuses
+ log()) before log() gets imported (with base.g). Made use of log() in bug()
+ optional
+
+LP: #560849
+Patch-Name: hpfax-bug-function-used-before-importing-log.patch
+---
+ fax/backend/hpfax.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/fax/backend/hpfax.py b/fax/backend/hpfax.py
+index 9560e840b..7aaef35b5 100755
+--- a/fax/backend/hpfax.py
++++ b/fax/backend/hpfax.py
+@@ -55,7 +55,10 @@ home_dir = ''
+ 
+ def bug(msg):
+     syslog.syslog("hpfax[%d]: error: %s\n" % (pid, msg))
+-    log.stderr("ERROR: %s\n" % msg)
++    try:
++        log.stderr("ERROR: %s\n" % msg)
++    except:
++        print >> sys.stderr, ("ERROR: %s\n" % msg)
+ 
+ 
+ if os.path.exists(config_file):

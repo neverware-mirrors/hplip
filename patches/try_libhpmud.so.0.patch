@@ -1,0 +1,77 @@
+From a0dc521a50fb4ea0f27a13df2df0a83a75f83648 Mon Sep 17 00:00:00 2001
+From: Evgeny Golov <evgeni@debian.org>
+Date: Fri, 22 Jul 2016 09:32:56 +0200
+Subject: Try libhpmud.so.0 after libhpmud.so
+
+Closes: #600670
+Patch-Name: try_libhpmud.so.0.patch
+---
+ scan/sane/marvell.c | 10 +++++++---
+ scan/sane/soap.c    |  9 ++++++---
+ scan/sane/soapht.c  |  9 ++++++---
+ 3 files changed, 19 insertions(+), 9 deletions(-)
+
+diff --git a/scan/sane/marvell.c b/scan/sane/marvell.c
+index ad267a3f1..a0692920e 100644
+--- a/scan/sane/marvell.c
++++ b/scan/sane/marvell.c
+@@ -60,10 +60,14 @@ static int bb_load(struct marvell_session *ps, const char *so)
+    int stat=1;
+ 
+    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
+-   if ((ps->hpmud_handle = load_library("libhpmud.so")) == NULL)
++
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
+    {
+-	   if ((ps->hpmud_handle = load_library("libhpmud.so.0")) == NULL)
+-           goto bugout;
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
+    }
+ 
+    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
+diff --git a/scan/sane/soap.c b/scan/sane/soap.c
+index 07106fe6e..352db3d55 100644
+--- a/scan/sane/soap.c
++++ b/scan/sane/soap.c
+@@ -68,10 +68,13 @@ static int bb_load(struct soap_session *ps, const char *so)
+    int stat=1;
+ 
+    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
+-   if ((ps->hpmud_handle = load_library("libhpmud.so")) == NULL)
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
+    {
+-	   if ((ps->hpmud_handle = load_library("libhpmud.so.0")) == NULL)
+-           goto bugout;
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
+    }
+ 
+    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
+diff --git a/scan/sane/soapht.c b/scan/sane/soapht.c
+index 269ab2140..b554b3ceb 100644
+--- a/scan/sane/soapht.c
++++ b/scan/sane/soapht.c
+@@ -62,10 +62,13 @@ static int bb_load(struct soap_session *ps, const char *so)
+    int stat=1;
+ 
+    /* Load hpmud manually with symbols exported. Otherwise the plugin will not find it. */ 
+-   if ((ps->hpmud_handle = load_library("libhpmud.so.0")) == NULL)
++   if ((ps->hpmud_handle = dlopen("libhpmud.so", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
+    {
+-	   if ((ps->hpmud_handle = load_library("libhpmud.so.0")) == NULL)
+-           goto bugout;
++     if ((ps->hpmud_handle = dlopen("libhpmud.so.0", RTLD_LAZY|RTLD_GLOBAL)) == NULL)
++     {
++       BUG("unable to load restricted library: %s\n", dlerror());
++       goto bugout;
++     }
+    }
+ 
+    /* Load math library manually with symbols exported (Ubuntu 8.04). Otherwise the plugin will not find it. */ 
