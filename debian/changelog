@@ -1,3 +1,15 @@
+hplip (3.17.10+repack0-2) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * Remove not-needed-anymore gksu/kdesu/kdesudo/… dependencies
+    (Closes: #867561)
+
+  [ Didier Raboud ]
+  * Update Homepage field
+  * Bump S-V to 4.1.3 without changes needed
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 31 Dec 2017 10:52:50 +0100
+
 hplip (3.17.10+repack0-1) unstable; urgency=medium
 
   * New upstream version 3.17.10
