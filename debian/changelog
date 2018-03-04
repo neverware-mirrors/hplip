@@ -1,3 +1,13 @@
+hplip (3.17.10+repack0-4) unstable; urgency=medium
+
+  * Packaging cleanup with cme:
+    - Cleanup d/control
+    - Rewrite d/copyright to CF1.0
+  * Demote policykit-1 from Depends to Recommends; see #891810#40 for the
+    justification
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 04 Mar 2018 16:12:44 +0100
+
 hplip (3.17.10+repack0-3) unstable; urgency=medium
 
   * Update Vcs-* fields for the move to salsa.d.o
