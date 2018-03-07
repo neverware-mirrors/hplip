@@ -1,3 +1,10 @@
+hplip (3.17.10+repack0-6) experimental; urgency=medium
+
+  * Move hpps filter from hplip to printer-driver-postcript-hp
+  * Change printer-driver-postscript-hp's Architecture to arch:any
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 07 Mar 2018 09:48:06 +0100
+
 hplip (3.17.10+repack0-5) unstable; urgency=medium
 
   * Move 56-hpmud.rules from hplip to libsane-hpaio (Closes: #890930)
