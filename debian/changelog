@@ -1,3 +1,9 @@
+hplip (3.17.10+repack0-5) unstable; urgency=medium
+
+  * Move 56-hpmud.rules from hplip to libsane-hpaio (Closes: #890930)
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 07 Mar 2018 09:18:22 +0100
+
 hplip (3.17.10+repack0-4) unstable; urgency=medium
 
   * Packaging cleanup with cme:
