@@ -21,7 +21,6 @@ usr/bin/hp-setup
 usr/bin/hp-testpage
 usr/bin/hp-timedate
 usr/lib/cups/backend
-usr/lib/cups/filter/hpps
 usr/lib/cups/filter/pstotiff
 usr/lib/python*
 usr/share/cups/mime/*.convs
