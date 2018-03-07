@@ -109,11 +109,12 @@ Description: HP Linux Printing and Imaging - data files
  System.
 
 Package: printer-driver-postscript-hp
-Architecture: all
+Architecture: any
 Depends: hplip (>= ${source:Version}),
-         ${misc:Depends}
-Replaces: hplip (<< 3.17.10+repack0-5)
-Breaks: hplip (<< 3.17.10+repack0-5)
+         ${misc:Depends},
+         ${shlibs:Depends}
+Replaces: hplip (<< 3.17.10+repack0-6)
+Breaks: hplip (<< 3.17.10+repack0-6)
 Description: HP Printers PostScript Descriptions
  The HP Linux Printing and Imaging System provides full support for
  printing on most HP SFP (single function peripheral) inkjets and many
@@ -121,7 +122,7 @@ Description: HP Printers PostScript Descriptions
  most HP MFP (multi-function peripheral) printers.
  .
  This package contains the compressed PPDs for the PostScript HP
- Printers.
+ Printers and the hpps filter.
 
 Package: hplip-gui
 Architecture: all
