@@ -26,14 +26,6 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-CONFFLAGS =
-
-ifeq ($(DEB_HOST_ARCH_OS), linux)
-  CONFFLAGS += --enable-pp-build
-else
-  CONFFLAGS += --disable-pp-build --enable-libusb01_build
-endif
-
 GZIP = gzip -n --best
 
 ##
@@ -65,7 +57,6 @@ override_dh_clean:
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		PYTHON="$(PYTHON)" \
-		$(CONFFLAGS) \
 	 	--config-cache \
 		--docdir=\$${prefix}/share/doc/hplip \
 		--with-docdir=\$${prefix}/share/doc/hplip \
