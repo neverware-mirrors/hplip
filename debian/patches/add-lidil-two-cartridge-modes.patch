@@ -1,4 +1,4 @@
-From d1356957e07d216f92f50821cf45012655065ac4 Mon Sep 17 00:00:00 2001
+From 167239dbf9a8bec9a72769bb90749d999486e1b9 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:58 +0200
 Subject: For the Lidil printers, enable two-cartridge modes (black and color
@@ -13,10 +13,10 @@ Patch-Name: add-lidil-two-cartridge-modes.patch
  2 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/prnt/drv/hpijs.drv.in b/prnt/drv/hpijs.drv.in
-index 304081687..ae9319ac8 100644
+index e0800f865..90e790475 100644
 --- a/prnt/drv/hpijs.drv.in
 +++ b/prnt/drv/hpijs.drv.in
-@@ -4384,16 +4384,16 @@ le=- -"
+@@ -4383,16 +4383,16 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3320&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -37,7 +37,7 @@ index 304081687..ae9319ac8 100644
    Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
    Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
  dDEVICEHEIGHTPOINTS=792"
-@@ -4852,13 +4852,13 @@ le=- -"
+@@ -4851,13 +4851,13 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3600&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -54,7 +54,7 @@ index 304081687..ae9319ac8 100644
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=High.Gray" "Quality=600Grayscal&&
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
-@@ -5320,13 +5320,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
+@@ -5319,13 +5319,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
  "
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftColorCM&&
@@ -72,10 +72,10 @@ index 304081687..ae9319ac8 100644
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
 diff --git a/prnt/drv/hpijs.drv.in.template b/prnt/drv/hpijs.drv.in.template
-index 303b90516..6c54b4898 100644
+index c995d1da9..890033f6b 100644
 --- a/prnt/drv/hpijs.drv.in.template
 +++ b/prnt/drv/hpijs.drv.in.template
-@@ -2221,16 +2221,16 @@ le=- -"
+@@ -2220,16 +2220,16 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3320&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -96,7 +96,7 @@ index 303b90516..6c54b4898 100644
    Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
    Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
  dDEVICEHEIGHTPOINTS=792"
-@@ -2403,13 +2403,13 @@ le=- -"
+@@ -2402,13 +2402,13 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3600&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -113,7 +113,7 @@ index 303b90516..6c54b4898 100644
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=High.Gray" "Quality=600Grayscal&&
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
-@@ -2599,13 +2599,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
+@@ -2598,13 +2598,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
  "
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftColorCM&&

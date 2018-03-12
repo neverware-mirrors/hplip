@@ -1,4 +1,4 @@
-From 2b239723ed6e347d1c085d4438e2adba72e03b72 Mon Sep 17 00:00:00 2001
+From 8645b40e339a961d5968d35528328eba6124afae Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:53 +0200
 Subject: Corrections: models.dat entry for the HP PhotoSmart Pro B9100
@@ -7,23 +7,26 @@ LP: #213984
 
 Patch-Name: hp_photosmart_pro_b9100_support.patch
 ---
- data/models/models.dat | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ data/models/models.dat | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/data/models/models.dat b/data/models/models.dat
-index 086639702..f323da84d 100644
+index 684ecf105..c77be7fa6 100644
 --- a/data/models/models.dat
 +++ b/data/models/models.dat
-@@ -56588,9 +56588,9 @@ status-dynamic-counters=0
+@@ -57878,11 +57878,11 @@ status-dynamic-counters=0
  status-type=2
  support-released=True
  support-subtype=219b2b
 -support-type=0
 -support-ver=0.0.0
 -tech-class=Undefined
+-family-class=Undefined
 +support-type=2
 +support-ver=2.8.4
 +tech-class=PSB9100
  tech-subclass=Normal
++family-class=Undefined
  tech-type=2
  usb-pid=bd02
+ usb-vid=3f0
