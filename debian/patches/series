@@ -21,3 +21,4 @@ ui-patch-upstream-like.patch
 0021-Add-include-cups-ppd.h-in-various-places-as-CUPS-2.2.patch
 0022-Fix-list-wrapping-in-scan.py-to-fix-generated-manpag.patch
 0023-Fix-handling-of-unicode-filenames-in-sixext.py.patch
+0024-Make-dat2drv-and-locateppd-build-dependent-of-class-.patch
