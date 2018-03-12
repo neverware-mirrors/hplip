@@ -16,6 +16,18 @@ Files: Makefile.in
 Copyright: 1994-2009, Free Software Foundation
 License: GPL-2+
 
+Files: Makefile_dat2drv
+  class_cups_drv.inc
+  class_rpm_build.sh
+  cups_drv.inc
+  foomatic_drv.inc
+  hplip-systray.desktop.in
+  hplip.conf.in
+  hplip.desktop.in
+  unreleased.inc
+Copyright: 2001-2018, HP Development Company, L.P.
+License: GPL-2+
+
 Files: aclocal.m4
   ltmain.sh
   missing
@@ -91,15 +103,6 @@ License: FSFUL
 
 Files: copyright
 Copyright: Copyright 2001-2015, HP Development Company, L.P.
-License: GPL-2+
-
-Files: cups_drv.inc
-  foomatic_drv.inc
-  hplip-systray.desktop.in
-  hplip.conf.in
-  hplip.desktop.in
-  unreleased.inc
-Copyright: 2001-2018, HP Development Company, L.P.
 License: GPL-2+
 
 Files: data/*
@@ -209,6 +212,20 @@ Files: prnt/hpcups/ColorMaps.h
 Copyright: 2001-2018, HP Development Company, L.P.
 License: GPL-2+
 
+Files: prnt/hpcups/Hbpl1_Wrapper.cpp
+Copyright: 1996-2015, HP Co.
+License: BSD-3-clause
+
+Files: prnt/hpcups/PCLmGenerator.h
+Copyright: 2010, HP Company
+License: BSD-3-clause
+
+Files: prnt/hpcups/common_defines.h
+  prnt/hpcups/genPCLm.cpp
+  prnt/hpcups/genPCLm.h
+Copyright: HP Company, 2006.
+License: BSD-3-clause
+
 Files: prnt/hpcups/dj970ColorMaps.cpp
 Copyright: 1996-2003, UL, HP Co.
 License: BSD-3-clause
@@ -286,7 +303,7 @@ Copyright: 2004-2015, Copyright HP Development Company, LP
 License: GPL-2+
 
 Files: scan/sane/sane.h
-Copyright: 1997-1999 David Mosberger-Tang and Andreas Beck
+Copyright: 1997-1999, David Mosberger-Tang and Andreas Beck
 License: public-domain
  This file is in the public domain.  You may use and modify it as
  you see fit, as long as this copyright message is included and
