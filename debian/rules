@@ -61,18 +61,16 @@ override_dh_auto_configure:
 		--docdir=\$${prefix}/share/doc/hplip \
 		--with-docdir=\$${prefix}/share/doc/hplip \
 		--with-htmldir=\$${prefix}/share/doc/hplip-doc \
-		--enable-foomatic-drv-install \
 		--disable-foomatic-rip-hplip-install \
 		--with-drvdir=\$${prefix}/share/cups/drv \
 		--with-hpppddir=\$${prefix}/share/ppd/hplip/HP \
 		--datadir=\$${prefix}/share \
 		--without-icondir \
-		--disable-foomatic-ppd-install \
 		--enable-hpcups-install \
 		--enable-cups-drv-install \
 		--enable-hpijs-install \
 		--enable-foomatic-drv-install \
-		--enable-foomatic-ppd-install \
+		--disable-foomatic-ppd-install \
 		--enable-network-build \
 		--enable-scan-build \
 		--enable-gui-build \
