@@ -1,3 +1,19 @@
+hplip (3.18.3+dfsg0-1) experimental; urgency=medium
+
+  * New upstream version 3.18.3
+
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+  * Patch build to make dat2drv and locateppd build dependent of class driver
+    enabling; copes with DFSG source code removal from source
+
+  * Disable deprecated parallel port support
+  * Disable deprecated foomatic ppd install that's broken anyway
+  * Do not install the ppds that don't exist
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 12 Mar 2018 16:40:38 +0100
+
 hplip (3.17.10+repack0-6) experimental; urgency=medium
 
   * Move hpps filter from hplip to printer-driver-postcript-hp
