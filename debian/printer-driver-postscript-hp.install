@@ -1,5 +1,3 @@
 usr/lib/cups/filter/hpps
 debian/printer-driver-postscript-hp.ppd-updater usr/share/cups/ppd-updaters/
-usr/share/ppd/hplip/*/*postscript.ppd*
 usr/share/ppd/hplip/*/*ps.ppd*
-usr/share/ppd/hplip/*/hp-designjet*.ppd*
