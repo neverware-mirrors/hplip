@@ -240,6 +240,7 @@ override_dh_shlibdeps:
 
 get-orig-source:
 	set -e;\
+	repackv=+dfsg0; \
 	quilt pop -af || true ;\
 	rm -Rf .pc ;\
 	gbp import-orig --no-pristine-tar --no-merge --uscan --upstream-branch=upstream/latest;\
@@ -248,8 +249,8 @@ get-orig-source:
 	git merge --strategy-option=theirs --no-commit upstream/$$utag || true ;\
 	find . -regextype posix-extended -iregex '.*\.(ldl|ppd|pdf|ps|pcl)\.gz' | xargs gunzip -f ;\
 	git add -A . ;\
-	git commit  -m "Merge upstream $$utag version; un-gzip source files" ;\
-	urtag=$$utag+repack0 ;\
+	git commit -m "Merge upstream $$utag version; un-gzip source files" ;\
+	urtag=$$utag+$$repackv ;\
 	urcommit=`git rev-parse --verify HEAD`;\
 	git tag upstream/$$urtag -m "Upstream repacked $$utag version" ;\
 	git archive --format=tar --prefix=hplip-$$urtag/ upstream/$$urtag | xz -6e > ../hplip_$$urtag.orig.tar.xz ;\
