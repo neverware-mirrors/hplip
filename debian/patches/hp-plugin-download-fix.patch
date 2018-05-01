@@ -1,4 +1,4 @@
-From 7f9768ee73892433903aa8d196e00f338fe0d991 Mon Sep 17 00:00:00 2001
+From aaab626c39d4ece4472b90839a44dff77a41771f Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:06 +0200
 Subject: Fix download and installation of HP's proprietary plug-in in Python3

@@ -1,4 +1,4 @@
-From 5098afbb2b9ef82f21a30bde972faeb8cba53afc Mon Sep 17 00:00:00 2001
+From 7bc6c078e6880abd590c14e86a1b5bdfe01955bf Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Lubo=C5=A1=20Dole=C5=BEel?= <lubos@dolezel.info>
 Date: Fri, 22 Jul 2016 09:33:05 +0200
 Subject: Allow non-JPEG scanning on the HP DeskJet 3520 All-in-One and similar
@@ -8,7 +8,7 @@ LP: #1245578
 
 Patch-Name: hpscan-deskjet-3520-aio-allow-non-jpeg-scanning.patch
 ---
- scan/sane/bb_ledm.c | 47 +++++++++++++++++++++++++++++++++++++++++------
+ scan/sane/bb_ledm.c | 47 +++++++++++++++++++++++++++++++++++++++------
  scan/sane/ledm.c    | 12 +++++++-----
  2 files changed, 48 insertions(+), 11 deletions(-)
 

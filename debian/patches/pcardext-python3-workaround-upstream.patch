@@ -1,4 +1,4 @@
-From 7d43d157c7801201cfe81d94671a55ae7b1d85f3 Mon Sep 17 00:00:00 2001
+From 83b4243cdba4bfe30494b48cd3cfabe5ad9e71b5 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:33:04 +0200
 Subject: Workaround patch for missing Python3 transition of the old
@@ -11,7 +11,7 @@ Subject: Workaround patch for missing Python3 transition of the old
 
 Patch-Name: pcardext-python3-workaround-upstream.patch
 ---
- pcard/pcardext/pcardext.c | 59 +++++++++++++++++++++++++++++++++++++----------
+ pcard/pcardext/pcardext.c | 59 +++++++++++++++++++++++++++++++--------
  pcard/photocard.py        |  2 +-
  unload.py                 |  5 ++++
  3 files changed, 53 insertions(+), 13 deletions(-)
