@@ -1,6 +1,8 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: HPLIP
 Homepage: https://developers.hp.com/hp-linux-imaging-and-printing
+Files-Excluded: locatedriver
+  prnt/plugins/*.so
 
 Files: *
 Copyright: 2001-2018, HP Development Company, L.P.
