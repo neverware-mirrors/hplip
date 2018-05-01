@@ -703,14 +703,14 @@ hplip (3.13.9-2) unstable; urgency=low
 
   * Build-Depends: libusb2-dev [kfreebsd-any] - Thks Petr
     - Fixes "no longer buildable on kfreebsd-*" (Closes: #725616)
-  * Update X-Python-Version: >= 2.7.5 
+  * Update X-Python-Version: >= 2.7.5
     - Fixes "hplip-data depends on python:any (>= 2.6.6-7~)" (Closes: #724705)
 
  -- Mark Purcell <msp@debian.org>  Sat, 12 Oct 2013 22:31:35 +1100
 
 hplip (3.13.9-1) unstable; urgency=medium
 
-  * New upstream release 
+  * New upstream release
   * Fix CVE-2013-4325 hplip: Insecure calling of polkit
     - Apply Redhat patch (Closes: #723716)
     - Urgency medium
@@ -832,7 +832,7 @@ hplip (3.13.4-1) unstable; urgency=low
 
 hplip (3.13.3-1) experimental; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
     - Fixes CVE-2013-0200 (Closes: #701185)
     - Fixes "hp-check does not find installed Xsane" (Closes: #690362)
   * Ack NMU - Thanks Sebastian Ramacher
@@ -882,7 +882,7 @@ hplip (3.12.6-3.1) unstable; urgency=high
 
 hplip (3.12.11-1) experimental; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
 
  -- Mark Purcell <msp@debian.org>  Sat, 08 Dec 2012 08:51:39 +1100
 
@@ -918,7 +918,7 @@ hplip (3.12.10a-1) experimental; urgency=low
     #1065582).
 
   [ Mark Purcell ]
-  * debian/bug-script: Fix bashism (Closes: #690625, #687243) 
+  * debian/bug-script: Fix bashism (Closes: #690625, #687243)
 
  -- Mark Purcell <msp@debian.org>  Sat, 27 Oct 2012 16:03:17 +1100
 
@@ -1467,7 +1467,7 @@ hplip (3.11.1-0ubuntu1) natty; urgency=low
      o New fax protocol (Low End Data Model, LEDM) support
      o ADF scan support for HP LaserJet Pro M1212nf, M1213nf, and M1217nfw MFP
        devices
-     o Color scan support for HP LaserJet Pro M1132, M1136, M1212nf, M1213nf, 
+     o Color scan support for HP LaserJet Pro M1132, M1136, M1212nf, M1213nf,
        and M1217nfw MFP devices
      o Added support for: HP LaserJet Pro CP1020, M1213nf MFP, CM1410,
        LaserJet M1536dnf MFP, M1537dnf MFP, M1538dnf MFP, M1539dnf MFP.
@@ -1733,7 +1733,7 @@ hplip (3.10.5-3.2) unstable; urgency=low
   * Non-maintainer upload.
   * Remove unnecessary module path option for dh_pysupport.
   * Call dh_installdeb after dh_pysupport. This really
-    closes: #585627 
+    closes: #585627
 
  -- Bernd Zeimetz <bzed@debian.org>  Tue, 22 Jun 2010 21:37:37 +0200
 
@@ -1742,9 +1742,9 @@ hplip (3.10.5-3.1) unstable; urgency=high
   * Non-maintainer upload.
   * Remove the need of Python as pre-dependency of hplip.
   * Call dh_pysupport for arch:any packages (Closes: #585627)
-  * Use /usr/share/python/python.mk:   
+  * Use /usr/share/python/python.mk:
     Instead of hard-coding PYTHONPATH, use the proper path depending on the
-    default Python version. 
+    default Python version.
 
  -- Bernd Zeimetz <bzed@debian.org>  Sun, 20 Jun 2010 22:10:09 +0200
 
@@ -1834,7 +1834,7 @@ hplip (3.10.2-2ubuntu1) lucid; urgency=low
 hplip (3.10.2-2) unstable; urgency=low
 
   * Fix "can't add printer (Printer queue setup failed)" added debian/hplip.NEWS
-    - CUPS requires user to be a member of lpadmin group. (Closes: #566692) 
+    - CUPS requires user to be a member of lpadmin group. (Closes: #566692)
   * Patch hp-check to check for group membership of lp & lpadmin
     - Fixes "start/stop button should fail with permission error dialog if
     not member of lpadmin" (Closes: #572247)
@@ -2002,7 +2002,7 @@ hplip (3.9.12-2ubuntu2) lucid; urgency=low
 hplip (3.9.12-2ubuntu1) lucid; urgency=low
 
   * Merged changes from Debian.
-  * debian/control: hpcups (package hplip-cups) works without the hplip package 
+  * debian/control: hpcups (package hplip-cups) works without the hplip package
     as well (even 4-edge borderless on arbitrary paper sizes on HP inkjets),
     moved the dependency on hplip to Suggests.
 
@@ -2010,7 +2010,7 @@ hplip (3.9.12-2ubuntu1) lucid; urgency=low
 
 hplip (3.9.12-2) unstable; urgency=low
 
-  * NEW package libhpmud0 - splits hard dependency between hpijs & hplip 
+  * NEW package libhpmud0 - splits hard dependency between hpijs & hplip
     - Fix "hpijs linked against libhpmud.so.0 in hplip package - brings
     large (14Mb) depends" (Closes: #454117)
     - Fix "automatically got a systray app which I don't need" (Closes: #484801)
@@ -2019,13 +2019,13 @@ hplip (3.9.12-2) unstable; urgency=low
   * dh_desktop-is-deprecated - removed
   * dh_python obsolete as dh_pysupport exists
   * Add debian/README.source - fixes patch-system-but-no-source-readme
-    - Upgrade to Standards-Version: 3.8.3 
+    - Upgrade to Standards-Version: 3.8.3
 
  -- Mark Purcell <msp@debian.org>  Mon, 28 Dec 2009 16:36:32 +1100
 
 hplip (3.9.12-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
   * remove unrecognized options: --enable-debug, --disable-foomatic-xml-install
   * prnt/hpijs/dj9xxvip.cpp fixed upstream for DVD/CD
     - obsoletes debian/patches/set-media-type.dpatch
@@ -2054,7 +2054,7 @@ hplip (3.9.10-3ubuntu3) lucid; urgency=low
 
 hplip (3.9.10-3ubuntu2) lucid; urgency=low
 
-  * Update PYTHONPATH for both Debian & Ubuntu configs 
+  * Update PYTHONPATH for both Debian & Ubuntu configs
 
  -- Mark Purcell <msp@debian.org>  Tue, 08 Dec 2009 07:57:13 +1100
 
@@ -2086,15 +2086,15 @@ hplip (3.9.10-2) unstable; urgency=low
   * "New upstream version 3.9.10 available" (Closes: #554714)
   * Fix "hp-toolbox crash with "ImportError: No module named qt""
     - relevant utils to hplip-gui (Closes: #525556,#525786,#520789,#484043)
-  * hpli-gui - Depends: hplip (= ${hplip:binary:Version}) 
+  * hpli-gui - Depends: hplip (= ${hplip:binary:Version})
              - Replaces: hplip (<= 3.9.8-1) (Closes: #557524)
   * Versioned Suggests: Recommends: have no effect - removed
   * Match depends to exact binary version (= ${hplip:binary:Version})
   * Update hplip.preinst to remove obsolete udev rules (Closes: #556431,#552376)
   * hplip now recommends hplip-cups (Closes: #494421)
-  * Depends: python-pexpect (Does not fix bug 555361) 
+  * Depends: python-pexpect (Does not fix bug 555361)
     - TODO remove embedded code
-  * hplip.NEWS truncated to only include relevant messages (Closes: #432454) 
+  * hplip.NEWS truncated to only include relevant messages (Closes: #432454)
   * Added "[hplip-gui] dependency on ktsuss" (Closes: #523315)
   * hplip-data: s/Recommends:/Suggests:/ hplip (Closes: #387093)
   * Move hplip-gui manages to package {Replaces: hplip (<= 3.9.10-1)}
@@ -2104,7 +2104,7 @@ hplip (3.9.10-2) unstable; urgency=low
 hplip (3.9.10-1) unstable; urgency=low
 
   * New Upstream Release
-    - sync with ubuntu 
+    - sync with ubuntu
 
  -- Mark Purcell <msp@debian.org>  Sun, 22 Nov 2009 11:05:35 +1100
 
@@ -2158,16 +2158,16 @@ hplip (3.9.8-1ubuntu1) karmic; urgency=low
   * merged in Debian fixes.
 
   [ Mark Purcell ]
-  * hplip.NEWS truncated to only include relevant messages (Closes: #432454) 
+  * hplip.NEWS truncated to only include relevant messages (Closes: #432454)
   * Modify hplip-dbg Section: debug
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Sun,  4 Oct 2009 14:00:38 +0200
 
 hplip (3.9.8-1) unstable; urgency=low
 
-  * New Upstream Release 
+  * New Upstream Release
     - sync with ubuntu
-  * Fix "Please port to PolicyKit 1" (Closes: #549499) 
+  * Fix "Please port to PolicyKit 1" (Closes: #549499)
     - ubuntu patch to support policykit1
   * Fix "Missing /usr/lib/libhpmud.so symlink" (Closes: #548379)
     - libsane-hpaio.so.1 now links correctly at build time
@@ -2200,12 +2200,12 @@ hplip (3.9.8-0ubuntu7) karmic; urgency=low
 
 hplip (3.9.8-0ubuntu6) karmic; urgency=low
 
-  * debian/hpijs-ppds.postinst, debian/hplip-cups.postinst, 
+  * debian/hpijs-ppds.postinst, debian/hplip-cups.postinst,
     debian/hplip.postinst, debian/hpijs.postinst: Fixed "lpstat -r" check
     for the auto update of PPDs of existing queues. "lpstat -r" exits always
     with status 0, we must check the actual output. Call lpstat, lpadmin, and
     cupsctl with "-h /var/run/cups/cups.sock" to avoid querying remote
-    servers set up in /etc/cups/client.conf, and asking for passwords. 
+    servers set up in /etc/cups/client.conf, and asking for passwords.
     Thanks to Martin-Éric Racine for tracking this down and the solution!
     See Debian bug #543468. Use signal names instead of numbers for trap.
     Quiesces a lintian bashism warning.
@@ -2346,7 +2346,7 @@ hplip (3.9.6-0ubuntu2) karmic; urgency=low
 hplip (3.9.6-0ubuntu1) karmic; urgency=low
 
   * New upstream release
-     o The new native CUPS driver (HPCUPS) is now the default printer driver. 
+     o The new native CUPS driver (HPCUPS) is now the default printer driver.
        We now have PPDs with exact printable regions for normal, borderless
        and duplex paper sizes.
      o A new utility 'hp-wificonfig' allows to configure select wifi-capable
@@ -2390,7 +2390,7 @@ hplip (3.9.4b-1ubuntu4) karmic; urgency=low
 
 hplip (3.9.4b-1ubuntu3) karmic; urgency=low
 
-  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
+  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups
     on cups, cups-client back to Depends:, for post-install this is
     sufficient.
 
@@ -2398,7 +2398,7 @@ hplip (3.9.4b-1ubuntu3) karmic; urgency=low
 
 hplip (3.9.4b-1ubuntu2) karmic; urgency=low
 
-  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups 
+  * debian/control: Moved dependencies of hpijs, hpijs-ppds, and hplip-cups
     on cups, cups-client, and perl-base to Pre-Depends:, as only this way it
     is assured that these packages are configured (especially CUPS daemon
     running) before this package gets configured (update of the PPDs of
@@ -2469,7 +2469,7 @@ hplip (3.9.2-3ubuntu3) jaunty; urgency=low
 
 hplip (3.9.2-3ubuntu2) jaunty; urgency=low
 
-  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Silenced non-fatal 
+  * debian/hpijs.postinst, debian/hpijs-ppds.postinst: Silenced non-fatal
     error messages when post-install script updates PPDs and there are PPDs
     not belonging to a CUPS queue in /etc/cups/ppd/ (LP: #345866).
 
@@ -2493,7 +2493,7 @@ hplip (3.9.2-2) unstable; urgency=low
   * Use Christopher Martin's debian/hplip.udev - group lp
     - hplip.NEWS advises users to use group lp
        - group scanner is depreciated to match upstream
-    - (Closes: #517297) "hplip udev rules never match" 
+    - (Closes: #517297) "hplip udev rules never match"
   * hpdio_settings_dialog.dpatch also fixes:
     - (Closes: #503723) hplip: python /usr/bin/hp-systray at 100% CPU
     - Fixes "[hplip] hp-systray at 100% CPU" (Closes: #519696)
@@ -2638,7 +2638,7 @@ hplip (2.8.12-1) experimental; urgency=low
 
   * New upstream release
   * Distribution experimental while we await lenny
-  * del debian/patches included upstream; 
+  * del debian/patches included upstream;
     - manpage-whatis.dpatch, hpssd-correct-hp-sendfax-call.dpatch,
     61_noqt_message.dpatch, qt4-systray-with-qt3-utilities.dpatch
 
@@ -2646,7 +2646,7 @@ hplip (2.8.12-1) experimental; urgency=low
 
 hplip (2.8.10-2) experimental; urgency=low
 
-  * Sync with Ubuntu 
+  * Sync with Ubuntu
 
  -- Mark Purcell <msp@debian.org>  Sun, 07 Dec 2008 14:12:31 +1100
 
@@ -2776,19 +2776,19 @@ hplip (2.8.6.b-2) unstable; urgency=low
 
   * Lintian cleanup:
   * hpijs-ppds Depends: hpijs - lintian:stronger-dependency-implies-weaker
-  * Update 14_charsign_fixes.dpatch 
+  * Update 14_charsign_fixes.dpatch
     - lintian:dpatch-missing-description
   * hplip.NEWS & hpijs-ppds.NEWS - lintian:syntax-error-in-debian-news-file
   * hplip-data Depends: python - perhaps should be called hplip-common?
-    - lintian:python-script-but-no-python-dep 
+    - lintian:python-script-but-no-python-dep
   * -x colorcal4form_base.ui distros.dat executable-not-elf-or-script
-  * Ship small .xpm with hplip not -gui package 
+  * Ship small .xpm with hplip not -gui package
     - lintian:menu-icon-missing
   * hplip.lintian libhpip0 & libhpmud0 - not shared libs internal only
     - lintian:package-name-doesnt-match-sonames
-  * Update debian/hplip-doc.doc-base 
+  * Update debian/hplip-doc.doc-base
     - lintian:doc-base-abstract-might-contain-extra-leading-whitespaces
-  * hplip-doc.doc-base Section: System/Administration 
+  * hplip-doc.doc-base Section: System/Administration
     - lintian:doc-base-unknown-section
   * Cleanup hplip.lintian - linitan:unused-override
   * Cleanup *.desktop - lintian:desktop-entry-contains-encoding-key
@@ -2998,7 +2998,7 @@ hplip (2.8.5-2ubuntu1) intrepid; urgency=low
     - dpatch-missing-description systray_applet_really_in_tray.dpatch
     - dpatch-missing-description hp_photosmart_pro_b9100_support.dpatch
     - dpatch-missing-description systray_applet_really_in_tray.dpatch
-    - syntax-error-in-debian-news-file  
+    - syntax-error-in-debian-news-file
       - NEWS not displayed (Closes: #479118)
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Mon,  9 Jun 2008 10:37:02 +0200
@@ -3055,7 +3055,7 @@ hplip (2.8.4-0ubuntu1) intrepid; urgency=low
   * debian/patches/hp-sendfax_crash_on_cancel.dpatch: hp-sendfax crashed
     when a fax job fails or gets canceled via the cancel button on the
     printer.
-  * debian/patches/90_pseudo_id_fax_2.dpatch, 
+  * debian/patches/90_pseudo_id_fax_2.dpatch,
     debian/patches/91_dj895_powerup.dpatch,
     debian/patches/hp_clj_3600_best_color_mode.dpatch,
     debian/patches/hp_oj_h470_alignment.dpatch,
@@ -3204,7 +3204,7 @@ hplip (2.7.12-0ubuntu1) hardy; urgency=low
   * debian/rules, debian/45-hplip.rules, debian/check_mfp_printer: Removed
     /etc/udev/rules.d/45-hplip.rules and check_mfp_printer, HP provides a
     solution from upstream now.
-  * debian/55-hpmud.rules: Updated for compatibility with kernel 2.6.24 and 
+  * debian/55-hpmud.rules: Updated for compatibility with kernel 2.6.24 and
     newer (Ubuntu bug LP: #181242).
   * debian/patches/87_move_documentation.dpatch: Updated patch for new HPLIP
     version.
@@ -3327,7 +3327,7 @@ hplip (2.7.7.dfsg.1-0ubuntu2) gutsy; urgency=low
     Moved menu entries for the GUI utilities into the new hplip-gui package.
     This package requires python-qt3 and so the menu entries can never appear
     if python-qt3 is not installed. Let the main package (hplip) recommend
-    hplip-gui instead of python-qt3 now. Fixes: LP: #67892, LP: #86893, 
+    hplip-gui instead of python-qt3 now. Fixes: LP: #67892, LP: #86893,
     LP: #134480, LP: #137168
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  5 Sep 2007 10:05:57 +0100
@@ -3336,10 +3336,10 @@ hplip (2.7.7.dfsg.1-0ubuntu1) gutsy; urgency=low
 
   * Modified upstream source tarball: Firmware files for HP LaserJet 1018
     and 1020 removed on HP's request
-  * debian/control, debian/rules, debian/hplip-data.install, 
+  * debian/control, debian/rules, debian/hplip-data.install,
     debian/hplip-firmware.install: Removed hplip-firmware binary package.
   * debian/README.Source: Updated packaging documentation
-  * debian/hpijs.README.Debian, debian/hpijs.NEWS, debian/hpijs-ppds.NEWS, 
+  * debian/hpijs.README.Debian, debian/hpijs.NEWS, debian/hpijs-ppds.NEWS,
     debian/hpijs.1, debian/control: linuxprinting.org -> openprinting.org
 
  -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 22 Aug 2007 20:41:57 +0100
@@ -3403,7 +3403,7 @@ hplip (2.7.7-0ubuntu1) gutsy; urgency=low
       + Fixed the constraints system in hp-scan (can use list based and
         tuple based constraints)
       + Removed '-a' from usermod command in installer
-      + Converted code to use unicode when dealing with UI strings and 
+      + Converted code to use unicode when dealing with UI strings and
         user originated strings
       + Explicitly convert to utf-8 for file logging output
       + Added compile flag conditional compilation in hpmudext.c for parallel
@@ -3567,7 +3567,7 @@ hplip (2.7.7-0ubuntu1) gutsy; urgency=low
       + Added bootstrap --ppd to build.py and dist.py
       + Fixed defect (The check job can not be finished completely before
         install the build.)
-      + Added udev 55-hpmud.rules to "make install". Users will have to be a 
+      + Added udev 55-hpmud.rules to "make install". Users will have to be a
         member of the "lp" group in order to have access USB/Parallel devices.
       + Fixed hp-makeuri and underlying API
       + Fixed defect (Toolbox cannot be launched if the build
@@ -3580,9 +3580,9 @@ hplip (2.7.7-0ubuntu1) gutsy; urgency=low
       + Improved build time support for missing Python extensions
       + Added MakeURI APIs to hpmudext
       + Removed hpiod and hplip start/stop script.
-      + Fixed defect (An error occurs in terminal when perform a copy job with 
+      + Fixed defect (An error occurs in terminal when perform a copy job with
         Best Copy Quality in GUI mode.)
-      + Fixed defect ([Photosmart 7550] no photo cart, clicking color cal 
+      + Fixed defect ([Photosmart 7550] no photo cart, clicking color cal
         causes traceback)
       + Fixed defect (hpssd.py crashed with IOError in __init__() [Launchpad
         bug #103871])
@@ -3635,7 +3635,7 @@ hplip (2.7.7-0ubuntu1) gutsy; urgency=low
     * HPLIP 1.7.4
       + Fixed defect (The tip of menu "Contents..." is incorrect.) [added F1
         accelerator]
-      + Fixed defect (The corresponding operation could not work while 
+      + Fixed defect (The corresponding operation could not work while
         executing hp-sendfax with "--non-interactive", "--faxnum",
         "--recipient", "--group", "--logging" parameters in terminal.)
       + Fixed an issue with adding recipients in fax UI
@@ -4500,7 +4500,7 @@ hplip (1.6.9-1) unreleased; urgency=low
 hplip (1.6.7-2ubuntu2) edgy; urgency=low
 
   * revert the Breaks usage and turn it into a Conflict to avoid
-    having to backport apt/dpkg/python-apt for the upgrade 
+    having to backport apt/dpkg/python-apt for the upgrade
     (see bug: #54234 for the rational)
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 26 Sep 2006 20:19:21 +0200
@@ -4674,7 +4674,7 @@ hplip (0.9.11-2ubuntu7) edgy; urgency=low
     - don't fail if the locales can't be set (this breaks upgrades)
   * Pre-Depend on python (>= 2.4.3-5). We need a working pyversions
     otherwise invoke-rc.d will fail to start hpssd in the postinst
-  
+
  -- Michael Vogt <michael.vogt@ubuntu.com>  Mon,  4 Sep 2006 06:37:25 +0200
 
 hplip (0.9.11-2ubuntu6) edgy; urgency=low
@@ -4722,7 +4722,7 @@ hplip (0.9.11-2ubuntu1) edgy; urgency=low
 hplip (0.9.11-2) unstable; urgency=low
 
   * dpatch 00_01_upstream-0.9.11-2 (new): HPLIP 0.9.11-2
-    + Fixed an intermittent auto duplex problem with HPIJS 
+    + Fixed an intermittent auto duplex problem with HPIJS
       (closes: #360017)
     + Add some missing PSC 950 model entries in models.xml
     + Fixed some NDEBUG compiler issues (Debian)
@@ -5499,7 +5499,7 @@ hplip (0.9.3-3) unstable; urgency=high
       hpijs and hplip-base in hplip-ppds, and ship changelog instead of symlink
     * Remove some stray -Nhplip crap from arch-dep section of rules files
     * Remove 12_fix-gcc4-errors.dpatch, accepted upstream (patch 0.9.3-1)
-    * debian/rules: avoid useless /usr/bin/find warnings about 
+    * debian/rules: avoid useless /usr/bin/find warnings about
       maxdepth/mindepth
 
  -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 29 Jun 2005 00:48:18 -0300
@@ -5810,7 +5810,7 @@ hplip (0.8.7-3) unstable; urgency=low
       * SECURITY FIX: create .hplip.conf on user directory mode 600 (was 666)
         The HPLIP suite was failing to set the process umask to sane values,
         hpssd.py and hpguid.py were affected.  Also, modify HPLIP so that it
-        warns the user of the broken permissions, ignores such a file, and 
+        warns the user of the broken permissions, ignores such a file, and
         fixes the permissions on the next time the config file is written to.
         Thanks to Erwan David <erwan@rail.eu.org> for reporting this bug
         (closes: #293117)
@@ -6035,7 +6035,7 @@ hpijs (1.5-1) unstable; urgency=low
 hpijs (1.4.1-1) unstable; urgency=low
 
   * New upstream release (closes: #198606).
-  * Apply new black-ink-only patch from 
+  * Apply new black-ink-only patch from
     http://www.linuxprinting.org/download/printing/hpijs/
     using dpatch (closes: #198657).
   * debian/control: Add Henrique de Moraes Holschuh to the Uploaders field
@@ -6062,7 +6062,7 @@ hpijs (1.3.1-1) unstable; urgency=low
 hpijs (1.3-1) unstable; urgency=low
 
   * New upstream release.
-  * Disable the -rss patch as it no longer applies to this version of 
+  * Disable the -rss patch as it no longer applies to this version of
     hpijs and some of the changes have been folded upstream.
 
  -- Torsten Landschoff <torsten@debian.org>  Sat,  2 Nov 2002 09:50:10 +0100
@@ -6087,7 +6087,7 @@ hpijs (1.2-1) unstable; urgency=low
 hpijs (1.0.4-2) unstable; urgency=low
 
   * Ship the hpijs_readme.html with the package (closes: #143492).
-    For some reason the upstream Makefile does not install it anymore, 
+    For some reason the upstream Makefile does not install it anymore,
     it is now listed in debian/docs.
 
  -- Torsten Landschoff <torsten@debian.org>  Thu, 18 Apr 2002 21:25:06 +0200
@@ -6103,7 +6103,7 @@ hpijs (1.0.4-1) unstable; urgency=low
 hpijs (1.0.2-1) unstable; urgency=low
 
   * New upstream release.
-  * debian/control: As HP has updated the license of this software 
+  * debian/control: As HP has updated the license of this software
     it can now go into main. Woohoo! :-) Changed the section accordingly.
   * debian/copyright: Update to the new license.
 
@@ -6111,8 +6111,8 @@ hpijs (1.0.2-1) unstable; urgency=low
 
 hpijs (1.0-3) unstable; urgency=low
 
-  * debian/copyright: Include the more restrictive license. Seems like 
-    hpijs.cpp was already changed to be DFSG compatible. Kudos to 
+  * debian/copyright: Include the more restrictive license. Seems like
+    hpijs.cpp was already changed to be DFSG compatible. Kudos to
     James Troup for pointing this out.
 
  -- Torsten Landschoff <torsten@debian.org>  Tue, 15 Jan 2002 21:40:00 +0100
