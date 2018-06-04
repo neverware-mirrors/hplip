@@ -1,3 +1,13 @@
+hplip (3.18.5+dfsg0-1) experimental; urgency=medium
+
+  * New upstream version 3.18.5
+
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 04 Jun 2018 14:47:30 +0200
+
 hplip (3.18.4+repack0-2) experimental; urgency=medium
 
   * Fix printer-driver-hpijs' docs install
