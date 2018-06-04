@@ -1,4 +1,4 @@
-From fd4d6840d51566f9a7be94685926c4c2b457e98e Mon Sep 17 00:00:00 2001
+From e32e3514ed5df6f9bdd9b1d8e313eeb7a6121836 Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:11 +0200
 Subject: Patch UI files to match upstream produced .py code
