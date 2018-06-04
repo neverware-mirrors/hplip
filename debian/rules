@@ -239,7 +239,7 @@ get-orig-source:
 	find . -regextype posix-extended -iregex '.*\.(ldl|ppd|pdf|ps|pcl)\.gz' | xargs gunzip -f ;\
 	git add -A . ;\
 	git commit -m "Merge upstream $$utag version; un-gzip source files" ;\
-	urtag=$$utag+$$repackv ;\
+	urtag=$$utag$$repackv ;\
 	urcommit=`git rev-parse --verify HEAD`;\
 	git tag upstream/$$urtag -m "Upstream repacked $$utag version" ;\
 	git archive --format=tar --prefix=hplip-$$urtag/ upstream/$$urtag | xz -6e > ../hplip_$$urtag.orig.tar.xz ;\
