@@ -1,4 +1,4 @@
-From 1db0711ddfddb2067579c5ae6e081d4682c50ebd Mon Sep 17 00:00:00 2001
+From 3bd7fe5af2dcca65bef7649cda140204955e49b7 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:33:07 +0200
 Subject: In hp-scan's manpage, sort PAGE_SIZES in help, for the manpage to be

@@ -1,4 +1,4 @@
-From d5fd5dd6e6a673b7ee1a43fda4eea56f6d870108 Mon Sep 17 00:00:00 2001
+From 8c739e17230d154eab8a519a2210a5559eedbeee Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:08 +0200
 Subject: Install check-plugin.py as a script
@@ -13,10 +13,10 @@ Patch-Name: install-check-plugin.diff
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 999f0e832..1944aa6ba 100644
+index 3903005b4..1606162a6 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -174,10 +174,10 @@ if !HPLIP_CLASS_DRIVER
+@@ -176,10 +176,10 @@ if !HPLIP_CLASS_DRIVER
  dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
  	sendfax.py setup.py makecopies.py probe.py timedate.py firmware.py scan.py systray.py plugin.py linefeedcal.py pqdiag.py \
  	faxsetup.py devicesettings.py printsettings.py query.py pkservice.py wificonfig.py diagnose_plugin.py uninstall.py \
