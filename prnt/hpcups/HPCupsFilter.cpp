@@ -31,7 +31,6 @@
 \*****************************************************************************/
 
 #include "HPCupsFilter.h"
-#include "ImageProcessor.h"
 
 #include <signal.h>
 #include <sys/wait.h>
@@ -650,15 +649,9 @@ int HPCupsFilter::processRasterData(cups_raster_t *cups_raster)
 
 
     sprintf(hpPreProcessedRasterFile, "%s/hp_%s_cups_SwapedPagesXXXXXX",CUPS_TMP_DIR, m_JA.user_name);
-    image_processor_t* imageProcessor = imageProcessorCreate();
 
     while (cupsRasterReadHeader2(cups_raster, &cups_header))
     {
-
-        IMAGE_PROCESSOR_ERROR result = imageProcessorStartPage(imageProcessor, &cups_header);
-        if (result != IPE_SUCCESS){
-            dbglog("DEBUG: imageProcessorStartPage failed result = %d\n", result);
-        }
 
         current_page_number++;
 
@@ -758,12 +751,6 @@ int HPCupsFilter::processRasterData(cups_raster_t *cups_raster)
             color_raster = rgbRaster;
             black_raster = kRaster;
 
-            result = imageProcessorProcessLine(imageProcessor, m_pPrinterBuffer, cups_header.cupsBytesPerLine);
-            if (result != IPE_SUCCESS){
-                dbglog("DEBUG: imageProcessorProcessLine failed result = %d\n", result);
-            }
-
-
             if ((y == 0) && !is_ljmono) {
                 //For ljmono, make sure that first line is not a blankRaster line.Otherwise printer
                 //may not skip blank lines before actual data
@@ -793,12 +780,6 @@ int HPCupsFilter::processRasterData(cups_raster_t *cups_raster)
             }
         }  // for() loop end
 
-        result = imageProcessorEndPage(imageProcessor);
-        if (result != IPE_SUCCESS){
-                dbglog("DEBUG: imageProcessorEndPage failed result = %d\n", result);
-        }
-
-
         m_Job.NewPage();
         if (err != NO_ERROR) {
             break;
@@ -812,8 +793,6 @@ int HPCupsFilter::processRasterData(cups_raster_t *cups_raster)
         kRaster = NULL;
         rgbRaster = NULL;
     }
-
-    imageProcessorDestroy(imageProcessor);
 
     unlink(hpPreProcessedRasterFile);
     return ret_status;
