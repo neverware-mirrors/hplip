@@ -1,4 +1,4 @@
-From 6bd50de31a5afc6bd417d7e98e725c3cdc4c2979 Mon Sep 17 00:00:00 2001
+From 3d5d95d703425435b7a985ca478770fdd5d06aa3 Mon Sep 17 00:00:00 2001
 From: Evgeny Golov <evgeni@debian.org>
 Date: Fri, 22 Jul 2016 09:32:56 +0200
 Subject: Try libhpmud.so.0 after libhpmud.so

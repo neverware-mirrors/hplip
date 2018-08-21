@@ -1,4 +1,4 @@
-From a1d55283d4f20d9749f46abda363527a36be5a1e Mon Sep 17 00:00:00 2001
+From 06aeb855ce2af04185d20242d2b77211e11c6b3d Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@canonical.com>
 Date: Sat, 24 Sep 2016 10:37:20 +0200
 Subject: Add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved some

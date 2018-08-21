@@ -22,3 +22,4 @@ ui-patch-upstream-like.patch
 0022-Fix-list-wrapping-in-scan.py-to-fix-generated-manpag.patch
 0023-Fix-handling-of-unicode-filenames-in-sixext.py.patch
 0024-Make-dat2drv-and-locateppd-build-dependent-of-class-.patch
+0025-Remove-all-ImageProcessor-functionality-which-is-clo.patch
