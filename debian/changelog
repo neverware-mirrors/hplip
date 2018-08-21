@@ -1,3 +1,13 @@
+hplip (3.18.7+dfsg1-1) experimental; urgency=medium
+
+  * Additional DFSG-repack:
+    - Remove compiled libImageProcessor i386 & amd64 shared libraries
+      artifacts as they don't come with source. See LP: #1785230.
+
+  * Patch away all libImageProcessor functionality to cope with repack
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 21 Aug 2018 18:30:26 +0200
+
 hplip (3.18.7+dfsg0-1) experimental; urgency=medium
 
   * New upstream version 3.18.7
