@@ -303,8 +303,8 @@ Depends: ${misc:Depends},
 Recommends: hplip (= ${binary:Version}),
             sane-utils
 Pre-Depends: ${misc:Pre-Depends}
-Breaks: hplip (<< 3.17.10+repack0-5)
-Replaces: hplip (<< 3.17.10+repack0-5)
+Replaces: hplip (<< 3.17.10+repack0-5~)
+Breaks: hplip (<< 3.17.10+repack0-5~)
 Description: HP SANE backend for multi-function peripherals
  The HP Linux Printing and Imaging System provides full support for
  printing on most HP SFP (single function peripheral) inkjets and many
