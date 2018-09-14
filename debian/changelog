@@ -1,3 +1,9 @@
+hplip (3.18.7+dfsg1-2) experimental; urgency=medium
+
+  * Merge 3.17.10+repack0-7 from unstable
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 14 Sep 2018 13:22:54 +0200
+
 hplip (3.18.7+dfsg1-1) experimental; urgency=medium
 
   * Additional DFSG-repack:
