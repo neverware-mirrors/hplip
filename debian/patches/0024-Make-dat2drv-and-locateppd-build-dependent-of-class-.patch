@@ -1,4 +1,4 @@
-From e7aef4ab76080c6cf5ec17c7e884241fc5706aa5 Mon Sep 17 00:00:00 2001
+From e0bdaaac1af2e1d063764e342e495bafdf927923 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 12 Mar 2018 13:37:19 +0100
 Subject: Make dat2drv and locateppd build dependent of class driver enabling;
@@ -9,10 +9,10 @@ Subject: Make dat2drv and locateppd build dependent of class driver enabling;
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 1606162a6..7eb645149 100644
+index 7b4b5bb68..1b097c4f9 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -615,12 +615,14 @@ endif # FAX_BUILD
+@@ -620,12 +620,14 @@ endif # FAX_BUILD
  endif # HPCUPS ONLY
  endif # HPCUPS_INSTALL
  
@@ -27,7 +27,7 @@ index 1606162a6..7eb645149 100644
  
  if HPPS_INSTALL
  hppsdir = $(cupsfilterdir)
-@@ -631,6 +633,7 @@ hpps_LDADD = -lcups  $(DBUS_LIBS)
+@@ -636,6 +638,7 @@ hpps_LDADD = -lcups  $(DBUS_LIBS)
  endif #HPPS_INSTALL
  
  
@@ -35,7 +35,7 @@ index 1606162a6..7eb645149 100644
  #locate driver
  locatedriverdir = $(hplipdir)
  locatedriver_PROGRAMS = locatedriver
-@@ -638,7 +641,6 @@ locatedriver_SOURCES = FindPPD.cpp FindPPD.h
+@@ -643,7 +646,6 @@ locatedriver_SOURCES = FindPPD.cpp FindPPD.h
  if GCC_GE_47
  locatedriver_CXXFLAGS = -std=c++11
  endif

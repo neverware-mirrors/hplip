@@ -1,4 +1,4 @@
-From f21c689d332c6ca6851d7bbe7a4d19b5f4b5b0c0 Mon Sep 17 00:00:00 2001
+From 655b7fb6cb895d5d0449181d5b46f1a4967adc1c Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 3 Oct 2016 11:16:48 +0200
 Subject: Fix list wrapping in scan.py to fix generated manpage
@@ -8,11 +8,11 @@ Subject: Fix list wrapping in scan.py to fix generated manpage
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/scan.py b/scan.py
-index ca5ae8079..34bbe4638 100755
+index 823190a42..131014b7d 100755
 --- a/scan.py
 +++ b/scan.py
-@@ -137,8 +137,8 @@ try:
-         extra_options=[utils.USAGE_SPACE,
+@@ -243,8 +243,8 @@ try:
+     extra_options=[utils.USAGE_SPACE,
          ("[OPTIONS] (General)", "", "header", False),
          ("Scan destinations:", "-s<dest_list> or --dest=<dest_list>", "option", False),
 -        ("", "where <dest_list> is a comma separated list containing one or more of: 'file'\*, ", "option", False),

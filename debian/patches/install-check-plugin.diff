@@ -1,4 +1,4 @@
-From 091f1e174af959163857b68e381ebf0a3b3bd439 Mon Sep 17 00:00:00 2001
+From 38697e872d7662f7eaac498a76787ed04091c402 Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:08 +0200
 Subject: Install check-plugin.py as a script
@@ -13,15 +13,15 @@ Patch-Name: install-check-plugin.diff
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 3903005b4..1606162a6 100644
+index 4bcf85604..7b4b5bb68 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -176,10 +176,10 @@ if !HPLIP_CLASS_DRIVER
+@@ -178,10 +178,10 @@ if !HPLIP_CLASS_DRIVER
  dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
  	sendfax.py setup.py makecopies.py probe.py timedate.py firmware.py scan.py systray.py plugin.py linefeedcal.py pqdiag.py \
  	faxsetup.py devicesettings.py printsettings.py query.py pkservice.py wificonfig.py diagnose_plugin.py uninstall.py \
--	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py
-+	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py check-plugin.py
+-	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py uiscan.py
++	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py uiscan.py check-plugin.py
  
  homedir = $(hplipdir)
 -dist_home_DATA =  check-plugin.py 

@@ -1,4 +1,4 @@
-From fedb895acf24ebf3880faabb50791421fb4cf20c Mon Sep 17 00:00:00 2001
+From 12b29f866845b1818efc7723883c7dd8202caf3e Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:32:50 +0200
 Subject: Cope with prnt/hpcups/ErnieFilter.{cpp,h} removal by disabling the
@@ -13,10 +13,10 @@ Patch-Name: cope-with-ErnieFilter-absence.patch
  3 files changed, 1 insertion(+), 19 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 33417f807..3903005b4 100644
+index ef6480fbf..4bcf85604 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -553,7 +553,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
+@@ -559,7 +559,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
  	prnt/hpcups/Mode2.cpp prnt/hpcups/Mode2.h prnt/hpcups/Mode3.cpp prnt/hpcups/Mode3.h \
  	prnt/hpcups/Mode9.cpp prnt/hpcups/Mode9.h prnt/hpcups/Mode10.cpp prnt/hpcups/Mode10.h \
  	prnt/hpcups/ModeDeltaPlus.cpp prnt/hpcups/ModeDeltaPlus.h prnt/hpcups/ModeJbig.cpp prnt/hpcups/ModeJbig.h \

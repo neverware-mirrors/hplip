@@ -1,4 +1,4 @@
-From 1ecc6a5f932bd6dacd43072674ad5afec4abb10c Mon Sep 17 00:00:00 2001
+From d31d254fe9a1e0d01070062f7034802638c0ad31 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:33:07 +0200
 Subject: In hp-scan's manpage, sort PAGE_SIZES in help, for the manpage to be
@@ -10,10 +10,10 @@ Patch-Name: order-page-sizes-consistently.patch
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/scan.py b/scan.py
-index 732e50133..ca5ae8079 100755
+index 659f3d140..823190a42 100755
 --- a/scan.py
 +++ b/scan.py
-@@ -174,7 +174,7 @@ try:
+@@ -280,7 +280,7 @@ try:
          ("", "Coordinates are relative to the upper left corner of the scan area.", "option", False),
          ("", "Units are specified by -t/--units (default is 'mm').", "option", False),
          ("Specify the scan area based on a paper size:", "--size=<paper size name>", "option", False),

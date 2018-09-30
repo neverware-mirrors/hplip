@@ -1,4 +1,4 @@
-From a7facbdc894fdc3c8f6b117932f8a64191267b92 Mon Sep 17 00:00:00 2001
+From 28ada594fe102419e7acfbc8d37f26ac14fbdc4a Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:55 +0200
 Subject: Make simple-scan the default scanning frontend
@@ -11,7 +11,7 @@ Patch-Name: simple-scan-as-default.patch
  2 files changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/base/utils.py b/base/utils.py
-index cbc4a258e..26108a6f1 100644
+index 26c2d9f89..61e7cf810 100644
 --- a/base/utils.py
 +++ b/base/utils.py
 @@ -565,18 +565,21 @@ class UserSettings(object): # Note: Deprecated after 2.8.8 in Qt4 (see ui4/ui_ut

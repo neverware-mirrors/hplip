@@ -639,7 +639,6 @@ int HPCupsFilter::processRasterData(cups_raster_t *cups_raster)
 
     while (cupsRasterReadHeader2(cups_raster, &cups_header))
     {
-	    dbglog("DEBUG: SHIVA inside the while loop");
 
         current_page_number++;
 
