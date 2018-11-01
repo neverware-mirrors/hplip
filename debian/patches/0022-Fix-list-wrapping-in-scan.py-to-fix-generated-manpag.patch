@@ -1,4 +1,4 @@
-From 655b7fb6cb895d5d0449181d5b46f1a4967adc1c Mon Sep 17 00:00:00 2001
+From df412334d0b6e75d0982685396eed46fc3d0ffe2 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 3 Oct 2016 11:16:48 +0200
 Subject: Fix list wrapping in scan.py to fix generated manpage
@@ -8,7 +8,7 @@ Subject: Fix list wrapping in scan.py to fix generated manpage
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/scan.py b/scan.py
-index 823190a42..131014b7d 100755
+index 43b72a4c7..8a6faae7f 100755
 --- a/scan.py
 +++ b/scan.py
 @@ -243,8 +243,8 @@ try:

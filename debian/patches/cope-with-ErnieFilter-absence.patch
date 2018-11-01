@@ -1,4 +1,4 @@
-From 12b29f866845b1818efc7723883c7dd8202caf3e Mon Sep 17 00:00:00 2001
+From 0bc41a7a56ef0e1f7246017f41cbc23afaa38896 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:32:50 +0200
 Subject: Cope with prnt/hpcups/ErnieFilter.{cpp,h} removal by disabling the
