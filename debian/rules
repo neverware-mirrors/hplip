@@ -33,7 +33,7 @@ GZIP = gzip -n --best
 ##
 
 %:
-	dh $@ --buildsystem=autoconf --with python3 --with pyppd
+	dh $@ --buildsystem=autoconf --with python3 --with pyppd --no-parallel
 
 override_dh_autoreconf:
 	dh_autoreconf --as-needed sh -- debian/autogen.sh
@@ -95,7 +95,7 @@ override_dh_auto_build:
 	# Patch out retranslateUi call like upstream does
 	sed -i s/self.retranslateUi/#self.retranslateUi/ ui5/devmgr5_base.py
 
-	dh_auto_build
+	dh_auto_build --no-parallel
 
 ##
 ## Debian packaging
