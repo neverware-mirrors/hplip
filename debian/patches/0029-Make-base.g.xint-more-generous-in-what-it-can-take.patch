@@ -1,0 +1,29 @@
+From dc0f9c2cb573df931e725dabb19e1a526a331c60 Mon Sep 17 00:00:00 2001
+From: Didier Raboud <odyx@debian.org>
+Date: Tue, 6 Nov 2018 17:57:40 +0100
+Subject: Make base.g.xint more generous in what it can take
+
+Fixes hp-doctor in python with version '2.7.15+'
+
+Closes: #912765
+---
+ base/g.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/base/g.py b/base/g.py
+index f73e23f97..15e67fc17 100644
+--- a/base/g.py
++++ b/base/g.py
+@@ -326,9 +326,9 @@ def cleanup_spinner():
+ # Convert string to int and return a list.
+ def xint(ver):
+     try:
+-        l = [int(x) for x in ver.split('.')]
+-    except:
+-        pass
++        l = [int(x.translate(None, '+~')) for x in ver.split('.')]
++    except ValueError:
++        l = []
+     return l
+ 
+ # In case of import failure of extension modules, check whether its a mixed python environment issue.   

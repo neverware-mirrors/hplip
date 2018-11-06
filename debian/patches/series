@@ -23,3 +23,7 @@ ui-patch-upstream-like.patch
 0023-Fix-handling-of-unicode-filenames-in-sixext.py.patch
 0024-Make-dat2drv-and-locateppd-build-dependent-of-class-.patch
 0025-Remove-all-ImageProcessor-functionality-which-is-clo.patch
+0026-Call-QMessageBox-constructors-of-PyQT5-with-the-corr.patch
+0027-Fixed-incomplete-removal-of-hp-toolbox-features-whic.patch
+0028-hp-check-Fix-core.distro-vs.-core.distro_name-mixups.patch
+0029-Make-base.g.xint-more-generous-in-what-it-can-take.patch

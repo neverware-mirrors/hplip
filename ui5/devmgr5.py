@@ -139,8 +139,7 @@ class PluginInstall(QObject):
             install_plugin = QMessageBox.warning(self.parent,
                                 self.parent.windowTitle(),
                                 self.__tr("<b>The HPLIP plugin is already installed.</b><p>Do you want to continue and re-install it?"),
-                                QMessageBox.Yes,
-                                QMessageBox.No,
+                                QMessageBox.Yes | QMessageBox.No,
                                 QMessageBox.NoButton) == QMessageBox.Yes
 
         if install_plugin:
@@ -149,8 +148,7 @@ class PluginInstall(QObject):
                 QMessageBox.critical(self.parent,
                     self.parent.windowTitle(),
                     self.__tr("<b>Unable to find an appropriate su/sudo utility to run hp-plugin.</b><p>Install kdesu, gnomesu, or gksu.</p>"),
-                    QMessageBox.Ok,
-                    QMessageBox.NoButton,
+                    QMessageBox.Ok | QMessageBox.NoButton,
                     QMessageBox.NoButton)
 
 
@@ -321,11 +319,11 @@ class DevMgr5(Ui_MainWindow_Derived, Ui_MainWindow, QMainWindow):
         self.PreferencesAction.setIcon(QIcon(load_pixmap('settings', '16x16')))
         self.PreferencesAction.triggered.connect(self.PreferencesAction_activated)
 
-        self.DiagnoseQueueAction.setIcon(QIcon(load_pixmap('warning', '16x16')))
-        self.DiagnoseQueueAction.triggered.connect(self.DiagnoseQueueAction_activated)
+        #self.DiagnoseQueueAction.setIcon(QIcon(load_pixmap('warning', '16x16')))
+        #self.DiagnoseQueueAction.triggered.connect(self.DiagnoseQueueAction_activated)
 
-        self.DiagnoseHPLIPAction.setIcon(QIcon(load_pixmap('troubleshoot', '16x16')))
-        self.DiagnoseHPLIPAction.triggered.connect(self.DiagnoseHPLIP_activated)
+        #self.DiagnoseHPLIPAction.setIcon(QIcon(load_pixmap('troubleshoot', '16x16')))
+        #self.DiagnoseHPLIPAction.triggered.connect(self.DiagnoseHPLIP_activated)
 
         self.ContentsAction.setIcon(QIcon(load_pixmap("help", "16x16")))
         self.ContentsAction.triggered.connect(self.helpContents)
