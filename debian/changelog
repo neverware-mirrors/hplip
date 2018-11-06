@@ -1,3 +1,20 @@
+hplip (3.18.10+dfsg0-2) unstable; urgency=low
+
+  * Import Ubuntu-triaged patches:
+    [ Till Kamppeter ]
+    - Call QMessageBox constructors of PyQT5 with the correct parameters
+      (Closes: #912768, LP: #1745383)
+    - Fixed incomplete removal of hp-toolbox features, which caused the
+      hp-toolbox not to start (Closes: #912768, LP: #1789184)
+    [ Francois Gouget ]
+    - hp-check: Fix core.distro vs. core.distro_name mixups
+      (LP: #1688684)
+  * Patch to fix hp-doctor:
+    - Make base.g.xint more generous in what it can take
+      (Closes: #912765)
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 06 Nov 2018 17:27:03 +0100
+
 hplip (3.18.10+dfsg0-1) unstable; urgency=low
 
   * New upstream version 3.18.10
