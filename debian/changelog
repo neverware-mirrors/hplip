@@ -1,3 +1,9 @@
+hplip (3.18.10+dfsg0-3) unstable; urgency=medium
+
+  * Install the missing postscript-hp PPDs (Closes: #913578)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 12 Nov 2018 20:40:15 +0100
+
 hplip (3.18.10+dfsg0-2) unstable; urgency=low
 
   * Import Ubuntu-triaged patches:
