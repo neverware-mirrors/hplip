@@ -1,3 +1,10 @@
+hplip (3.18.10+dfsg0-3~bpo9+1) stretch-backports; urgency=medium
+
+  * Rebuild for stretch-backports
+  * Add --no-parallel to dh and dh_auto_build to fix building on stable
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 13 Nov 2018 07:45:28 +0100
+
 hplip (3.18.10+dfsg0-3) unstable; urgency=medium
 
   * Install the missing postscript-hp PPDs (Closes: #913578)
