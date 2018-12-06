@@ -1,4 +1,4 @@
-From 384bab0dbdb9c5a9851a65d8d0a5082c50938096 Mon Sep 17 00:00:00 2001
+From ba9c260b399c402723c3041fc098e61a73e1860f Mon Sep 17 00:00:00 2001
 From: Francois Gouget <fgouget@free.fr>
 Date: Sat, 6 May 2017 00:00:52 +0200
 Subject: hp-check: Fix core.distro vs. core.distro_name mixups.

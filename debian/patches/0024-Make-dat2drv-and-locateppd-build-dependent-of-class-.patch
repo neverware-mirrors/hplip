@@ -1,4 +1,4 @@
-From 419cc4b7e99657b500fb0e173483e82a28e26df1 Mon Sep 17 00:00:00 2001
+From f6beb5c7404d980fc21529a3f8eea91ed0c7a366 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 12 Mar 2018 13:37:19 +0100
 Subject: Make dat2drv and locateppd build dependent of class driver enabling;
