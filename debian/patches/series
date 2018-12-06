@@ -27,3 +27,4 @@ ui-patch-upstream-like.patch
 0027-Fixed-incomplete-removal-of-hp-toolbox-features-whic.patch
 0028-hp-check-Fix-core.distro-vs.-core.distro_name-mixups.patch
 0029-Make-base.g.xint-more-generous-in-what-it-can-take.patch
+0030-Fix-linking-of-libhpipp-and-the-ext-python-extension.patch
