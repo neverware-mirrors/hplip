@@ -1,3 +1,20 @@
+hplip (3.18.12+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.18.12
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+    - Remove compiled libImageProcessor i386 & amd64 shared libraries
+      artifacts as they don't come with source
+
+  * d/copyright refresh
+  * Demote printer-driver-postscript-hp's Depends on hplip to a Suggests
+    (Closes: #915623)
+  * Add patch:
+    - Fix linking of libhpipp and the *ext python extensions (Closes: #886391)
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 06 Dec 2018 20:27:22 +0100
+
 hplip (3.18.10+dfsg0-3) unstable; urgency=medium
 
   * Install the missing postscript-hp PPDs (Closes: #913578)
