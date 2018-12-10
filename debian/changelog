@@ -1,3 +1,9 @@
+hplip (3.18.12+dfsg0-2~bpo9+1) stretch-backports; urgency=medium
+
+  * Rebuild for stretch-backports.
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 10 Dec 2018 20:33:28 +0100
+
 hplip (3.18.12+dfsg0-2) unstable; urgency=medium
 
   * printer-driver-postscript-hp: Bump Breaks/Replaces against hplip
