@@ -1,4 +1,4 @@
-From 833ee538ec60d347cf8a4dfcbdce6680205160d4 Mon Sep 17 00:00:00 2001
+From ce297785a37bd8662860eecf8a00c7a642436075 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:58 +0200
 Subject: For the Lidil printers, enable two-cartridge modes (black and color
@@ -13,7 +13,7 @@ Patch-Name: add-lidil-two-cartridge-modes.patch
  2 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/prnt/drv/hpijs.drv.in b/prnt/drv/hpijs.drv.in
-index f8f9977bc..70b760ba2 100644
+index 7f780ca3a..fd0965843 100644
 --- a/prnt/drv/hpijs.drv.in
 +++ b/prnt/drv/hpijs.drv.in
 @@ -4356,16 +4356,16 @@ le=- -"

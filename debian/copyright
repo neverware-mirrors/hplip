@@ -1,11 +1,11 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: HPLIP
-Homepage: https://developers.hp.com/hp-linux-imaging-and-printing
 Files-Excluded: locatedriver
   prnt/plugins/*.so
+Homepage: https://developers.hp.com/hp-linux-imaging-and-printing
 
 Files: *
-Copyright: 2001-2018, HP Development Company, L.P.
+Copyright: 2001-2020, HP Development Company, L.P.
 License: GPL-2+
 
 Files: Makefile.am
@@ -19,13 +19,16 @@ Copyright: 1994-2009, Free Software Foundation
 License: GPL-2+
 
 Files: Makefile_dat2drv
+  Normalize.cpp
   class_cups_drv.inc
   class_rpm_build.sh
   cups_drv.inc
   foomatic_drv.inc
+  hp-uiscan.desktop.in
   hplip-systray.desktop.in
   hplip.conf.in
   hplip.desktop.in
+  uiscan.py
   unreleased.inc
 Copyright: 2001-2018, HP Development Company, L.P.
 License: GPL-2+
@@ -157,7 +160,7 @@ Copyright: 2001-2018, HP Development Company, L.P.
 License: GPL-2+
 
 Files: io/mudext/*
-Copyright: 2001-2020, 20013, HP Development Company, L.P.
+Copyright: 2001-2020, HP Development Company, L.P.
 License: GPL-2+
 
 Files: ip/*
@@ -170,11 +173,11 @@ License: GPL-2+
 
 Files: pcard/__init__.py
   pcard/photocard.py
-Copyright: 2001-2020, 20013, HP Development Company, L.P.
+Copyright: 2001-2020, HP Development Company, L.P.
 License: GPL-2+
 
 Files: pcard/pcardext/*
-Copyright: 2001-2020, 20013, HP Development Company, L.P.
+Copyright: 2001-2020, HP Development Company, L.P.
 License: GPL-2+
 
 Files: plugins/powersettingsdialog_base.py
@@ -304,6 +307,10 @@ Files: scan/sane/bb_ledm.c
 Copyright: 2004-2015, Copyright HP Development Company, LP
 License: GPL-2+
 
+Files: scan/sane/orblite.c
+Copyright: 2004, Hewlett-Packard Company
+License: Expat
+
 Files: scan/sane/sane.h
 Copyright: 1997-1999, David Mosberger-Tang and Andreas Beck
 License: public-domain
@@ -384,6 +391,7 @@ Files: ui4/aboutdialog_base.py
   ui4/printdialog_base.py
   ui4/printsettingsdialog_base.py
   ui4/printtestpagedialog_base.py
+  ui4/scandialog.py
   ui4/sendfaxdialog_base.py
   ui4/settingsdialog_base.py
   ui4/setupdialog_base.py
@@ -415,6 +423,7 @@ Files: ui5/aboutdialog_base.py
   ui5/printsettings_base.py
   ui5/printsettingsdialog_base.py
   ui5/printtestpagedialog_base.py
+  ui5/scandialog.py
   ui5/sendfaxdialog_base.py
   ui5/settingsdialog_base.py
   ui5/setupdialog_base.py

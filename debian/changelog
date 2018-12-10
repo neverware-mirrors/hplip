@@ -1,3 +1,29 @@
+hplip (3.18.12+dfsg0-2) unstable; urgency=medium
+
+  * printer-driver-postscript-hp: Bump Breaks/Replaces against hplip
+    (Closes: #916139)
+  * Trim trailing whitespace
+  * Re-export upstream signing key without extra signatures
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 10 Dec 2018 20:12:18 +0100
+
+hplip (3.18.12+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.18.12
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+    - Remove compiled libImageProcessor i386 & amd64 shared libraries
+      artifacts as they don't come with source
+
+  * d/copyright refresh
+  * Demote printer-driver-postscript-hp's Depends on hplip to a Suggests
+    (Closes: #915623)
+  * Add patch:
+    - Fix linking of libhpipp and the *ext python extensions (Closes: #886391)
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 06 Dec 2018 20:27:22 +0100
+
 hplip (3.18.10+dfsg0-3~bpo9+1) stretch-backports; urgency=medium
 
   * Rebuild for stretch-backports
@@ -3331,7 +3357,7 @@ hplip (2.7.12-0ubuntu1) hardy; urgency=low
      o New models supported: HP LaserJet M2727 MFP (printing only, no
        scanning or fax), HP LaserJet M1005 MFP (printing only, no scanning),
        HP LaserJet 1000/1005, HP Color LaserJet 3600/3500/3550, HP LaserJet
-       9040.	
+       9040.
   * debian/rules, debian/45-hplip.rules, debian/check_mfp_printer: Removed
     /etc/udev/rules.d/45-hplip.rules and check_mfp_printer, HP provides a
     solution from upstream now.
@@ -6262,4 +6288,3 @@ hpijs (1.0-1) unstable; urgency=low
   * Initial release.
 
  -- Torsten Landschoff <torsten@debian.org>  Sat, 12 Jan 2002 03:40:10 +0100
-
