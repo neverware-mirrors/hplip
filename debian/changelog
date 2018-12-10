@@ -1,3 +1,12 @@
+hplip (3.18.12+dfsg0-2) unstable; urgency=medium
+
+  * printer-driver-postscript-hp: Bump Breaks/Replaces against hplip
+    (Closes: #916139)
+  * Trim trailing whitespace
+  * Re-export upstream signing key without extra signatures
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 10 Dec 2018 20:12:18 +0100
+
 hplip (3.18.12+dfsg0-1) unstable; urgency=medium
 
   * New upstream version 3.18.12
