@@ -112,8 +112,8 @@ Package: printer-driver-postscript-hp
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends}
-Breaks: hplip (<< 3.17.10+repack0-6)
-Replaces: hplip (<< 3.17.10+repack0-6)
+Breaks: hplip (<< 3.18.3+dfsg0-1~)
+Replaces: hplip (<< 3.18.3+dfsg0-1~)
 Suggests: hplip (>= ${binary:Version})
 Description: HP Printers PostScript Descriptions
  The HP Linux Printing and Imaging System provides full support for
