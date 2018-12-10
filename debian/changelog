@@ -3341,7 +3341,7 @@ hplip (2.7.12-0ubuntu1) hardy; urgency=low
      o New models supported: HP LaserJet M2727 MFP (printing only, no
        scanning or fax), HP LaserJet M1005 MFP (printing only, no scanning),
        HP LaserJet 1000/1005, HP Color LaserJet 3600/3500/3550, HP LaserJet
-       9040.	
+       9040.
   * debian/rules, debian/45-hplip.rules, debian/check_mfp_printer: Removed
     /etc/udev/rules.d/45-hplip.rules and check_mfp_printer, HP provides a
     solution from upstream now.
@@ -6272,4 +6272,3 @@ hpijs (1.0-1) unstable; urgency=low
   * Initial release.
 
  -- Torsten Landschoff <torsten@debian.org>  Sat, 12 Jan 2002 03:40:10 +0100
-
