@@ -1,4 +1,4 @@
-From ce297785a37bd8662860eecf8a00c7a642436075 Mon Sep 17 00:00:00 2001
+From f5b4ac40a13a08ccd562f419f47e6aa051745beb Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:58 +0200
 Subject: For the Lidil printers, enable two-cartridge modes (black and color
@@ -13,10 +13,10 @@ Patch-Name: add-lidil-two-cartridge-modes.patch
  2 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/prnt/drv/hpijs.drv.in b/prnt/drv/hpijs.drv.in
-index 7f780ca3a..fd0965843 100644
+index f645985fc..4afc5b447 100644
 --- a/prnt/drv/hpijs.drv.in
 +++ b/prnt/drv/hpijs.drv.in
-@@ -4356,16 +4356,16 @@ le=- -"
+@@ -4278,16 +4278,16 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3320&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -37,7 +37,7 @@ index 7f780ca3a..fd0965843 100644
    Attribute "FoomaticRIPOption" "PageSize" "enum CmdLine A"
    Attribute "FoomaticRIPOptionSetting" "PageSize=Letter" " -dDEVICEWIDTHPOINTS=612 -&&
  dDEVICEHEIGHTPOINTS=792"
-@@ -4824,13 +4824,13 @@ le=- -"
+@@ -4746,13 +4746,13 @@ le=- -"
  r=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;deskjet 3600&quot;"
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=300DraftColorCM&&
@@ -54,7 +54,7 @@ index 7f780ca3a..fd0965843 100644
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=High.Gray" "Quality=600Grayscal&&
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
-@@ -5292,13 +5292,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
+@@ -5205,13 +5205,13 @@ er=&quot;HEWLETT-PACKARD&quot; -sDeviceModel=&quot;Deskjet D4100&quot;&&
  "
    Attribute "FoomaticRIPOption" "PrintoutMode" "enum Composite B"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Draft" "Quality=600DraftColorCM&&
@@ -72,7 +72,7 @@ index 7f780ca3a..fd0965843 100644
  eK"
    Attribute "FoomaticRIPOptionSetting" "PrintoutMode=Photo" "Quality=600PhotoCMYKFul&&
 diff --git a/prnt/drv/hpijs.drv.in.template b/prnt/drv/hpijs.drv.in.template
-index 51cf63c1a..c70aed5ba 100644
+index 0fa633ba9..0c667bdb0 100644
 --- a/prnt/drv/hpijs.drv.in.template
 +++ b/prnt/drv/hpijs.drv.in.template
 @@ -2220,16 +2220,16 @@ le=- -"

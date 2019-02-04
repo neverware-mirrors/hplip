@@ -1,4 +1,4 @@
-From ae211a3fcfb1b827f0ec35d61f28d6b539028812 Mon Sep 17 00:00:00 2001
+From 338c29511d7f00197621840ce98aa08ba72888ab Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Wed, 3 Oct 2018 15:13:00 +0200
 Subject: Fixed incomplete removal of hp-toolbox features, which caused the

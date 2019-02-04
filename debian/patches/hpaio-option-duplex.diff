@@ -1,4 +1,4 @@
-From 968291102ee30774ad3ae8321fe3393a3b540eb6 Mon Sep 17 00:00:00 2001
+From 6c6bb55398992aa7f240a5aeff309907d3d6d823 Mon Sep 17 00:00:00 2001
 From: Matej Vela <vela@debian.org>
 Date: Fri, 22 Jul 2016 09:33:02 +0200
 Subject: Fix "duplex descriptor uninitialized"

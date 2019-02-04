@@ -1,4 +1,4 @@
-From 7e3d5687002506e04b1304994ddc68e07c56ddeb Mon Sep 17 00:00:00 2001
+From d32f8029abfa4a46624fb695481e046dc9bd1471 Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:54 +0200
 Subject: Fixed short-edge duplex for non-PS laser printers

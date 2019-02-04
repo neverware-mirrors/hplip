@@ -1,4 +1,4 @@
-From 1572e780e71fbe838ad443711a352dcbeb2c3521 Mon Sep 17 00:00:00 2001
+From a957aef9493262b577ad45e4c02cc92d1931333f Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Fri, 22 Jul 2016 09:32:59 +0200
 Subject: The hpfax CUPS backend uses its function bug() (which in turnuses

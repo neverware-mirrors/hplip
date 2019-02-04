@@ -1,4 +1,4 @@
-From ce0fc800d49e37a7ee1a44311aedd407ac4fd3de Mon Sep 17 00:00:00 2001
+From 65098fee5a892cc3bc3bd0805a0b18470bae5afd Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:08 +0200
 Subject: Install check-plugin.py as a script
