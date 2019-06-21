@@ -1,3 +1,14 @@
+hplip (3.19.5+dfsg0-1) experimental; urgency=medium
+
+  * New upstream version 3.19.5
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+    - Remove compiled libImageProcessor i386 & amd64 shared libraries
+      artifacts as they don't come with source
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 21 Jun 2019 17:08:52 +0200
+
 hplip (3.19.1+dfsg0-1) experimental; urgency=medium
 
   * New upstream version 3.19.1
