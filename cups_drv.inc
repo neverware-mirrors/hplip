@@ -296,6 +296,8 @@ cups_ppd_printers = \
    ppd/hpcups/hp-ink_tank_110_series.ppd.gz \
    ppd/hpcups/hp-ink_tank_310_series.ppd.gz \
    ppd/hpcups/hp-ink_tank_wireless_410_series.ppd.gz \
+   ppd/hpcups/hp-laser_ns_1020.ppd.gz \
+   ppd/hpcups/hp-laser_ns_mfp_1005.ppd.gz \
    ppd/hpcups/hp-laserjet_1000.ppd.gz \
    ppd/hpcups/hp-laserjet_1005_series.ppd.gz \
    ppd/hpcups/hp-laserjet_1010.ppd.gz \
@@ -511,6 +513,8 @@ cups_ppd_printers = \
    ppd/hpcups/hp-laserjet_professional_p_1102w.ppd.gz \
    ppd/hpcups/hp-mopier_240-pcl3.ppd.gz \
    ppd/hpcups/hp-mopier_320-pcl3.ppd.gz \
+   ppd/hpcups/hp-neverstop_laser_100x.ppd.gz \
+   ppd/hpcups/hp-neverstop_laser_mfp_120x.ppd.gz \
    ppd/hpcups/hp-officejet.ppd.gz \
    ppd/hpcups/hp-officejet_100_mobile_l411.ppd.gz \
    ppd/hpcups/hp-officejet_150_mobile_l511.ppd.gz \
@@ -564,6 +568,8 @@ cups_ppd_printers = \
    ppd/hpcups/hp-officejet_7500_e910.ppd.gz \
    ppd/hpcups/hp-officejet_7510_series.ppd.gz \
    ppd/hpcups/hp-officejet_7610_series.ppd.gz \
+   ppd/hpcups/hp-officejet_8010_series.ppd.gz \
+   ppd/hpcups/hp-officejet_8020_series.ppd.gz \
    ppd/hpcups/hp-officejet_8040_series.ppd.gz \
    ppd/hpcups/hp-officejet_8700.ppd.gz \
    ppd/hpcups/hp-officejet_9010_series.ppd.gz \
@@ -601,6 +607,8 @@ cups_ppd_printers = \
    ppd/hpcups/hp-officejet_pro_7730_series.ppd.gz \
    ppd/hpcups/hp-officejet_pro_7740_series.ppd.gz \
    ppd/hpcups/hp-officejet_pro_8000_a809.ppd.gz \
+   ppd/hpcups/hp-officejet_pro_8020_series.ppd.gz \
+   ppd/hpcups/hp-officejet_pro_8030_series.ppd.gz \
    ppd/hpcups/hp-officejet_pro_8100.ppd.gz \
    ppd/hpcups/hp-officejet_pro_8500_a909a.ppd.gz \
    ppd/hpcups/hp-officejet_pro_8500_a909g.ppd.gz \
@@ -789,6 +797,13 @@ cups_ppd_printers = \
    ppd/hpcups/hp-psc_950vr.ppd.gz \
    ppd/hpcups/hp-psc_950xi.ppd.gz \
    ppd/hpcups/hp-smart_tank_350_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_500_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_510_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_530_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_610_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_plus_550_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_plus_570_series.ppd.gz \
+   ppd/hpcups/hp-smart_tank_plus_650_series.ppd.gz \
    ppd/hpcups/hp-smart_tank_wireless_450_series.ppd.gz \
    ppd/hpcups/hp-tango.ppd.gz
 cups_drv = prnt/drv/hpcups.drv
