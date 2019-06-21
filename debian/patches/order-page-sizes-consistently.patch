@@ -1,4 +1,4 @@
-From 71166bc5e077ad5788720aa86367384dfdc2a5f5 Mon Sep 17 00:00:00 2001
+From a57b16863db2a87c7bf3e23b2ea05c61f5bc11ec Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Fri, 22 Jul 2016 09:33:07 +0200
 Subject: In hp-scan's manpage, sort PAGE_SIZES in help, for the manpage to be
@@ -10,7 +10,7 @@ Patch-Name: order-page-sizes-consistently.patch
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/scan.py b/scan.py
-index a75c4c706..1409a0a1c 100755
+index 67efadfac..1f7e4dc68 100755
 --- a/scan.py
 +++ b/scan.py
 @@ -291,7 +291,7 @@ try:

@@ -1,4 +1,4 @@
-From 7e4b3eb857f11f44d32b310a2d7f504ea01bf3d4 Mon Sep 17 00:00:00 2001
+From dd1cdd33beab9a5b41571d1e31be4ed5e44d2b4a Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Thu, 6 Dec 2018 20:37:59 +0100
 Subject: Fix linking of libhpipp and the *ext python extensions
@@ -9,7 +9,7 @@ Closes: #886391
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 8d5d78c9f..d8d8be0dd 100644
+index 839561b10..a704cddf1 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -306,7 +306,7 @@ dist_pcard_DATA = pcard/__init__.py pcard/photocard.py

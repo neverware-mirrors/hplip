@@ -1,4 +1,4 @@
-From 86c48898502a5b7fcff672f6312c679d335ce92e Mon Sep 17 00:00:00 2001
+From 1320e3f58b74c3a32b16d6b4bf9f46861d888a07 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Mon, 12 Mar 2018 13:37:19 +0100
 Subject: Make dat2drv and locateppd build dependent of class driver enabling;
@@ -9,7 +9,7 @@ Subject: Make dat2drv and locateppd build dependent of class driver enabling;
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 7b4b5bb68..1b097c4f9 100644
+index 2db759c03..b9381e277 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -620,12 +620,14 @@ endif # FAX_BUILD

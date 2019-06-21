@@ -1,4 +1,4 @@
-From 65098fee5a892cc3bc3bd0805a0b18470bae5afd Mon Sep 17 00:00:00 2001
+From 9c1e73f29590d4056c000d5c20a5519278cd8aa1 Mon Sep 17 00:00:00 2001
 From: Julian Andres Klode <jak@debian.org>
 Date: Fri, 22 Jul 2016 09:33:08 +0200
 Subject: Install check-plugin.py as a script
@@ -13,7 +13,7 @@ Patch-Name: install-check-plugin.diff
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 4bcf85604..7b4b5bb68 100644
+index 54a46b5eb..2db759c03 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -178,10 +178,10 @@ if !HPLIP_CLASS_DRIVER

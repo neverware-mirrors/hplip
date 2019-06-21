@@ -1,4 +1,4 @@
-From 4a32327d26d92793106ba50827ebd93f80aeb98b Mon Sep 17 00:00:00 2001
+From 41f8b3aab4c8cce89a8505925c08375cff47b036 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Tue, 21 Aug 2018 18:18:10 +0200
 Subject: Remove all ImageProcessor functionality, which is closed-source
@@ -9,7 +9,7 @@ Subject: Remove all ImageProcessor functionality, which is closed-source
  2 files changed, 2 insertions(+), 33 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 1b097c4f9..8d5d78c9f 100644
+index b9381e277..839561b10 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -166,7 +166,7 @@ if !HPLIP_CLASS_DRIVER
