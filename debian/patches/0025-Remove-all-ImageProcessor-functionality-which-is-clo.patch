@@ -1,4 +1,4 @@
-From 41f8b3aab4c8cce89a8505925c08375cff47b036 Mon Sep 17 00:00:00 2001
+From bbf260b0e3f2feb7687cbaac2c08aa2ab5e71ba2 Mon Sep 17 00:00:00 2001
 From: Didier Raboud <odyx@debian.org>
 Date: Tue, 21 Aug 2018 18:18:10 +0200
 Subject: Remove all ImageProcessor functionality, which is closed-source

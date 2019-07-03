@@ -1,4 +1,4 @@
-From b4d29cda25fd90f6015f1bd58172f0b7ee849989 Mon Sep 17 00:00:00 2001
+From ba8b2d6ee6e60e3c5d3e521170323e58dbc0a64e Mon Sep 17 00:00:00 2001
 From: Till Kamppeter <till.kamppeter@gmail.com>
 Date: Wed, 3 Oct 2018 15:13:00 +0200
 Subject: Call QMessageBox constructors of PyQT5 with the correct parameters
