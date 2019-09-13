@@ -91,7 +91,7 @@ Description: HP Linux Printing and Imaging System (HPLIP)
   * HPAIO SANE backend (hpaio) for flatbed and Automatic Document Feeder
     (ADF) scanning using MFP devices
  .
- USB, JetDirect (network) and parallel-port devices are supported.
+ USB and JetDirect (network) devices are supported.
 
 Package: hplip-data
 Architecture: all
@@ -209,7 +209,7 @@ Description: HP Linux Printing and Imaging - printer driver (hpijs)
  .
  Users of the CUPS printing system are advised to also install the
  hplip package, and use the hp CUPS backend to send data to the printer.
- HPLIP supports USB, networked and parallel-port devices, and enables
+ HPLIP supports USB and networked devices, and enables
  extended HPIJS functionality such as border-less printing.
  Selecting any hpijs ppd in CUPS will use hpijs automatically.
  .
@@ -233,7 +233,7 @@ Description: HP Linux Printing and Imaging - CUPS Raster driver (hpcups)
  .
  Users of the CUPS printing system are advised to also install the
  hplip package, and use the hp CUPS backend to send data to the printer.
- HPLIP supports USB, networked and parallel-port devices, and enables
+ HPLIP supports USB and networked devices, and enables
  extended hpcups functionality such as border-less printing.
  Selecting any hpcups ppd in CUPS will use hpcups automatically.
  .
