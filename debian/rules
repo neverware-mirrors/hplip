@@ -243,5 +243,4 @@ get-orig-source:
 	git archive --format=tar --prefix=hplip-$$urtag/ upstream/$$urtag | xz -6e > ../hplip_$$urtag.orig.tar.xz ;\
 	pristine-tar commit ../hplip_$$urtag.orig.tar.xz upstream/$$urtag ;\
 	git checkout $$curbranch ;\
-	git dpm record-new-upstream --rebase-patched ../hplip_$$urtag.orig.tar.xz $$urcommit ;\
-	git dpm update-patches -m "Merge upstream-repacked $$urtag version and refresh git-dpm patches"
+	git debrebase new-upstream $$utag $$urcommit
