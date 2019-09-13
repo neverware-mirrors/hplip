@@ -624,7 +624,7 @@ hplip (3.15.11-0ubuntu1) xenial; urgency=low
     upstream.
   * debian/patches/85_rebuild_python_ui.dpatch: Refreshed with quilt.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 20 Sep 2015 22:05:00 -0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 20 Sep 2015 22:05:00 -0200
 
 hplip (3.15.7-0ubuntu4) wily; urgency=low
 
@@ -720,7 +720,7 @@ hplip (3.15.2-0ubuntu2) vivid; urgency=low
     upstream developers and will be replaced by a more proper solution in the
     next upstream release of HPLIP (see LP: #1275353).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed,  6 Feb 2015 11:18:00 -0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Fri, 06 Feb 2015 11:18:00 -0200
 
 hplip (3.15.2-0ubuntu1) vivid; urgency=low
 
@@ -1227,7 +1227,7 @@ hplip (3.12.2-1ubuntu2) precise; urgency=low
     to the libsane-hpaio binary package, to make update from Ubuntu Lucid LTS
     to Precise LTS working (LP: #954847).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 14 Feb 2012 18:49:00 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Tue, 14 Feb 2012 18:49:00 +0100
 
 hplip (3.12.2-1ubuntu1) precise; urgency=low
 
@@ -1671,7 +1671,7 @@ hplip (3.11.1-0ubuntu1) natty; urgency=low
     modern desktop applications already have a CUPS-based printing dialog.
     Added system-config-printer instead (Closes: #608947).
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Sun, 23 Jan 2010 23:34:18 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Sat, 23 Jan 2010 23:34:18 +0100
 
 hplip (3.10.9-1) experimental; urgency=low
 
@@ -1767,7 +1767,7 @@ hplip (3.10.6-1ubuntu9) maverick; urgency=low
     lines reference the same PPD. Most printer setup tools cannot cope with
     duplicate PPD URIs.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 16 Sep 2010 00:28:03 +0200
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 16 Sep 2010 00:28:03 +0200
 
 hplip (3.10.6-1ubuntu8) maverick; urgency=low
 
@@ -2173,7 +2173,7 @@ hplip (3.9.12-2ubuntu4) lucid; urgency=low
     send a D-Bus message to update-notifier to execute the installation
     of the plugin.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 11 Feb 2009 00:06:18 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 11 Feb 2009 00:06:18 +0100
 
 hplip (3.9.12-2ubuntu3) lucid; urgency=low
 
@@ -2233,7 +2233,7 @@ hplip (3.9.10-3ubuntu4) lucid; urgency=low
   * debian/control: Add "fdupes" to the build dependencies. The utility is
     needed for the previous upload to work.
 
- -- Till Kamppeter <till.kamppeter@gmail.com>  Wed, 10 Dec 2009 09:55:18 +0100
+ -- Till Kamppeter <till.kamppeter@gmail.com>  Thu, 10 Dec 2009 09:55:18 +0100
 
 hplip (3.9.10-3ubuntu3) lucid; urgency=low
 
