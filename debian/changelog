@@ -1,8 +1,22 @@
-hplip (3.19.8+dfsg0-1) UNRELEASED; urgency=medium
+hplip (3.19.8+dfsg0-1) unstable; urgency=low
 
-  * Update to new upstream version 3.19.8+dfsg0.
+  * New 3.19.8 upstream version; to unstable
 
- -- Didier Raboud <odyx@debian.org>  Fri, 13 Sep 2019 17:04:26 +0200
+  * Convert from gbp dbm to debrebase
+  * Path some typos in BUG and DBG messages
+  * Minor packaging updates
+    - Use secure URI in debian/watch
+    - Update standards version, no changes needed
+    - Bump debhelper from old 11 to 12
+    - Set upstream metadata fields: Archive, Bug-Submit
+    - Fix day-of-week for some old changelog entries
+  * DFSG-repack:
+    - Drop compiled locatedriver and prnt/plugins/*.so
+    - Drop unlicensed files from tarball root
+    - Remove compiled libImageProcessor i386 & amd64 shared libraries
+      artifacts as they don't come with source
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 13 Sep 2019 17:25:57 +0200
 
 hplip (3.19.6+dfsg0-1) experimental; urgency=medium
 
