@@ -110,11 +110,11 @@ if PY3:
 
 
     def to_string_utf8(s):
-        return s.decode("utf-8", 'ignore')
+        return s.decode("utf-8")
 
 
     def to_string_latin(s):
-        return s.decode("latin-1", 'ignore')
+        return s.decode("latin-1")
 
 
     def to_unicode(s, enc=None):

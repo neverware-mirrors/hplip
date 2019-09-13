@@ -442,13 +442,30 @@ class SystemTrayApp(QApplication):
     def setMenu(self):
         self.menu = QMenu()
 
-        title = QAction(self.menu)
+        title = QWidgetAction(self.menu)
         #title.setDisabled(True)
 
+        hbox = QFrame(self.menu)
+        layout = QHBoxLayout(hbox)
+        # layout.setMargin(3)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(5)
+        pix_label = QLabel(hbox)
 
-        title.setText(self.__tr("HPLIP Status Service"))
-        title.setIcon(self.prop_icon)
-        title.setIconVisibleInMenu(True)
+        layout.insertWidget(-1, pix_label, 0)
+
+        icon_size = self.menu.style().pixelMetric(QStyle.PM_SmallIconSize)
+        pix_label.setPixmap(self.prop_icon.pixmap(icon_size))
+
+        label = QLabel(hbox)
+        layout.insertWidget(-1, label, 20)
+        title.setDefaultWidget(hbox)
+
+        label.setText(self.__tr("HPLIP Status Service"))
+
+        f = label.font()
+        f.setBold(True)
+        label.setFont(f)
         self.menu.insertAction(None, title)
 
         if devices:
@@ -576,9 +593,6 @@ class SystemTrayApp(QApplication):
 
         elif reason == QSystemTrayIcon.Trigger:
             #print "single click"
-            self.updateMenu()
-            if not self.menu is None:
-                self.menu.popup(QCursor.pos())
             pass
 
         elif reason == QSystemTrayIcon.MiddleClick:

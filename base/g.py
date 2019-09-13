@@ -326,9 +326,9 @@ def cleanup_spinner():
 # Convert string to int and return a list.
 def xint(ver):
     try:
-        l = [int(x.translate(None, '+~')) for x in ver.split('.')]
-    except ValueError:
-        l = []
+        l = [int(x) for x in ver.split('.')]
+    except:
+        pass
     return l
 
 # In case of import failure of extension modules, check whether its a mixed python environment issue.   

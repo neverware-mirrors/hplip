@@ -566,21 +566,18 @@ class UserSettings(object): # Note: Deprecated after 2.8.8 in Qt4 (see ui4/ui_ut
 
         # Scan
         self.cmd_scan = ''
-        path = which('simple-scan')
+        path = which('xsane')
+
         if len(path) > 0:
-            self.cmd_scan = 'simple-scan %SANE_URI%'
+            self.cmd_scan = 'xsane -V %SANE_URI%'
         else:
-            path = which('xsane')
+            path = which('kooka')
             if len(path) > 0:
-                self.cmd_scan = 'xsane -V %SANE_URI%'
+                self.cmd_scan = 'kooka'
             else:
-                path = which('kooka')
+                path = which('xscanimage')
                 if len(path) > 0:
-                    self.cmd_scan = 'kooka'
-                else:
-                    path = which('xscanimage')
-                    if len(path) > 0:
-                        self.cmd_scan = 'xscanimage'
+                    self.cmd_scan = 'xscanimage'
 
         # Photo Card
         path = which('hp-unload')

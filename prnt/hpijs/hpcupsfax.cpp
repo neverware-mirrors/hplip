@@ -43,7 +43,6 @@
 #include <arpa/inet.h>
 #include <math.h>
 #include <cups/cups.h>
-#include <cups/ppd.h>
 #include <cups/raster.h>
 #include <string>
 #ifdef FALSE

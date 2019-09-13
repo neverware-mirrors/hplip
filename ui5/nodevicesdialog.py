@@ -64,7 +64,8 @@ class NoDevicesDialog(QDialog, Ui_NoDevicesDialog_base):
             QMessageBox.critical(self,
                                     self.windowTitle(),
                                     self.__tr("<b>An error occurred.</b><p>Please re-start the Device Manager and try again."),
-                                    QMessageBox.Ok | QMessageBox.NoButton,
+                                    QMessageBox.Ok,
+                                    QMessageBox.NoButton,
                                     QMessageBox.NoButton)
 
 

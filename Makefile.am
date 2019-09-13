@@ -166,7 +166,7 @@ if !HPLIP_CLASS_DRIVER
 dist_hplip_SCRIPTS = hpssd.py __init__.py hpdio.py
 endif #HPLIP_CLASS_DRIVER
 
-dist_noinst_DATA += prnt/drv/hpijs.drv.in.template prnt/drv/hpcups.drv.in.template
+dist_noinst_DATA += prnt/drv/hpijs.drv.in.template prnt/drv/hpcups.drv.in.template prnt/hpcups/libImageProcessor-x86_64.so prnt/hpcups/libImageProcessor-x86_32.so
 dist_noinst_SCRIPTS += dat2drv.py install.py  hplip-install init-suse-firewall init-iptables-firewall class_rpm_build.sh hplipclassdriver.spec createPPD.sh Makefile_dat2drv hpijs-drv
 
 if !HPLIP_CLASS_DRIVER
@@ -178,10 +178,10 @@ if !HPLIP_CLASS_DRIVER
 dist_cmd_SCRIPTS = align.py info.py print.py toolbox.py clean.py colorcal.py unload.py testpage.py makeuri.py check.py fab.py levels.py \
 	sendfax.py setup.py makecopies.py probe.py timedate.py firmware.py scan.py systray.py plugin.py linefeedcal.py pqdiag.py \
 	faxsetup.py devicesettings.py printsettings.py query.py pkservice.py wificonfig.py diagnose_plugin.py uninstall.py \
-	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py uiscan.py check-plugin.py
+	upgrade.py config_usb_printer.py diagnose_queues.py logcapture.py doctor.py uiscan.py
 
 homedir = $(hplipdir)
-dist_home_DATA =
+dist_home_DATA =  check-plugin.py 
 dist_home_DATA +=  hplip_clean.sh
 
 # base
@@ -306,7 +306,7 @@ dist_pcard_DATA = pcard/__init__.py pcard/photocard.py
 # pcardext
 pcardextdir = $(pyexecdir)
 pcardext_LTLIBRARIES = pcardext.la
-pcardext_la_LDFLAGS = -module -avoid-version -lpython$(PYTHON_VERSION)m
+pcardext_la_LDFLAGS = -module -avoid-version
 pcardext_la_SOURCES = pcard/pcardext/pcardext.c pcard/fat.c
 pcardext_la_CFLAGS = -I$(PYTHONINCLUDEDIR)
 
@@ -321,7 +321,7 @@ lib_LTLIBRARIES += libhpipp.la
 libhpipp_la_SOURCES = protocol/hp_ipp.c protocol/hp_ipp.h protocol/hp_ipp_i.h
 libhpipp_la_CFLAGS = -DCONFDIR=\"$(hplip_confdir)\"
 libhpipp_la_LDFLAGS = -version-info 0:1:0
-libhpipp_la_LIBADD = -lcups libhpmud.la
+libhpipp_la_LIBADD = libhpmud.la
 
 # cupsext
 cupsextdir = $(pyexecdir)
@@ -329,7 +329,7 @@ cupsext_LTLIBRARIES = cupsext.la
 cupsext_la_LDFLAGS = -module -avoid-version
 cupsext_la_SOURCES =  prnt/cupsext/cupsext.c prnt/cupsext/cupsext.h
 cupsext_la_CFLAGS = -I$(PYTHONINCLUDEDIR) -Iprotocol
-cupsext_la_LIBADD = -lcups -lpython$(PYTHON_VERSION)m libhpipp.la
+cupsext_la_LIBADD = -lcups libhpipp.la
 endif #HPLIP_CLASS_DRIVER
 
 if !HPLIP_CLASS_DRIVER
@@ -341,7 +341,7 @@ dist_scan_DATA = scan/__init__.py scan/sane.py
 # scanext
 scanextdir = $(pyexecdir)
 scanext_LTLIBRARIES = scanext.la
-scanext_la_LDFLAGS = -module -avoid-version -lsane -lpython$(PYTHON_VERSION)m
+scanext_la_LDFLAGS = -module -avoid-version -lsane
 scanext_la_SOURCES =  scan/scanext/scanext.c
 scanext_la_CFLAGS = -I$(PYTHONINCLUDEDIR)
 endif #SCAN_BUILD
@@ -351,7 +351,7 @@ endif #!HPLIP_CLASS_DRIVER
 if !HPLIP_CLASS_DRIVER
 hpmudextdir = $(pyexecdir)
 hpmudext_LTLIBRARIES = hpmudext.la
-hpmudext_la_LDFLAGS = -module -avoid-version -lpython$(PYTHON_VERSION)m
+hpmudext_la_LDFLAGS = -module -avoid-version
 hpmudext_la_SOURCES = io/mudext/hpmudext.c
 hpmudext_la_CFLAGS = -I$(PYTHONINCLUDEDIR)
 hpmudext_la_LIBADD = libhpmud.la
@@ -559,7 +559,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
 	prnt/hpcups/Mode2.cpp prnt/hpcups/Mode2.h prnt/hpcups/Mode3.cpp prnt/hpcups/Mode3.h \
 	prnt/hpcups/Mode9.cpp prnt/hpcups/Mode9.h prnt/hpcups/Mode10.cpp prnt/hpcups/Mode10.h \
 	prnt/hpcups/ModeDeltaPlus.cpp prnt/hpcups/ModeDeltaPlus.h prnt/hpcups/ModeJbig.cpp prnt/hpcups/ModeJbig.h \
-	prnt/hpcups/EncapsulatorFactory.cpp prnt/hpcups/EncapsulatorFactory.h \
+	prnt/hpcups/ErnieFilter.cpp prnt/hpcups/ErnieFilter.h prnt/hpcups/EncapsulatorFactory.cpp prnt/hpcups/EncapsulatorFactory.h \
 	prnt/hpcups/Encapsulator.cpp prnt/hpcups/Encapsulator.h prnt/hpcups/Pcl3.cpp prnt/hpcups/Pcl3.h \
 	prnt/hpcups/Pcl3Gui.cpp prnt/hpcups/Pcl3Gui.h prnt/hpcups/Pcl3Gui2.cpp prnt/hpcups/Pcl3Gui2.h \
 	prnt/hpcups/LJMono.cpp prnt/hpcups/LJMono.h prnt/hpcups/LJColor.cpp prnt/hpcups/LJColor.h \
@@ -594,7 +594,7 @@ hpcups_SOURCES = prnt/hpcups/HPCupsFilter.cpp prnt/hpcups/HPCupsFilter.h prnt/hp
 	prnt/hpcups/ImageProcessor.h
 
 hpcups_CXXFLAGS = $(APDK_ENDIAN_FLAG) $(DBUS_CFLAGS)
-hpcups_LDADD = -L./prnt/hpcups/ -ljpeg -ldl -lcups -lcupsimage -lz $(DBUS_LIBS)
+hpcups_LDADD = -L./prnt/hpcups/ -ljpeg -ldl -lImageProcessor -lcups -lcupsimage -lz $(DBUS_LIBS)
 #else
 #hpcupsdir = $(cupsfilterdir)
 #hpcups_PROGRAMS = hpcups
@@ -620,14 +620,12 @@ endif # FAX_BUILD
 endif # HPCUPS ONLY
 endif # HPCUPS_INSTALL
 
-if HPLIP_CLASS_DRIVER
 dat2drvdir = $(hplipdir)
 dat2drv_PROGRAMS = dat2drv
 dat2drv_SOURCES = Common.h  Dat2drv.cpp  Dat2drv.h Normalize.cpp  Normalize.h
 if GCC_GE_47
 dat2drv_CXXFLAGS = -std=c++11
 endif
-endif # HPLIP_CLASS_DRIVER
 
 if HPPS_INSTALL
 hppsdir = $(cupsfilterdir)
@@ -638,7 +636,6 @@ hpps_LDADD = -lcups  $(DBUS_LIBS)
 endif #HPPS_INSTALL
 
 
-if HPLIP_CLASS_DRIVER
 #locate driver
 locatedriverdir = $(hplipdir)
 locatedriver_PROGRAMS = locatedriver
@@ -646,6 +643,7 @@ locatedriver_SOURCES = FindPPD.cpp FindPPD.h
 if GCC_GE_47
 locatedriver_CXXFLAGS = -std=c++11
 endif
+if HPLIP_CLASS_DRIVER
 dist_locatedriver_DATA = locatedriver
 endif #HPLIP_CLASS_DRIVER
 
@@ -686,6 +684,16 @@ endif #HPLIP_CLASS_DRIVER
 
 install-data-hook:
 if HPLIP_BUILD
+	if [ \( "$(UNAME)" = "x86_64" -a  -d "$(libdir)/" \) ]; then \
+		cp prnt/hpcups/libImageProcessor-x86_64.so $(libdir)/ ; \
+		chmod 775 $(libdir)/libImageProcessor-x86_64.so ; \
+		ln -sf $(libdir)/libImageProcessor-x86_64.so $(libdir)/libImageProcessor.so ; \
+	fi; \
+	if [ \( \( "$(UNAME)" = "i686" -o "$(UNAME)" = "i386" \) -a -d "$(libdir)/" \) ]; then \
+		cp prnt/hpcups/libImageProcessor-x86_32.so $(libdir)/ ; \
+		chmod 775 $(libdir)/libImageProcessor-x86_32.so ; \
+		ln -sf $(libdir)/libImageProcessor-x86_32.so $(libdir)/libImageProcessor.so ; \
+	fi
 if !HPLIP_CLASS_DRIVER
 #	   If scanner build, add hpaio entry to sane dll.conf.
 	if [ "$(scan_build)" = "yes" ]; then \

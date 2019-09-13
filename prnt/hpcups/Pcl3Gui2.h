@@ -60,6 +60,7 @@ private:
     DRIVER_ERROR encapsulateRaster(BYTE *input_raster, unsigned int num_bytes, COLORTYPE c_type);
     bool    speed_mech_enabled;
     int     page_number;
+    bool    m_run_ernie_filter;
     eCrdType    crd_type;
 };
 

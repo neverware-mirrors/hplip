@@ -30,7 +30,7 @@ from base.codes import *
 from base import device, utils, exif
 
 try:
-    import pcardext
+    from . import pcardext
 except ImportError:
     if not os.getenv("HPLIP_BUILD"):
         log.error("PCARDEXT could not be loaded. Please check HPLIP installation.")
