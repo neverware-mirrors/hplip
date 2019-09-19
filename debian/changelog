@@ -1,3 +1,11 @@
+hplip (3.19.8+dfsg0-3) unstable; urgency=medium
+
+  * Cleanup patch queue:
+    - Remove all manual patch names
+    - Rewrite libhpmud.so.0 dlopen call
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 19 Sep 2019 09:22:23 +0200
+
 hplip (3.19.8+dfsg0-2) unstable; urgency=medium
 
   [ Brian Potkin ]
