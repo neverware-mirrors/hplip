@@ -29,3 +29,8 @@ ui-patch-upstream-like.patch
 0029-Make-base.g.xint-more-generous-in-what-it-can-take.patch
 0030-Fix-linking-of-libhpipp-and-the-ext-python-extension.patch
 0031-Fix-some-typos-in-BUG-and-DBG-messages.patch
+0032-Fix-version-pattern-check-to-support-ghostscript-RC-.patch
+0033-Fix-the-PIL.Image-version-check-to-work-with-Pillow-.patch
+0034-Don-t-gpg-import-but-rely-on-installed-signing_key.a.patch
+0035-Shortcut-distros.dat-finding-to-point-to-where-it-is.patch
+0036-Accelerate-HTTP-check-by-doing-a-HEAD-not-a-GET.patch
