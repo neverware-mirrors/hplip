@@ -1,3 +1,18 @@
+hplip (3.19.8+dfsg0-2) unstable; urgency=medium
+
+  [ Brian Potkin ]
+  * Drop 'parallel-port' mentions in package descriptions
+    (Closes: #933941)
+
+  [ Didier Raboud ]
+  * Fix version pattern check to support ghostscript RC versions
+  * Fix the PIL.Image version check, to work with  Pillow > 6
+  * Don't gpg --import, but rely on installed signing_key.asc
+  * Shortcut distros.dat finding to point to where it is
+  * Accelerate HTTP check by doing a HEAD, not a GET
+
+ -- Didier Raboud <odyx@debian.org>  Thu, 19 Sep 2019 08:54:05 +0200
+
 hplip (3.19.8+dfsg0-1) unstable; urgency=low
 
   * New 3.19.8 upstream version; to unstable
