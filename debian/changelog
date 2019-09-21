@@ -1,3 +1,15 @@
+hplip (3.19.8+dfsg0-4) unstable; urgency=medium
+
+  * Add autopkgtests
+  * Fix hp-doctor shebang to also use python3
+  * Patch upstream code to enforce Debian assumptions:
+    - The distro version is supported
+    - Auto installation is not allowed
+    - Forbid hplip's installer to install "missing" packages by itself
+  * printer-driver-postscript-hp: fix driver regexp for the CUPS trigger
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 21 Sep 2019 19:02:38 +0200
+
 hplip (3.19.8+dfsg0-3) unstable; urgency=medium
 
   * Cleanup patch queue:
