@@ -145,7 +145,7 @@ endif
 
 	# Correct Python interpreter path in all executables, and 'upgrade' it to $(PYTHON)
 	for file in ./debian/tmp/usr/bin/* ./debian/tmp/usr/lib/cups/*/*; do \
-	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/env\s+python.*:#!/usr/bin/$(PYTHON):' `readlink -f $$file`; \
+	    perl -p -i -e 's:^\s*\#\!\s*/usr/bin/(env\s+)?python.*:#!/usr/bin/$(PYTHON):' `readlink -f $$file`; \
 	done
 
 	# Remove unneeded explicit calls of the Python interpreter to let the
