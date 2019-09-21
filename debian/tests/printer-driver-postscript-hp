@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/cups/ppd-updaters/printer-driver-postscript-hp.ppd-updater
+
+/usr/share/cups/test-drivers -n adt-test-postscript-hp-0 -r $DRIVER_REGEXP

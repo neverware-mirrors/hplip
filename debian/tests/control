@@ -1,0 +1,11 @@
+Tests: printer-driver-hpcups
+Restrictions: needs-root
+Depends: printer-driver-hpcups, cups, cups-client (>= 1.7.3-5~)
+
+Tests: printer-driver-hpijs
+Restrictions: needs-root
+Depends: printer-driver-hpijs, cups, cups-client (>= 1.7.3-5~)
+
+Tests: printer-driver-postscript-hp
+Restrictions: needs-root
+Depends: printer-driver-postscript-hp, cups, cups-client (>= 1.7.3-5~)
