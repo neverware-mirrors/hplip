@@ -1,8 +1,15 @@
-hplip (3.19.8+dfsg0-6) UNRELEASED; urgency=medium
+hplip (3.19.8+dfsg0-6) unstable; urgency=medium
 
-  * WIP on autopkgtests
+  * Fix autopkgtests:
+    - hpcups: Only test drivers that don't need a proprietary driver
+    - hpijs: drop test; as it's too hard to determine which don't need a
+      proprietary driver
+  * Fix HEAD-instead-of-GET patch: follow redirects
+  * Circumvent new CUPS restriction against 'Custom' in PPD options
+    through modifying all printer-driver-postscript-hp ppds to use
+    'Customized'
 
- -- Didier Raboud <odyx@debian.org>  Mon, 23 Sep 2019 08:39:52 +0200
+ -- Didier Raboud <odyx@debian.org>  Mon, 23 Sep 2019 16:56:59 +0200
 
 hplip (3.19.8+dfsg0-5) unstable; urgency=medium
 
