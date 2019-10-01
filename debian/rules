@@ -95,6 +95,9 @@ override_dh_auto_build:
 	# Patch out retranslateUi call like upstream does
 	sed -i s/self.retranslateUi/#self.retranslateUi/ ui5/devmgr5_base.py
 
+	# Rebuild the .drv.in files from drv.in.template
+	$(PYTHON) ./dat2drv.py
+	
 	dh_auto_build
 
 ##
