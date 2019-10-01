@@ -1,3 +1,15 @@
+hplip (3.19.8+dfsg0-7) unstable; urgency=medium
+
+  [ Didier Raboud ]
+  * Fix dat2drv.py to run with python3; run it at build-time to recreate the
+    .drv.in files from their templates
+
+  [ Till Kamppeter ]
+  * Remove all page size choices named "Custom". they break with CUPS and are
+    also identical with US Legal
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 01 Oct 2019 21:57:52 +0200
+
 hplip (3.19.8+dfsg0-6) unstable; urgency=medium
 
   * Fix autopkgtests:
