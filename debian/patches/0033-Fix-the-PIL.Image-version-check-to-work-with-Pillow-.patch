@@ -1,0 +1,22 @@
+From: Didier Raboud <odyx@debian.org>
+Date: Wed, 18 Sep 2019 21:09:05 +0200
+Subject: Fix the PIL.Image version check, to work with  Pillow > 6
+
+(Debian has Pillow 6.1 from Bullseye on)
+---
+ installer/dcheck.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/installer/dcheck.py b/installer/dcheck.py
+index 2d0978e..d011c97 100644
+--- a/installer/dcheck.py
++++ b/installer/dcheck.py
+@@ -370,7 +370,7 @@ def get_pil_version():
+     except ImportError:
+         return '-'
+     else:
+-         return Image.VERSION
++         return Image.__version__
+ 
+ def get_libpthread_version():
+     try:
