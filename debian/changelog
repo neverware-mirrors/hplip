@@ -1,3 +1,9 @@
+hplip (3.19.8+dfsg0-7+exp0) experimental; urgency=medium
+
+  * CI: Test all drivers; to see if we hit a timeout on ci.debian.net
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 02 Oct 2019 08:11:38 +0200
+
 hplip (3.19.8+dfsg0-7) unstable; urgency=medium
 
   [ Didier Raboud ]
