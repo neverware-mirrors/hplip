@@ -10,7 +10,7 @@ Subject: Add 'include <cups/ppd.h>' in various places as CUPS 2.2 moved some
  3 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/configure.in b/configure.in
-index cabda2d..263374f 100755
+index 581445a..a0d9ba2 100755
 --- a/configure.in
 +++ b/configure.in
 @@ -594,7 +594,7 @@ fi

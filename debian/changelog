@@ -1,3 +1,9 @@
+hplip (3.19.12+dfsg0-1) unstable; urgency=medium
+
+  * New 3.19.12 upstream version
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 13 Dec 2019 15:07:03 +0100
+
 hplip (3.19.11+dfsg0-1) unstable; urgency=medium
 
   * New 3.19.11 upstream version
