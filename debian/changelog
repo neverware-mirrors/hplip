@@ -1,3 +1,9 @@
+hplip (3.19.12+dfsg0-3) unstable; urgency=medium
+
+  * Convert str.translate to a py3-compatible version (Closes: #948932)
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 17 Jan 2020 15:12:43 +0100
+
 hplip (3.19.12+dfsg0-2) unstable; urgency=medium
 
   [ Pino Toscano ]
