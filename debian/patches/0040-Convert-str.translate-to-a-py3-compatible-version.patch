@@ -1,0 +1,22 @@
+From: Didier Raboud <odyx@debian.org>
+Date: Fri, 17 Jan 2020 15:06:12 +0100
+Subject: Convert str.translate to a py3-compatible version
+
+Closes: #948932
+---
+ base/utils.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/base/utils.py b/base/utils.py
+index eff780f..c025c87 100644
+--- a/base/utils.py
++++ b/base/utils.py
+@@ -958,7 +958,7 @@ else:
+ 
+ def printable(s):
+     if s:
+-        return s.translate(identity, unprintable)
++        return "".join(c for c in s.translate(identity) if c not in unprintable)
+     else:
+         return ""
+ 

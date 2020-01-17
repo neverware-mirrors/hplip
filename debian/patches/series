@@ -37,3 +37,4 @@
 0037-Enforce-Debian-assumptions.patch
 0038-Removed-all-page-size-choices-named-Custom-.-they-br.patch
 0039-PY3-Fix-dat2drv.py.patch
+0040-Convert-str.translate-to-a-py3-compatible-version.patch
