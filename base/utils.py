@@ -958,7 +958,7 @@ else:
 
 def printable(s):
     if s:
-        return s.translate(identity, unprintable)
+        return "".join(c for c in s.translate(identity) if c not in unprintable)
     else:
         return ""
 
