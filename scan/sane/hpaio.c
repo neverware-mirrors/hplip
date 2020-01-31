@@ -40,6 +40,7 @@
 #include "soap.h"
 #include "soapht.h"
 #include "marvell.h"
+#include "mdns.h"
 #include "hpaio.h"
 #include "ledm.h"
 #include "sclpml.h"
