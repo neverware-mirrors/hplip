@@ -31,6 +31,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "mdns.h"
 
 /* Convert "www.google.com" to "3www6google3com". */
