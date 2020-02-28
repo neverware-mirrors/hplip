@@ -24,7 +24,7 @@ Build-Depends: autoconf,
                libusb2-dev [kfreebsd-any],
                patch,
                policykit-1,
-               pyppd (>= 1.0.1),
+               pyppd,
                pyqt5-dev-tools,
                python3-dev,
                python3-dbus,
@@ -163,7 +163,7 @@ Description: HP Linux Printing and Imaging - documentation
 
 Package: hpijs-ppds
 Architecture: all
-Depends: cups-filters (>= 1.0.42) | foomatic-filters,
+Depends: cups-filters | foomatic-filters,
          printer-driver-hpijs (>= ${source:Version}),
          ${misc:Depends}
 Breaks: foomatic-filters-ppds (>> 20000101),
@@ -187,7 +187,7 @@ Depends: libhpmud0 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Recommends: cups | hpijs-ppds,
-            cups-filters (>= 1.0.42) | foomatic-filters,
+            cups-filters | foomatic-filters,
             ghostscript
 Suggests: hpijs-ppds,
           hplip,
@@ -219,7 +219,7 @@ Package: printer-driver-hpcups
 Architecture: any
 Section: text
 Depends: cups,
-         cups-filters (>= 1.0.36) | ghostscript-cups,
+         cups-filters | ghostscript-cups,
          ${misc:Depends},
          ${shlibs:Depends}
 Suggests: hplip (= ${binary:Version}),
