@@ -1,3 +1,9 @@
+hplip (3.20.2-1) UNRELEASED; urgency=medium
+
+  * Update to new upstream version 3.20.2.
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 28 Feb 2020 18:07:41 +0100
+
 hplip (3.19.12+dfsg0-4) unstable; urgency=medium
 
   * Import 34 patches from Fedora, which huge thanks to them!
