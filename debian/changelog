@@ -1211,7 +1211,8 @@ hplip (3.13.2-0ubuntu1) raring; urgency=low
     debian/patches/remove-duplicate-entry-for-cp1700-in-drv-files.dpatch,
     debian/patches/CVE-2010-4267.dpatch,
     debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
-    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch: Refreshed with Quilt.
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
+    Refreshed with Quilt.
   * debian/patches/kde4-kdesudo-support.dpatch: Removed, not applicable any
     more.
   * debian/patches/hplip-syslog-fix-debug-messages-to-error.dpatch: Removed,
@@ -1553,10 +1554,9 @@ hplip (3.11.10-0ubuntu1) precise; urgency=low
 hplip (3.11.7-1ubuntu3) oneiric; urgency=low
 
   * debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch:
-    Simplified the construction of the title line of the hp-systray applet
-    menu, so that the applet-to-indicator converter sni-qt also imports this
-    title line (at least the text of it). Thanks to Aurelien Gateau for this
-    patch.
+    Simplified the construction of the title line of the hp-systray applet menu,
+    so that the applet-to-indicator converter sni-qt also imports this title
+    line (at least the text of it). Thanks to Aurelien Gateau for this patch.
   * debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
     Make the menu of the hp-systray applet appearing when the applet is
     converted to an indicator applet by sni-qt and put into the notification
