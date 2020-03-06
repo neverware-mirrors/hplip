@@ -20,10 +20,11 @@ case "$1" in
 	  exit 1
 	}
 
-	for i in /run/hplip
+        # Statoverrides in ephemeral directories don't work. They should be removed (#952580)
+	for i in /run/hplip /var/run/hplip
 	do
 		if ! dpkg-statoverride --list $i > /dev/null; then
-			dpkg-statoverride --update --add hplip root 755 $i
+			dpkg-statoverride --remove $i
 		fi
 	done
 
