@@ -1,3 +1,14 @@
+hplip (3.20.2+dfsg0-2) unstable; urgency=medium
+
+  * Drop dpkg-statoverrides as they are pointless (in /run and /var/run)
+  * (Closes: #952780)
+  * Empty hplip-data's /usr/share/hplip/*/__pycache__ in prerm
+    (Closes: #953097)
+  * Backport Ubuntu patch from Matthias Klose to fix building with Python 3.8
+    (Closes: #953095, #946561)
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 06 Mar 2020 17:13:48 +0100
+
 hplip (3.20.2+dfsg0-1) unstable; urgency=medium
 
   * New 3.20.2 upstream version
