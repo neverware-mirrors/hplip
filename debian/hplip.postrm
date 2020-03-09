@@ -36,7 +36,9 @@ case "$1" in
 		kill_python_crappage
 
 		for i in /run/hplip /var/run/hplip /var/log/hp/tmp; do
-			dpkg-statoverride --remove $i || true
+			if dpkg-statoverride --list $i > /dev/null; then
+				dpkg-statoverride --remove $i || true
+			fi
 		done
 
     		[ -d /run/hplip ] && rm -fr /run/hplip

@@ -23,7 +23,7 @@ case "$1" in
         # Statoverrides in ephemeral directories don't work. They should be removed (#952580)
 	for i in /run/hplip /var/run/hplip
 	do
-		if ! dpkg-statoverride --list $i > /dev/null; then
+		if dpkg-statoverride --list $i > /dev/null; then
 			dpkg-statoverride --remove $i
 		fi
 	done
