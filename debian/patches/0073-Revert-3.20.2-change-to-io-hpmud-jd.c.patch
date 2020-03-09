@@ -1,0 +1,20 @@
+From: Didier Raboud <odyx@debian.org>
+Date: Mon, 9 Mar 2020 14:14:41 +0100
+Subject: Revert 3.20.2 change to io/hpmud/jd.c
+
+---
+ io/hpmud/jd.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/io/hpmud/jd.c b/io/hpmud/jd.c
+index 1980fab..20df27a 100644
+--- a/io/hpmud/jd.c
++++ b/io/hpmud/jd.c
+@@ -620,7 +620,6 @@ enum HPMUD_RESULT __attribute__ ((visibility ("hidden"))) jd_s_channel_write(mud
+    FD_SET(pc->socket, &master);
+    maxfd = pc->socket;
+    size = length;
+-   size=strlen(buf);
+ 
+    while (size > 0)
+    {
