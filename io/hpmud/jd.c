@@ -620,7 +620,6 @@ enum HPMUD_RESULT __attribute__ ((visibility ("hidden"))) jd_s_channel_write(mud
    FD_SET(pc->socket, &master);
    maxfd = pc->socket;
    size = length;
-   size=strlen(buf);
 
    while (size > 0)
    {
