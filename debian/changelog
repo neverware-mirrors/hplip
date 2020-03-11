@@ -1,3 +1,9 @@
+hplip (3.20.3-1) UNRELEASED; urgency=medium
+
+  * Update to new upstream version 3.20.3.
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 11 Mar 2020 15:20:47 +0100
+
 hplip (3.20.2+dfsg0-3) unstable; urgency=high
 
   * Fix dpkg-statoverride calls (Closes: #953318)
