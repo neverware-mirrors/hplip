@@ -1,3 +1,10 @@
+hplip (3.20.2+dfsg0-1+deb11u1) bullseye; urgency=medium
+
+  * Upload to bullseye to fix a grave regression before python3.8:
+    - Revert 3.20.2 change to io/hpmud/jd.c (Closes: #953104)
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 13 Mar 2020 15:32:43 +0100
+
 hplip (3.20.2+dfsg0-1) unstable; urgency=medium
 
   * New 3.20.2 upstream version
