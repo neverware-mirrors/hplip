@@ -2035,7 +2035,7 @@ class CoreInstall(object):
 
         home_dir = sys_conf.get("dirs", "home", "")
         version = sys_conf.get("hplip", "version", "0.0.0")
-        if home_dir is "":
+        if home_dir == "":
             log.error("HPLIP is not installed.")
             return False
 
