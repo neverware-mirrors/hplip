@@ -1,3 +1,13 @@
+hplip (3.20.3+dfsg0-2) unstable; urgency=medium
+
+  * Patch upstream for python3.8 support:
+    - Fix SyntaxWarning: "is"/"is not" with a literal (Closes: #955168,
+      #954732, LP: #1870019)
+    - Assume the python3-distro package is available, depend on it
+      (Closes: #955137)
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 01 Apr 2020 08:51:28 +0200
+
 hplip (3.20.3+dfsg0-1) unstable; urgency=medium
 
   * New 3.20.3 upstream version
