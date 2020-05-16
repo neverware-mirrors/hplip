@@ -1,3 +1,4 @@
+usr/bin/hp-uiscan
 usr/bin/hp-unload
 usr/bin/.hplip/hp-toolbox.lock
 usr/bin/.hplip/hplip.conf
