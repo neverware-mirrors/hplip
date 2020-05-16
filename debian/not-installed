@@ -2,5 +2,4 @@ usr/bin/hp-uiscan
 usr/bin/hp-unload
 usr/bin/.hplip/hp-toolbox.lock
 usr/bin/.hplip/hplip.conf
-usr/lib/x86_64-linux-gnu/sane/libsane-hpaio.so
-
+usr/lib/*/sane/libsane-hpaio.so
