@@ -1,3 +1,9 @@
+hplip (3.20.5+dfsg0-2) unstable; urgency=medium
+
+  * Fix non-amd64 libsane-hpaio.so non-installation
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 16 May 2020 13:42:36 +0200
+
 hplip (3.20.5+dfsg0-1) unstable; urgency=medium
 
   * New 3.20.5 upstream version
