@@ -776,7 +776,7 @@ static int device_id(int fd, unsigned char *buffer, int size)
         len = size-1;   /* leave byte for zero termination */
     if (len > 2)
         len -= 2;
-    memcpy(buffer, buffer+2, len);    /* remove length */
+    memmove(buffer, buffer+2, len);    /* remove length */
     buffer[len]=0;
     DBG("read actual device_id successfully fd=%d len=%d\n", fd, len);
 
@@ -1455,7 +1455,7 @@ enum HPMUD_RESULT __attribute__ ((visibility ("hidden"))) musb_raw_channel_write
                     BUG("unable to write data %s: %d second io timeout\n", msp->device[pc->dindex].uri, sec_timeout);
             }
             else
-                BUG("unable to write data (len = %d) %s: %m\n", msp->device[pc->dindex].uri, len);
+                BUG("unable to write data (len = %d) %s: %m\n", len, msp->device[pc->dindex].uri);
             goto bugout;
         }
 		if(len == 0 && size > 0)

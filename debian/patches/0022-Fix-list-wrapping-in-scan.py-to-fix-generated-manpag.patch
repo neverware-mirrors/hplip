@@ -7,10 +7,10 @@ Subject: Fix list wrapping in scan.py to fix generated manpage
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/scan.py b/scan.py
-index 805b1fa..67e2833 100755
+index 585322b..1e93982 100755
 --- a/scan.py
 +++ b/scan.py
-@@ -247,8 +247,8 @@ try:
+@@ -248,8 +248,8 @@ try:
      extra_options=[utils.USAGE_SPACE,
          ("[OPTIONS] (General)", "", "header", False),
          ("Scan destinations:", "-s<dest_list> or --dest=<dest_list>", "option", False),

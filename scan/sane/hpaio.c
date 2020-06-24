@@ -40,6 +40,7 @@
 #include "soap.h"
 #include "soapht.h"
 #include "marvell.h"
+#include "mdns.h"
 #include "hpaio.h"
 #include "ledm.h"
 #include "sclpml.h"
@@ -303,10 +304,10 @@ static int DevDiscovery(int localOnly)
         GetUriLine(tail, uri, &tail);
         total += AddDevice(uri);
     }
-
+    memset(message, 0, sizeof(message));
     /* Look for Network Scan devices if localonly flag if FALSE. */
     if (!localOnly)
-    {
+    {   
         /* Look for all-in-one scan devices for which print queue created */
         cnt = GetCupsPrinters(&cups_printer);
         for (i=0; i<cnt; i++)

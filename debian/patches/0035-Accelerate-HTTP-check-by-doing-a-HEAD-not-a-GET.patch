@@ -7,7 +7,7 @@ Subject: =?utf-8?q?Accelerate_HTTP=C2=A0check_by_doing_a_HEAD=2C_not_a_GET?=
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/base/utils.py b/base/utils.py
-index 9f9cfb1..eff780f 100644
+index db126b4..abf771e 100644
 --- a/base/utils.py
 +++ b/base/utils.py
 @@ -2248,12 +2248,14 @@ def check_library( so_file_path):

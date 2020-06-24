@@ -8,10 +8,10 @@ LP: #213984
  1 file changed, 77 insertions(+)
 
 diff --git a/data/models/models.dat b/data/models/models.dat
-index 8d172fa..1a67549 100644
+index 8548563..26cfc80 100644
 --- a/data/models/models.dat
 +++ b/data/models/models.dat
-@@ -52361,6 +52361,83 @@ usb-pid=d12
+@@ -52244,6 +52244,83 @@ usb-pid=d12
  usb-vid=3f0
  wifi-config=0
  

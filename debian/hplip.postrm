@@ -35,11 +35,13 @@ case "$1" in
 	purge)
 		kill_python_crappage
 
-		for i in /var/run/hplip /var/log/hp/tmp; do
-			dpkg-statoverride --remove $i || true
+		for i in /run/hplip /var/run/hplip /var/log/hp/tmp; do
+			if dpkg-statoverride --list $i > /dev/null; then
+				dpkg-statoverride --remove $i || true
+			fi
 		done
 
-    		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
+    		[ -d /run/hplip ] && rm -fr /run/hplip
 		[ -d /var/log/hp/tmp ] && rm -fr /var/log/hp/tmp
 	;;
     *)

@@ -7,7 +7,7 @@ case "$1" in
 	# add hplip system user (requires adduser >= 3.34)
 	# don't muck around with this unless you KNOW what you're doing
 	echo "Creating/updating hplip user account..."
-	adduser --system --ingroup lp --home /var/run/hplip \
+	adduser --system --ingroup lp --home /run/hplip \
 		--gecos "HPLIP system user" --shell /bin/false \
 		--quiet --disabled-password hplip || {
 	  # adduser failed. Why?
@@ -20,10 +20,11 @@ case "$1" in
 	  exit 1
 	}
 
-	for i in /var/run/hplip
+        # Statoverrides in ephemeral directories don't work. They should be removed (#952580)
+	for i in /run/hplip /var/run/hplip
 	do
-		if ! dpkg-statoverride --list $i > /dev/null; then
-			dpkg-statoverride --update --add hplip root 755 $i
+		if dpkg-statoverride --list $i > /dev/null; then
+			dpkg-statoverride --remove $i
 		fi
 	done
 

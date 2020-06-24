@@ -26,7 +26,7 @@
 #   104 = no libdl
 
 #AC_PREREQ(2.59)
-AC_INIT([HP Linux Imaging and Printing], [3.19.8], [3.19.8], [hplip])
+AC_INIT([HP Linux Imaging and Printing], [3.20.6], [3.20.6], [hplip])
 #AM_INIT_AUTOMAKE([1.9 foreign])
 AM_INIT_AUTOMAKE
 AC_DISABLE_STATIC
@@ -604,6 +604,31 @@ if test "$class_driver" = "no" && test "$hpijs_only_build" = "no" && test "$hpcu
    fi
 fi
 
+AC_PATH_PROG(python3_config_path, python3-config, [AC_MSG_ERROR([python3-config not installed], 6)])
+
+PYTHON_INCLUDES=`$python3_config_path --includes`
+if test "X$PYTHON_INCLUDES" == "X" ; then
+  AC_MSG_ERROR([Cannot get Python includes via python3-config], 6)
+fi
+
+PYTHON_LIBS=`$python3_config_path --libs`
+if test "X$PYTHON_LIBS" == "X" ; then
+  AC_MSG_ERROR([Cannot get Python libs via python3-config], 6)
+fi
+
+SAVE_CFLAGS=$CFLAGS
+SAVE_LIBS=$LIBS
+
+CFLAGS="$CFLAGS $PYTHON_INCLUDES"
+LIBS="$LIBS $PYTHON_LIBS"
+
+AC_TRY_LINK(,[ ], AC_MSG_RESULT(yes); python_includes="ok", AC_MSG_ERROR([no: PYTHON DISABLED], 6))
+
+if test "X$python_includes" != "Xok" ; then
+  CFLAGS="$SAVE_CFLAGS"
+  LIBS="$SAVE_LIBS"
+fi
+
 if test "$class_driver" = "no" && test "$hpijs_only_build" = "no" && test "$lite_build" = "no" && test "$hpcups_only_build" = "no"; then
    AC_ARG_VAR([PYTHON], [Python interpreter/compiler command])
    AM_PATH_PYTHON([2.2])
@@ -611,10 +636,13 @@ if test "$class_driver" = "no" && test "$hpijs_only_build" = "no" && test "$lite
    PYTHONINCLUDEDIR=`$PYTHON -c "from distutils.sysconfig import get_python_inc; print (get_python_inc());"`
    AC_MSG_RESULT("using $PYTHONINCLUDEDIR ....  python${PYTHON_VERSION}/Python.h")
    AC_ARG_VAR(PYTHONINCLUDEDIR, [path to Python.h C header file])
-   AC_CHECK_HEADERS([python${PYTHON_VERSION}/Python.h python${PYTHON_VERSION}mu/Python.h python${PYTHON_VERSION}m/Python.h ],
+   save_CPPFLAGS=$CPPFLAGS
+   CPPFLAGS="-I$PYTHONINCLUDEDIR"
+   AC_CHECK_HEADERS([Python.h],
           [FOUND_HEADER=yes; break;])
    AS_IF([test "x$FOUND_HEADER" != "xyes"],
           [AC_MSG_ERROR([cannot find python-devel support], 6)])
+   CPPFLAGS=$save_CPPFLAGS
 fi
 
 if test "$hpijs_only_build" = "no" && test "$scan_build" = "yes" && test "$hpcups_only_build" = "no"; then

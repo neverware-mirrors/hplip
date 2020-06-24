@@ -8,10 +8,10 @@ Subject: In hp-scan's manpage, sort PAGE_SIZES in help,
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/scan.py b/scan.py
-index 4f2fdef..805b1fa 100755
+index 0a98644..585322b 100755
 --- a/scan.py
 +++ b/scan.py
-@@ -288,7 +288,7 @@ try:
+@@ -289,7 +289,7 @@ try:
          ("", "Coordinates are relative to the upper left corner of the scan area.", "option", False),
          ("", "Units are specified by -t/--units (default is 'mm').", "option", False),
          ("Specify the scan area based on a paper size:", "--size=<paper size name>", "option", False),

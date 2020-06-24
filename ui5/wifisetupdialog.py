@@ -259,7 +259,7 @@ class WifiSetupDialog(QDialog, Ui_Dialog):
             try:
                 self.dev = device.Device(self.device_uri)
             except Error as e:
-                FailureUI(self, self.__tr("<b>Error opening device:</b><p>%s</p><p>(%s)</p>") %(self.device_uri, str(e[0])))
+                FailureUI(self, self.__tr("<b>Error opening device:</b><p>%s</p><p>(%s)</p>") %(self.device_uri, str(e.msg)))
 
                 if self.dev is not None:
                     self.dev.close()
@@ -570,7 +570,7 @@ class WifiSetupDialog(QDialog, Ui_Dialog):
             try:                
                 self.ip,_,addressmode, subnetmask, gateway, pridns, sec_dns= self.wifiObj.getIPConfiguration(self.dev, self.adapterName)
                 if self.ip == "0.0.0.0":
-                    self.ip, subnetmask, gateway, pri_dns, sec_dns, addressmode = self.wifiObj.getwifiotherdetails(self.dev,self.adapterName)
+                    self.ip, subnetmask, gateway, pridns, sec_dns, addressmode = self.wifiObj.getwifiotherdetails(self.dev,self.adapterName)
                 vsa_codes = self.wifiObj.getVSACodes(self.dev, self.adapterName)
                 ss_max, ss_min, ss_val, ss_dbm = self.wifiObj.getSignalStrength(self.dev, self.adapterName,self.network, self.adaptor_id)                 
                 self.hn = self.wifiObj.getHostname(self.dev) 
@@ -840,7 +840,7 @@ class WifiSetupDialog(QDialog, Ui_Dialog):
 
 
     def showIOError(self, e):
-        FailureUI(self, self.__tr("<b>An I/O error occurred.</b><p>Please check the USB connection to your printer and try again.</p>(%s)" % str(e[0])))
+        FailureUI(self, self.__tr("<b>An I/O error occurred.</b><p>Please check the USB connection to your printer and try again.</p>(%s)" % str(e.msg)))
 
         if self.dev is not None:
             self.dev.close()

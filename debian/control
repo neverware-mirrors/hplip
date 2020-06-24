@@ -20,19 +20,18 @@ Build-Depends: autoconf,
                libssl-dev,
                libtool,
                libudev-dev [linux-any],
-               libusb-1.0-0-dev [linux-any],
-               libusb-dev [!linux-any !kfreebsd-any],
+               libusb-1.0-0-dev [!kfreebsd-any],
                libusb2-dev [kfreebsd-any],
                patch,
                policykit-1,
-               pyppd (>= 1.0.1),
+               pyppd,
                pyqt5-dev-tools,
                python3-dev,
                python3-dbus,
                python3-gi,
                python3-pyqt5,
-               debhelper-compat (= 12)
-Standards-Version: 4.4.0
+               debhelper-compat (= 13)
+Standards-Version: 4.5.0
 Vcs-Browser: https://salsa.debian.org/printing-team/hplip
 Vcs-Git: https://salsa.debian.org/printing-team/hplip.git
 Homepage: https://developers.hp.com/hp-linux-imaging-and-printing
@@ -97,7 +96,8 @@ Package: hplip-data
 Architecture: all
 Depends: xz-utils,
          ${misc:Depends},
-         ${python3:Depends}
+         ${python3:Depends},
+         python3-distro
 Suggests: hplip
 Description: HP Linux Printing and Imaging - data files
  The HP Linux Printing and Imaging System provides full support for
@@ -164,7 +164,7 @@ Description: HP Linux Printing and Imaging - documentation
 
 Package: hpijs-ppds
 Architecture: all
-Depends: cups-filters (>= 1.0.42) | foomatic-filters,
+Depends: cups-filters | foomatic-filters,
          printer-driver-hpijs (>= ${source:Version}),
          ${misc:Depends}
 Breaks: foomatic-filters-ppds (>> 20000101),
@@ -188,7 +188,7 @@ Depends: libhpmud0 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Recommends: cups | hpijs-ppds,
-            cups-filters (>= 1.0.42) | foomatic-filters,
+            cups-filters | foomatic-filters,
             ghostscript
 Suggests: hpijs-ppds,
           hplip,
@@ -220,7 +220,7 @@ Package: printer-driver-hpcups
 Architecture: any
 Section: text
 Depends: cups,
-         cups-filters (>= 1.0.36) | ghostscript-cups,
+         cups-filters | ghostscript-cups,
          ${misc:Depends},
          ${shlibs:Depends}
 Suggests: hplip (= ${binary:Version}),

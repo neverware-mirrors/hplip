@@ -1,8 +1,156 @@
-hplip (3.19.8+dfsg0-7+exp0) experimental; urgency=medium
+hplip (3.20.6+dfsg0-1) experimental; urgency=medium
 
-  * CI: Test all drivers; to see if we hit a timeout on ci.debian.net
+  * New 3.20.6 upstream version
+    - git debrebase to refresh the patches
+  * Refresh d/copyright
+  * Upload to experimental because of upstream bug #1883898 "version 3.20.6
+    turns off plugin requirement for most printers" (while the plugin is
+    apparently still needed)
 
- -- Didier Raboud <odyx@debian.org>  Wed, 02 Oct 2019 08:11:38 +0200
+ -- Didier Raboud <odyx@debian.org>  Wed, 24 Jun 2020 22:26:12 +0200
+
+hplip (3.20.5+dfsg0-3) unstable; urgency=medium
+
+  * Import patch from Fedora to fix upstream CFLAGS override (Closes: #961028)
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 24 May 2020 17:56:09 +0200
+
+hplip (3.20.5+dfsg0-2) unstable; urgency=medium
+
+  * Fix non-amd64 libsane-hpaio.so non-installation
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 16 May 2020 13:42:36 +0200
+
+hplip (3.20.5+dfsg0-1) unstable; urgency=medium
+
+  * New 3.20.5 upstream version
+    - git debrebase to refresh the patches
+  * Bump debhelper compat to 13
+    - Mark hp-uiscan as not-installed
+
+ -- Didier Raboud <odyx@debian.org>  Sat, 16 May 2020 11:28:23 +0200
+
+hplip (3.20.3+dfsg0-2) unstable; urgency=medium
+
+  * Patch upstream for python3.8 support:
+    - Fix SyntaxWarning: "is"/"is not" with a literal (Closes: #955168,
+      #954732, LP: #1870019)
+    - Assume the python3-distro package is available, depend on it
+      (Closes: #955137)
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 01 Apr 2020 08:51:28 +0200
+
+hplip (3.20.3+dfsg0-1) unstable; urgency=medium
+
+  * New 3.20.3 upstream version
+    - Drop the reversal patch for io/hpmud/jd.c as this was "fixed" upstream
+
+ -- Didier Raboud <odyx@debian.org>  Wed, 11 Mar 2020 17:59:47 +0100
+
+hplip (3.20.2+dfsg0-3) unstable; urgency=high
+
+  * Fix dpkg-statoverride calls (Closes: #953318)
+  * Add patch to revert 3.20.2 change to io/hpmud/jd.c (hopefully fixing
+    some print failures)
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 09 Mar 2020 14:15:39 +0100
+
+hplip (3.20.2+dfsg0-2) unstable; urgency=medium
+
+  * Drop dpkg-statoverrides as they are pointless (in /run and /var/run)
+  * (Closes: #952780)
+  * Empty hplip-data's /usr/share/hplip/*/__pycache__ in prerm
+    (Closes: #953097)
+  * Backport Ubuntu patch from Matthias Klose to fix building with Python 3.8
+    (Closes: #953095, #946561)
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 06 Mar 2020 17:13:48 +0100
+
+hplip (3.20.2+dfsg0-1) unstable; urgency=medium
+
+  * New 3.20.2 upstream version
+  * Packaging cleanup:
+    - Wrap long lines in some changelog entries
+    - Cleanup d/control from old version requirements
+    - Bump Standards-Version to 4.5.0 without changes needed
+    - Set hplip home to /run/hplip, not /var/run/hplip
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 28 Feb 2020 19:34:44 +0100
+
+hplip (3.19.12+dfsg0-4) unstable; urgency=medium
+
+  * Import 34 patches from Fedora, which huge thanks to them!
+    - Replace Debian-specific "Convert str.translate to a py3-compatible
+      version" with Fedora's "hp-setup fails on fax setup - use binary
+      strings" (Closes: #948932)
+    [ Tim Waugh ]
+    - Replace rubbish pstotiff filter
+    - Fix strstr const
+    - Retry when connecting to device fails
+    - Mark SNMP quirks for two lying devices
+    - Fix bogus low ink warning from hpijs driver
+    - Clear old state reasons
+    - Avoid busy loop in hpcups when backend has exited
+    - CUPS filters should use TMPDIR when available
+    - Fixed Device ID parsing code in hpijs's dj9xxvip.c
+    - Fixed left/right margins for HP DeskJet 990C
+    - Fixed uses of strncpy throughout
+    - Ignore IOError when logging output
+    - Fixed hpcups crash when required plugin missing
+    [ Jiří Popelka ]
+    - Added several IEEE 1284 Device IDs
+    - IEEE1284 Device ID for HP LaserJet 4000
+    - Fix ImageableArea for Laserjet 8150/9000
+    - Fix parsing of avahi-daemon output
+    [ Zdenek Dohnal ]
+    - Exit if source cannot be fetched from device
+    - hp-check shows 'CUPS incompatible or not running' even if CUPS is
+      running
+    - hp-firmware:NameError: name 'INTERACTIVE_MODE4' is not defined
+    - hp-setup fails on fax setup - use binary strings
+    - Fixed hp-setup crash when user wants to define path to PPD file
+    - Ignore symlinks when installing plugins
+    - Scanning broken for HP LaserJet 3052
+    - Cannot scan with M281fdw LaserJet - failed: Error during device I/O
+      (Closes: #945109)
+    - Fixing issues found by coverity scan
+    - [abrt] hplip: strlen(): hp killed by SIGSEGV
+    - [abrt] hp-systray:BlockingIOError: [Errno 11] Resource temporarily
+      unavailable
+    - Missing drivers (Closes: #949578)
+    [ Tomas Korbar ]
+    - Fix TypeError
+    - Fix TypeError in hpfax
+    - Fix AttributeError when connecting to printer via wifi
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 31 Jan 2020 13:54:10 +0100
+
+hplip (3.19.12+dfsg0-3) unstable; urgency=medium
+
+  * Convert str.translate to a py3-compatible version (Closes: #948932)
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 17 Jan 2020 15:12:43 +0100
+
+hplip (3.19.12+dfsg0-2) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * Build with libusb-1.0 on any non-kfreebsd platform (Closes: #947824)
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 31 Dec 2019 10:45:28 +0100
+
+hplip (3.19.12+dfsg0-1) unstable; urgency=medium
+
+  * New 3.19.12 upstream version
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 13 Dec 2019 15:07:03 +0100
+
+hplip (3.19.11+dfsg0-1) unstable; urgency=medium
+
+  * New 3.19.11 upstream version
+
+  * Bump Standards-Version to 4.4.1 without changes needed
+
+ -- Didier Raboud <odyx@debian.org>  Tue, 05 Nov 2019 10:23:10 +0100
 
 hplip (3.19.8+dfsg0-7) unstable; urgency=medium
 
@@ -1136,7 +1284,8 @@ hplip (3.13.2-0ubuntu1) raring; urgency=low
     debian/patches/remove-duplicate-entry-for-cp1700-in-drv-files.dpatch,
     debian/patches/CVE-2010-4267.dpatch,
     debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch,
-    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch: Refreshed with Quilt.
+    debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
+    Refreshed with Quilt.
   * debian/patches/kde4-kdesudo-support.dpatch: Removed, not applicable any
     more.
   * debian/patches/hplip-syslog-fix-debug-messages-to-error.dpatch: Removed,
@@ -1478,10 +1627,9 @@ hplip (3.11.10-0ubuntu1) precise; urgency=low
 hplip (3.11.7-1ubuntu3) oneiric; urgency=low
 
   * debian/patches/hp-systray-make-menu-title-visible-in-sni-qt-indicator.dpatch:
-    Simplified the construction of the title line of the hp-systray applet
-    menu, so that the applet-to-indicator converter sni-qt also imports this
-    title line (at least the text of it). Thanks to Aurelien Gateau for this
-    patch.
+    Simplified the construction of the title line of the hp-systray applet menu,
+    so that the applet-to-indicator converter sni-qt also imports this title
+    line (at least the text of it). Thanks to Aurelien Gateau for this patch.
   * debian/patches/hp-systray-make-menu-appear-in-sni-qt-indicator-with-kde.dpatch:
     Make the menu of the hp-systray applet appearing when the applet is
     converted to an indicator applet by sni-qt and put into the notification

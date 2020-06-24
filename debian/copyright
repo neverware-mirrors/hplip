@@ -6,41 +6,12 @@ Homepage: https://developers.hp.com/hp-linux-imaging-and-printing
 
 Files: *
 Copyright: 2001-2020, HP Development Company, L.P.
-License: GPL-2+
-
-Files: Makefile.am
-  configure.in
-  hplip.list.in
-Copyright: 2004-2015, Copyright HP Development Company, LP
-License: GPL-2+
-
-Files: Makefile.in
-Copyright: 1994-2009, Free Software Foundation
-License: GPL-2+
-
-Files: Makefile_dat2drv
-  Normalize.cpp
-  class_cups_drv.inc
-  class_rpm_build.sh
-  cups_drv.inc
-  foomatic_drv.inc
-  hp-uiscan.desktop.in
-  hplip-systray.desktop.in
-  hplip.conf.in
-  hplip.desktop.in
-  uiscan.py
-  unreleased.inc
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: aclocal.m4
-  ltmain.sh
-  missing
-Copyright: 1996-2010, Free Software Foundation, Inc.
-License: GPL-2+
-
-Files: apparmor/*
-Copyright: 2001-2018, HP Development Company, L.P.
+ 2002, 2003, Henning Meier-Geinitz
+ 2001, Dorian Goldstein, Thomas G. Lane.
+ 1996, David Mosberger-Tang and Andreas Beck
+ 1995-2002, HP Company
+ 1994-2010, Free Software Foundation, Inc.
+ 1991-1997, Thomas G. Lane.
 License: GPL-2+
 
 Files: base/exif.py
@@ -72,13 +43,6 @@ License: BSD-2-clause
  This means you may do anything you want with this code, except claim you
  wrote it. Also, if it breaks you get to keep both pieces.
 
-Files: base/ldif.py
-  base/os_utils.py
-  base/password.py
-  base/sixext.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
 Files: base/magic.py
 Copyright: 2003-2015, HP Development Company, L.P.
   2000, Jason Petrone <jp_py@demonseed.net>
@@ -92,34 +56,18 @@ Files: base/six.py
 Copyright: 2010-2014, Benjamin Peterson
 License: Expat
 
-Files: base/smart_install.py
-Copyright: 2015, HP Development Company, L.P.
-License: GPL-2+
-
-Files: common/*
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
 Files: configure
 Copyright: 1992-1996, 1998-2010, Free Software
 License: FSFUL
  This configure script is free software; the Free Software Foundation
  gives unlimited permission to copy, distribute and modify it.
 
-Files: copyright
-Copyright: Copyright 2001-2015, HP Development Company, L.P.
-License: GPL-2+
-
-Files: data/*
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
 Files: debian/*
-Copyright: 2016-2018, Didier Raboud <odyx@debian.org>
+Copyright: 2016-2020, Didier Raboud <odyx@debian.org>
   2016, Julian Andres Klode <jak@debian.org>
   2007-2015, Till Kamppeter <till.kamppeter@gmail.com>
-  2004-2006, by Henrique de Moraes Holschuh <hmh@debian.org>
-  2003, 2004, by Torsten Landschoff <torsten@debian.org>
+  2004-2006, Henrique de Moraes Holschuh <hmh@debian.org>
+  2003-2004, Torsten Landschoff <torsten@debian.org>
 License: GPL-2+
 Comment: Always licensed as with the same license as the upstream source it applies to.
 
@@ -131,91 +79,14 @@ Files: debian/local/scripts/*
 Copyright: 2001-2018, HP Development Company, L.P.
 License: GPL-2+
 
-Files: depcomp
-Copyright: 1999, 2000, 2003-2007, 2009, Free
-License: GPL-2+
-
-Files: doc/*
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: fax/filters/*
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: hplip_clean.sh
-Copyright: 2015, HP Development Company, L.P.
-License: GPL-2+
-
-Files: installer/pluginhandler.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
 Files: io/*
+ prnt/backend/*
 Copyright: 2001-2015, Copyright HP Development Company, LP
 License: Expat
-
-Files: io/hpmud/list.h
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: io/mudext/*
-Copyright: 2001-2020, HP Development Company, L.P.
-License: GPL-2+
-
-Files: ip/*
-Copyright: 1995-2002, HP Company
-License: GPL-2+
-
-Files: pcard/*
-Copyright: 2004, Copyright HP Development Company, LP
-License: GPL-2+
-
-Files: pcard/__init__.py
-  pcard/photocard.py
-Copyright: 2001-2020, HP Development Company, L.P.
-License: GPL-2+
-
-Files: pcard/pcardext/*
-Copyright: 2001-2020, HP Development Company, L.P.
-License: GPL-2+
-
-Files: plugins/powersettingsdialog_base.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: prnt/backend/*
-Copyright: 2001-2015, Copyright HP Development Company, LP
-License: Expat
-
-Files: prnt/drv/*
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
 
 Files: prnt/hpcups/*
 Copyright: 1994-2015, HP Co.
 License: BSD-3-clause
-
-Files: prnt/hpcups/ColorMaps.h
-  prnt/hpcups/LidilPrintModes.h
-  prnt/hpcups/Pcl3GuiPrintModes.h
-  prnt/hpcups/Pcl3PrintModes.h
-  prnt/hpcups/Scaler.h
-  prnt/hpcups/apPrintModes.h
-  prnt/hpcups/dj3320PrintModes.h
-  prnt/hpcups/dj400PrintModes.h
-  prnt/hpcups/dj4100PrintModes.h
-  prnt/hpcups/dj540PrintModes.h
-  prnt/hpcups/dj600PrintModes.h
-  prnt/hpcups/dj630PrintModes.h
-  prnt/hpcups/dj690PrintModes.h
-  prnt/hpcups/dj850PrintModes.h
-  prnt/hpcups/dj890PrintModes.h
-  prnt/hpcups/dj895PrintModes.h
-  prnt/hpcups/dj8x5PrintModes.h
-  prnt/hpcups/dj970PrintModes.h
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
 
 Files: prnt/hpcups/Hbpl1_Wrapper.cpp
 Copyright: 1996-2015, HP Co.
@@ -235,13 +106,7 @@ Files: prnt/hpcups/dj970ColorMaps.cpp
 Copyright: 1996-2003, UL, HP Co.
 License: BSD-3-clause
 
-Files: prnt/hpcups/jccolor.c
-  prnt/hpcups/jinclude.h
-Copyright: 1991-1997, Thomas G. Lane.
-License: GPL-2+
-
 Files: prnt/hpcups/jdatadbf.c
-Copyright: 2001, Dorian Goldstein, Thomas G. Lane.
 License: GPL-2+
 
 Files: prnt/hpijs/*
@@ -268,46 +133,14 @@ Files: prnt/hpijs/ijs.c
 Copyright: 2001-2004, artofcode LLC.
 License: Expat
 
-Files: prnt/hpijs/jccolor.c
-  prnt/hpijs/jinclude.h
-  prnt/hpijs/jpegint.h
-Copyright: 1991-1997, Thomas G. Lane.
-License: GPL-2+
-
-Files: prnt/hpijs/jdatadbf.c
-Copyright: 2001, Dorian Goldstein, Thomas G. Lane.
-License: GPL-2+
-
-Files: prnt/hpijs/modes.h
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
 Files: prnt/hpps/*
 Copyright: 1994-2015, HP Co.
 License: BSD-3-clause
 
-Files: prnt/hpps/hppsfilter.h
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: protocol/*
-Copyright: 2015, HP Development Company, L.P.
-License: GPL-2
-
 Files: protocol/discovery/*
+ scan/sane/*
+ scan/sane/orblite.c
 Copyright: 2001-2015, Copyright HP Development Company, LP
-License: Expat
-
-Files: scan/sane/*
-Copyright: 2001-2015, Copyright HP Development Company, LP
-License: Expat
-
-Files: scan/sane/bb_ledm.c
-  scan/sane/escl.c
-Copyright: 2004-2015, Copyright HP Development Company, LP
-License: GPL-2+
-
-Files: scan/sane/orblite.c
 Copyright: 2004, Hewlett-Packard Company
 License: Expat
 
@@ -322,117 +155,6 @@ License: public-domain
  SANE is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.
-
-Files: scan/sane/sanei.h
-Copyright: 2002, 2003, Henning Meier-Geinitz
-  1996, David Mosberger-Tang and Andreas Beck
-License: GPL-2+
-
-Files: scan/sane/sanei_debug.h
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: scan/sane/sanei_init_debug.c
-  scan/sane/saneopts.h
-Copyright: 1996, 1997, David Mosberger-Tang and Andreas Beck
-License: GPL-2+
-
-Files: ui/aboutdlg_base.py
-  ui/align10form_base.py
-  ui/align13form_base.py
-  ui/aligntype6form1_base.py
-  ui/aligntype6form2_base.py
-  ui/allowabletypesdlg_base.py
-  ui/cleaningform2_base.py
-  ui/cleaningform_base.py
-  ui/coloradjform_base.py
-  ui/colorcal4form_base.py
-  ui/colorcalform2_base.py
-  ui/colorcalform_base.py
-  ui/coverpageform_base.py
-  ui/devmgr4_base.py
-  ui/faxaddrbookeditform_base.py
-  ui/faxaddrbookform_base.py
-  ui/faxaddrbookgroupeditform_base.py
-  ui/faxaddrbookgroupsform_base.py
-  ui/faxsettingsform_base.py
-  ui/firmwaredialog_base.py
-  ui/imagepropertiesdlg_base.py
-  ui/loadpaperform_base.py
-  ui/nodevicesform_base.py
-  ui/paperedgealignform_base.py
-  ui/pluginform2_base.py
-  ui/settingsdialog_base.py
-  ui/setupform_base.py
-  ui/setupmanualfind_base.py
-  ui/setupsettings_base.py
-  ui/upgradeform_base.py
-  ui/waitform_base.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: ui4/aboutdialog_base.py
-  ui4/aligndialog_base.py
-  ui4/cleandialog_base.py
-  ui4/colorcaldialog_base.py
-  ui4/devicesetupdialog_base.py
-  ui4/devmgr5_base.py
-  ui4/fabwindow_base.py
-  ui4/faxsetupdialog_base.py
-  ui4/firmwaredialog_base.py
-  ui4/infodialog_base.py
-  ui4/linefeedcaldialog_base.py
-  ui4/makecopiesdialog_base.py
-  ui4/mimetypesdialog_base.py
-  ui4/nodevicesdialog_base.py
-  ui4/plugindiagnose_base.py
-  ui4/plugindialog_base.py
-  ui4/pqdiagdialog_base.py
-  ui4/printdialog_base.py
-  ui4/printsettingsdialog_base.py
-  ui4/printtestpagedialog_base.py
-  ui4/scandialog.py
-  ui4/sendfaxdialog_base.py
-  ui4/settingsdialog_base.py
-  ui4/setupdialog_base.py
-  ui4/systrayframe_base.py
-  ui4/upgradedialog_base.py
-  ui4/wifisetupdialog_base.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
-
-Files: ui5/aboutdialog_base.py
-  ui5/aligndialog_base.py
-  ui5/cleandialog_base.py
-  ui5/colorcaldialog_base.py
-  ui5/devicesetupdialog_base.py
-  ui5/devmgr5_base.py
-  ui5/devmgr_ext.py
-  ui5/fabwindow_base.py
-  ui5/faxsetupdialog_base.py
-  ui5/firmwaredialog_base.py
-  ui5/infodialog_base.py
-  ui5/linefeedcaldialog_base.py
-  ui5/makecopiesdialog_base.py
-  ui5/mimetypesdialog_base.py
-  ui5/nodevicesdialog_base.py
-  ui5/plugindiagnose_base.py
-  ui5/plugindialog_base.py
-  ui5/pqdiagdialog_base.py
-  ui5/printdialog_base.py
-  ui5/printsettings_base.py
-  ui5/printsettingsdialog_base.py
-  ui5/printtestpagedialog_base.py
-  ui5/scandialog.py
-  ui5/sendfaxdialog_base.py
-  ui5/settingsdialog_base.py
-  ui5/setupdialog_base.py
-  ui5/setupdialog_base5.py
-  ui5/systrayframe_base.py
-  ui5/upgradedialog_base.py
-  ui5/wifisetupdialog_base.py
-Copyright: 2001-2018, HP Development Company, L.P.
-License: GPL-2+
 
 License: BSD-3-clause
  The BSD License

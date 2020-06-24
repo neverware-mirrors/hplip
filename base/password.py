@@ -75,32 +75,8 @@ def showPasswordPrompt(prompt):
 
 # TBD this function shoud be removed once distro class implemented
 def get_distro_name():
-    os_name = None
-    try:
-        import platform
-        os_name = platform.dist()[0]
-    except ImportError:
-        os_name = None
-
-    if not os_name:
-        name = os.popen('lsb_release -i | cut -f 2')
-        os_name = name.read().strip()
-        name.close()
-
-    if not os_name:
-        name = os.popen("cat /etc/issue | awk '{print $1}' | head -n 1")
-        os_name = name.read().strip()
-        name.close()
-
-    os_name = os_name.lower()
-    if "redhatenterprise" in os_name:
-        os_name = 'rhel'
-    elif "suse" in os_name:
-        os_name = 'suse'
-    elif "arch" in os_name:
-         os_name = 'manjarolinux'
-
-    return os_name
+    import distro
+    return distro.linux_distribution(full_distribution_name=False)[0]
 
 
 class Password(object):
@@ -132,7 +108,8 @@ class Password(object):
 
     def __readAuthType(self):
         # TBD: Getting distro name should get distro class
-        distro_name = get_distro_name().lower()
+        # added replace() to remove the spaces in distro_name
+        distro_name = get_distro_name().lower().replace(" ","")
 
         self.__authType = user_conf.get('authentication', 'su_sudo', '')
         if self.__authType != "su" and self.__authType != "sudo":
@@ -140,7 +117,11 @@ class Password(object):
                 self.__authType = AUTH_TYPES[distro_name]
                 if distro_name == 'fedora':
                     import platform
-                    ver = int(platform.dist()[1])
+                    try:
+                       ver = int(platform.dist()[1])
+                    except AttributeError:
+                       import distro
+                       ver = int(distro.linux_distribution()[1])
                     if ver >= 28:
                        self.__authType = AUTH_TYPES['fedora28']
             except KeyError:

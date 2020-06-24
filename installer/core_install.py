@@ -360,9 +360,9 @@ class CoreInstall(object):
             'automake':         (True, ['prnt'], AUTOMAKE_STR, self.check_automake, DEPENDENCY_RUN_AND_COMPILE_TIME, '-', None, GENERALDEP),
             'libjpeg':          (True,  ['base', 'prnt'], JPEG_STR, self.check_libjpeg, DEPENDENCY_RUN_AND_COMPILE_TIME, '-', None, GENERALDEP),
             'libtool':          (True,  ['base', 'prnt'], LIBTOOL_STR, self.check_libtool, DEPENDENCY_COMPILE_TIME, '-', 'libtool --version', COMPILEDEP),
-            'cups':            (True,  ['base', 'prnt'], CUPS_STR, self.check_cups, DEPENDENCY_RUN_TIME, '1.1', 'cups-config --version', EXTERNALDEP),
-            'cups-devel':       (True,  ['base', 'prnt'], CUPS_DEV_STR, self.check_cups_devel, DEPENDENCY_COMPILE_TIME, '-', 'cups-config --version', GENERALDEP),
-            'cups-image':       (True,  ['base', 'prnt'], CUPS_IMG_STR, self.check_cups_image, DEPENDENCY_COMPILE_TIME, '-', 'cups-config --version', GENERALDEP),
+            'cups':            (True,  ['base', 'prnt'], CUPS_STR, self.check_cups, DEPENDENCY_RUN_TIME, '1.1', 'lpstat -r', EXTERNALDEP),
+            'cups-devel':       (True,  ['base', 'prnt'], CUPS_DEV_STR, self.check_cups_devel, DEPENDENCY_COMPILE_TIME, '-', 'lpstat -r', GENERALDEP),
+            'cups-image':       (True,  ['base', 'prnt'], CUPS_IMG_STR, self.check_cups_image, DEPENDENCY_COMPILE_TIME, '-', 'lpstat -r', GENERALDEP),
             'gcc':             (True,  ['base', 'prnt'], GCC_STR, self.check_gcc, DEPENDENCY_COMPILE_TIME, '-', 'gcc --version', COMPILEDEP),
             'make':            (True,  ['base', 'prnt'], MAKE_STR, self.check_make, DEPENDENCY_COMPILE_TIME, '3.0', 'make --version', COMPILEDEP),
             'libpthread':      (True,  ['base', 'prnt'], THREAD_STR, self.check_libpthread, DEPENDENCY_RUN_AND_COMPILE_TIME, '-', 'FUNC#get_libpthread_version', GENERALDEP),
@@ -637,55 +637,12 @@ class CoreInstall(object):
         name, ver = '', '0.0'
         found = False
 
-        # Getting distro information using platform module
-        try:
-            import platform
-            name = platform.dist()[0].lower()
-            ver = platform.dist()[1]
-            if not name:
-                found = False
-                log.debug("Not able to detect distro")
-            else:
-                found = True
-                log.debug("Able to detect distro")
-        except ImportError:
-            found = False
-            log.debug("Not able to detect distro in exception")
+        import distro
+        ld = distro.linux_distribution(full_distribution_name=False)
+        name = ld[0]
+        ver = ld[1]
 
-        # Getting distro information using lsb_release command
-        # platform retrurn 'redhat' even for 'RHEL' or 'arch' for ManjaroLinux so re-reading using
-        # lsb_release.
-        if not found or name == 'redhat' or name == 'arch':
-            lsb_rel = utils.which("lsb_release", True)
-            if lsb_rel:
-                log.debug("Using 'lsb_release -is/-rs'")
-                status, name = utils.run(lsb_rel + ' -is', self.passwordObj)
-                if not status and name:
-                    status, ver = utils.run(lsb_rel + ' -rs', self.passwordObj)
-                    if not status and ver:
-                        ver = ver.lower().strip()
-                        found = True
-
-        # Getting distro information using /etc/issue file
-        if not found:
-            try:
-                name = open('/etc/issue', 'r').read().lower().strip()
-            except IOError:
-                found = False
-            else:
-                found = True
-                for n in name.split():
-                    m = n
-                    if '.' in n:
-                        m = '.'.join(n.split('.')[:2])
-
-                    try:
-                        ver = float(m)
-                    except ValueError:
-                        try:
-                            ver = int(m)
-                        except ValueError:
-                            ver = '0.0'
+        found = True
 
         # Updating the distro name and version.
         if found:
@@ -1233,6 +1190,8 @@ class CoreInstall(object):
             return True
         elif check_file('org.freedesktop.PolicyKit1.conf', '/etc/dbus-1/system.d'):
             return True
+        elif check_file('polkitd', "/usr/lib/polkit-1") and check_file('polkit-agent-helper-1', "/usr/lib/polkit-1") and check_file('polkit.conf', "/usr/lib/sysusers.d"):
+            return True
         else:
             return False
 
@@ -1778,6 +1737,8 @@ class CoreInstall(object):
         num_opt_missing = 0
         # not-required options
         for opt in self.components[self.selected_component][1]:
+            if opt.find("gui_") != -1 and opt.find(self.ui_toolkit) == -1:
+                continue
             if not self.options[opt][0]:  # not required
                 default = 'y'
 
@@ -1949,6 +1910,14 @@ class CoreInstall(object):
 
         return cmds
 
+    def remove_soT(self):
+        #log.info("\n Clearing unnecessary sos: ")
+        run_cmd = 'rm -rf .libs/libhpipp.so.0.0.1T .libs/libsane-hpaio.so.1.0.0T .libs/libhpmud.so.0.0.6T .libs/hpmudext.soT .libs/cupsext.soT'
+        cmd = self.passwordObj.getAuthCmd() % run_cmd
+        #run_cmd.append(self.passwordObj.getAuthCmd() % "rm -rf .libs/libhpipp.so.0.0.1T .libs/libsane-hpaio.so.1.0.0T .libs/libhpmud.so.0.0.6T .libs/hpmudext.soT .libs/cupsext.soT")
+         #self.passwordObj.getAuthCmd() % run_cmd
+        status, output = utils.run(cmd, self.passwordObj)
+
     def remove_hplip(self, callback=None):
         failed = True
         hplip_remove_cmd = self.get_distro_ver_data('hplip_remove_cmd')
@@ -2021,7 +1990,7 @@ class CoreInstall(object):
 
         home_dir = sys_conf.get("dirs", "home", "")
         version = sys_conf.get("hplip", "version", "0.0.0")
-        if home_dir is "":
+        if home_dir == "":
             log.error("HPLIP is not installed.")
             return False
 
