@@ -1,0 +1,2 @@
+The file debian/non-shipped-files.txt is used to remove clutter
+from the installed tree.  It is maintained manually.
