@@ -1,8 +1,13 @@
-hplip (3.20.6-1) UNRELEASED; urgency=medium
+hplip (3.20.6+dfsg0-1) experimental; urgency=medium
 
-  * Update to new upstream version 3.20.6.
+  * New 3.20.6 upstream version
+    - git debrebase to refresh the patches
+  * Refresh d/copyright
+  * Upload to experimental because of upstream bug #1883898 "version 3.20.6
+    turns off plugin requirement for most printers" (while the plugin is
+    apparently still needed)
 
- -- Didier Raboud <odyx@debian.org>  Wed, 24 Jun 2020 21:21:12 +0200
+ -- Didier Raboud <odyx@debian.org>  Wed, 24 Jun 2020 22:26:12 +0200
 
 hplip (3.20.5+dfsg0-3) unstable; urgency=medium
 
