@@ -1,8 +1,10 @@
-hplip (3.20.9-1) UNRELEASED; urgency=medium
+hplip (3.20.9+dfsg0-1) experimental; urgency=medium
 
-  * Update to new upstream version 3.20.9.
+  * New 3.20.9 upstream version
+    - git debrebase to refresh patches
+    - add libavahi-core-dev and libavahi-client-dev Build-Depends
 
- -- Didier Raboud <odyx@debian.org>  Sat, 03 Oct 2020 17:50:14 +0200
+ -- Didier Raboud <odyx@debian.org>  Sat, 03 Oct 2020 17:59:41 +0200
 
 hplip (3.20.6+dfsg0-2) experimental; urgency=medium
 
