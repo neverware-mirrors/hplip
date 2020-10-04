@@ -1,3 +1,11 @@
+hplip (3.20.9+dfsg0-2) UNRELEASED; urgency=medium
+
+  * ci: For hpcups, also test _all_ drivers, but with one PDF only
+  * 3.20.6+ regression: In models.dat, take 3.20.5's "plugin=1" for all models
+    marked as needing the plugin for printing
+
+ -- Didier Raboud <odyx@debian.org>  Sun, 04 Oct 2020 16:35:32 +0200
+
 hplip (3.20.9+dfsg0-1) experimental; urgency=medium
 
   * New 3.20.9 upstream version
