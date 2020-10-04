@@ -1,4 +1,4 @@
-Tests: printer-driver-hpcups
+Tests: printer-driver-hpcups, printer-driver-hpcups-all
 Restrictions: needs-root
 Depends: printer-driver-hpcups, cups, cups-client (>= 1.7.3-5~)
 
