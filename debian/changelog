@@ -1,3 +1,9 @@
+hplip (3.20.9+dfsg0-3) unstable; urgency=medium
+
+  * Migrate 3.20.9 to unstable
+
+ -- Didier Raboud <odyx@debian.org>  Mon, 12 Oct 2020 19:32:04 +0200
+
 hplip (3.20.9+dfsg0-2) experimental; urgency=medium
 
   * ci: For hpcups, also test _all_ drivers, but with one PDF only
