@@ -48,6 +48,7 @@ override_dh_clean:
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	# We prefer to regenerate these using pyuic
 	(cd ui5 && for i in *.ui ; do rm -f $${i%.ui}.py ; done)
+	rm -Rf prntests
 
 
 ##
@@ -99,6 +100,18 @@ override_dh_auto_build:
 	$(PYTHON) ./dat2drv.py
 	
 	dh_auto_build
+
+execute_after_dh_auto_test:
+	# Manually print to one hpcups printer
+	set -eu; \
+	export PPD=./ppd/hpcups/hp-officejet_pro_1150c.ppd.gz ;\
+	mkdir -p prntests; \
+	/usr/lib/cups/filter/bannertopdf 1 me '' 1 '' </usr/share/cups/data/testprint >prntests/bannertopdf.pdf ;\
+	/usr/lib/cups/filter/pdftopdf    1 me '' 1 '' <prntests/bannertopdf.pdf >prntests/pdftopdf.pdf ;\
+	/usr/lib/cups/filter/gstoraster  1 me '' 1 '' <prntests/pdftopdf.pdf >prntests/out.ras ;\
+	$(CURDIR)/hpcups                 1 me '' 1 '' <prntests/out.ras >prntests/out.prn ;\
+	ls -lah prntests/;\
+	test -s prntests/out.prn
 
 ##
 ## Debian packaging
