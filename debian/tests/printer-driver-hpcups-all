@@ -7,7 +7,7 @@ set -e
 HPCUPS_DRIVERS_LIST=$(
     grep -A4 -P 'NickName.*Version(?!, requires proprietary plugin)\"$' /usr/share/cups/drv/hpcups.drv | \
     grep -E '^ *PCFileName' | \
-    sed -e 's#^ *PCFileName "\(.*\)"$#drv:///hpcups.drv/\1#g' 
+    sed -e 's#^ *PCFileName "\(.*\)"$#drv:///hpcups.drv/\1#g'
 )
 
 # … but print only one PDF
