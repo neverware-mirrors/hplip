@@ -1,3 +1,10 @@
+hplip (3.20.9+dfsg0-4+exp0) experimental; urgency=medium
+
+  * Reinstate the "test all printers" autopkgtest
+  * Add a build-time test-print to an hpcups printer
+
+ -- Didier Raboud <odyx@debian.org>  Fri, 23 Oct 2020 09:59:47 +0200
+
 hplip (3.20.9+dfsg0-4) unstable; urgency=medium
 
   * Drop the "test all printers" autopkgtests, to push 3.20.9 to bullseye
