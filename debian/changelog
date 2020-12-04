@@ -1,8 +1,8 @@
-hplip (3.20.11-1) UNRELEASED; urgency=medium
+hplip (3.20.11+dfsg0-1) unstable; urgency=medium
 
-  * Update to new upstream version 3.20.11.
+  * New 3.20.11 upstream version
 
- -- Didier Raboud <odyx@debian.org>  Fri, 04 Dec 2020 13:19:14 +0100
+ -- Didier Raboud <odyx@debian.org>  Fri, 04 Dec 2020 13:45:16 +0100
 
 hplip (3.20.9+dfsg0-4) unstable; urgency=medium
 
