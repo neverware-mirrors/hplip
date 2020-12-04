@@ -4118,8 +4118,6 @@ Manufacturer "HP"
 	  CustomMedia "JB5.FB/JB5 Borderless 182x257mm" 515.90 728.50 0 0 0 0 "<</cupsInteger0 45/PageSize[515.90 728.50]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 45/PageSize [515.90 728.50]/ImagingBBox null>>setpagedevice"
 		 
-      CustomMedia "Custom1/Custom 1" 612 1008 8.4 8.4 8.4 8.4 "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
-         "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
 		 
       CustomMedia "Env10/#10 Envelope 4.125x9.5in" 297 684 8.4 8.4 8.4 8.4 "<</cupsInteger0 81/PageSize[297 684]/ImagingBBox null>>setpagedevice"
              "<</cupsInteger0 81/PageSize[297 684]/ImagingBBox null>>setpagedevice"
@@ -10423,10 +10421,9 @@ Manufacturer "HP"
          "<</cupsInteger0 45/PageSize[515.76 728.4]/ImagingBBox null>>setpagedevice"
       CustomMedia "JB5.FB/Borderless JB5" 515.76 728.4 0 0 0 0 "<</cupsInteger0 45/PageSize [515.76 728.4]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 45/PageSize[515.76 728.4]/ImagingBBox null>>setpagedevice"
-      CustomMedia "Custom1/Custom 1" 612 1008 8.4 8.4 8.4 8.4 "<</cupsInteger0 101/PageSize [612 1008]/ImagingBBox null>>setpagedevice"
-         "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
-      CustomMedia "Custom1.FB/Borderless Custom" 612 1008 0 0 0 0 "<</cupsInteger0 101/PageSize [612 1008]/ImagingBBox null>>setpagedevice"
-         "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
+<<<<<<< HEAD
+=======
+>>>>>>> 569cc2103 (Removed all page size choices named "Custom". they break with CUPS and are also identical with US Legal)
       CustomMedia "Envelope#10/Envelope #10" 296.88 684 8.4 8.4 8.4 8.4 "<</cupsInteger0 81/PageSize [296.88 684]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 81/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
       CustomMedia "EnvelopeA2/Envelope A2" 314.88 414 8.4 8.4 8.4 8.4 "<</cupsInteger0 109/PageSize [314.88 414]/ImagingBBox null>>setpagedevice"
@@ -10446,6 +10443,199 @@ Manufacturer "HP"
       CustomMedia "IndexCard3x5.FB/Borderless Index Card 3x5in" 216 360 0 0 0 0 "<</cupsInteger0 78/PageSize [216 360]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 78/PageSize[216 360]/ImagingBBox null>>setpagedevice"
       CustomMedia "IndexCard4x6/Index Card 4x6in" 288 432 8.4 8.4 8.4 8.4 "<</cupsInteger0 74/PageSize [288 432]/ImagingBBox null>>setpagedevice"
+<<<<<<< HEAD
+=======
+         "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCard4x6.FB/Borderless Index Card 4x6in" 288 432 0 0 0 0 "<</cupsInteger0 74/PageSize [288 432]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCard5x8/Index Card 5x8in" 360 576 8.4 8.4 8.4 8.4 "<</cupsInteger0 75/PageSize [360 576]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 75/PageSize[360 576]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCard5x8.FB/Borderless Index Card 5x8in" 360 576 0 0 0 0 "<</cupsInteger0 75/PageSize [360 576]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 75/PageSize[360 576]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCardA4/Index Card A4" 595.44 841.68 8.4 8.4 8.4 8.4 "<</cupsInteger0 26/PageSize [595.44 841.68]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 26/PageSize[595.44 841.68]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCardA4.FB/Borderless Index Card A4" 595.44 841.68 0 0 0 0 "<</cupsInteger0 26/PageSize [595.44 841.68]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 26/PageSize[595.44 841.68]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCardLetter/Index Card Letter" 612 792 8.4 8.4 8.4 8.4 "<</cupsInteger0 2/PageSize [612 792]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 2/PageSize[612 792]/ImagingBBox null>>setpagedevice"
+      CustomMedia "IndexCardLetter.FB/Borderless Index Card Letter" 612 792 0 0 0 0 "<</cupsInteger0 2/PageSize [612 792]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 2/PageSize[612 792]/ImagingBBox null>>setpagedevice"
+      CustomMedia "JapaneseEnvelope#3/Japanese Envelope #3" 339.84 666 8.4 8.4 8.4 8.4 "<</cupsInteger0 110/PageSize [339.84 666]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 110/PageSize[339.84 666]/ImagingBBox null>>setpagedevice"
+      CustomMedia "JapaneseEnvelope#4/Japanese Envelope #4" 254.88 581.04 8.4 8.4 8.4 8.4 "<</cupsInteger0 111/PageSize [254.88 581.04]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 111/PageSize[254.88 581.04]/ImagingBBox null>>setpagedevice"
+      CustomMedia "JapanesePostCard/Japanese PostCard" 284.16 428.16 8.4 8.4 8.4 8.4 "<</cupsInteger0 71/PageSize [284.16 428.16]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 71/PageSize[284.16 428.16]/ImagingBBox null>>setpagedevice"
+      CustomMedia "JapanesePostCard.FB/Borderless Japanese PostCard" 284.16 428.16 0 0 0 0 "<</cupsInteger0 71/PageSize [284.16 428.16]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 71/PageSize[284.16 428.16]/ImagingBBox null>>setpagedevice"
+      CustomMedia "Legal/Legal" 612 1008 8.4 8.4 8.4 8.4 "<</cupsInteger0 3/PageSize [612 1008]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 3/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
+      CustomMedia "Letter/Letter" 612 792 8.4 8.4 8.4 8.4 "<</cupsInteger0 2/PageSize [612 792]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 2/PageSize[612 792]/ImagingBBox null>>setpagedevice"
+      CustomMedia "Letter.FB/Borderless Letter" 612 792 0 0 0 0 "<</cupsInteger0 2/PageSize [612 792]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 2/PageSize[612 792]/ImagingBBox null>>setpagedevice"
+      CustomMedia "OfukuHagaki/Ofuku Hagaki" 566.64 428.16 8.4 8.4 8.4 8.4 "<</cupsInteger0 72/PageSize [566.64 428.16]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 72/PageSize[566.64 428.16]/ImagingBBox null>>setpagedevice"
+      CustomMedia "OfukuHagaki.FB/Borderless Ofuku Hagaki" 566.64 428.16 0 0 0 0 "<</cupsInteger0 72/PageSize [566.64 428.16]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 72/PageSize[566.64 428.16]/ImagingBBox null>>setpagedevice"
+      CustomMedia "Statement/Statement" 396 612 8.4 8.4 8.4 8.4 "<</cupsInteger0 15/PageSize [396 612]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 15/PageSize[396 612]/ImagingBBox null>>setpagedevice"       
+     
+    {
+      // Custom page sizes from 1x4in to legal
+      HWMargins 8.4 8.4 8.4 8.4
+      VariablePaperSize Yes
+      MinSize 3in 5in
+      MaxSize 8.5in 14in
+
+
+    }
+
+
+         
+          // <%Mimas17:Normal%>
+
+}// End Mimas17
+
+
+//////// MimasTDR
+{
+  Attribute "cupsEvenDuplex" "" "True"
+  Attribute "cupsBackSide" "" "Rotated"
+  Attribute "cupsFlipDuplex" "" "True"
+  Attribute "hpPrinterLanguage" "" "pcl3gui2"
+  Attribute "HPMechOffset" "" "70"
+
+  Group "General/General"
+
+
+  // MediaPosition values map to MediaSource enumeration in global_types.h
+  Option "Duplex/Double-Sided Printing" PickOne AnySetup 10.0
+    Choice "DuplexNoTumble/Long Edge (Standard)" "<</Duplex true/Tumble false>>setpagedevice"
+    Choice "DuplexTumble/Short Edge (Flip)" "<</Duplex true/Tumble true>>setpagedevice"
+    *Choice "None/Off" "<</Duplex false/Tumble false>>setpagedevice"
+
+  // MediaPosition values map to MediaSource enumeration in global_types.h
+  Option "InputSlot/Media Source" PickOne AnySetup 10.0
+    *Choice "Auto/Auto-Select" "<</MediaPosition 7>>setpagedevice"
+
+  Option "ColorModel/Output Mode" PickOne AnySetup 10.0
+    *Choice "RGB/Color" "<</cupsColorSpace 17/cupsBitsPerColor 8/cupsRowStep 0>>setpagedevice"
+    Choice "CMYGray/High Quality Grayscale" "<</cupsColorSpace 1/cupsBitsPerColor 8/cupsRowStep 1>>setpagedevice"
+    Choice "KGray/Black Only Grayscale" "<</cupsColorSpace 1/cupsBitsPerColor 8/cupsRowStep 2>>setpagedevice"
+
+  // cupsMediaType values map to MEDIATYPE from global_types.h
+  Option "MediaType/Media Type" PickOne AnySetup 10.0
+    *Choice "Plain/Plain Paper" "<</MediaType(Plain)/cupsMediaType 0>>setpagedevice"
+    Choice "Glossy/Photo Paper" "<</MediaType(Glossy)/cupsMediaType 3>>setpagedevice"
+    Choice "TransparencyFilm/Transparency Film" "<</MediaType(TransparencyFilm)/cupsMediaType 4>>setpagedevice"
+
+  // cupsCompression values map to QUALITY_MODE from global_types.h
+  Option "OutputMode/Print Quality" PickOne AnySetup 10.0
+    *Choice "Normal/Normal" "<</OutputType(0)/HWResolution[600 300]>>setpagedevice"
+    Choice "Best/Best" "<</OutputType(1)/HWResolution[600 600]>>setpagedevice"
+    Choice "Photo/High-Resolution Photo" "<</OutputType(2)/HWResolution[1200 1200]>>setpagedevice"
+    Choice "FastDraft/Draft" "<</OutputType(-2)/HWResolution[300 300]>>setpagedevice"
+
+
+  // Duplexer is optional...
+  Installable "OptionDuplex/Duplexer Installed"
+
+
+  // Constraints
+  //UIConstraints "*Duplex *OptionDuplex False"
+  UIConstraints "*MediaType Glossy *OutputMode FastDraft"
+  UIConstraints "*MediaType TransparencyFilm *OutputMode FastDraft"
+  UIConstraints "*MediaType TransparencyFilm *OutputMode Best"
+
+  UIConstraints "*ColorModel KGray *OutputMode Photo"
+  UIConstraints "*ColorModel CMYGray *OutputMode Photo"
+  UIConstraints "*MediaType Glossy *OutputMode FastDraft"
+  UIConstraints "*MediaType TransparencyFilm *OutputMode FastDraft"
+  UIConstraints "*MediaType Plain *OutputMode Photo"
+  UIConstraints "*MediaType TransparencyFilm *OutputMode Photo"
+  UIConstraints "*MediaType TransparencyFilm *OutputMode Best"
+
+  UIConstraints "*PageSize PhotoL.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize Photo4x6.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize A6.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize Photo5x7.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize A5.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize 8x10.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize Letter.FB *OutputMode FastDraft"
+  UIConstraints "*PageSize A4.FB *OutputMode FastDraft"
+
+  //Black only grayscale against borderless
+  UIConstraints "*PageSize PhotoL.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo3.5x5.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo4x6.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo4x6tab.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo10x15.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo10x15tab.FB *ColorModel KGray"
+  UIConstraints "*PageSize A6.FB *ColorModel KGray"
+  UIConstraints "*PageSize Hagaki.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo5x7.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo2L.FB *ColorModel KGray"
+  UIConstraints "*PageSize Photo13x18.FB *ColorModel KGray"
+  UIConstraints "*PageSize A5.FB *ColorModel KGray"
+  UIConstraints "*PageSize 8x10.FB *ColorModel KGray"
+  UIConstraints "*PageSize Letter.FB *ColorModel KGray"
+  UIConstraints "*PageSize A4.FB *ColorModel KGray"
+
+  // Non duplex media against duplex
+  UIConstraints "*PageSize Card3x5 *Duplex"
+  UIConstraints "*PageSize PhotoL *Duplex"
+  UIConstraints "*PageSize PhotoL.FB *Duplex"
+  UIConstraints "*PageSize Hagaki.FB *Duplex"
+  UIConstraints "*PageSize Photo4x6 *Duplex"
+  UIConstraints "*PageSize Photo4x6.FB *Duplex"
+  UIConstraints "*PageSize A6.FB *Duplex"
+  UIConstraints "*PageSize Photo5x7 *Duplex"
+  UIConstraints "*PageSize Photo5x7.FB *Duplex"
+  UIConstraints "*PageSize Photo2L *Duplex"
+  UIConstraints "*PageSize Photo2L.FB *Duplex"
+  UIConstraints "*PageSize A5.FB *Duplex"
+  UIConstraints "*PageSize B5 *Duplex"
+  UIConstraints "*PageSize 8x10 *Duplex"
+  UIConstraints "*PageSize Letter.FB *Duplex"
+  UIConstraints "*PageSize A4.FB *Duplex"
+  UIConstraints "*PageSize Legal *Duplex"
+  UIConstraints "*PageSize EnvA2 *Duplex"
+  UIConstraints "*PageSize EnvC6 *Duplex"
+  UIConstraints "*PageSize EnvChou4 *Duplex"
+  UIConstraints "*PageSize Env6 *Duplex"
+  UIConstraints "*PageSize EnvCard *Duplex"
+  UIConstraints "*PageSize EnvMonarch *Duplex"
+  UIConstraints "*PageSize EnvDL *Duplex"
+  UIConstraints "*PageSize Env10 *Duplex"
+  UIConstraints "*PageSize EnvChou3 *Duplex"
+  UIConstraints "*PageSize EnvC5 *Duplex"
+
+// 4x6 or smaller
+  CustomMedia "Card3x5/Index Card 3x5in" 216 360 9 9 9 9 "<</cupsInteger0 78/PageSize [216 360]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 78/PageSize[216 360]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Card4x6/Index Card 4x6in" 288 432 9 9 9 9 "<</cupsInteger0 74/PageSize [288 432]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Card4x6.Duplex/Index Card AutoDuplex 4x6in" 288 423 9 27 9 36 "<</cupsInteger0 74/PageSize[288 423]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/PageSize[288 423]/ImagingBBox null>>setpagedevice"
+  CustomMedia "PhotoL/L 89x127mm" 252 360 9 9 9 9 "<</cupsInteger0 121/PageSize[252 360]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 121/PageSize[252 360]/ImagingBBox null>>setpagedevice"
+  CustomMedia "PhotoL.FB/L Borderless 89x127mm" 264.74 370.36 0 0 0 0 "<</cupsInteger0 121/PageSize[264.74 370.36]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 121/cupsReal0 .079/cupsReal1 .051/PageSize[264.74 370.36]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo3.5x5/Photo 3.5x5in" 252 360 9 9 9 9 "<</cupsInteger0 121/PageSize[252 360]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 121/PageSize[252 360]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo3.5x5.FB/Photo 3.5x5 Borderless 89x127mm" 264.74 370.36 0 0 0 0 "<</cupsInteger0 121/PageSize[264.74 370.36]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 121/cupsReal0 .079/cupsReal1 .051/PageSize[264.74 370.36]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo4x6/Photo 4x6in" 288 432 9 9 9 9 "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo4x6.FB/Photo Borderless 4x6in" 303.55 442.36 0 0 0 0 "<</cupsInteger0 74/PageSize[303.55 442.36]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/cupsReal0 .098/cupsReal1 .051/PageSize[303.55 442.36]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo4x6tab/Photo 4x6in (tab)" 288 432 9 9 9 9 "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo4x6tab.FB/Borderless Photo 4x6in (tab)" 303.55 442.36 0 0 0 0 "<</cupsInteger0 74/cupsReal0 .091/cupsReal1 .051/PageSize[303.55 442.36]/ImagingBBox null>>setpagedevice"
+         "<</cupsInteger0 74/cupsReal0 .091/cupsReal1 .051/PageSize[303.55 442.36]/ImagingBBox null>>setpagedevice"
+  CustomMedia "Photo10x15/Photo 10x15cm" 288 432 9 9 9 9 "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
+>>>>>>> 569cc2103 (Removed all page size choices named "Custom". they break with CUPS and are also identical with US Legal)
          "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
       CustomMedia "IndexCard4x6.FB/Borderless Index Card 4x6in" 288 432 0 0 0 0 "<</cupsInteger0 74/PageSize [288 432]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 74/PageSize[288 432]/ImagingBBox null>>setpagedevice"
@@ -12216,8 +12406,9 @@ Manufacturer "HP"
          "<</cupsInteger0 2/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
       CustomMedia "Statement/Statement " 396 612 8.4 8.4 8.4 8.4 "<</cupsInteger0 15/PageSize[396 612]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 15/PageSize[396 612]/ImagingBBox null>>setpagedevice"
-      CustomMedia "Custom1/Custom 1" 612 1008 8.4 8.4 8.4 8.4 "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
-         "<</cupsInteger0 101/PageSize[612 1008]/ImagingBBox null>>setpagedevice"
+<<<<<<< HEAD
+=======
+>>>>>>> 569cc2103 (Removed all page size choices named "Custom". they break with CUPS and are also identical with US Legal)
       CustomMedia "Tabloid/Tabloid " 792 1224 8.4 8.4 8.4 8.4 "<</cupsInteger0 6/PageSize[792 1224]/ImagingBBox null>>setpagedevice"
          "<</cupsInteger0 6/PageSize[792 1224]/ImagingBBox null>>setpagedevice"  
       CustomMedia "Tabloid.FB/Tabloid Borderless " 792 1224 0 0 0 0 "<</cupsInteger0 6/PageSize[792 1224]/ImagingBBox null>>setpagedevice"
